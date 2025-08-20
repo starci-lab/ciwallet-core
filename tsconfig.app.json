@@ -22,16 +22,19 @@
     "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Aliases */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/types": ["./packages/types"],
-      "@/components": ["./packages/components"],
-      "@/providers": ["./packages/providers"],
-      "@/utils": ["./packages/utils"],
-      "@/classes": ["./packages/classes"]
+      "@ciwallet-sdk/types": ["./packages/types"],
+      "@ciwallet-sdk/providers": ["./packages/providers"],
+      "@ciwallet-sdk/utils": ["./packages/utils"],
+      "@ciwallet-sdk/classes": ["./packages/classes"],
+      "@ciwallet-sdk/hooks": ["./packages/hooks"],
+      "@ciwallet-sdk/misc": ["./packages/misc"],
+      "@ciwallet-sdk/core": ["./packages/core"]
     },
     
   },

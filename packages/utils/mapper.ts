@@ -1,4 +1,4 @@
-import { ChainId, Network, Platform } from "@/types"
+import { ChainId, Network, Platform } from "@ciwallet-sdk/types"
 
 export const chainKeyToPlatform = (chainId: ChainId): Platform => {
     switch (chainId) {

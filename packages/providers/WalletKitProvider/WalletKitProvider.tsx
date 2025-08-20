@@ -1,11 +1,8 @@
 import React, { createContext, useContext, type FC, type PropsWithChildren } from "react"
 import type { IWalletAdapter } from "./IWalletAdapter"
-import type { ChainId } from "@/types"
 
 export interface WalletKitContextType {
     adapter: IWalletAdapter;
-    // suitable for who is using the wallet kit provider
-    uniqueChainId: ChainId;
 }
 
 export interface WalletKitProviderProps extends PropsWithChildren {

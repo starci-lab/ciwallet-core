@@ -1,1 +1,2 @@
-export * from "./EvmProvider"
+export * from "./providers"
+export * from "./aggregator"

@@ -1,7 +1,7 @@
-import { EvmProvider } from "@/classes"
-import { Platform, type BaseParams } from "@/types"
-import { chainKeyToPlatform } from "@/utils"
-import { useWalletKit } from "@/providers"
+import { EvmProvider } from "@ciwallet-sdk/classes"
+import { Platform, type BaseParams } from "@ciwallet-sdk/types"
+import { chainKeyToPlatform } from "@ciwallet-sdk/utils"
+import { useWalletKit } from "@ciwallet-sdk/providers"
 
 export interface UseTransferParams extends BaseParams {
     // to address in solana, we use ata
@@ -30,7 +30,6 @@ export const useTransfer = () => {
             throw new Error(`Chain ${chainId} is not supported`)
         }
     }
-    
     return {
         handle
     }

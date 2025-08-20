@@ -1,0 +1,44 @@
+# Source files
+src/
+packages/
+*.ts
+!dist/**/*.d.ts
+
+# Development files
+.env
+.env.*
+vite.config.ts
+tsconfig*.json
+eslint.config.js
+tailwind.config.js
+
+# Build tools
+node_modules/
+.vite/
+.tmp/
+
+# Git and CI
+.git/
+.github/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+*.test.*
+*.spec.*
+
+# Misc
+.DS_Store
+Thumbs.db

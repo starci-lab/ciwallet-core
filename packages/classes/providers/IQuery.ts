@@ -1,4 +1,4 @@
-import type { BaseParams } from "@/types"
+import type { BaseParams } from "@ciwallet-sdk/types"
 
 export interface IQuery {
     // fetch balance of an address

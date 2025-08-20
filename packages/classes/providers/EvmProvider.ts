@@ -1,5 +1,5 @@
-import type { Chain, IWalletAdapter } from "@/providers"
-import type { ChainId, Network } from "@/types"
+import type { Chain, IWalletAdapter } from "@ciwallet-sdk/providers"
+import type { ChainId, Network } from "@ciwallet-sdk/types"
 import type {
     ApproveParams,
     ApproveResponse,
@@ -14,7 +14,7 @@ import type {
     FetchTokenMetadataResponse,
     IQuery,
 } from "./IQuery"
-import erc20Abi from "erc-20-abi"
+import { erc20Abi } from "@ciwallet-sdk/misc"
 import { Contract, ethers } from "ethers"
 export class EvmProvider implements IAction, IQuery {
     private readonly chain: Chain
