@@ -2,7 +2,7 @@ import React from "react"
 import { NomasAvatar, NomasCard, NomasModal, NomasModalBody, TokenCard } from "@/nomas/components"
 import { NomasModalContent, NomasModalHeader } from "@/nomas/components"
 import { useSelectTokenDisclosure } from "@/nomas/hooks"
-import { setTokenInChainId, setTokenOutChainId, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { setTokenIn, setTokenInChainId, setTokenOut, setTokenOutChainId, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { ChainId } from "@ciwallet-sdk/types"
 
 export const SelectTokenModal = () => {
@@ -62,7 +62,13 @@ export const SelectTokenModal = () => {
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             {tokens.map((token) => (
-                                <TokenCard key={token.tokenId} token={token} chainId={tokenInChainId ?? ChainId.Monad} />
+                                <TokenCard onPress={() => {
+                                    if (isInput) {
+                                        dispatch(setTokenIn(token))
+                                    } else {
+                                        dispatch(setTokenOut(token))
+                                    }
+                                }} key={token.tokenId} token={token} chainId={tokenInChainId ?? ChainId.Monad} />
                             ))}
                         </div>
                     </div>

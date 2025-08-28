@@ -8,9 +8,10 @@ import { useAppSelector } from "@/nomas/redux"
 export interface TokenCardProps {   
     token: Token
     chainId: ChainId
+    onPress?: () => void
 }
 
-export const TokenCard = ({ token, chainId }: TokenCardProps) => {
+export const TokenCard = ({ token, chainId, onPress }: TokenCardProps) => {
     const { handle } = useBalance()
     const network = useAppSelector(state => state.base.network)
     const { data } = useSWR(
@@ -25,7 +26,7 @@ export const TokenCard = ({ token, chainId }: TokenCardProps) => {
         }
     )
     return (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center" onClick={onPress}>
             <div className="flex gap-2 items-center">
                 <div className="relative">
                     <NomasAvatar src={token.iconUrl} />
