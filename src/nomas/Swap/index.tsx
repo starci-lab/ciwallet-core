@@ -1,26 +1,21 @@
-import React, { useEffect, useState } from "react"
-import { useAggregators } from "@ciwallet-sdk/hooks"
-import { Button } from "@heroui/react"
+import React from "react"
+import { NomasCard, NomasCardBody, NomasCardHeader } from "../components"
+import { useAppSelector } from "../redux"
+import { SelectToken } from "./SelectToken"
+import { useSelectTokenDisclosure } from "../hooks"
 export const Swap = () => {
-    const { ciAggregator } = useAggregators()
-    const [data, setData] = useState<any>(null)
-    useEffect(() => {
-        ciAggregator.quote({
-            fromToken: "USDC",
-            toToken: "USDT",
-            amount: 100,
-            exactIn: true,
-        }).then((res) => {
-            setData(res)
-        })
-    }, [])
+    const tokenManager = useAppSelector(state => state.token.manager)
+    const { onOpen} = useSelectTokenDisclosure()
     return (
-        <div>
-            <h1>Swap</h1>
-            <Button>
-              123
-            </Button>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-        </div>
+        <NomasCard>
+            <NomasCardHeader>
+                Swap
+            </NomasCardHeader>
+            <NomasCardBody>  
+                <SelectToken token={tokenManager.toObject().monad?.mainnet?.at(0)} onSelect={() => {
+                    onOpen()
+                }} />
+            </NomasCardBody>
+        </NomasCard>
     )
 }

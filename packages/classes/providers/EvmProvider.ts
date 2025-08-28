@@ -39,9 +39,10 @@ export class EvmProvider implements IAction, IQuery {
     async transfer({
         amount,
         toAddress,
+        tokenAddress,
         decimals = 18
     }: TransferParams): Promise<TransferResponse> {
-        const contract = new Contract(toAddress, erc20Abi, this.provider)
+        const contract = new Contract(tokenAddress, erc20Abi, this.provider)
         const tx = await contract.getFunction("transfer").send(
             toAddress,
             ethers.parseUnits(amount.toString(), decimals)
@@ -53,8 +54,15 @@ export class EvmProvider implements IAction, IQuery {
 
     async fetchBalance({
         accountAddress,
-        tokenAddress
+        tokenAddress,
+        decimals
     }: FetchBalanceParams): Promise<FetchBalanceResponse> {
+        if (!tokenAddress) {
+            const balance = await this.provider.getBalance(accountAddress)
+            return {
+                amount: Number(ethers.formatUnits(balance, decimals))
+            }
+        }
         const contract = new Contract(tokenAddress, erc20Abi, this.provider)
         const amount = await contract.getFunction("balanceOf").call(accountAddress)
         return {

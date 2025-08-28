@@ -11,7 +11,9 @@ export interface FetchBalanceParams {
     // account address
     accountAddress: string
     // token address, in Solana we use mint address instead
-    tokenAddress: string
+    tokenAddress?: string
+    // decimals of the token
+    decimals?: number
 }
 
 export interface FetchBalanceResponse {

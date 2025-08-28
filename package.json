@@ -11,7 +11,7 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./types": {  
+    "./types": {
       "import": "./dist/types/index.js",
       "types": "./dist/types/index.d.ts"
     },
@@ -77,10 +77,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/styled": "^11.14.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.11.0",
+    "class-variance-authority": "^0.7.1",
     "erc-20-abi": "^1.0.1",
     "ethers": "^6.15.0",
-    "superjson": "^2.2.2"
+    "phosphor-react": "^1.4.1",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1",
+    "styled-components": "^6.1.19",
+    "superjson": "^2.2.2",
+    "swr": "^2.3.6"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

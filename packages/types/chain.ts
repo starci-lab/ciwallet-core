@@ -23,3 +23,14 @@ export enum Platform {
     Sui = "sui",
     Aptos = "aptos",
 }
+
+export interface ChainMetadata {
+    id: ChainId;
+    name: string;
+    iconUrl: string;
+    iconInvertedUrl?: string;
+    explorerUrl: {
+        [Network.Mainnet]: string;
+        [Network.Testnet]: string;
+    }
+}

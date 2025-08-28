@@ -10,6 +10,7 @@ export interface TransferParams {
     toAddress: string
     amount: number
     decimals?: number
+    tokenAddress: string
 }
 
 export interface TransferResponse {
