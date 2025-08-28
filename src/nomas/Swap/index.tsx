@@ -1,21 +1,21 @@
 import React from "react"
-import { NomasCard, NomasCardBody, NomasCardHeader } from "../components"
-import { useAppSelector } from "../redux"
-import { SelectToken } from "./SelectToken"
-import { useSelectTokenDisclosure } from "../hooks"
+import { NomasCard } from "../components"
+import { SwapPageState, useAppSelector } from "../redux"
+import { SelectTokenPage } from "./SelectTokenPage"
+import { SwapPage } from "./SwapPage"
 export const Swap = () => {
-    const tokenManager = useAppSelector(state => state.token.manager)
-    const { onOpen} = useSelectTokenDisclosure()
+    const swapPage = useAppSelector(state => state.pages.swapPage)
+    const renderPage = () => {
+        switch (swapPage) {
+        case SwapPageState.SelectToken:
+            return <SelectTokenPage />
+        case SwapPageState.Swap:
+            return <SwapPage />
+        }
+    }
     return (
-        <NomasCard>
-            <NomasCardHeader>
-                Swap
-            </NomasCardHeader>
-            <NomasCardBody>  
-                <SelectToken token={tokenManager.toObject().monad?.mainnet?.at(0)} onSelect={() => {
-                    onOpen()
-                }} />
-            </NomasCardBody>
+        <NomasCard asCore>
+            {renderPage()}
         </NomasCard>
     )
 }

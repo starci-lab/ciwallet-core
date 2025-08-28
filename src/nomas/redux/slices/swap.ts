@@ -6,11 +6,13 @@ export interface SwapSlice {
     tokenOut?: Token
     tokenInChainId?: ChainId
     tokenOutChainId?: ChainId
+    isInput: boolean
 }
 
 const initialState: SwapSlice = {
     tokenInChainId: ChainId.Monad,
     tokenOutChainId: ChainId.Monad,
+    isInput: true,
 }
 
 export const swapSlice = createSlice({
@@ -41,6 +43,12 @@ export const swapSlice = createSlice({
         ) => {
             state.tokenOutChainId = action.payload
         },
+        setIsInput: (
+            state, 
+            action: PayloadAction<boolean>
+        ) => {
+            state.isInput = action.payload
+        },
     },
 })
 
@@ -50,4 +58,5 @@ export const {
     setTokenOut,
     setTokenInChainId,
     setTokenOutChainId,
+    setIsInput,
 } = swapSlice.actions

@@ -2,7 +2,7 @@ import React from "react"
 import { Avatar, type AvatarProps } from "@heroui/react"
 import { cva, type VariantProps } from "class-variance-authority"
 
-const avatarContainerCva = cva("ring-[0.5px]", {
+const avatarContainerCva = cva("ring-[0.5px] ring-foreground-600", {
     variants: {
         dimension: {
             origin: "w-8 h-8",

@@ -5,6 +5,7 @@ import {
     swapReducer,
     modalsReducer,
     baseReducer,
+    pagesReducer,
 } from "./slices"
 
 export const store = configureStore({
@@ -14,6 +15,7 @@ export const store = configureStore({
         chain: chainReducer,
         modals: modalsReducer,
         base: baseReducer,
+        pages: pagesReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

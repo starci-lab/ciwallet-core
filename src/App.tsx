@@ -7,6 +7,8 @@ import { HookProvider } from "@/nomas/hooks"
 import { UI } from "@/nomas/ui"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
 import { ChainId } from "@ciwallet-sdk/types"
+import { IconContext } from "@phosphor-icons/react"
+
 
 function App() {
     return (
@@ -30,12 +32,16 @@ function App() {
         }}>
             <Provider store={store}>
                 <HookProvider>  
-                    <HeroUIProvider>
-                        <div className="max-w-[500px] my-6 mx-auto">
-                            <Nomas />
-                            <UI />
-                        </div>
-                    </HeroUIProvider>
+                    <IconContext.Provider value={{
+                        className: "h-5 w-5"
+                    }}> 
+                        <HeroUIProvider>
+                            <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
+                                <Nomas />
+                                <UI />
+                            </div>
+                        </HeroUIProvider>
+                    </IconContext.Provider>
                 </HookProvider>
             </Provider>
         </WalletKitProvider>
