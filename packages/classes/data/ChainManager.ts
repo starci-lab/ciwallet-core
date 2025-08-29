@@ -25,7 +25,7 @@ export class ChainManager {
         {
             id: ChainId.Sui,
             name: "Sui",
-            iconUrl: "/icons/chains/sui.svg",
+            iconUrl: "/icons/chains/sui.jpeg",
             iconInvertedUrl: "/icons/chains/sui-inverted.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://sui.network",
@@ -35,7 +35,7 @@ export class ChainManager {
         {
             id: ChainId.Solana,
             name: "Solana",
-            iconUrl: "/icons/chains/solana.svg",
+            iconUrl: "/icons/chains/solana.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://solana.network",
                 [Network.Testnet]: "https://solana.network",
@@ -50,5 +50,9 @@ export class ChainManager {
 
     public toObject(): Array<ChainMetadata> {
         return this.chains
+    }
+
+    public getChainById(id: ChainId): ChainMetadata | undefined {
+        return this.chains.find(chain => chain.id === id)
     }
 }

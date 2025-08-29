@@ -1,5 +1,6 @@
 import React from "react"
-import { Button, cn, type ButtonProps } from "@heroui/react"
+import { cn, type ButtonProps } from "@heroui/react"
+import { NomasButton } from "../../extends"
 
 export interface IconButtonProps extends ButtonProps {
     icon: React.ReactNode
@@ -7,10 +8,9 @@ export interface IconButtonProps extends ButtonProps {
 
 export const IconButton = ({ icon, ...props }: IconButtonProps) => {
     return (
-        <Button {...props} size="sm" isIconOnly radius="full" className={
-            cn(props.className, 
-                "shadow-md border-t border-foreground-600 bg-[#323232]")}>
+        <NomasButton {...props} size="sm" asBase isIconOnly radius="full" className={
+            cn(props.className)}>
             {icon}
-        </Button>
+        </NomasButton>
     )
 }

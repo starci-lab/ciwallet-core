@@ -14,6 +14,7 @@ export interface TokenCardProps {
 
 export const TokenCard = ({ token, chainId, onPress, isPressable = true }: TokenCardProps) => {
     const { handle } = useBalance()
+    const chainManager = useAppSelector(state => state.chain.manager)
     const network = useAppSelector(state => state.base.network)
     const { data } = useSWR(
         ["balance", token.address, network, token.address],
@@ -26,6 +27,7 @@ export const TokenCard = ({ token, chainId, onPress, isPressable = true }: Token
             }).then(res => res.amount)
         }
     )
+    const chain = chainManager.getChainById(chainId)
     return (
         <NomasCard
             isPressable={isPressable}
@@ -38,7 +40,7 @@ export const TokenCard = ({ token, chainId, onPress, isPressable = true }: Token
                     <div className="relative">
                         <NomasAvatar src={token.iconUrl} />
                         <NomasAvatar
-                            src={token.iconUrl}
+                            src={chain?.iconUrl}
                             className="absolute bottom-0 right-0 z-50"
                             dimension="shrink"
                         />

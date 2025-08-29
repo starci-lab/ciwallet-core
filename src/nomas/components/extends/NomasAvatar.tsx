@@ -17,8 +17,8 @@ const avatarContainerCva = cva("ring-[0.5px] ring-foreground-600", {
 const avatarImageCva = cva("", {
     variants: {
         dimension: {
-            origin: "w-5 h-5",
-            shrink: "w-[10px] h-[10px]",
+            origin: "w-full h-full",
+            shrink: "w-full h-full",
         },
     },
     defaultVariants: {

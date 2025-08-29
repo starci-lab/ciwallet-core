@@ -105,7 +105,7 @@ export const SelectTokenPage = () => {
                                         }
                                         key={token.tokenId}
                                         token={token}
-                                        chainId={tokenInChainId}
+                                        chainId={tokenManager.getChainIdByTokenId(token.tokenId) ?? ChainId.Monad}
                                     />
                                 )
                             })}

@@ -28,8 +28,7 @@ export class TokenManager {
                     decimals: 18,
                     symbol: "WMON",
                     name: "Wrapped MON",
-                    iconUrl:
-            "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/MON.png/public",
+                    iconUrl: "/icons/tokens/mon.png",
                     type: TokenType.Wrapped,
                     verified: true,
                 },
@@ -38,8 +37,7 @@ export class TokenManager {
                     decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
-                    iconUrl:
-            "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/usdc.png/public",
+                    iconUrl: "/icons/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
                 },
@@ -54,7 +52,26 @@ export class TokenManager {
         return this.tokens
     }
 
-    public getTokensByChainIdAndNetwork(chainId: ChainId, network: Network): Array<Token> {
+    public getTokensByChainIdAndNetwork(
+        chainId: ChainId,
+        network: Network
+    ): Array<Token> {
         return this.tokens[chainId]?.[network] || []
+    }
+
+    public getChainIdByTokenId(tokenId: TokenId): ChainId | undefined {
+        for (const chainId of Object.keys(this.tokens) as Array<ChainId>) {
+            for (const network of Object.keys(
+                this.tokens[chainId] ?? {}
+            ) as Array<Network>) {
+                const token = this.tokens[chainId]?.[network]?.find(
+                    (token) => token.tokenId === tokenId
+                )
+                if (token) {
+                    return chainId
+                }
+            }
+        }
+        return undefined
     }
 }

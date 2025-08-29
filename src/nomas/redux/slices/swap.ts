@@ -7,12 +7,16 @@ export interface SwapSlice {
     tokenInChainId?: ChainId
     tokenOutChainId?: ChainId
     isInput: boolean
+    progress: number
+    expandDetails: boolean
 }
 
 const initialState: SwapSlice = {
     tokenInChainId: ChainId.Monad,
     tokenOutChainId: ChainId.Monad,
     isInput: true,
+    progress: 0,
+    expandDetails: false,
 }
 
 export const swapSlice = createSlice({
@@ -49,6 +53,18 @@ export const swapSlice = createSlice({
         ) => {
             state.isInput = action.payload
         },
+        setProgress: (
+            state, 
+            action: PayloadAction<number>
+        ) => {
+            state.progress = action.payload
+        },
+        setExpandDetails: (
+            state, 
+            action: PayloadAction<boolean>
+        ) => {
+            state.expandDetails = action.payload
+        },
     },
 })
 
@@ -59,4 +75,6 @@ export const {
     setTokenInChainId,
     setTokenOutChainId,
     setIsInput,
+    setProgress,
+    setExpandDetails
 } = swapSlice.actions
