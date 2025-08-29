@@ -16,23 +16,22 @@ import type {
 } from "./IQuery"
 import { erc20Abi } from "@ciwallet-sdk/misc"
 import { Contract, ethers } from "ethers"
+import { toDenomination } from "@ciwallet-sdk/utils"
+import BN from "bn.js"
+
 export class EvmProvider implements IAction, IQuery {
     private readonly chain: Chain
     private readonly provider: ethers.JsonRpcProvider
     constructor(
     public readonly chainId: ChainId,
     public readonly network: Network,
-    public readonly walletAdapter: IWalletAdapter,
+    public readonly walletAdapter: IWalletAdapter
     ) {
         const { chains } = this.walletAdapter
-        if (!chains.some(
-            chain => chain.chainId === chainId
-        )) {
+        if (!chains.some((chain) => chain.chainId === chainId)) {
             throw new Error(`Chain ${chainId} is not supported`)
         }
-        this.chain = chains.find(
-            chain => chain.chainId === chainId
-        )!
+        this.chain = chains.find((chain) => chain.chainId === chainId)!
         this.provider = new ethers.JsonRpcProvider(this.chain.rpcs.at(0)!)
     }
 
@@ -40,13 +39,12 @@ export class EvmProvider implements IAction, IQuery {
         amount,
         toAddress,
         tokenAddress,
-        decimals = 18
+        decimals = 18,
     }: TransferParams): Promise<TransferResponse> {
         const contract = new Contract(tokenAddress, erc20Abi, this.provider)
-        const tx = await contract.getFunction("transfer").send(
-            toAddress,
-            ethers.parseUnits(amount.toString(), decimals)
-        )
+        const tx = await contract
+            .getFunction("transfer")
+            .send(toAddress, ethers.parseUnits(amount.toString(), decimals))
         return {
             txHash: tx.hash,
         }
@@ -55,23 +53,31 @@ export class EvmProvider implements IAction, IQuery {
     async fetchBalance({
         accountAddress,
         tokenAddress,
-        decimals
+        decimals,
     }: FetchBalanceParams): Promise<FetchBalanceResponse> {
         if (!tokenAddress) {
             const balance = await this.provider.getBalance(accountAddress)
             return {
-                amount: Number(ethers.formatUnits(balance, decimals))
+                amount: toDenomination(new BN(balance), decimals),
             }
         }
         const contract = new Contract(tokenAddress, erc20Abi, this.provider)
-        const amount = await contract.getFunction("balanceOf").call(accountAddress)
-        return {
-            amount
+        try {
+            const rawAmount = await contract.getFunction("balanceOf").staticCall(accountAddress)
+            const amount = toDenomination(new BN(rawAmount), decimals)
+            return {
+                amount,
+            }
+        } catch (error) {
+            console.log(error)
+            return {
+                amount: 0,
+            }
         }
     }
 
     async fetchTokenMetadata(
-        params: FetchTokenMetadataParams,
+        params: FetchTokenMetadataParams
     ): Promise<FetchTokenMetadataResponse> {
         console.log(params)
         throw new Error("Not implemented")
@@ -80,13 +86,10 @@ export class EvmProvider implements IAction, IQuery {
     async approve({
         spender,
         amount,
-        tokenAddress
+        tokenAddress,
     }: ApproveParams): Promise<ApproveResponse> {
         const contract = new Contract(tokenAddress, erc20Abi, this.provider)
-        const tx = await contract.getFunction("approve").send(
-            spender,
-            amount
-        )
+        const tx = await contract.getFunction("approve").send(spender, amount)
         return {
             txHash: tx.hash,
         }

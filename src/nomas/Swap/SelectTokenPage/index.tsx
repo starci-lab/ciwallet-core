@@ -10,24 +10,17 @@ import {
     setSwapPage,
     SwapPageState,
     useAppDispatch,
-    useAppSelector,
-    setTokenIn,
-    setTokenOut,
-    setTokenOutChainId,
-    setTokenInChainId,
+    useAppSelector
 } from "../../redux"
 import { ChainId } from "@ciwallet-sdk/types"
 import { Spacer } from "@heroui/react"
+import { useSwapFormik } from "@/nomas/hooks"
 
 export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()
     const chainManager = useAppSelector((state) => state.chain.manager)
-    const tokenInChainId =
-    useAppSelector((state) => state.swap.tokenInChainId) ?? ChainId.Monad
-    const tokenOutChainId =
-    useAppSelector((state) => state.swap.tokenOutChainId) ?? ChainId.Monad
+    const swapFormik = useSwapFormik()
     const tokenManager = useAppSelector((state) => state.token.manager)
-    const isInput = useAppSelector((state) => state.swap.isInput)
     const network = useAppSelector((state) => state.base.network)
     return (
         <>
@@ -44,9 +37,9 @@ export const SelectTokenPage = () => {
                         <div className="flex gap-4 items-center">
                             {chainManager.toObject().map((chain) =>
                                 (() => {
-                                    const isSelected = isInput
-                                        ? tokenInChainId === chain.id
-                                        : tokenOutChainId === chain.id
+                                    const isSelected = swapFormik.values.isInput 
+                                        ? swapFormik.values.tokenInChainId === chain.id
+                                        : swapFormik.values.tokenOutChainId === chain.id
                                     if (isSelected) {
                                         return (
                                             <NomasCard
@@ -66,10 +59,10 @@ export const SelectTokenPage = () => {
                                         <NomasAvatar
                                             onClick={
                                                 () => {
-                                                    if (isInput) {
-                                                        dispatch(setTokenInChainId(chain.id))
+                                                    if (swapFormik.values.isInput) {
+                                                        swapFormik.setFieldValue("tokenInChainId", chain.id)
                                                     } else {
-                                                        dispatch(setTokenOutChainId(chain.id))
+                                                        swapFormik.setFieldValue("tokenOutChainId", chain.id)
                                                     }
                                                 }
                                             }   
@@ -88,17 +81,17 @@ export const SelectTokenPage = () => {
                 <NomasCard className="bg-content3">
                     <NomasCardBody className="gap-2">
                         {tokenManager
-                            .getTokensByChainIdAndNetwork(tokenInChainId, network)
+                            .getTokensByChainIdAndNetwork(swapFormik.values.tokenInChainId ?? ChainId.Monad, network)
                             .map((token) => {
                                 return (
                                     <TokenCard
                                         isPressable={true}
                                         onPress={
                                             () => {
-                                                if (isInput) {
-                                                    dispatch(setTokenIn(token))
+                                                if (swapFormik.values.isInput) {
+                                                    swapFormik.setFieldValue("tokenIn", token.tokenId)
                                                 } else {
-                                                    dispatch(setTokenOut(token))
+                                                    swapFormik.setFieldValue("tokenOut", token.tokenId)
                                                 }
                                                 dispatch(setSwapPage(SwapPageState.Swap))
                                             }

@@ -1,13 +1,22 @@
 import React from "react"
-import { type Token } from "@ciwallet-sdk/types"
+import { type ChainMetadata, type Token } from "@ciwallet-sdk/types"
 import { NomasAvatar, NomasButton } from "@/nomas/components"
 import { CaretDownIcon } from "@phosphor-icons/react"
 export interface SelectTokenProps {
-  token: Token;
+  token?: Token;
+  chainMetadata?: ChainMetadata
   onSelect: (token: Token) => void;
 }
 
-export const SelectToken = ({ token, onSelect }: SelectTokenProps) => {
+export const SelectToken = ({ token, chainMetadata, onSelect }: SelectTokenProps) => {
+    if (!token) {
+        return (
+            <NomasButton>
+                <NomasAvatar src={chainMetadata?.iconUrl} />
+                <div>{chainMetadata?.name}</div>
+            </NomasButton>
+        )
+    }
     return (
         <NomasButton
             onPress={() => onSelect(token)}
@@ -15,7 +24,7 @@ export const SelectToken = ({ token, onSelect }: SelectTokenProps) => {
                 <div className="relative">
                     <NomasAvatar src={token.iconUrl} />
                     <NomasAvatar
-                        src={token.iconUrl}
+                        src={chainMetadata?.iconUrl}
                         className="absolute bottom-0 right-0 z-50"
                         dimension="shrink"
                     />
