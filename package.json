@@ -38,6 +38,10 @@
     "./components": {
       "import": "./dist/components/index.js",
       "types": "./dist/components/index.d.ts"
+    },
+    "./constants": {
+      "import": "./dist/constants/index.js",
+      "types": "./dist/constants/index.d.ts"
     }
   },
   "files": [

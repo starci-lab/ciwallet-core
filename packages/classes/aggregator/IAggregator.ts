@@ -7,6 +7,7 @@ export interface QuoteParams {
     toToken: string
     amount: number
     exactIn: boolean
+    signal?: AbortSignal
 }
 
 export interface QuoteResponse {

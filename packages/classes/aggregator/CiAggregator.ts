@@ -15,9 +15,18 @@ export class CiAggregator implements IAggregator {
         })
     }
 
-    async quote(params: QuoteParams): Promise<QuoteResponse> {
-        console.log(params)
-        const response = await this.axiosInstance.get("/quote")
-        return response.data
+    async quote(
+        params: QuoteParams
+    ): Promise<QuoteResponse> {
+        const response = await this.axiosInstance.get("/quote", {
+            params: {
+                tokenIn: params.fromToken,
+                tokenOut: params.toToken,
+                amount: params.amount,
+                exactIn: params.exactIn,
+            },
+            signal: params.signal
+        })
+        return response.data.data.data
     }
 }

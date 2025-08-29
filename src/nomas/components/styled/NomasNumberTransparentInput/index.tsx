@@ -18,6 +18,7 @@ export const NomasNumberTransparentInput = (props: InputProps) => {
                     "!bg-transparent px-0", 
                     "data-[hover=true]:!bg-transparent",
                     "group-data-[focus=true]:!bg-transparent",
+                    "group-data-[focus-visible=true]:!outline-none",
                     props.classNames?.inputWrapper
                 ),
                 innerWrapper: cn(

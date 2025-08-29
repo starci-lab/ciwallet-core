@@ -1,0 +1,1 @@
+export const TIMEOUT_QUOTE = 1000

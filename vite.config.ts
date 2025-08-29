@@ -18,6 +18,7 @@ export default defineConfig({
             "@ciwallet-sdk/classes": path.resolve(__dirname, "./packages/classes"),
             "@ciwallet-sdk/hooks": path.resolve(__dirname, "./packages/hooks"),
             "@ciwallet-sdk/misc": path.resolve(__dirname, "./packages/misc"),
+            "@ciwallet-sdk/constants": path.resolve(__dirname, "./packages/constants"),
             "@": path.resolve(__dirname, "./src"),
         },
     },

@@ -34,7 +34,8 @@
       "@ciwallet-sdk/classes": ["./packages/classes"],
       "@ciwallet-sdk/hooks": ["./packages/hooks"],
       "@ciwallet-sdk/misc": ["./packages/misc"],
-      "@ciwallet-sdk/core": ["./packages/core"]
+      "@ciwallet-sdk/core": ["./packages/core"],
+      "@ciwallet-sdk/constants": ["./packages/constants"]
     },
     
   },

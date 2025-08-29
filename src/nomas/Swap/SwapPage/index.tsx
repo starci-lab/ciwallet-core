@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import {
     CaretUpDown,
     IconButton,
@@ -26,13 +26,15 @@ import { SlippageConfig } from "./SlippageConfig"
 import { RefreshIcon } from "./RefreshIcon"
 import { NomasAggregation } from "./NomasAggregation"
 import { useSwapFormik } from "@/nomas/hooks"
-import { useBalance } from "@ciwallet-sdk/hooks"
+import { useAggregators, useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
 import { roundNumber } from "@ciwallet-sdk/utils"
+import { TIMEOUT_QUOTE } from "@ciwallet-sdk/constants"
 
 export const SwapPage = () => {
     const tokenManager = useAppSelector((state) => state.token.manager)
     const chainManager = useAppSelector((state) => state.chain.manager)
+    const { ciAggregator } = useAggregators()
     const expandDetails = useAppSelector((state) => state.swap.expandDetails)
     const dispatch = useAppDispatch()
     const swapFormik = useSwapFormik()
@@ -40,7 +42,9 @@ export const SwapPage = () => {
     const network = useAppSelector((state) => state.base.network)
     const tokenInEntity = tokenManager.getTokenById(swapFormik.values.tokenIn)
     const tokenOutEntity = tokenManager.getTokenById(swapFormik.values.tokenOut)
-    const tokenOutChainMetadata = chainManager.getChainById(swapFormik.values.tokenInChainId)
+    const tokenOutChainMetadata = chainManager.getChainById(
+        swapFormik.values.tokenOutChainId
+    )
 
     useSWR(
         [
@@ -80,6 +84,22 @@ export const SwapPage = () => {
         }
     )
 
+    useEffect(() => {
+        const abortController = new AbortController()
+        const debounceFn = setTimeout(async () => {
+            const quote = await ciAggregator.quote({
+                fromToken: tokenInEntity?.address || "",
+                toToken: tokenOutEntity?.address || "",
+                amount: Number(swapFormik.values.amountIn),
+                exactIn: true,
+                signal: abortController.signal
+            })
+            console.log(quote)
+            swapFormik.setFieldValue("amountOut", quote.amount)
+        }, TIMEOUT_QUOTE)
+        return () => clearTimeout(debounceFn)
+    }, [swapFormik.values.amountIn, swapFormik.values.tokenIn, network])
+
     const maxBalanceIn = swapFormik.values.balanceIn - 0.01
 
     return (
@@ -110,13 +130,34 @@ export const SwapPage = () => {
                                     balance={swapFormik.values.balanceIn}
                                     onAction={(action: Action) => {
                                         if (action === Action.Max) {
-                                            swapFormik.setFieldValue("amountIn", roundNumber(maxBalanceIn).toString())
+                                            swapFormik.setFieldValue(
+                                                "amountIn",
+                                                roundNumber(maxBalanceIn).toString()
+                                            )
                                         }
                                         if (action === Action.TwentyFivePercent) {
-                                            swapFormik.setFieldValue("amountIn", roundNumber(Math.min(swapFormik.values.balanceIn * 0.25, maxBalanceIn), 5).toString())
+                                            swapFormik.setFieldValue(
+                                                "amountIn",
+                                                roundNumber(
+                                                    Math.min(
+                                                        swapFormik.values.balanceIn * 0.25,
+                                                        maxBalanceIn
+                                                    ),
+                                                    5
+                                                ).toString()
+                                            )
                                         }
                                         if (action === Action.FiftyPercent) {
-                                            swapFormik.setFieldValue("amountIn", roundNumber(Math.min(swapFormik.values.balanceIn * 0.5, maxBalanceIn), 5).toString())
+                                            swapFormik.setFieldValue(
+                                                "amountIn",
+                                                roundNumber(
+                                                    Math.min(
+                                                        swapFormik.values.balanceIn * 0.5,
+                                                        maxBalanceIn
+                                                    ),
+                                                    5
+                                                ).toString()
+                                            )
                                         }
                                     }}
                                 />
@@ -169,23 +210,22 @@ export const SwapPage = () => {
                         <NomasCardBody>
                             <div className="flex items-center gap-2 justify-between">
                                 <div className="text-xs">You Receive</div>
-                                <Wallet
-                                    disableFocus
-                                    balance={swapFormik.values.balanceOut}
-                                />
+                                <Wallet disableFocus balance={swapFormik.values.balanceOut} />
                             </div>
                             <Spacer y={1.5} />
                             <NomasCard className="bg-content2">
                                 <NomasCardBody className="flex-row flex justify-between items-center gap-">
                                     <SelectToken
-                                        token={tokenManager.getTokenById(swapFormik.values.tokenOut)}
+                                        token={tokenManager.getTokenById(
+                                            swapFormik.values.tokenOut
+                                        )}
                                         chainMetadata={tokenOutChainMetadata}
                                         onSelect={() => {
                                             dispatch(setSwapPage(SwapPageState.SelectToken))
                                         }}
                                     />
                                     <div>
-                                        <div className="text-xl">555</div>
+                                        <div className="text-xl">{swapFormik.values.amountOut}</div>
                                         <div className="text-xs text-right text-foreground-500">
                       $1500
                                         </div>
