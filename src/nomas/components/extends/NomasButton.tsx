@@ -55,6 +55,7 @@ const NomasButtonTextWithIconCore = (
                     {props.icon}
                 </div>
             }
+            {...props}
         >
             {
                 props.useGradient ? (

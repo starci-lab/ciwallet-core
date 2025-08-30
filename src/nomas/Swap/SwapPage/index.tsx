@@ -8,6 +8,7 @@ import {
     NomasCardHeader,
     NomasLink,
     NomasNumberTransparentInput,
+    NomasSpinner,
     PythIcon,
     TooltipTitle,
 } from "../../components"
@@ -26,15 +27,18 @@ import { SlippageConfig } from "./SlippageConfig"
 import { RefreshIcon } from "./RefreshIcon"
 import { NomasAggregation } from "./NomasAggregation"
 import { useSwapFormik } from "@/nomas/hooks"
-import { useAggregators, useBalance } from "@ciwallet-sdk/hooks"
+import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
 import { roundNumber } from "@ciwallet-sdk/utils"
 import { TIMEOUT_QUOTE } from "@ciwallet-sdk/constants"
+import { useBatchAggregatorSwrMutations } from "@/nomas/hooks"
+import { AutoRouter } from "./AutoRouter"
+import type { AggregatorId } from "@ciwallet-sdk/classes"
 
 export const SwapPage = () => {
+    const protocolManager = useAppSelector((state) => state.protocol.manager)
     const tokenManager = useAppSelector((state) => state.token.manager)
     const chainManager = useAppSelector((state) => state.chain.manager)
-    const { ciAggregator } = useAggregators()
     const expandDetails = useAppSelector((state) => state.swap.expandDetails)
     const dispatch = useAppDispatch()
     const swapFormik = useSwapFormik()
@@ -45,6 +49,7 @@ export const SwapPage = () => {
     const tokenOutChainMetadata = chainManager.getChainById(
         swapFormik.values.tokenOutChainId
     )
+    const { swrMutation } = useBatchAggregatorSwrMutations()
 
     useSWR(
         [
@@ -87,21 +92,49 @@ export const SwapPage = () => {
     useEffect(() => {
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {
-            const quote = await ciAggregator.quote({
-                fromToken: tokenInEntity?.address || "",
-                toToken: tokenOutEntity?.address || "",
-                amount: Number(swapFormik.values.amountIn),
-                exactIn: true,
-                signal: abortController.signal
+            swapFormik.setFieldValue("quoting", true)
+            const batchQuote = await swrMutation.trigger({
+                chainId: swapFormik.values.tokenInChainId,
+                network,
+                query: {
+                    fromToken: tokenInEntity?.address || "",
+                    toToken: tokenOutEntity?.address || "",
+                    amount: Number(swapFormik.values.amountIn),
+                    exactIn: true,
+                    slippage: swapFormik.values.slippage,
+                },
+                signal: abortController.signal,
             })
-            console.log(quote)
-            swapFormik.setFieldValue("amountOut", quote.amount)
+            swapFormik.setFieldValue(
+                "aggregations",
+                Object.entries(batchQuote).map(([aggregator, quote]) => ({
+                    aggregator: aggregator as AggregatorId,
+                    amountOut: quote.amountOut,
+                }))
+            )
+            const result = protocolManager.getBestQuote(batchQuote)
+            if (!result) {
+                console.error("No quote found")
+                return
+            }
+            swapFormik.setFieldValue("amountOut", result.quote.amountOut)
+            swapFormik.setFieldValue("bestAggregationId", result.aggregator)
+            swapFormik.setFieldValue(
+                "protocols",
+                protocolManager.getProtocols(result.quote)
+            )
+            swapFormik.setFieldValue("quoting", false)
         }, TIMEOUT_QUOTE)
         return () => clearTimeout(debounceFn)
-    }, [swapFormik.values.amountIn, swapFormik.values.tokenIn, network])
+    }, [
+        swapFormik.values.amountIn,
+        swapFormik.values.tokenIn,
+        network,
+        swapFormik.values.tokenInChainId,
+        swapFormik.values.refreshKey,
+    ])
 
     const maxBalanceIn = swapFormik.values.balanceIn - 0.01
-
     return (
         <>
             <NomasCardHeader
@@ -203,7 +236,19 @@ export const SwapPage = () => {
                     </NomasCard>
                     <IconButton
                         icon={<ArrowDownIcon />}
-                        onPress={() => {}}
+                        onPress={() => {
+                            swapFormik.setFieldValue("tokenIn", swapFormik.values.tokenOut)
+                            swapFormik.setFieldValue("tokenOut", swapFormik.values.tokenIn)
+                            swapFormik.setFieldValue(
+                                "tokenInChainId",
+                                swapFormik.values.tokenOutChainId
+                            )
+                            swapFormik.setFieldValue(
+                                "tokenOutChainId",
+                                swapFormik.values.tokenInChainId
+                            )
+                            swapFormik.setFieldValue("amountIn", swapFormik.values.amountOut)
+                        }}
                         className="z-50"
                     />
                     <NomasCard className="bg-content3 w-full">
@@ -225,10 +270,21 @@ export const SwapPage = () => {
                                         }}
                                     />
                                     <div>
-                                        <div className="text-xl">{swapFormik.values.amountOut}</div>
-                                        <div className="text-xs text-right text-foreground-500">
-                      $1500
-                                        </div>
+                                        {swapFormik.values.quoting ? (
+                                            <div className="flex flex-col items-end">
+                                                <div className="text-xl text-foreground-500">0.0</div>
+                                                <NomasSpinner className="w-4 h-4 text-foreground-500" />
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <div className="text-xl">
+                                                    {swapFormik.values.amountOut}
+                                                </div>
+                                                <div className="text-xs text-right text-foreground-500">
+                          $1500
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </NomasCardBody>
                             </NomasCard>
@@ -236,9 +292,19 @@ export const SwapPage = () => {
                             <NomasButton
                                 size="lg"
                                 asBase
-                                isDisabled={!swapFormik.isValid || swapFormik.isSubmitting}
+                                onPress={() => {
+                                    swapFormik.submitForm()
+                                }}
+                                isDisabled={
+                                    !swapFormik.isValid ||
+                  swapFormik.isSubmitting ||
+                  swapFormik.values.quoting
+                                }
                             >
                                 {(() => {
+                                    if (swapFormik.values.quoting) {
+                                        return "Quoting..."
+                                    }
                                     if (swapFormik.isSubmitting) {
                                         return "Swapping..."
                                     }
@@ -307,7 +373,7 @@ export const SwapPage = () => {
                                         size="xs"
                                         tooltip="Auto route will automatically select the best route for the trade."
                                     />
-                                    <div className="text-xs">100 USDC</div>
+                                    <AutoRouter />
                                 </div>
                             </div>
                         </NomasCardBody>

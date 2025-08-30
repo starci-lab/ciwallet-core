@@ -6,6 +6,8 @@ import {
     modalsReducer,
     baseReducer,
     pagesReducer,
+    aggregatorReducer,
+    protocolReducer,
 } from "./slices"
 
 export const store = configureStore({
@@ -16,6 +18,8 @@ export const store = configureStore({
         modals: modalsReducer,
         base: baseReducer,
         pages: pagesReducer,
+        aggregator: aggregatorReducer,
+        protocol: protocolReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

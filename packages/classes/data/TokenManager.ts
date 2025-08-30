@@ -93,4 +93,25 @@ export class TokenManager {
             }
         }
     }
+
+    public getTokenByAddress(
+        tokenAddress: string,
+        chainId: ChainId,
+        network: Network
+    ): Token | undefined {
+        return this.tokens[chainId]?.[network]?.find(
+            (token) => token.address === tokenAddress
+        ) || this.tokens[chainId]?.[network]?.find(
+            (token) => token.tokenId === TokenId.MonadTestnetMon
+        )
+    }
+
+    public getWrappedToken(
+        chainId: ChainId,
+        network: Network
+    ): Token | undefined {
+        return this.tokens[chainId]?.[network]?.find(
+            (token) => token.type === TokenType.Wrapped
+        )
+    }
 }

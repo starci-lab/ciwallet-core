@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit"
 export enum SwapPageState {
     SelectToken,
     Swap,
+    NomasAggregation,
 }
 export interface PagesSlice {
     swapPage: SwapPageState

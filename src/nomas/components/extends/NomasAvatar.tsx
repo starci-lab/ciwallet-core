@@ -1,5 +1,5 @@
 import React from "react"
-import { Avatar, type AvatarProps } from "@heroui/react"
+import { Avatar, AvatarGroup, type AvatarProps, type AvatarGroupProps } from "@heroui/react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 const avatarContainerCva = cva("ring-[0.5px] ring-foreground-600", {
@@ -35,5 +35,11 @@ export const NomasAvatar = ({ dimension, ...props }: NomasAvatarProps & AvatarPr
             classNames={{ base: avatarContainerCva({ dimension }) }}
             imgProps={{ className: avatarImageCva({ dimension }) }}
         />
+    )
+}
+
+export const NomasAvatarGroup = (props: AvatarGroupProps) => {
+    return (
+        <AvatarGroup {...props} />
     )
 }

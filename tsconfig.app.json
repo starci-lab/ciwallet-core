@@ -35,7 +35,10 @@
       "@ciwallet-sdk/hooks": ["./packages/hooks"],
       "@ciwallet-sdk/misc": ["./packages/misc"],
       "@ciwallet-sdk/core": ["./packages/core"],
-      "@ciwallet-sdk/constants": ["./packages/constants"]
+      "@ciwallet-sdk/constants": ["./packages/constants"],
+      "@ciwallet-sdk/abi": ["./packages/abi"],
+      "@ciwallet-sdk/contracts": ["./packages/contracts"]
+
     },
     
   },

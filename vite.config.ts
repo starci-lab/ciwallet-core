@@ -19,6 +19,8 @@ export default defineConfig({
             "@ciwallet-sdk/hooks": path.resolve(__dirname, "./packages/hooks"),
             "@ciwallet-sdk/misc": path.resolve(__dirname, "./packages/misc"),
             "@ciwallet-sdk/constants": path.resolve(__dirname, "./packages/constants"),
+            "@ciwallet-sdk/abi": path.resolve(__dirname, "./packages/abi"),
+            "@ciwallet-sdk/contracts": path.resolve(__dirname, "./packages/contracts"),
             "@": path.resolve(__dirname, "./src"),
         },
     },

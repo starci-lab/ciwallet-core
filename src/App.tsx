@@ -8,12 +8,29 @@ import { UI } from "@/nomas/ui"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
 import { ChainId } from "@ciwallet-sdk/types"
 import { IconContext } from "@phosphor-icons/react"
+import { ethers } from "ethers"
 
 
 function App() {
     return (
         <WalletKitProvider context={{
             adapter: {
+                signAndSendTransaction: async ({ 
+                    chainId, 
+                    network, 
+                    transaction 
+                }) => {
+                    console.log(chainId, network, transaction)
+                    const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz")
+                    const privateKey = "88a07f6c444b42996ecf6f365c9f7c98029a0b8c02d4ad1b5462c4386ab9c309"
+                    const signer = new ethers.Wallet(privateKey, provider)
+                    const decoded = ethers.Transaction.from(transaction)
+                    const { hash } = await signer.sendTransaction(decoded)
+                    await provider.waitForTransaction(hash)
+                    return {
+                        signature: hash
+                    }
+                },
                 aggregators: {
                     ciAggregator: {
                         url: "http://localhost:3000"
