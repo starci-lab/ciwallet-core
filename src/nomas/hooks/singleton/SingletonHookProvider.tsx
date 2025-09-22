@@ -3,7 +3,7 @@ import { DisclosureProvider } from "./discloresures"
 import { FormikProvider } from "./formiks"
 import { MixinProvider } from "./mixin"
 
-export const HookProvider = ({ children }: PropsWithChildren) => {
+export const SingletonHookProvider = ({ children }: PropsWithChildren) => {
     return (
         <DisclosureProvider>
             <MixinProvider>

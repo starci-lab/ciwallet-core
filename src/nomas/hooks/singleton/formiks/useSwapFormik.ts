@@ -12,6 +12,8 @@ import type { EvmSerializedTx } from "@ciwallet-sdk/classes"
 import { useBatchAggregatorSwrMutations } from "../mixin"
 import SuperJSON from "superjson"
 import { toRaw } from "@ciwallet-sdk/utils"
+import { useContext } from "react"
+import { FormikContext } from "./FormikProvider"
 
 export interface Aggregation {
   aggregator: AggregatorId;
@@ -70,6 +72,16 @@ const swapValidationSchema = Yup.object({
         .max(100, "Slippage must be ≤ 100")
         .required("Slippage is required"),
 })
+
+export const useSwapFormik = () => {
+    const context = useContext(FormikContext)
+    if (!context) {
+        throw new Error(
+            "useSwapFormik must be used within a FormikProvider"
+        )
+    }
+    return context.swapFormik
+}
 
 export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.base.network)

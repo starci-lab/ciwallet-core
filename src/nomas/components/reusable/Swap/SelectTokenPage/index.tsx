@@ -4,17 +4,17 @@ import {
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
-    TokenCard,
-} from "../../components"
+} from "../../../extends"
 import {
     setSwapPage,
     SwapPageState,
     useAppDispatch,
     useAppSelector
-} from "../../redux"
+} from "../../../../redux"
 import { ChainId } from "@ciwallet-sdk/types"
 import { Spacer } from "@heroui/react"
-import { useSwapFormik } from "@/nomas/hooks"
+import { useSwapFormik } from "@/nomas/hooks/singleton"
+import { TokenCard } from "../../TokenCard"
 
 export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()

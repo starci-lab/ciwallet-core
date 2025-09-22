@@ -3,7 +3,7 @@ import { Nomas } from "./nomas"
 import { HeroUIProvider } from "@heroui/react"
 import { Provider } from "react-redux"
 import { store } from "@/nomas/redux"
-import { HookProvider } from "@/nomas/hooks"
+import { SingletonHookProvider } from "@/nomas/hooks/singleton"
 import { UI } from "@/nomas/ui"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
 import { ChainId } from "@ciwallet-sdk/types"
@@ -48,7 +48,7 @@ function App() {
             
         }}>
             <Provider store={store}>
-                <HookProvider>  
+                <SingletonHookProvider>  
                     <IconContext.Provider value={{
                         className: "h-5 w-5"
                     }}> 
@@ -59,7 +59,7 @@ function App() {
                             </div>
                         </HeroUIProvider>
                     </IconContext.Provider>
-                </HookProvider>
+                </SingletonHookProvider>
             </Provider>
         </WalletKitProvider>
     )

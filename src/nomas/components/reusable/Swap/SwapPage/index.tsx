@@ -1,17 +1,13 @@
 import React, { useEffect } from "react"
 import {
-    CaretUpDown,
-    IconButton,
     NomasButton,
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
     NomasLink,
-    NomasNumberTransparentInput,
     NomasSpinner,
-    PythIcon,
-    TooltipTitle,
-} from "../../components"
+} from "../../../extends"
+import { CaretUpDown, IconButton, NomasNumberTransparentInput, PythIcon, TooltipTitle } from "../../../styled"
 import { cn, Spacer } from "@heroui/react"
 import { SelectToken } from "./SelectToken"
 import {
@@ -20,18 +16,17 @@ import {
     SwapPageState,
     useAppDispatch,
     useAppSelector,
-} from "../../redux"
+} from "../../../../redux"
 import { Action, Wallet } from "./Wallet"
 import { ArrowDownIcon, ArrowsLeftRightIcon } from "@phosphor-icons/react"
 import { SlippageConfig } from "./SlippageConfig"
 import { RefreshIcon } from "./RefreshIcon"
 import { NomasAggregation } from "./NomasAggregation"
-import { useSwapFormik } from "@/nomas/hooks"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
 import { roundNumber } from "@ciwallet-sdk/utils"
 import { TIMEOUT_QUOTE } from "@ciwallet-sdk/constants"
-import { useBatchAggregatorSwrMutations } from "@/nomas/hooks"
+import { useBatchAggregatorSwrMutations, useSwapFormik } from "@/nomas/hooks"
 import { AutoRouter } from "./AutoRouter"
 import type { AggregatorId } from "@ciwallet-sdk/classes"
 

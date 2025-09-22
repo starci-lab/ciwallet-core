@@ -1,7 +1,7 @@
 import React from "react"
 import { NomasAvatar, NomasCard, NomasModal, NomasModalBody, TokenCard } from "@/nomas/components"
 import { NomasModalContent, NomasModalHeader } from "@/nomas/components"
-import { useSelectTokenDisclosure, useSwapFormik } from "@/nomas/hooks"
+import { useSelectTokenDisclosure, useSwapFormik } from "@/nomas/hooks/singleton"
 import { useAppSelector } from "@/nomas/redux"
 import { ChainId } from "@ciwallet-sdk/types"
 

@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react"
 import { NomasButton } from "@/nomas/components"
 import { setProgress, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { CircularProgress, Tooltip } from "@heroui/react"
-import { useSwapFormik } from "@/nomas/hooks"
+import { useSwapFormik } from "@/nomas/hooks/singleton"
 
 export const RefreshIcon = () => {
     const dispatch = useAppDispatch()

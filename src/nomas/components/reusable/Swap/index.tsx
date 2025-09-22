@@ -1,6 +1,6 @@
 import React from "react"
-import { NomasCard } from "../components"
-import { SwapPageState, useAppSelector } from "../redux"
+import { NomasCard } from "../../extends"
+import { SwapPageState, useAppSelector } from "../../../redux"
 import { SelectTokenPage } from "./SelectTokenPage"
 import { SwapPage } from "./SwapPage"
 import { NomasAggregationPage } from "./NomasAggregationPage"

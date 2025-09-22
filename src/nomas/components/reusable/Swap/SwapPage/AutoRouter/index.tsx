@@ -1,5 +1,5 @@
 import React from "react"
-import { useSwapFormik } from "@/nomas/hooks"
+import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { NomasAvatar, NomasAvatarGroup, NomasLink } from "@/nomas/components"
 import { ArrowsOut } from "phosphor-react"
 export const AutoRouter = () => {

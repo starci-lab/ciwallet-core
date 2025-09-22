@@ -1,7 +1,7 @@
 import React from "react"
 import { NomasAvatar, NomasCard, NomasCardBody, NomasCardHeader, NomasChip } from "@/nomas/components"
 import { setSwapPage, SwapPageState, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { useSwapFormik } from "@/nomas/hooks"
+import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { Spacer } from "@heroui/react"
 
 export const NomasAggregationPage = () => {
