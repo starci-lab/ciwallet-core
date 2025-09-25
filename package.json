@@ -93,6 +93,7 @@
     "ethers": "^6.15.0",
     "formik": "^2.4.6",
     "phosphor-react": "^1.4.1",
+    "qrcode.react": "^4.2.0",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
     "styled-components": "^6.1.19",
