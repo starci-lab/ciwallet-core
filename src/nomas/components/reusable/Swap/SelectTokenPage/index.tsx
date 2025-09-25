@@ -1,6 +1,5 @@
 import React from "react"
 import {
-    NomasAvatar,
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
@@ -15,6 +14,7 @@ import { ChainId } from "@ciwallet-sdk/types"
 import { Spacer } from "@heroui/react"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { TokenCard } from "../../TokenCard"
+import { SelectChainTab } from "../../../styled"
 
 export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()
@@ -34,47 +34,13 @@ export const SelectTokenPage = () => {
             <NomasCardBody>
                 <NomasCard className="bg-content3">
                     <NomasCardBody>
-                        <div className="flex gap-4 items-center">
-                            {chainManager.toObject().map((chain) =>
-                                (() => {
-                                    const isSelected = swapFormik.values.isInput 
-                                        ? swapFormik.values.tokenInChainId === chain.id
-                                        : swapFormik.values.tokenOutChainId === chain.id
-                                    if (isSelected) {
-                                        return (
-                                            <NomasCard
-                                                key={chain.id}
-                                                className="px-2 py-1.5 flex-row flex items-center gap-2 bg-default"
-                                            >
-                                                <NomasAvatar
-                                                    dimension="origin"
-                                                    src={chain.iconUrl}
-                                                    alt={chain.name}
-                                                />
-                                                <div>{chain.name}</div>
-                                            </NomasCard>
-                                        )
-                                    }
-                                    return (
-                                        <NomasAvatar
-                                            onClick={
-                                                () => {
-                                                    if (swapFormik.values.isInput) {
-                                                        swapFormik.setFieldValue("tokenInChainId", chain.id)
-                                                    } else {
-                                                        swapFormik.setFieldValue("tokenOutChainId", chain.id)
-                                                    }
-                                                }
-                                            }   
-                                            key={chain.id}
-                                            dimension="origin"
-                                            src={chain.iconUrl}
-                                            alt={chain.name}
-                                        />
-                                    )
-                                })()
-                            )}
-                        </div>
+                        <SelectChainTab
+                            chainManager={chainManager}
+                            isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
+                            onSelect={(chainId) => {
+                                swapFormik.setFieldValue("tokenInChainId", chainId)
+                            }}
+                        />
                     </NomasCardBody>
                 </NomasCard>
                 <Spacer y={4}/>

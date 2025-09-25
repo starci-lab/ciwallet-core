@@ -8,6 +8,7 @@ import {
     pagesReducer,
     aggregatorReducer,
     protocolReducer,
+    potfolioReducer,
 } from "./slices"
 
 export const store = configureStore({
@@ -19,6 +20,7 @@ export const store = configureStore({
         base: baseReducer,
         pages: pagesReducer,
         aggregator: aggregatorReducer,
+        potfolio: potfolioReducer,
         protocol: protocolReducer,
     },
     middleware: (getDefaultMiddleware) =>
