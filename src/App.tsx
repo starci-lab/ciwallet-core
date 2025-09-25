@@ -5,7 +5,7 @@ import { Provider } from "react-redux"
 import { store } from "@/nomas/redux"
 import { SingletonHookProvider } from "@/nomas/hooks/singleton"
 import { UI } from "@/nomas/ui"
-import { WalletKitProvider } from "@ciwallet-sdk/providers"
+import { TransactionProvider, WalletKitProvider, type Transaction } from "@ciwallet-sdk/providers"
 import { ChainId } from "@ciwallet-sdk/types"
 import { IconContext } from "@phosphor-icons/react"
 import { ethers } from "ethers"
@@ -47,20 +47,36 @@ function App() {
             },
             
         }}>
-            <Provider store={store}>
-                <SingletonHookProvider>  
-                    <IconContext.Provider value={{
-                        className: "h-5 w-5"
-                    }}> 
-                        <HeroUIProvider>
-                            <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
-                                <Nomas />
-                                <UI />
-                            </div>
-                        </HeroUIProvider>
-                    </IconContext.Provider>
-                </SingletonHookProvider>
-            </Provider>
+            <TransactionProvider context={{
+                adapter: {
+                    saveTransaction: async ({ txHash, status, network, chainId, type }) => {
+                        const transaction: Transaction = { txHash, status, network, chainId, type }
+                        localStorage.setItem(`${network}-${chainId}-${type}`, JSON.stringify(transaction))
+                    },
+                    getTransactions: async ({ network, chainId, filter }) => {
+                        const transactions = localStorage.getItem(`${network}-${chainId}-${filter}`)
+                        return {
+                            transactions: transactions ? JSON.parse(transactions) : [],
+                            nextCursor: ""
+                        }
+                    }
+                }
+            }}>
+                <Provider store={store}>
+                    <SingletonHookProvider>  
+                        <IconContext.Provider value={{
+                            className: "h-5 w-5"
+                        }}> 
+                            <HeroUIProvider>
+                                <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
+                                    <Nomas />
+                                    <UI />
+                                </div>
+                            </HeroUIProvider>
+                        </IconContext.Provider>
+                    </SingletonHookProvider>
+                </Provider>
+            </TransactionProvider>
         </WalletKitProvider>
     )
 }
