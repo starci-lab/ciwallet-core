@@ -4,13 +4,14 @@ export enum SwapPageState {
     SelectToken,
     Swap,
     NomasAggregation,
+    WithdrawPage
 }
 export interface PagesSlice {
     swapPage: SwapPageState
 }
 
 const initialState: PagesSlice = {
-    swapPage: SwapPageState.Swap,
+    swapPage: SwapPageState.WithdrawPage,
 }
 
 export const pagesSlice = createSlice({
