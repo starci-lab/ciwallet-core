@@ -89,7 +89,7 @@ export const SignTransaction = () => {
           </div>
         </NomasCardBody>
       </NomasCard>
-      <NomasDivider className="my-3" />
+      <NomasDivider className="my-2" />
       <NomasCard className=" bg-emerald-400">
         <NomasCardBody>
           <p className="">Comment or memo</p>

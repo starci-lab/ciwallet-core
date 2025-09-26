@@ -15,8 +15,6 @@ export const Swap = () => {
         return <SwapPage />;
       case SwapPageState.NomasAggregation:
         return <NomasAggregationPage />;
-      case SwapPageState.WithdrawPage:
-        return <WithdrawPage />;
     }
   };
   return <NomasCard asCore>{renderPage()}</NomasCard>;

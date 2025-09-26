@@ -1,6 +1,13 @@
-import { NomasCard, NomasCardBody, NomasCardHeader } from '../../../extends';
+import {
+  NomasButton,
+  NomasCard,
+  NomasCardBody,
+  NomasCardHeader,
+} from '../../../extends';
 import { InitWithdraw } from './InitWithdraw';
-import { SignTransaction } from './SignTransation';
+import { ProcessTransaction } from './ProcessTransaction';
+import { ResultTransaction } from './ResultTransaction';
+import { SignTransaction } from './SignTransaction';
 
 export const WithdrawPage = () => {
   return (
@@ -15,7 +22,10 @@ export const WithdrawPage = () => {
         />
         <NomasCardBody>
           {/* <InitWithdraw /> */}
-          <SignTransaction />
+          {/* <SignTransaction /> */}
+          {/* <ProcessTransaction /> */}
+
+          <ResultTransaction />
         </NomasCardBody>
       </NomasCard>
     </>

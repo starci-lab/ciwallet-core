@@ -3,15 +3,14 @@ import { createSlice } from "@reduxjs/toolkit"
 export enum SwapPageState {
     SelectToken,
     Swap,
-    NomasAggregation,
-    WithdrawPage
+    NomasAggregation
 }
 export interface PagesSlice {
     swapPage: SwapPageState
 }
 
 const initialState: PagesSlice = {
-    swapPage: SwapPageState.WithdrawPage,
+    swapPage: SwapPageState.Swap,
 }
 
 export const pagesSlice = createSlice({
