@@ -37,7 +37,7 @@ export const InitWithdraw = () => {
   );
   return (
     <>
-      <NomasCard className=" bg-emerald-400">
+      <NomasCard className="bg-content2">
         <NomasCardBody>
           <p className="">From</p>
 
@@ -105,7 +105,7 @@ export const InitWithdraw = () => {
         </NomasCardBody>
       </NomasCard>
       <NomasDivider className="my-3" />
-      <NomasCard className=" bg-emerald-400">
+      <NomasCard className="bg-content2">
         <NomasCardBody>
           <p className="">To</p>
           <Input

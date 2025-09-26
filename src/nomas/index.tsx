@@ -6,8 +6,8 @@ import { TransactionsPage } from './components/reusable/pages';
 export const Nomas = () => {
   return (
     <>
-      <TransactionsPage />
-      {/* <Swap/>  */}
+      {/* <WithdrawPage /> */}
+      <Swap/> 
     </>
   );
 };

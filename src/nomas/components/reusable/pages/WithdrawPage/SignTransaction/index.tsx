@@ -39,28 +39,28 @@ export const SignTransaction = () => {
   );
   return (
     <>
-      <NomasCard className=" bg-emerald-400">
+      <NomasCard className="bg-content2">
         <NomasCardBody>
           <div className="flex flex-col justify-between items-center">
             <NomasAvatar className="w-20 h-20 text-large" src="" />
-            <span className="text-amber-100 text-xl font-medium">USDT</span>
+            <span className="text-amber-50 text-xl font-medium">USDT</span>
             <Snippet
               hideSymbol
               classNames={{ base: 'px-0 py-0 mt-1 bg-opacity-100 gap-0' }}
             >
               0x1e13...60Af
             </Snippet>
-            <span className="text-amber-100 text-2xl font-medium">100.22</span>
-            <span className="text-amber-100 text-medium font-normal">
+            <span className="text-amber-50 text-2xl font-medium">100.22</span>
+            <span className="text-amber-50 text-medium font-normal">
               $100.00
             </span>
             <NomasDivider
               orientation="horizontal"
-              className="pt-[5]px my-3 bg-amber-200"
+              className="pt-[5]px my-3 bg-amber-50"
             />
             <div className="flex flex-col w-full gap-2">
               <div className="flex justify-between items-center">
-                <p className="text-amber-100 text-sm font-normal">To</p>
+                <p className="text-amber-50 text-sm font-normal">To</p>
                 <p>0x1e13fseteg53g34tg54u253y5y4c60</p>
               </div>
               <div className="flex justify-between items-center">
@@ -78,19 +78,19 @@ export const SignTransaction = () => {
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
-                  <p className="text-amber-100 text-sm font-normal">Fee</p>
+                  <p className="text-amber-50 text-sm font-normal">Fee</p>
                   <NomasTooltip content={'The fee is charged by the network'}>
                     <InfoIcon />
                   </NomasTooltip>
                 </div>
-                <p className="text-amber-100 text-sm font-normal">$0.001</p>
+                <p className="text-amber-50 text-sm font-normal">$0.001</p>
               </div>
             </div>
           </div>
         </NomasCardBody>
       </NomasCard>
       <NomasDivider className="my-2" />
-      <NomasCard className=" bg-emerald-400">
+      <NomasCard className="bg-content2">
         <NomasCardBody>
           <p className="">Comment or memo</p>
           <p className="">

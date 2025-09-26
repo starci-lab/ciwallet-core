@@ -12,7 +12,7 @@ import { SignTransaction } from './SignTransaction';
 export const WithdrawPage = () => {
   return (
     <>
-      <NomasCard asCore className="bg-amber-400">
+      <NomasCard asCore className="">
         <NomasCardHeader
           title="Withdraw"
           showBackButton
