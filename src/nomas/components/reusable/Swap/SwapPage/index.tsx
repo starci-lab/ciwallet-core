@@ -214,6 +214,7 @@ export const SwapPage = () => {
                                                 swapFormik.setFieldValue("tokenInFocused", false)
                                                 swapFormik.setFieldTouched("amountIn")
                                             }}
+                
                                             isInvalid={
                                                 !!(
                                                     swapFormik.touched.amountIn &&

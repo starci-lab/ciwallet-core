@@ -16,27 +16,27 @@ import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 
 export interface Aggregation {
-  aggregator: AggregatorId;
-  amountOut: number;
+    aggregator: AggregatorId;
+    amountOut: number;
 }
 
 export interface SwapFormikValues {
-  balanceIn: number;
-  balanceOut: number;
-  tokenIn: TokenId;
-  tokenOut: TokenId;
-  tokenInChainId: ChainId;
-  tokenOutChainId: ChainId;
-  isInput: boolean;
-  amountIn: string;
-  amountOut: string;
-  slippage: number;
-  tokenInFocused: boolean;
-  quoting: boolean;
-  aggregations: Array<Aggregation>;
-  bestAggregationId: AggregatorId;
-  refreshKey: number;
-  protocols: Array<ProtocolData>;
+    balanceIn: number;
+    balanceOut: number;
+    tokenIn: TokenId;
+    tokenOut: TokenId;
+    tokenInChainId: ChainId;
+    tokenOutChainId: ChainId;
+    isInput: boolean;
+    amountIn: string;
+    amountOut: string;
+    slippage: number;
+    tokenInFocused: boolean;
+    quoting: boolean;
+    aggregations: Array<Aggregation>;
+    bestAggregationId: AggregatorId;
+    refreshKey: number;
+    protocols: Array<ProtocolData>;
 }
 
 const swapValidationSchema = Yup.object({
