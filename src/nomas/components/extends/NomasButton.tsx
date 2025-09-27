@@ -2,19 +2,21 @@ import React from "react"
 import { Button, cn, Tooltip, type ButtonProps } from "@heroui/react"
 
 export interface NomasButtonProps extends ButtonProps {
-  asBase?: boolean;
+    asBase?: boolean;
 }
+
 export const NomasButton = (props: NomasButtonProps) => {
     return (
         <Button
             {...props}
-            className={cn(
-                {
-                    "shadow-md border-t border-foreground-600 bg-foreground-700":
-            props.asBase,
-                },
-                props.className
-            )}
+            className={
+                cn(
+                    {
+                        "shadow-md border-t border-content3-200": props.asBase,
+                        "bg-content3-100": !props.asBase,
+                    },
+                    props.className
+                )}
         />
     )
 }
@@ -45,12 +47,13 @@ const NomasButtonTextWithIconCore = (
         <NomasButton
             size="sm"
             asBase
-            className={cn("pr-0 w-fit bg-content3", props.className)}
+            className={cn("pr-0 w-fit bg-content3-300 text-sm", props.className)}
             endContent={
                 <div
-                    className={cn(
-                        "rounded-small w-8 h-8 grid place-items-center bg-foreground-700 text-foreground"
-                    )}
+                    className={
+                        cn(
+                            "rounded-small w-8 h-8 grid place-items-center bg-default text-foreground"
+                        )}
                 >
                     {props.icon}
                 </div>

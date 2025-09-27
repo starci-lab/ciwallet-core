@@ -4,43 +4,39 @@ export default heroui({
     themes: {
         light: {
             colors: {
-                default: {
-                    DEFAULT: "#1D1D1D",      // => bg-default
-                    foreground: "#EBEBEB"
-                },
+                // cards
                 content2: {
-                    DEFAULT: "#070707"
+                    // lighter body
+                    //DEFAULT: "#131313",
+                    // darker body
+                    "100": "#131313",
+                    "200": "#070707",
                 },
+                // inputs
                 content3: {
-                    DEFAULT: "#101010"
+                    // button
+                    // DEFAULT: "#323232",
+                    // input 
+                    "100": "#1D1D1D",
+                    // border button    
+                    "200": "#565656",
+                    // innter button color
+                    "300": "#131313",
                 },
+                // text
                 foreground: {
+                    // text default
                     DEFAULT: "#EBEBEB",
-                    "500": "#B3B3B3",
-                    "600": "#565656",
-                    "700": "#323232",
-                    foreground: "#EBEBEB"
-                }
-            },
-        },
-        dark: {
-            colors: {
+                    // text gray
+                    "100": "#B3B3B3",
+                },
                 default: {
-                    DEFAULT: "#1D1D1D",      // => bg-default
-                },
-                content2: {
-                    DEFAULT: "#070707"
-                },
-                content3: {
-                    DEFAULT: "#101010"
-                },
-                foreground: {
-                    "500": "#B3B3B3",
-                    "600": "#565656",
-                    "700": "#323232",
-                    foreground: "#EBEBEB"
+                    // override heroui default text color
+                    foreground: "#EBEBEB",
+                    // override heroui default background color for inputs
+                    DEFAULT: "#323232",
                 }
             },
-        },
+        }
     },
 })

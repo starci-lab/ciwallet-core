@@ -32,7 +32,7 @@ export const SelectTokenPage = () => {
                 }}
             />
             <NomasCardBody>
-                <NomasCard className="bg-content3">
+                <NomasCard>
                     <NomasCardBody>
                         <SelectChainTab
                             chainManager={chainManager}
@@ -44,7 +44,7 @@ export const SelectTokenPage = () => {
                     </NomasCardBody>
                 </NomasCard>
                 <Spacer y={4}/>
-                <NomasCard className="bg-content3">
+                <NomasCard>
                     <NomasCardBody className="gap-2">
                         {tokenManager
                             .getTokensByChainIdAndNetwork(swapFormik.values.tokenInChainId ?? ChainId.Monad, network)

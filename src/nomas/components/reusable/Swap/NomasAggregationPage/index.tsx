@@ -32,7 +32,7 @@ export const NomasAggregationPage = () => {
                         return (
                             <NomasCard asCore={
                                 aggregation.aggregator === bestAggregationId
-                            } key={aggregator?.id} className="bg-content3 w-full">
+                            } key={aggregator?.id} className="bg-default w-full">
                                 <NomasCardBody className="flex-row justify-between">
                                     <div className="flex items-center gap-2">
                                         <NomasAvatar 
