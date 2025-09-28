@@ -164,7 +164,16 @@ export const InitWithdraw = () => {
         <NomasCardBody>
           <p className="text-foreground-100">To</p>
           <Input
-            endContent={<ClipboardIcon />}
+            endContent={
+              <ClipboardIcon
+                onClick={() => {
+                  console.log('Paste address');
+                  navigator.clipboard.readText().then((text) => {
+                    withdrawFormik.setFieldValue('toAddress', text);
+                  });
+                }}
+              />
+            }
             placeholder="Enter address, domain name or Telegram user"
             type="text"
             classNames={{
