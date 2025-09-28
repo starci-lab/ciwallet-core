@@ -1,6 +1,6 @@
 import { EvmProvider } from "@ciwallet-sdk/classes"
 import { Platform, type BaseParams } from "@ciwallet-sdk/types"
-import { chainKeyToPlatform } from "@ciwallet-sdk/utils"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { useWalletKit } from "@ciwallet-sdk/providers"
 
 export interface UseTransferParams extends BaseParams {
@@ -18,7 +18,7 @@ export const useTransfer = () => {
         amount,
         tokenAddress,
     }: UseTransferParams) => {
-        switch (chainKeyToPlatform(chainId)) {
+        switch (chainIdToPlatform(chainId)) {
         case Platform.Evm:
             return new EvmProvider(
                 chainId,
