@@ -23,7 +23,7 @@ export const ButtonSelectTokenWithdraw = ({
   }
   return (
     <NomasButton
-      className="mx-0 px-1 min-w-fit"
+      className="mx-0 px-1 min-w-fit bg-content2-100"
       onPress={() => onSelect(token)}
       startContent={
         <div className="relative">

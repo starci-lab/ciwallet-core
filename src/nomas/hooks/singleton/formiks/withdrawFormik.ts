@@ -1,0 +1,164 @@
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { ChainId, TokenId, TokenType } from '@ciwallet-sdk/types';
+import { ERC20Contract } from '@ciwallet-sdk/contracts';
+import { useAppSelector } from '@/nomas/redux';
+import { useWalletKit } from '@ciwallet-sdk/providers';
+import { ethers } from 'ethers';
+import { AggregatorId, type ProtocolData } from '@ciwallet-sdk/classes';
+import type { EvmSerializedTx } from '@ciwallet-sdk/classes';
+import { useBatchAggregatorSwrMutations } from '../mixin';
+import SuperJSON from 'superjson';
+import { toRaw } from '@ciwallet-sdk/utils';
+import { useContext } from 'react';
+import { FormikContext } from './FormikProvider';
+import { useNonce, useTransfer } from '@ciwallet-sdk/hooks';
+
+export interface WithdrawFormikValues {
+  balance: number;
+  amount: string;
+  tokenId: TokenId;
+  chainId: ChainId;
+  walletAddress: string;
+  toAddress: string;
+  feeOption: 'low' | 'medium' | 'high';
+  comment: string;
+}
+
+const withdrawValidationSchema = Yup.object({
+  balance: Yup.number()
+    .min(0, 'Balance must be more or equal to 0')
+    .required('Balance is required'),
+  amount: Yup.number()
+    .moreThan(0, 'Amount must be > 0')
+    .required('Amount is required')
+    .test(
+      'amount-less-than-balance',
+      'Amount must be less than or equal to balance',
+      function (value) {
+        const { balance } = this.parent;
+        return value <= balance;
+      },
+    ),
+  toAddress: Yup.string()
+    .required('To Address is required')
+    .test('is-valid-address', 'To Address is not valid', function (value) {
+      if (!value) return false;
+      return true;
+    }),
+  walletAddress: Yup.string().required('Wallet Address is required'),
+  tokenId: Yup.string().required('Token is required'),
+  chainId: Yup.string().required('Chain is required'),
+});
+
+export const useWithdrawFormik = () => {
+  const context = useContext(FormikContext);
+  if (!context) {
+    throw new Error('useWithdrawFormik must be used within a FormikProvider');
+  }
+  return context.withdrawFormik;
+};
+
+export const useWithdrawFormikCore = () => {
+  const network = useAppSelector((state) => state.base.network);
+  const tokenManager = useAppSelector((state) => state.token.manager);
+  const { adapter } = useWalletKit();
+  const { handle } = useTransfer();
+  const { nonceHandle } = useNonce();
+
+  return useFormik<WithdrawFormikValues>({
+    initialValues: {
+      balance: 0,
+      amount: '0',
+      tokenId: TokenId.MonadTestnetMon,
+      chainId: ChainId.Monad,
+      walletAddress: '',
+      toAddress: '',
+      feeOption: 'low',
+      comment: '',
+    },
+    validationSchema: withdrawValidationSchema,
+    onSubmit: async (values) => {
+      console.log('withdrawFormik::onSubmit::');
+      console.log('Values:', values);
+      const nonceValue = await nonceHandle({
+        address: values.walletAddress,
+        chainId: values.chainId,
+        network,
+      });
+      console.log('nonce in formik:', nonceValue);
+
+      const token = tokenManager.getTokenById(values.tokenId);
+
+      if (!token) {
+        throw new Error('Token not found');
+      }
+      if (!handle) {
+        throw new Error('Transfer handler not found');
+      }
+      if (!adapter) {
+        throw new Error('Wallet adapter not found');
+      }
+
+      switch (token.type) {
+        // Send native token (ETH, MON, etc.)
+        case TokenType.Native: {
+          const tx = {
+            to: values.toAddress,
+            value: ethers.parseUnits(
+              values.amount.toString(),
+              token.decimals ?? 18,
+            ),
+            chainId: BigInt(10143),
+            maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei'),
+            maxFeePerGas: ethers.parseUnits('50', 'gwei'),
+            gasLimit: BigInt(100000),
+            nonce: nonceValue,
+          };
+
+          console.log('Native transfer tx:', tx);
+          // Serialize & send via adapter
+          const transaction = ethers.Transaction.from(tx).unsignedSerialized;
+          const response = await adapter.signAndSendTransaction?.({
+            transaction,
+            chainId: values.chainId,
+            network,
+          });
+
+          if (!response) {
+            throw new Error('Native transfer failed');
+          }
+
+          const txHash = response.signature;
+          console.log('Native transfer hash:', txHash);
+
+          // 👉 Build explorer URL
+          const explorerUrl = `https://monad-testnet.socialscan.io/tx/${txHash}`;
+          console.log('Explorer link:', explorerUrl);
+
+          break;
+        }
+        // ERC20 transfer
+        case TokenType.Wrapped: {
+          if (!token.address) {
+            throw new Error('Token address not found');
+          }
+
+          await handle({
+            chainId: values.chainId,
+            network,
+            toAddress: values.toAddress,
+            amount: Number(values.amount),
+            tokenAddress: token.address,
+          });
+
+          console.log('ERC20 transfer submitted');
+          alert('ERC20 transfer submitted');
+          break;
+        }
+        default:
+          throw new Error(`Unsupported token type: ${token.type}`);
+      }
+    },
+  });
+};
