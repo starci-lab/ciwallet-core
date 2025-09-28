@@ -1,5 +1,5 @@
 import type { IWallet, Wallet } from "./IWallet"
-import { ethers} from "ethers"
+import { ethers } from "ethers"
 export class EvmWallet implements IWallet {
     constructor() {}
 

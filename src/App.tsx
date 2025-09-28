@@ -5,7 +5,7 @@ import { Provider } from "react-redux"
 import { store } from "@/nomas/redux"
 import { SingletonHookProvider } from "@/nomas/hooks/singleton"
 import { UI } from "@/nomas/ui"
-import { TransactionProvider, WalletKitProvider, type Transaction } from "@ciwallet-sdk/providers"
+import { TransactionProvider, WalletKitProvider, type StoredTransaction } from "@ciwallet-sdk/providers"
 import { ChainId } from "@ciwallet-sdk/types"
 import { IconContext } from "@phosphor-icons/react"
 import { ethers } from "ethers"
@@ -50,7 +50,7 @@ function App() {
             <TransactionProvider context={{
                 adapter: {
                     saveTransaction: async ({ txHash, status, network, chainId, type }) => {
-                        const transaction: Transaction = { txHash, status, network, chainId, type }
+                        const transaction: StoredTransaction = { txHash, status, network, chainId, type }
                         localStorage.setItem(`${network}-${chainId}-${type}`, JSON.stringify(transaction))
                     },
                     getTransactions: async ({ network, chainId, filter }) => {
