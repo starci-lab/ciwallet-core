@@ -8,6 +8,7 @@ import {
   NomasCardBody,
   NomasCardHeader,
   NomasDivider,
+  NomasSpinner,
 } from '../../../../extends';
 import {
   useAppSelector,
@@ -45,10 +46,10 @@ export const InitWithdraw = () => {
   const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
 
   useEffect(() => {
-    withdrawFormik.resetForm();
+    // withdrawFormik.resetForm();
   }, []);
 
-  useSWR(
+  const { isLoading: isBalanceLoading } = useSWR(
     [
       'BALANCE',
       network,
@@ -81,10 +82,15 @@ export const InitWithdraw = () => {
 
   useEffect(() => {
     if (token && chainMetadata) {
-      withdrawFormik.resetForm();
+      // withdrawFormik.resetForm();
       withdrawFormik.setFieldValue('tokenId', token.tokenId);
       withdrawFormik.setFieldValue('chainId', chainMetadata.id);
       withdrawFormik.setFieldValue('walletAddress', walletAddress);
+      withdrawFormik.setFieldValue('amount', 0);
+      withdrawFormik.setFieldValue('toAddress', '');
+      withdrawFormik.setFieldValue('feeOption', 'low');
+      withdrawFormik.setFieldValue('comment', '');
+      withdrawFormik.setFieldValue('balance', 0);
     }
   }, [token, chainMetadata]);
 
@@ -107,7 +113,16 @@ export const InitWithdraw = () => {
 
             {/* Right side */}
             <div className="flex items-center gap-2">
-              <p>Balance: {withdrawFormik.values.balance}</p>
+              <div className="text-foreground-100">
+                Balance:{' '}
+                <span>
+                  {isBalanceLoading ? (
+                    <NomasSpinner />
+                  ) : (
+                    withdrawFormik.values.balance
+                  )}
+                </span>
+              </div>
               <NomasButton
                 size="sm"
                 radius="full"
@@ -138,8 +153,8 @@ export const InitWithdraw = () => {
                     withdrawFormik.values.tokenId,
                   )}
                   chainMetadata={chainMetadata}
-                  onSelect={(token) => {
-                    withdrawFormik.setFieldValue('tokenId', token.tokenId);
+                  onSelect={() => {
+                    dispatch(setWithdrawPage(WithdrawPageState.ChooseTokenTab));
                   }}
                 />
 

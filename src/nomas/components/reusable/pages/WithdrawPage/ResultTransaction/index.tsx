@@ -95,10 +95,7 @@ export const ResultTransaction = () => {
                     </NomasTooltip>
                   </div>
                   <p className="text-foreground-100 text-sm font-normal">
-                    {formatBigInt(
-                      withdrawFormik.values.result?.data?.fee,
-                      token?.decimals,
-                    )}
+                    {formatBigInt(withdrawFormik.values.result?.data?.fee)}
                   </p>
                 </div>
               </div>

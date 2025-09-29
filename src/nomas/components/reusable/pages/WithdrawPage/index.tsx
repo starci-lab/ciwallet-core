@@ -11,11 +11,13 @@ import { ResultTransaction } from './ResultTransaction';
 import { SignTransaction } from './SignTransaction';
 import { useSwapFormik } from '@/nomas/hooks';
 import {
+  setWithdrawPage,
   useAppDispatch,
   useAppSelector,
   WithdrawPageState,
 } from '@/nomas/redux';
 import { useBalance } from '@ciwallet-sdk/hooks';
+import { ChooseTokenTab } from './ChooseTokenTab';
 
 export const WithdrawPage = () => {
   const dispatch = useAppDispatch();
@@ -31,6 +33,8 @@ export const WithdrawPage = () => {
         return <ProcessTransaction />;
       case WithdrawPageState.ResultTransaction:
         return <ResultTransaction />;
+      case WithdrawPageState.ChooseTokenTab:
+        return <ChooseTokenTab />;
     }
   };
 
@@ -41,7 +45,7 @@ export const WithdrawPage = () => {
           title="Withdraw"
           showBackButton
           onBackButtonPress={() => {
-            console.log('Back');
+            dispatch(setWithdrawPage(WithdrawPageState.InitWithdraw));
           }}
         />
         <NomasCardBody>

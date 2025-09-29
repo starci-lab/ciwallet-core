@@ -9,6 +9,7 @@ export enum WithdrawPageState {
   SignTransaction,
   ProcessTransaction,
   ResultTransaction,
+  ChooseTokenTab
 }
 
 export interface WithdrawSlice {

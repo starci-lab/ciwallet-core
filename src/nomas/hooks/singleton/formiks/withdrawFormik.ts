@@ -21,6 +21,7 @@ import { toRaw } from '@ciwallet-sdk/utils';
 import { useContext } from 'react';
 import { FormikContext } from './FormikProvider';
 import { useNonce, useTransfer } from '@ciwallet-sdk/hooks';
+import { erc20Abi } from '@ciwallet-sdk/misc';
 
 type Result = {
   status: boolean;
@@ -129,60 +130,91 @@ export const useWithdrawFormikCore = () => {
         data: undefined,
       };
 
-      switch (token.type) {
-        // Send native token (ETH, MON, etc.)
-        case TokenType.Native: {
-          const tx = {
-            to: values.toAddress,
-            value: ethers.parseUnits(
-              values.amount.toString(),
-              token.decimals ?? 18,
-            ),
-            chainId: BigInt(10143),
-            maxPriorityFeePerGas: ethers.parseUnits('0.000000001', 'gwei'),
-            maxFeePerGas: ethers.parseUnits('67.5', 'gwei'),
-            gasLimit: BigInt(21000),
-            nonce: nonceValue,
-          };
+      try {
+        switch (token.type) {
+          // Send native token (ETH, MON, etc.)
+          case TokenType.Native: {
+            const tx = {
+              to: values.toAddress,
+              value: ethers.parseUnits(
+                values.amount.toString(),
+                token.decimals ?? 18,
+              ),
+              chainId: BigInt(10143),
+              maxPriorityFeePerGas: ethers.parseUnits('0.000000001', 'gwei'),
+              maxFeePerGas: ethers.parseUnits('67.5', 'gwei'),
+              gasLimit: BigInt(21000),
+              nonce: nonceValue,
+            };
 
-          // Serialize & send via adapter
-          const transaction = ethers.Transaction.from(tx).unsignedSerialized;
-          const response = await adapter.signAndSendTransaction?.({
-            transaction,
-            chainId: values.chainId,
-            network,
-          });
+            // Serialize & send via adapter
+            const transaction = ethers.Transaction.from(tx).unsignedSerialized;
+            const response = await adapter.signAndSendTransaction?.({
+              transaction,
+              chainId: values.chainId,
+              network,
+            });
 
-          console.log('response::', response);
+            console.log('response::', response);
 
-          result.data = response;
-          if (response) {
-            result.status = true;
+            result.data = response;
+            if (response) {
+              result.status = true;
+            }
+
+            await setFieldValue('result', result);
+            break;
           }
+          // ERC20 transfer
+          case TokenType.Stable: {
+            if (!token.address) {
+              throw new Error('Token address not found');
+            }
 
-          await setFieldValue('result', result);
-          break;
-        }
-        // ERC20 transfer
-        case TokenType.Wrapped: {
-          if (!token.address) {
-            throw new Error('Token address not found');
+            console.log('token::', token);
+            const erc20Iface = new ethers.Interface(erc20Abi);
+
+            const data = erc20Iface.encodeFunctionData('transfer', [
+              values.toAddress,
+              ethers.parseUnits(values.amount.toString(), token.decimals ?? 18),
+            ]);
+
+            const tx = {
+              to: token.address,
+              data,
+              value: 0n,
+              chainId: BigInt(10143),
+              maxPriorityFeePerGas: ethers.parseUnits('0.000000001', 'gwei'),
+              maxFeePerGas: ethers.parseUnits('67.5', 'gwei'),
+              gasLimit: BigInt(100000),
+              nonce: nonceValue,
+            };
+
+            const transaction = ethers.Transaction.from(tx).unsignedSerialized;
+            const response = await adapter.signAndSendTransaction?.({
+              transaction,
+              chainId: values.chainId,
+              network,
+            });
+
+            console.log('ERC20 transfer response::', response);
+
+            result.data = response;
+            if (response) {
+              result.status = true;
+            }
+
+            await setFieldValue('result', result);
+            break;
           }
-
-          await handle({
-            chainId: values.chainId,
-            network,
-            toAddress: values.toAddress,
-            amount: Number(values.amount),
-            tokenAddress: token.address,
-          });
-
-          console.log('ERC20 transfer submitted');
-          alert('ERC20 transfer submitted');
-          break;
+          default:
+            throw new Error(`Unsupported token type: ${token.type}`);
         }
-        default:
-          throw new Error(`Unsupported token type: ${token.type}`);
+      } catch (error) {
+        console.error('Transfer error:', error);
+        result.status = false;
+        result.data = undefined;
+        await setFieldValue('result', result);
       }
 
       dispatch(setWithdrawPage(WithdrawPageState.ResultTransaction));

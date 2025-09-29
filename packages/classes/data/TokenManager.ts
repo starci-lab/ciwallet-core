@@ -44,6 +44,37 @@ export class TokenManager {
                     verified: true,
                 },
             ],
+            [Network.Testnet]: [
+                {
+                    tokenId: TokenId.MonadTestnetMon,
+                    decimals: 18,
+                    symbol: "MON",
+                    name: "Monad",
+                    iconUrl: "/icons/tokens/mon.png",
+                    type: TokenType.Native,
+                    verified: true,
+                },
+                {
+                    tokenId: TokenId.MonadTestnetWmon,
+                    decimals: 18,
+                    symbol: "WMON",
+                    name: "Wrapped MON",
+                    iconUrl: "/icons/tokens/mon.png",
+                    address: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701",
+                    type: TokenType.Wrapped,
+                    verified: true,
+                },
+                {
+                    tokenId: TokenId.MonadTestnetUsdc,
+                    decimals: 6,
+                    symbol: "USDC",
+                    name: "USD Coin",
+                    address: "0xf817257fed379853cDe0fa4F97AB987181B1E5Ea",
+                    iconUrl: "/icons/tokens/usdc.svg",
+                    type: TokenType.Stable,
+                    verified: true,
+                },
+            ],
         },
     }
     constructor() {
