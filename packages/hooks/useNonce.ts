@@ -15,6 +15,8 @@ export const useNonce = () => {
       case Platform.Evm:
         const rpc = new JsonRpcProvider('https://testnet-rpc.monad.xyz');
         return rpc.getTransactionCount(address, 'pending');
+      case Platform.Solana:
+        throw new Error('Solana is not supported');
       default:
         throw new Error(`Chain ${chainId} is not supported`);
     }

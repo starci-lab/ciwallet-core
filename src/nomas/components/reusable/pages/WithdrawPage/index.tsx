@@ -10,18 +10,29 @@ import { ProcessTransaction } from './ProcessTransaction';
 import { ResultTransaction } from './ResultTransaction';
 import { SignTransaction } from './SignTransaction';
 import { useSwapFormik } from '@/nomas/hooks';
-import { useAppDispatch, useAppSelector } from '@/nomas/redux';
+import {
+  useAppDispatch,
+  useAppSelector,
+  WithdrawPageState,
+} from '@/nomas/redux';
 import { useBalance } from '@ciwallet-sdk/hooks';
 
 export const WithdrawPage = () => {
   const dispatch = useAppDispatch();
-  const chainManager = useAppSelector((state) => state.chain.manager);
-  const withdrawChainId = useAppSelector((state) => state.withdraw.chainId);
-  const tokenManager = useAppSelector((state) => state.token.manager);
-  const swapFormik = useSwapFormik();
-  const { handle } = useBalance();
-  const network = useAppSelector((state) => state.base.network);
-  
+  const withdrawPage = useAppSelector((state) => state.withdraw.withdrawPage);
+
+  const pageRender = () => {
+    switch (withdrawPage) {
+      case WithdrawPageState.InitWithdraw:
+        return <InitWithdraw />;
+      case WithdrawPageState.SignTransaction:
+        return <SignTransaction />;
+      case WithdrawPageState.ProcessTransaction:
+        return <ProcessTransaction />;
+      case WithdrawPageState.ResultTransaction:
+        return <ResultTransaction />;
+    }
+  };
 
   return (
     <>
@@ -34,7 +45,8 @@ export const WithdrawPage = () => {
           }}
         />
         <NomasCardBody>
-          <InitWithdraw />
+          {pageRender()}
+          {/* <InitWithdraw /> */}
           {/* <SignTransaction /> */}
           {/* <ProcessTransaction /> */}
 

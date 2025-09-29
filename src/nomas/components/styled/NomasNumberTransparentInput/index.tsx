@@ -32,7 +32,7 @@ export const NomasNumberTransparentInput = (props: InputProps) => {
                 input: cn(
                     "!bg-transparent px-0 text-xl text-right",
                     props.classNames?.input
-                ),
+                )
             }}
             {...props}
             onValueChange={onValueChange}

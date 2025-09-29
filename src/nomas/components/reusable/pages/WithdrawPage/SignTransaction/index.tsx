@@ -1,101 +1,111 @@
 import {
-  NomasNumberTransparentInput,
-  SelectChainTab,
-} from '@/nomas/components/styled';
-import {
   NomasAvatar,
   NomasButton,
   NomasCard,
   NomasCardBody,
-  NomasCardHeader,
   NomasDivider,
   NomasTooltip,
 } from '../../../../extends';
 import {
   useAppSelector,
   useAppDispatch,
-  setWithdrawChainId,
-  SwapPageState,
-  setSwapPage,
+  WithdrawPageState,
+  setWithdrawPage,
 } from '@/nomas/redux';
-import { useBalance } from '@ciwallet-sdk/hooks';
-import { ButtonSelectTokenWithdraw } from '../ButtonSelectTokenWithdraw';
-import { ClipboardIcon, GearIcon, InfoIcon } from '@phosphor-icons/react';
-import { Input, Snippet, Textarea } from '@heroui/react';
-import { useSwapFormik } from '@/nomas/hooks/singleton/formiks/useSwapFormik';
+import { Snippet } from '@heroui/react';
+import { useWithdrawFormik } from '@/nomas/hooks/singleton';
+import { shortenAddress } from '@ciwallet-sdk/utils';
+import { InfoIcon } from '@phosphor-icons/react';
+import { useState, useEffect } from 'react';
 
 export const SignTransaction = () => {
   const dispatch = useAppDispatch();
+  const withdrawFormik = useWithdrawFormik();
   const chainManager = useAppSelector((state) => state.chain.manager);
-  const withdrawChainId = useAppSelector((state) => state.withdraw.chainId);
   const tokenManager = useAppSelector((state) => state.token.manager);
-  const swapFormik = useSwapFormik();
-  const { handle } = useBalance();
-  const network = useAppSelector((state) => state.base.network);
-  const tokenInEntity = tokenManager.getTokenById(swapFormik.values.tokenIn);
-  const tokenOutEntity = tokenManager.getTokenById(swapFormik.values.tokenOut);
-  const tokenOutChainMetadata = chainManager.getChainById(
-    swapFormik.values.tokenOutChainId,
+  const token = tokenManager.getTokenById(withdrawFormik.values.tokenId);
+  const chainMetadata = chainManager.getChainById(
+    withdrawFormik.values.chainId,
   );
+
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
   return (
     <>
-      <NomasCard className="bg-content2">
+      <NomasCard className="bg-content2-100 border-1 border-black">
         <NomasCardBody>
           <div className="flex flex-col justify-between items-center">
-            <NomasAvatar className="w-20 h-20 text-large" src="" />
-            <span className="text-amber-50 text-xl font-medium">USDT</span>
+            <NomasAvatar
+              className="w-20 h-20 text-large"
+              src={token?.iconUrl}
+            />
+            <span className="text-foreground-100 text-xl font-medium">
+              {token?.symbol}
+            </span>
             <Snippet
               hideSymbol
               classNames={{ base: 'px-0 py-0 mt-1 bg-opacity-100 gap-0' }}
+              onCopy={() => {
+                navigator.clipboard.writeText(
+                  withdrawFormik.values.walletAddress,
+                );
+              }}
             >
-              0x1e13...60Af
+              {shortenAddress(withdrawFormik.values.walletAddress)}
             </Snippet>
-            <span className="text-amber-50 text-2xl font-medium">100.22</span>
-            <span className="text-amber-50 text-medium font-normal">
-              $100.00
+            <span className="text-foreground-100 text-2xl font-medium">
+              {withdrawFormik.values.amount}
+            </span>
+            <span className="text-foreground-100 text-medium font-normal">
+              $ {(parseFloat(withdrawFormik.values.amount) * 3.5).toFixed(4)}
             </span>
             <NomasDivider
               orientation="horizontal"
-              className="pt-[5]px my-3 bg-amber-50"
+              className="pt-[5]px my-3 bg-foreground-100"
             />
             <div className="flex flex-col w-full gap-2">
               <div className="flex justify-between items-center">
-                <p className="text-amber-50 text-sm font-normal">To</p>
-                <p>0x1e13fseteg53g34tg54u253y5y4c60</p>
+                <p className="text-foreground-100 text-sm font-normal">To</p>
+                <p>{withdrawFormik.values.toAddress}</p>
               </div>
               <div className="flex justify-between items-center">
-                <p className="text-amber-100 text-sm font-normal">Chain</p>
+                <p className="text-foreground-100 text-sm font-normal">Chain</p>
                 <div>
                   <NomasAvatar
                     className="w-5 h-5 inline-block mr-1"
-                    src={tokenOutChainMetadata?.iconUrl}
-                    alt={tokenOutChainMetadata?.name}
+                    src={chainMetadata?.iconUrl}
+                    alt={chainMetadata?.name}
                   />
-                  <span className="align-middle">
-                    {tokenOutChainMetadata?.name}
-                  </span>
+                  <span className="align-middle">{chainMetadata?.name}</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
-                  <p className="text-amber-50 text-sm font-normal">Fee</p>
+                  <p className="text-foreground-100 text-sm font-normal">Fee</p>
                   <NomasTooltip content={'The fee is charged by the network'}>
                     <InfoIcon />
                   </NomasTooltip>
                 </div>
-                <p className="text-amber-50 text-sm font-normal">$0.001</p>
+                <p className="text-sm font-normal">
+                  ${withdrawFormik.values.fee}
+                </p>
               </div>
             </div>
           </div>
         </NomasCardBody>
       </NomasCard>
       <NomasDivider className="my-2" />
-      <NomasCard className="bg-content2">
+      <NomasCard className="bg-content2-100">
         <NomasCardBody>
           <p className="">Comment or memo</p>
-          <p className="">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.
+          <p className="text-xs">
+            {withdrawFormik.values.comment || 'No comment'}
           </p>
         </NomasCardBody>
       </NomasCard>
@@ -103,10 +113,11 @@ export const SignTransaction = () => {
       <NomasButton
         className="py-6"
         onPress={() => {
-          console.log('Withdraw');
+          dispatch(setWithdrawPage(WithdrawPageState.ProcessTransaction));
         }}
+        isDisabled={countdown > 0}
       >
-        Send
+        {countdown > 0 ? `Confirm after (${countdown}s)` : 'Send'}
       </NomasButton>
     </>
   );
