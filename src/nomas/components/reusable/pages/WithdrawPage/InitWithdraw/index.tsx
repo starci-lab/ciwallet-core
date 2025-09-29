@@ -8,6 +8,7 @@ import {
   NomasCardBody,
   NomasCardHeader,
   NomasDivider,
+  NomasSpinner,
 } from '../../../../extends';
 import {
   useAppSelector,
@@ -15,10 +16,12 @@ import {
   setWithdrawChainId,
   SwapPageState,
   setSwapPage,
+  setWithdrawPage,
+  WithdrawPageState,
 } from '@/nomas/redux';
 import { ButtonSelectTokenWithdraw } from '../ButtonSelectTokenWithdraw';
 import { ClipboardIcon, GearIcon } from '@phosphor-icons/react';
-import { Input, Textarea } from '@heroui/react';
+import { cn, Input, Textarea } from '@heroui/react';
 import { useWithdrawFormik } from '@/nomas/hooks/singleton/formiks/';
 import { useBalance } from '@ciwallet-sdk/hooks';
 import useSWR from 'swr';
@@ -29,6 +32,9 @@ export const InitWithdraw = () => {
   const withdrawFormik = useWithdrawFormik();
   const { handle } = useBalance();
 
+  const withdrawPageState = useAppSelector(
+    (state) => state.withdraw.withdrawPage,
+  );
   const network = useAppSelector((state) => state.base.network);
   const withdrawChainId = useAppSelector((state) => state.withdraw.chainId);
   const chainManager = useAppSelector((state) => state.chain.manager);
@@ -39,7 +45,11 @@ export const InitWithdraw = () => {
   );
   const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
 
-  useSWR(
+  useEffect(() => {
+    // withdrawFormik.resetForm();
+  }, []);
+
+  const { isLoading: isBalanceLoading } = useSWR(
     [
       'BALANCE',
       network,
@@ -72,6 +82,7 @@ export const InitWithdraw = () => {
 
   useEffect(() => {
     if (token && chainMetadata) {
+      // withdrawFormik.resetForm();
       withdrawFormik.setFieldValue('tokenId', token.tokenId);
       withdrawFormik.setFieldValue('chainId', chainMetadata.id);
       withdrawFormik.setFieldValue('walletAddress', walletAddress);
@@ -102,13 +113,25 @@ export const InitWithdraw = () => {
 
             {/* Right side */}
             <div className="flex items-center gap-2">
-              <p>Balance: {withdrawFormik.values.balance}</p>
+              <div className="text-foreground-100">
+                Balance:{' '}
+                <span>
+                  {isBalanceLoading ? (
+                    <NomasSpinner />
+                  ) : (
+                    withdrawFormik.values.balance
+                  )}
+                </span>
+              </div>
               <NomasButton
                 size="sm"
                 radius="full"
                 className="bg-foreground-600 border-t-2 border-l-1 border-foreground-800 hover:bg-foreground-500"
                 onPress={() => {
-                  console.log('Max');
+                  withdrawFormik.setFieldValue(
+                    'amount',
+                    withdrawFormik.values.balance,
+                  );
                 }}
               >
                 Max
@@ -116,7 +139,13 @@ export const InitWithdraw = () => {
             </div>
           </div>
 
-          <NomasCard className="bg-content3-100">
+          <NomasCard
+            className={`bg-content3-100 ${
+              withdrawFormik.errors.amount && withdrawFormik.touched.amount
+                ? 'border-1 border-red-500'
+                : ''
+            }`}
+          >
             <NomasCardBody>
               <div className="flex gap-4 items-center">
                 <ButtonSelectTokenWithdraw
@@ -124,19 +153,15 @@ export const InitWithdraw = () => {
                     withdrawFormik.values.tokenId,
                   )}
                   chainMetadata={chainMetadata}
-                  onSelect={(token) => {
-                    withdrawFormik.setFieldValue('tokenId', token.tokenId);
+                  onSelect={() => {
+                    dispatch(setWithdrawPage(WithdrawPageState.ChooseTokenTab));
                   }}
                 />
 
                 <NomasNumberTransparentInput
                   value={withdrawFormik.values.amount}
                   onValueChange={(value) => {
-                    const numValue = Number(value);
-                    if (isNaN(numValue)) {
-                      withdrawFormik.setFieldValue('amount', 0);
-                    }
-                    withdrawFormik.setFieldValue('amount', numValue);
+                    withdrawFormik.setFieldValue('amount', value ?? '0');
                   }}
                   onFocus={() => {
                     withdrawFormik.setFieldValue('amountFocused', true);
@@ -153,6 +178,7 @@ export const InitWithdraw = () => {
                     )
                   }
                 />
+
                 <GearIcon size={60} />
               </div>
             </NomasCardBody>
@@ -176,14 +202,35 @@ export const InitWithdraw = () => {
             }
             placeholder="Enter address, domain name or Telegram user"
             type="text"
-            classNames={{
-              inputWrapper:
-                'bg-content2-200 data-[hover=true]:bg-content2-200 group-data-[focus=true]:bg-content2-200',
-              innerWrapper: 'bg-content2-200',
-            }}
             value={withdrawFormik.values.toAddress}
             onChange={(e) => {
               withdrawFormik.setFieldValue('toAddress', e.target.value);
+            }}
+            onFocus={() => {
+              withdrawFormik.setFieldValue('toAddressFocused', true);
+            }}
+            isRequired
+            onBlur={() => {
+              withdrawFormik.setFieldValue('toAddressFocused', false);
+              withdrawFormik.setFieldTouched('toAddress');
+            }}
+            isInvalid={
+              !!(
+                withdrawFormik.touched.toAddress &&
+                withdrawFormik.errors.toAddress
+              )
+            }
+            classNames={{
+              inputWrapper: cn(
+                '!bg-content2-200 data-[hover=true]:!bg-content2-200 group-data-[focus=true]:!bg-content2-200',
+                ` ${
+                  withdrawFormik.errors.toAddress &&
+                  withdrawFormik.touched.toAddress
+                    ? 'border-1 border-red-500'
+                    : ''
+                }`,
+              ),
+              innerWrapper: '!bg-content2-200',
             }}
           />
           <NomasDivider className="my-2" />
@@ -209,11 +256,16 @@ export const InitWithdraw = () => {
       <NomasDivider className="my-3" />
       <NomasButton
         className="py-6"
-        onPress={() => {
+        onPress={async () => {
           console.log('Withdraw press');
-          withdrawFormik.submitForm();
-          console.log('Errors after submit:', withdrawFormik.errors);
+          // withdrawFormik.submitForm();
+          // console.log('Errors after submit:', withdrawFormik.errors);
+          const isValid = withdrawFormik.isValid;
+          if (isValid) {
+            dispatch(setWithdrawPage(WithdrawPageState.SignTransaction));
+          }
         }}
+        disabled={!withdrawFormik.isValid}
       >
         Next
       </NomasButton>
