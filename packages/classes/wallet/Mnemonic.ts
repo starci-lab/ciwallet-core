@@ -1,4 +1,4 @@
-import { generateMnemonic, mnemonicToSeedSync} from "bip39"
+import { generateMnemonic, mnemonicToSeedSync } from "bip39"
 
 export class Mnemonic {
     constructor() {}

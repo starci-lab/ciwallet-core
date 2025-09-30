@@ -10,7 +10,6 @@ import { ChainId } from "@ciwallet-sdk/types"
 import { IconContext } from "@phosphor-icons/react"
 import { ethers } from "ethers"
 
-
 function App() {
     return (
         <WalletKitProvider context={{
