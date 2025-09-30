@@ -6,7 +6,6 @@ import {
   NomasButton,
   NomasCard,
   NomasCardBody,
-  NomasCardHeader,
   NomasDivider,
   NomasSpinner,
 } from '../../../../extends';
@@ -14,8 +13,6 @@ import {
   useAppSelector,
   useAppDispatch,
   setWithdrawChainId,
-  SwapPageState,
-  setSwapPage,
   setWithdrawPage,
   WithdrawPageState,
 } from '@/nomas/redux';
@@ -57,8 +54,9 @@ export const InitWithdraw = () => {
       withdrawFormik.values.chainId,
     ],
     async () => {
-      if (!handle || !token) return null;
+      withdrawFormik.setFieldValue('balance', 0);
 
+      if (!handle || !token) return null;
       const balance = await handle({
         chainId: withdrawFormik.values.chainId,
         network,
@@ -90,8 +88,12 @@ export const InitWithdraw = () => {
       withdrawFormik.setFieldValue('toAddress', '');
       withdrawFormik.setFieldValue('feeOption', 'low');
       withdrawFormik.setFieldValue('comment', '');
-      withdrawFormik.setFieldValue('balance', 0);
     }
+
+    console.log(
+      'formik values after token/chain change:',
+      withdrawFormik.values,
+    );
   }, [token, chainMetadata]);
 
   return (
@@ -105,6 +107,11 @@ export const InitWithdraw = () => {
             isSelected={(chainId) => chainId === withdrawChainId}
             onSelect={(chainId) => {
               dispatch(setWithdrawChainId(chainId));
+              withdrawFormik.setFieldValue('chainId', chainId);
+              withdrawFormik.setFieldValue(
+                'tokenId',
+                tokenManager.getNativeToken(chainId, network)?.tokenId,
+              );
             }}
           />
           <div className="flex items-center justify-between mt-4 my-2">
@@ -149,9 +156,7 @@ export const InitWithdraw = () => {
             <NomasCardBody>
               <div className="flex gap-4 items-center">
                 <ButtonSelectTokenWithdraw
-                  token={tokenManager.getTokenById(
-                    withdrawFormik.values.tokenId,
-                  )}
+                  token={token}
                   chainMetadata={chainMetadata}
                   onSelect={() => {
                     dispatch(setWithdrawPage(WithdrawPageState.ChooseTokenTab));
