@@ -97,6 +97,7 @@ export interface SignTransactionParams extends BaseParams {
 export interface SignTransactionResponse {
   // signature of the transaction
   signature: string;
+  signedTransaction?: string;
 }
 
 export interface SignAndSendTransactionParams extends BaseParams {

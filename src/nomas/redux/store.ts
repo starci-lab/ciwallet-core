@@ -10,6 +10,7 @@ import {
   protocolReducer,
   potfolioReducer,
   withdrawReducer,
+  accountReducer,
 } from './slices';
 
 export const store = configureStore({
@@ -24,6 +25,7 @@ export const store = configureStore({
     potfolio: potfolioReducer,
     protocol: protocolReducer,
     withdraw: withdrawReducer,
+    accounts: accountReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

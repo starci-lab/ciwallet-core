@@ -28,10 +28,10 @@ export const TokenCardWithdraw = ({
   const { handle } = useBalance();
   const withdrawFormik = useWithdrawFormik();
 
-  const chainManager = useAppSelector((state) => state.chain.manager);
   const network = useAppSelector((state) => state.base.network);
+
   const { data, isLoading } = useSWR(
-    ['withdraw-balance', token.address, network, token.address],
+    ['withdraw-balance', token.address, network, chainId],
     async () => {
       const { amount } = await handle({
         chainId,
@@ -40,11 +40,10 @@ export const TokenCardWithdraw = ({
         tokenAddress: token.address,
         decimals: token.decimals,
       });
-
       return roundNumber(amount, 4);
     },
   );
-  const chain = chainManager.getChainById(chainId);
+
   return (
     <NomasCard
       isPressable={isPressable}

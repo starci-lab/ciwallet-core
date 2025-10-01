@@ -1,5 +1,4 @@
 import {
-  NomasAvatar,
   NomasCard,
   NomasCardBody,
   NomasCardHeader,
@@ -11,7 +10,6 @@ import {
   WithdrawPageState,
 } from '@/nomas/redux';
 import { useWithdrawFormik } from '@/nomas/hooks/singleton/formiks';
-import { shortenAddress } from '@ciwallet-sdk/utils';
 import { useEffect, useState } from 'react';
 import type { Token } from '@ciwallet-sdk/types';
 import { TokenCardWithdraw } from '../TokenCardWithdraw';
@@ -23,7 +21,6 @@ export const ChooseTokenTab = () => {
   const chainManager = useAppSelector((state) => state.chain.manager);
   const tokenManager = useAppSelector((state) => state.token.manager);
   const network = useAppSelector((state) => state.base.network);
-  const token = tokenManager.getTokenById(withdrawFormik.values.tokenId);
   const chainMetadata = chainManager.getChainById(
     withdrawFormik.values.chainId,
   );

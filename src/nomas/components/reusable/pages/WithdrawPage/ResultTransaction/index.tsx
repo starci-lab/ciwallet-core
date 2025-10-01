@@ -27,6 +27,11 @@ export const ResultTransaction = () => {
   const chainMetadata = chainManager.getChainById(
     withdrawFormik.values.chainId,
   );
+  const txDetails = chainManager.getTransactionDetails(
+    withdrawFormik.values.result?.data?.signature ?? '',
+    withdrawFormik.values.chainId,
+  );
+
   return (
     <>
       <NomasCard className="bg-content3-100 border-1 border-foreground-700">
@@ -58,7 +63,7 @@ export const ResultTransaction = () => {
                   isExternal
                   showAnchorIcon
                   underline="always"
-                  href={`https://monad-testnet.socialscan.io/tx/${withdrawFormik.values.result?.data?.signature}`}
+                  href={txDetails}
                 >
                   View on {chainMetadata?.name} Explorer
                 </NomasLink>

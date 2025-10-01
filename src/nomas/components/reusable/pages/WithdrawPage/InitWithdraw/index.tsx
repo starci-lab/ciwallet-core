@@ -29,26 +29,24 @@ export const InitWithdraw = () => {
   const withdrawFormik = useWithdrawFormik();
   const { handle } = useBalance();
 
-  const withdrawPageState = useAppSelector(
-    (state) => state.withdraw.withdrawPage,
-  );
   const network = useAppSelector((state) => state.base.network);
   const withdrawChainId = useAppSelector((state) => state.withdraw.chainId);
   const chainManager = useAppSelector((state) => state.chain.manager);
   const tokenManager = useAppSelector((state) => state.token.manager);
+  const accountManager = useAppSelector((state) => state.accounts.manager);
   const token = tokenManager.getTokenById(withdrawFormik.values.tokenId);
   const chainMetadata = chainManager.getChainById(
     withdrawFormik.values.chainId,
   );
-  const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
-
-  useEffect(() => {
-    // withdrawFormik.resetForm();
-  }, []);
+  // const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
+  const walletAddress = accountManager.getAccount(
+    withdrawFormik.values.chainId,
+    network,
+  )?.address as string;
 
   const { isLoading: isBalanceLoading } = useSWR(
     [
-      'BALANCE',
+      'BALANCE_WITHDRAW',
       network,
       withdrawFormik.values.tokenId,
       withdrawFormik.values.chainId,
@@ -89,11 +87,6 @@ export const InitWithdraw = () => {
       withdrawFormik.setFieldValue('feeOption', 'low');
       withdrawFormik.setFieldValue('comment', '');
     }
-
-    console.log(
-      'formik values after token/chain change:',
-      withdrawFormik.values,
-    );
   }, [token, chainMetadata]);
 
   return (
@@ -123,7 +116,7 @@ export const InitWithdraw = () => {
               <div className="text-foreground-100">
                 Balance:{' '}
                 <span>
-                  {isBalanceLoading ? (
+                  {isBalanceLoading || !withdrawFormik.values.balance ? (
                     <NomasSpinner />
                   ) : (
                     withdrawFormik.values.balance
@@ -259,6 +252,20 @@ export const InitWithdraw = () => {
         </NomasCardBody>
       </NomasCard>
       <NomasDivider className="my-3" />
+
+      <div>
+        {!withdrawFormik.isValid &&
+          Object.keys(withdrawFormik.errors).length > 0 && (
+            <div>
+              {Object.entries(withdrawFormik.errors).map(([key, error]) => (
+                <div key={key} className="text-red-500 text-sm">
+                  {error as string}
+                </div>
+              ))}
+            </div>
+          )}
+      </div>
+
       <NomasButton
         className="py-6"
         onPress={async () => {
@@ -266,6 +273,7 @@ export const InitWithdraw = () => {
           // withdrawFormik.submitForm();
           // console.log('Errors after submit:', withdrawFormik.errors);
           const isValid = withdrawFormik.isValid;
+
           if (isValid) {
             dispatch(setWithdrawPage(WithdrawPageState.SignTransaction));
           }

@@ -13,6 +13,7 @@ import {
 import { ChainId } from '@ciwallet-sdk/types';
 import { IconContext } from '@phosphor-icons/react';
 import { ethers } from 'ethers';
+import { signTransaction } from './adapter';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               fee: rx?.fee,
             };
           },
+          signTransaction,
           aggregators: {
             ciAggregator: {
               url: 'http://localhost:3000',
@@ -47,6 +49,10 @@ function App() {
             {
               chainId: ChainId.Monad,
               rpcs: ['https://testnet-rpc.monad.xyz'],
+            },
+            {
+              chainId: ChainId.Solana,
+              rpcs: ['https://api.devnet.solana.com'],
             },
           ],
         },

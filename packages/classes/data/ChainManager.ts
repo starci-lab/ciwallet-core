@@ -55,4 +55,21 @@ export class ChainManager {
     public getChainById(id: ChainId): ChainMetadata | undefined {
         return this.chains.find(chain => chain.id === id)
     }
+
+    public getTransactionDetails(txHash: string, chainId: ChainId): string {
+        if (!txHash) return ""
+        const chain = this.getChainById(chainId)
+        switch (chainId) {
+            case ChainId.Monad:
+                return `https://monad-testnet.socialscan.io/tx/${txHash}`
+            case ChainId.Aptos:
+                return `${chain?.explorerUrl[Network.Testnet]}/transactions/${txHash}`
+            case ChainId.Sui:
+                return `https://solscan.io/tx/${txHash}`
+            case ChainId.Solana:
+                return `${chain?.explorerUrl[Network.Testnet]}/tx/${txHash}`
+            default:
+                return ""
+        }
+    }
 }
