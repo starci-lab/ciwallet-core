@@ -29,14 +29,16 @@ export const TokenCardWithdraw = ({
   const withdrawFormik = useWithdrawFormik();
 
   const network = useAppSelector((state) => state.base.network);
-
+  const accountManager = useAppSelector((state) => state.accounts.manager);
+  const walletAddress = accountManager.getAccount(chainId, network)?.address as string;
+  
   const { data, isLoading } = useSWR(
     ['withdraw-balance', token.address, network, chainId],
     async () => {
       const { amount } = await handle({
         chainId,
         network,
-        address: '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3',
+        address: walletAddress,
         tokenAddress: token.address,
         decimals: token.decimals,
       });

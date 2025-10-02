@@ -1,93 +1,91 @@
 import {
   NomasNumberTransparentInput,
   SelectChainTab,
-} from '@/nomas/components/styled';
+} from "@/nomas/components/styled"
 import {
   NomasButton,
   NomasCard,
   NomasCardBody,
   NomasDivider,
   NomasSpinner,
-} from '../../../../extends';
+} from "../../../../extends"
 import {
   useAppSelector,
   useAppDispatch,
   setWithdrawChainId,
   setWithdrawPage,
   WithdrawPageState,
-} from '@/nomas/redux';
-import { ButtonSelectTokenWithdraw } from '../ButtonSelectTokenWithdraw';
-import { ClipboardIcon, GearIcon } from '@phosphor-icons/react';
-import { cn, Input, Textarea } from '@heroui/react';
-import { useWithdrawFormik } from '@/nomas/hooks/singleton/formiks/';
-import { useBalance } from '@ciwallet-sdk/hooks';
-import useSWR from 'swr';
-import { useEffect } from 'react';
+} from "@/nomas/redux"
+import { ButtonSelectTokenWithdraw } from "../ButtonSelectTokenWithdraw"
+import { ClipboardIcon, GearIcon } from "@phosphor-icons/react"
+import { cn, Input, Textarea } from "@heroui/react"
+import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks/"
+import { useBalance } from "@ciwallet-sdk/hooks"
+import useSWR from "swr"
+import { useEffect } from "react"
 
 export const InitWithdraw = () => {
-  const dispatch = useAppDispatch();
-  const withdrawFormik = useWithdrawFormik();
-  const { handle } = useBalance();
+  const dispatch = useAppDispatch()
+  const withdrawFormik = useWithdrawFormik()
+  const { handle } = useBalance()
 
-  const network = useAppSelector((state) => state.base.network);
-  const withdrawChainId = useAppSelector((state) => state.withdraw.chainId);
-  const chainManager = useAppSelector((state) => state.chain.manager);
-  const tokenManager = useAppSelector((state) => state.token.manager);
-  const accountManager = useAppSelector((state) => state.accounts.manager);
-  const token = tokenManager.getTokenById(withdrawFormik.values.tokenId);
-  const chainMetadata = chainManager.getChainById(
-    withdrawFormik.values.chainId,
-  );
+  const network = useAppSelector((state) => state.base.network)
+  const withdrawChainId = useAppSelector((state) => state.withdraw.chainId)
+  const chainManager = useAppSelector((state) => state.chain.manager)
+  const tokenManager = useAppSelector((state) => state.token.manager)
+  const accountManager = useAppSelector((state) => state.accounts.manager)
+  const token = tokenManager.getTokenById(withdrawFormik.values.tokenId)
+  const chainMetadata = chainManager.getChainById(withdrawFormik.values.chainId)
   // const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
   const walletAddress = accountManager.getAccount(
     withdrawFormik.values.chainId,
-    network,
-  )?.address as string;
+    network
+  )?.address as string
 
   const { isLoading: isBalanceLoading } = useSWR(
     [
-      'BALANCE_WITHDRAW',
+      "BALANCE_WITHDRAW",
       network,
       withdrawFormik.values.tokenId,
       withdrawFormik.values.chainId,
     ],
     async () => {
-      withdrawFormik.setFieldValue('balance', 0);
+      withdrawFormik.setFieldValue("balance", 0)
 
-      if (!handle || !token) return null;
+      if (!handle || !token) return null
       const balance = await handle({
         chainId: withdrawFormik.values.chainId,
         network,
         address: walletAddress,
         tokenAddress: token.address,
         decimals: token.decimals,
-      });
-      return balance;
+      })
+      return balance
     },
     {
       revalidateOnFocus: false,
       refreshInterval: 30000,
       onSuccess(data) {
         if (data) {
-          const formatted = data.amount;
-          withdrawFormik.setFieldValue('balance', formatted);
+          const formatted = data.amount
+          withdrawFormik.setFieldValue("balance", formatted)
         }
       },
-    },
-  );
+    }
+  )
 
   useEffect(() => {
     if (token && chainMetadata) {
       // withdrawFormik.resetForm();
-      withdrawFormik.setFieldValue('tokenId', token.tokenId);
-      withdrawFormik.setFieldValue('chainId', chainMetadata.id);
-      withdrawFormik.setFieldValue('walletAddress', walletAddress);
-      withdrawFormik.setFieldValue('amount', 0);
-      withdrawFormik.setFieldValue('toAddress', '');
-      withdrawFormik.setFieldValue('feeOption', 'low');
-      withdrawFormik.setFieldValue('comment', '');
+      withdrawFormik.setFieldValue("tokenId", token.tokenId)
+      withdrawFormik.setFieldValue("chainId", chainMetadata.id)
+      withdrawFormik.setFieldValue("walletAddress", walletAddress)
+      withdrawFormik.setFieldValue("amount", 0)
+      withdrawFormik.setFieldValue("toAddress", "")
+      withdrawFormik.setFieldValue("feeOption", "low")
+      withdrawFormik.setFieldValue("comment", "")
     }
-  }, [token, chainMetadata]);
+  }, [token, chainMetadata])
 
   return (
     <>
@@ -99,12 +97,12 @@ export const InitWithdraw = () => {
             chainManager={chainManager}
             isSelected={(chainId) => chainId === withdrawChainId}
             onSelect={(chainId) => {
-              dispatch(setWithdrawChainId(chainId));
-              withdrawFormik.setFieldValue('chainId', chainId);
+              dispatch(setWithdrawChainId(chainId))
+              withdrawFormik.setFieldValue("chainId", chainId)
               withdrawFormik.setFieldValue(
-                'tokenId',
-                tokenManager.getNativeToken(chainId, network)?.tokenId,
-              );
+                "tokenId",
+                tokenManager.getNativeToken(chainId, network)?.tokenId
+              )
             }}
           />
           <div className="flex items-center justify-between mt-4 my-2">
@@ -114,9 +112,10 @@ export const InitWithdraw = () => {
             {/* Right side */}
             <div className="flex items-center gap-2">
               <div className="text-foreground-100">
-                Balance:{' '}
+                Balance:{" "}
                 <span>
-                  {isBalanceLoading || !withdrawFormik.values.balance ? (
+                  {isBalanceLoading ||
+                  withdrawFormik.values.balance === undefined ? (
                     <NomasSpinner />
                   ) : (
                     withdrawFormik.values.balance
@@ -129,9 +128,9 @@ export const InitWithdraw = () => {
                 className="bg-foreground-600 border-t-2 border-l-1 border-foreground-800 hover:bg-foreground-500"
                 onPress={() => {
                   withdrawFormik.setFieldValue(
-                    'amount',
-                    withdrawFormik.values.balance,
-                  );
+                    "amount",
+                    withdrawFormik.values.balance
+                  )
                 }}
               >
                 Max
@@ -142,8 +141,8 @@ export const InitWithdraw = () => {
           <NomasCard
             className={`bg-content3-100 ${
               withdrawFormik.errors.amount && withdrawFormik.touched.amount
-                ? 'border-1 border-red-500'
-                : ''
+                ? "border-1 border-red-500"
+                : ""
             }`}
           >
             <NomasCardBody>
@@ -152,22 +151,22 @@ export const InitWithdraw = () => {
                   token={token}
                   chainMetadata={chainMetadata}
                   onSelect={() => {
-                    dispatch(setWithdrawPage(WithdrawPageState.ChooseTokenTab));
+                    dispatch(setWithdrawPage(WithdrawPageState.ChooseTokenTab))
                   }}
                 />
 
                 <NomasNumberTransparentInput
                   value={withdrawFormik.values.amount}
                   onValueChange={(value) => {
-                    withdrawFormik.setFieldValue('amount', value ?? '0');
+                    withdrawFormik.setFieldValue("amount", value ?? "0")
                   }}
                   onFocus={() => {
-                    withdrawFormik.setFieldValue('amountFocused', true);
+                    withdrawFormik.setFieldValue("amountFocused", true)
                   }}
                   isRequired
                   onBlur={() => {
-                    withdrawFormik.setFieldValue('amountFocused', false);
-                    withdrawFormik.setFieldTouched('amount');
+                    withdrawFormik.setFieldValue("amountFocused", false)
+                    withdrawFormik.setFieldTouched("amount")
                   }}
                   isInvalid={
                     !!(
@@ -191,10 +190,10 @@ export const InitWithdraw = () => {
             endContent={
               <ClipboardIcon
                 onClick={() => {
-                  console.log('Paste address');
+                  console.log("Paste address")
                   navigator.clipboard.readText().then((text) => {
-                    withdrawFormik.setFieldValue('toAddress', text);
-                  });
+                    withdrawFormik.setFieldValue("toAddress", text)
+                  })
                 }}
               />
             }
@@ -202,15 +201,15 @@ export const InitWithdraw = () => {
             type="text"
             value={withdrawFormik.values.toAddress}
             onChange={(e) => {
-              withdrawFormik.setFieldValue('toAddress', e.target.value);
+              withdrawFormik.setFieldValue("toAddress", e.target.value)
             }}
             onFocus={() => {
-              withdrawFormik.setFieldValue('toAddressFocused', true);
+              withdrawFormik.setFieldValue("toAddressFocused", true)
             }}
             isRequired
             onBlur={() => {
-              withdrawFormik.setFieldValue('toAddressFocused', false);
-              withdrawFormik.setFieldTouched('toAddress');
+              withdrawFormik.setFieldValue("toAddressFocused", false)
+              withdrawFormik.setFieldTouched("toAddress")
             }}
             isInvalid={
               !!(
@@ -220,15 +219,15 @@ export const InitWithdraw = () => {
             }
             classNames={{
               inputWrapper: cn(
-                '!bg-content2-200 data-[hover=true]:!bg-content2-200 group-data-[focus=true]:!bg-content2-200',
+                "!bg-content2-200 data-[hover=true]:!bg-content2-200 group-data-[focus=true]:!bg-content2-200",
                 ` ${
                   withdrawFormik.errors.toAddress &&
                   withdrawFormik.touched.toAddress
-                    ? 'border-1 border-red-500'
-                    : ''
-                }`,
+                    ? "border-1 border-red-500"
+                    : ""
+                }`
               ),
-              innerWrapper: '!bg-content2-200',
+              innerWrapper: "!bg-content2-200",
             }}
           />
           <NomasDivider className="my-2" />
@@ -237,16 +236,16 @@ export const InitWithdraw = () => {
             isClearable
             placeholder="Enter comment"
             onClear={() => {
-              withdrawFormik.setFieldValue('comment', '');
+              withdrawFormik.setFieldValue("comment", "")
             }}
             classNames={{
               inputWrapper:
-                'bg-content2-200 data-[hover=true]:bg-content2-200 group-data-[focus=true]:bg-content2-200',
-              innerWrapper: 'bg-content2-200',
+                "bg-content2-200 data-[hover=true]:bg-content2-200 group-data-[focus=true]:bg-content2-200",
+              innerWrapper: "bg-content2-200",
             }}
             value={withdrawFormik.values.comment}
             onChange={(e) => {
-              withdrawFormik.setFieldValue('comment', e.target.value);
+              withdrawFormik.setFieldValue("comment", e.target.value)
             }}
           />
         </NomasCardBody>
@@ -269,13 +268,13 @@ export const InitWithdraw = () => {
       <NomasButton
         className="py-6"
         onPress={async () => {
-          console.log('Withdraw press');
+          console.log("Withdraw press")
           // withdrawFormik.submitForm();
           // console.log('Errors after submit:', withdrawFormik.errors);
-          const isValid = withdrawFormik.isValid;
+          const isValid = withdrawFormik.isValid
 
           if (isValid) {
-            dispatch(setWithdrawPage(WithdrawPageState.SignTransaction));
+            dispatch(setWithdrawPage(WithdrawPageState.SignTransaction))
           }
         }}
         disabled={!withdrawFormik.isValid}
@@ -283,5 +282,5 @@ export const InitWithdraw = () => {
         Next
       </NomasButton>
     </>
-  );
-};
+  )
+}

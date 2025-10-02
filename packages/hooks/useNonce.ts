@@ -1,6 +1,6 @@
 import { EvmProvider } from '@ciwallet-sdk/classes';
 import { Platform, type BaseParams } from '@ciwallet-sdk/types';
-import { chainKeyToPlatform } from '@ciwallet-sdk/utils';
+import { chainIdToPlatform } from '@ciwallet-sdk/utils';
 import { useWalletKit } from '@ciwallet-sdk/providers';
 import { JsonRpcProvider } from 'ethers';
 
@@ -11,7 +11,7 @@ export interface UseGetNonceParams extends BaseParams {
 export const useNonce = () => {
   const { adapter } = useWalletKit();
   const nonceHandle = ({ address, chainId, network }: UseGetNonceParams) => {
-    switch (chainKeyToPlatform(chainId)) {
+    switch (chainIdToPlatform(chainId)) {
       case Platform.Evm:
         const rpc = new JsonRpcProvider('https://testnet-rpc.monad.xyz');
         return rpc.getTransactionCount(address, 'pending');

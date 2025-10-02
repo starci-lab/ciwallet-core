@@ -93,7 +93,7 @@ export class TokenManager {
           decimals: 6,
           symbol: 'USDC',
           name: 'USD Coin',
-          address: 'So11111111111111111111111111111111111111112', // example
+          address: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
           iconUrl: '/icons/tokens/usdc.svg',
           type: TokenType.Stable,
           verified: true,
@@ -109,6 +109,16 @@ export class TokenManager {
           type: TokenType.Native,
           verified: true,
         },
+        {
+          tokenId: TokenId.SolanaTestnetUsdc,
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+          address: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
+          iconUrl: '/icons/tokens/usdc.svg',
+          type: TokenType.Stable,
+          verified: true,
+        }
       ],
     },
 

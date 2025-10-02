@@ -104,6 +104,7 @@ export const useWithdrawFormikCore = () => {
     onSubmit: async (values, { setFieldValue }) => {
       console.log('withdrawFormik::onSubmit::');
       console.log('Values:', values);
+      const token = tokenManager.getTokenById(values.tokenId);
 
       switch (values.chainId) {
         case ChainId.Monad: {
@@ -114,7 +115,6 @@ export const useWithdrawFormikCore = () => {
           });
           console.log('nonce in formik:', nonceValue);
 
-          const token = tokenManager.getTokenById(values.tokenId);
 
           if (!token) {
             throw new Error('Token not found');
@@ -252,7 +252,7 @@ export const useWithdrawFormikCore = () => {
               chainId: values.chainId,
               network,
               toAddress: values.toAddress,
-              tokenAddress: 'native',
+              tokenAddress: token.address ?? '',
               amount: Number(values.amount),
             });
             console.log('response::', response);

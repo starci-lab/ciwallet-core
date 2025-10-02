@@ -22,19 +22,19 @@ export const Nomas = () => {
             mnemonic,
             chainId: ChainId.Solana,
         })
-        const walletDexie = new WalletDexie("WalletDB")
-        walletDexie.wallets.add({
-            name: "EvmWallet",
-            address: evmWallet.accountAddress,
-            publicKey: evmWallet.publicKey,
-            iconBlob: new Blob(),
-            encryptedPrivateKey: evmWallet.privateKey,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            isSelected: false,
-            chainId: ChainId.Monad,
-        })
-        alert("Wallet added")
+        // const walletDexie = new WalletDexie("WalletDB")
+        // walletDexie.wallets.add({
+        //     name: "EvmWallet",
+        //     address: evmWallet.accountAddress,
+        //     publicKey: evmWallet.publicKey,
+        //     iconBlob: new Blob(),
+        //     encryptedPrivateKey: evmWallet.privateKey,
+        //     createdAt: Date.now(),
+        //     updatedAt: Date.now(),
+        //     isSelected: false,
+        //     chainId: ChainId.Monad,
+        // })
+        // alert("Wallet added")
     }, [])
 
     return (
