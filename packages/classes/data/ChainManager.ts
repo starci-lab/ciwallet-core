@@ -65,7 +65,7 @@ export class ChainManager {
             case ChainId.Aptos:
                 return `${chain?.explorerUrl[Network.Testnet]}/transactions/${txHash}`
             case ChainId.Sui:
-                return `https://solscan.io/tx/${txHash}?cluster=devnet`
+                return `https://suiscan.xyz/testnet/tx/${txHash}`
             case ChainId.Solana:
                 return `https://solscan.io/tx/${txHash}?cluster=devnet`
             default:

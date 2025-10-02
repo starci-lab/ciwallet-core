@@ -17,7 +17,6 @@ function App() {
       context={{
         adapter: {
           signAndSendTransaction: async ({ chainId, network, transaction }) => {
-            console.log(chainId, network, transaction);
             const provider = new ethers.JsonRpcProvider(
               'https://testnet-rpc.monad.xyz',
             );
@@ -28,7 +27,6 @@ function App() {
             const { hash } = await signer.sendTransaction(decoded);
             const rx = await provider.waitForTransaction(hash);
 
-            console.log('tx::', rx);
 
             return {
               signature: hash,
@@ -50,6 +48,10 @@ function App() {
               chainId: ChainId.Solana,
               rpcs: ['https://api.devnet.solana.com'],
             },
+            {
+              chainId: ChainId.Sui,
+              rpcs: ['https://rpc-testnet.suiscan.xyz'],
+            }
           ],
         },
       }}

@@ -23,6 +23,7 @@ import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks/"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
 import { useEffect } from "react"
+import { roundNumber } from "@ciwallet-sdk/utils"
 
 export const InitWithdraw = () => {
   const dispatch = useAppDispatch()
@@ -36,7 +37,6 @@ export const InitWithdraw = () => {
   const accountManager = useAppSelector((state) => state.accounts.manager)
   const token = tokenManager.getTokenById(withdrawFormik.values.tokenId)
   const chainMetadata = chainManager.getChainById(withdrawFormik.values.chainId)
-  // const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
   const walletAddress = accountManager.getAccount(
     withdrawFormik.values.chainId,
     network
@@ -67,7 +67,7 @@ export const InitWithdraw = () => {
       refreshInterval: 30000,
       onSuccess(data) {
         if (data) {
-          const formatted = data.amount
+          const formatted = roundNumber(data.amount, 4)
           withdrawFormik.setFieldValue("balance", formatted)
         }
       },

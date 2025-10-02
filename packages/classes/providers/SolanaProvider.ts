@@ -20,10 +20,6 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
-  sendAndConfirmTransaction,
-  LAMPORTS_PER_SOL,
-  type Commitment,
-  Keypair,
   sendAndConfirmRawTransaction,
 } from "@solana/web3.js"
 
@@ -141,7 +137,6 @@ export class SolanaProvider implements IAction, IQuery {
       { commitment: "confirmed" }
     )
 
-    console.log("Confirmed tx:", sig)
     return { txHash: sig }
   }
 
