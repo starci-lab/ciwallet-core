@@ -1,6 +1,6 @@
 import { ChainId, Network, Platform } from "@ciwallet-sdk/types"
 
-export const chainKeyToPlatform = (chainId: ChainId): Platform => {
+export const chainIdToPlatform = (chainId: ChainId): Platform => {
     switch (chainId) {
     case ChainId.Monad:
         return Platform.Evm

@@ -43,7 +43,7 @@ export interface GetTransactionsFilter {
     limit: number
 }
 
-export interface Transaction {
+export interface StoredTransaction {
     // transaction hash
     txHash: string
     // transaction type
@@ -58,7 +58,7 @@ export interface Transaction {
 
 export interface GetTransactionsResponse {
     // transactions
-    transactions: Array<Transaction>
+    transactions: Array<StoredTransaction>
     // next cursor
     nextCursor: string
 }

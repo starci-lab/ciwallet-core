@@ -1,7 +1,7 @@
 import { EvmProvider, SolanaProvider } from '@ciwallet-sdk/classes';
+import { useWalletKit } from '@ciwallet-sdk/providers';
 import { Platform, type BaseParams } from '@ciwallet-sdk/types';
 import { chainKeyToPlatform } from '@ciwallet-sdk/utils';
-import { useWalletKit } from '@ciwallet-sdk/providers';
 
 export interface UseBalanceParams extends BaseParams {
   // to address in solana, we use ata

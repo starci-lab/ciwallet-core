@@ -1,19 +1,15 @@
-import React from 'react';
-import { Nomas } from './nomas';
-import { HeroUIProvider } from '@heroui/react';
-import { Provider } from 'react-redux';
-import { store } from '@/nomas/redux';
-import { SingletonHookProvider } from '@/nomas/hooks/singleton';
-import { UI } from '@/nomas/ui';
-import {
-  TransactionProvider,
-  WalletKitProvider,
-  type Transaction,
-} from '@ciwallet-sdk/providers';
-import { ChainId } from '@ciwallet-sdk/types';
-import { IconContext } from '@phosphor-icons/react';
-import { ethers } from 'ethers';
-import { signTransaction } from './adapter';
+
+import { SingletonHookProvider } from "@/nomas/hooks/singleton"
+import { store } from "@/nomas/redux"
+import { UI } from "@/nomas/ui"
+import { TransactionProvider, WalletKitProvider } from "@ciwallet-sdk/providers"
+import { ChainId } from "@ciwallet-sdk/types"
+import { HeroUIProvider } from "@heroui/react"
+import { IconContext } from "@phosphor-icons/react"
+import { ethers } from "ethers"
+import { Provider } from "react-redux"
+import { signTransaction } from "./adapter"
+import { Nomas } from "./nomas"
 
 function App() {
   return (
@@ -68,7 +64,7 @@ function App() {
               chainId,
               type,
             }) => {
-              const transaction: Transaction = {
+              const transaction = {
                 txHash,
                 status,
                 network,
