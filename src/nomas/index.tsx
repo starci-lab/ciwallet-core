@@ -1,9 +1,9 @@
 //import { Swap } from "./components"
 //import { PotfolioPage } from "./components/reusable/pages"
-import { Mnemonic, WalletDexie, WalletGenerator } from "@ciwallet-sdk/classes";
-import { ChainId } from "@ciwallet-sdk/types";
-import { useEffect } from "react";
-import { WithdrawPage } from './components/reusable/pages';
+import { Mnemonic, WalletDexie, WalletGenerator } from "@ciwallet-sdk/classes"
+import { ChainId } from "@ciwallet-sdk/types"
+import { useEffect } from "react"
+import { WithdrawPage } from "./components/reusable/pages"
 
 export const Nomas = () => {
     useEffect(() => {
@@ -42,5 +42,5 @@ export const Nomas = () => {
             <WithdrawPage />
             {/* <Swap/>  */}
         </>
-    );
+    )
 }

@@ -1,6 +1,6 @@
 // an interface to do the data action
 
-import { ChainId, type BaseParams } from '@ciwallet-sdk/types';
+import { ChainId, type BaseParams } from "@ciwallet-sdk/types"
 // when any wallet builder is created, it will be passed to the wallet kit provider
 
 export interface Aggregator {

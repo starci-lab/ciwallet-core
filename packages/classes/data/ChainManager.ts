@@ -60,16 +60,16 @@ export class ChainManager {
         if (!txHash) return ""
         const chain = this.getChainById(chainId)
         switch (chainId) {
-            case ChainId.Monad:
-                return `https://monad-testnet.socialscan.io/tx/${txHash}`
-            case ChainId.Aptos:
-                return `${chain?.explorerUrl[Network.Testnet]}/transactions/${txHash}`
-            case ChainId.Sui:
-                return `https://solscan.io/tx/${txHash}`
-            case ChainId.Solana:
-                return `${chain?.explorerUrl[Network.Testnet]}/tx/${txHash}`
-            default:
-                return ""
+        case ChainId.Monad:
+            return `https://monad-testnet.socialscan.io/tx/${txHash}`
+        case ChainId.Aptos:
+            return `${chain?.explorerUrl[Network.Testnet]}/transactions/${txHash}`
+        case ChainId.Sui:
+            return `https://solscan.io/tx/${txHash}`
+        case ChainId.Solana:
+            return `${chain?.explorerUrl[Network.Testnet]}/tx/${txHash}`
+        default:
+            return ""
         }
     }
 }

@@ -1,4 +1,4 @@
-import type { ChainId, Network } from './chain';
+import type { ChainId, Network } from "./chain"
 
 export interface Account {
   address: string;
