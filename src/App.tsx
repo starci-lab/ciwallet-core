@@ -10,6 +10,7 @@ import { ethers } from "ethers"
 import { Provider } from "react-redux"
 import { signTransaction } from "./adapter"
 import { Nomas } from "./nomas"
+import { defaultStorageAdapter, StorageProvider } from "@ciwallet-sdk/providers"
 
 function App() {
     return (
@@ -88,22 +89,28 @@ function App() {
                     },
                 }}
             >
-                <Provider store={store}>
-                    <SingletonHookProvider>
-                        <IconContext.Provider
-                            value={{
-                                className: "h-5 w-5",
-                            }}
-                        >
-                            <HeroUIProvider>
-                                <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
-                                    <Nomas />
-                                    <UI />
-                                </div>
-                            </HeroUIProvider>
-                        </IconContext.Provider>
-                    </SingletonHookProvider>
-                </Provider>
+                <StorageProvider
+                    context={{
+                        adapter: defaultStorageAdapter
+                    }}
+                >   
+                    <Provider store={store}>
+                        <SingletonHookProvider>
+                            <IconContext.Provider
+                                value={{
+                                    className: "h-5 w-5",
+                                }}
+                            >
+                                <HeroUIProvider>
+                                    <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
+                                        <Nomas />
+                                        <UI />
+                                    </div>
+                                </HeroUIProvider>
+                            </IconContext.Provider>
+                        </SingletonHookProvider>
+                    </Provider>
+                </StorageProvider>
             </TransactionProvider>
         </WalletKitProvider>
     )

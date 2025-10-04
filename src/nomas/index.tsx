@@ -1,6 +1,6 @@
 //import { Swap } from "./components"
 //import { PotfolioPage } from "./components/reusable/pages"
-import { AuthPage } from "./components/reusable/pages/auth"
+import { InitFunction } from "./components/reusable/functions"
 import { SingletonHookProvider } from "./hooks/singleton"
 
 export const Nomas = () => {
@@ -37,7 +37,7 @@ export const Nomas = () => {
 
     return (
         <SingletonHookProvider>
-            <AuthPage />
+            <InitFunction />
             {/* <Swap/>  */}
         </SingletonHookProvider>
     )

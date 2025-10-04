@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import {
     chainReducer,
     tokenReducer,
@@ -11,7 +11,8 @@ import {
     potfolioReducer,
     withdrawReducer,
     accountReducer,
-    mnemonicReducer,
+    initReducer,
+    cryptoReducer,
 } from "./slices"
 
 export const store = configureStore({
@@ -27,7 +28,10 @@ export const store = configureStore({
         protocol: protocolReducer,
         withdraw: withdrawReducer,
         accounts: accountReducer,
-        mnemonics: mnemonicReducer,
+        functions: combineReducers({
+            init: initReducer,
+        }),
+        crypto: cryptoReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
