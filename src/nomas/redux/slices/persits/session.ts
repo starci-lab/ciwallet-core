@@ -28,6 +28,7 @@ export interface SessionSlice {
     initialized: boolean;
     // use worker to remove after a period of time
     password: string;
+    rpcs: Record<ChainId, Record<Network, Array<string>>>;
 }
 
 const initialState: SessionSlice = {
@@ -37,6 +38,40 @@ const initialState: SessionSlice = {
     chainId: ChainId.Monad,
     initialized: false,
     password: "",
+    rpcs: {
+        [ChainId.Monad]: {
+            [Network.Mainnet]: [
+                "https://testnet-rpc.monad.xyz",
+            ],
+            [Network.Testnet]: [
+                "https://testnet-rpc.monad.xyz",
+            ],
+        },
+        [ChainId.Solana]: {
+            [Network.Mainnet]: [
+                "https://api.devnet.solana.com",
+            ],
+            [Network.Testnet]: [
+                "https://api.devnet.solana.com",
+            ],
+        },
+        [ChainId.Sui]: {
+            [Network.Mainnet]: [
+                "https://fullnode.testnet.sui.io:443",
+            ],
+            [Network.Testnet]: [
+                "https://fullnode.testnet.sui.io:443",
+            ],
+        },
+        [ChainId.Aptos]: {
+            [Network.Mainnet]: [
+                "https://fullnode.testnet.sui.io:443",
+            ],
+            [Network.Testnet]: [
+                "https://fullnode.testnet.sui.io:443",
+            ],
+        },
+    },
 }
 
 export const sessionSlice = createSlice({
@@ -93,6 +128,19 @@ export const sessionSlice = createSlice({
         setInitialized: (state, action: PayloadAction<boolean>) => {
             state.initialized = action.payload
         },
+        // add rpc
+        addRpc: (state, action: PayloadAction<AddRpcParams>) => {
+            if (!state.rpcs[action.payload.chainId]) {
+                state.rpcs[action.payload.chainId] = {
+                    [Network.Mainnet]: [],
+                    [Network.Testnet]: [],
+                }
+            }
+            if (!state.rpcs[action.payload.chainId]![action.payload.network]) {
+                state.rpcs[action.payload.chainId]![action.payload.network] = []
+            }
+            state.rpcs[action.payload.chainId]![action.payload.network]!.push(action.payload.rpc)
+        },
     },
     selectors: {
         selectSelectedAccount: (state) => {
@@ -107,6 +155,12 @@ export const sessionSlice = createSlice({
         },
     },
 })
+
+export interface AddRpcParams {
+    chainId: ChainId;
+    network: Network;
+    rpc: string;
+}   
 
 export interface AddAccountParams {
     account: ReduxAccount;
@@ -127,5 +181,6 @@ export const {
     setNetwork,
     setChainId,
     setInitialized,
+    addRpc,
 } = sessionSlice.actions
 export const { selectSelectedAccount } = sessionSlice.selectors
