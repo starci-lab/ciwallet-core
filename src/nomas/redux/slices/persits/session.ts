@@ -12,6 +12,7 @@ export interface ReduxAccount {
     publicKey: string;
     name: string;
     avatarUrl?: string;
+    privateKey?: string;
 }
 
 export interface Accounts {
@@ -99,9 +100,10 @@ export const sessionSlice = createSlice({
             if (!accounts) return null
             const { selectedAccountId } = accounts
             if (!selectedAccountId) return null
-            return state.accounts[state.chainId]!.accounts.find(
+            const account = state.accounts[state.chainId]!.accounts.find(
                 (account) => account.id === selectedAccountId && account.chainId === state.chainId
             )
+            return account
         },
     },
 })

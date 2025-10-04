@@ -1,6 +1,6 @@
 // an interface to do the data action
 
-import { ChainId, type BaseParams } from "@ciwallet-sdk/types"
+import { ChainId, type BaseParams, Network } from "@ciwallet-sdk/types"
 // when any wallet builder is created, it will be passed to the wallet kit provider
 
 export interface Aggregator {
@@ -25,8 +25,6 @@ export interface IWalletAdapter {
   aggregators?: Aggregators;
   // whenever in-app require sign message, it will be passed to the storage provider
   signMessage?: (params: SignMessageParams) => Promise<SignMessageResponse>;
-  // whenever in-app require get key pair, it will be passed to the storage provider
-  getKeyPair?: (params: GetKeyPairParams) => Promise<GetKeyPairResponse>;
   // get accounts
   getAccounts?: (params: GetAccountsParams) => Promise<GetAccountsResponse>;
   // on connect (optional)
@@ -51,23 +49,17 @@ export interface GetChainInfoParams extends BaseParams {
 export interface SignMessageParams extends BaseParams {
   // message to sign
   message: string;
+  // private key
+  privateKey: string;
+  // chain id
+  chainId: ChainId;
+  // network
+  network: Network;
 }
 
 export interface SignMessageResponse {
   // signature of the message
   signature: string;
-}
-
-export interface GetKeyPairParams extends BaseParams {
-  // address of keypairs
-  accountAddress: string;
-}
-
-export interface GetKeyPairResponse {
-  // public key
-  publicKey: string;
-  // private key
-  privateKey: string;
 }
 
 export type GetAccountsParams = BaseParams;
@@ -92,6 +84,14 @@ export interface OnDisconnectParams extends BaseParams {
 export interface SignTransactionParams extends BaseParams {
   // transaction to sign
   transaction: string;
+  // private key
+  privateKey: string;
+  // chain id
+  chainId: ChainId;
+  // network
+  network: Network;
+  // rpc
+  rpc: string;
 }
 
 export interface SignTransactionResponse {
@@ -103,6 +103,14 @@ export interface SignTransactionResponse {
 export interface SignAndSendTransactionParams extends BaseParams {
   // transaction to sign
   transaction: string;
+  // private key
+  privateKey: string;
+  // chain id
+  chainId: ChainId;
+  // network
+  network: Network;
+  // rpc
+  rpc: string;
 }
 
 export interface SignAndSendTransactionResponse {

@@ -1,4 +1,3 @@
-import { EvmProvider } from "@ciwallet-sdk/classes"
 import { Platform, type BaseParams } from "@ciwallet-sdk/types"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { useWalletKit } from "@ciwallet-sdk/providers"
