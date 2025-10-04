@@ -4,7 +4,7 @@ import { CreatePasswordPage } from "./CreatePasswordPage"
 
 export const InitFunction = () => {
     // retrieve init page from redux
-    const initPage = useAppSelector((state) => state.functions.init.initPage)
+    const initPage = useAppSelector((state) => state.stateless.pages.initPage)
     // render content based on init page
     const renderContent = () => {
         switch (initPage) {
@@ -16,6 +16,8 @@ export const InitFunction = () => {
             return <div />
         }
     }
+    const accounts = useAppSelector(state => state.persits.session.accounts)
+    console.log("accounts", accounts)
     // return render content
     return (
         <>{renderContent()}</>

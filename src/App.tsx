@@ -1,16 +1,14 @@
 
 import { SingletonHookProvider } from "@/nomas/hooks/singleton"
-import { store } from "@/nomas/redux"
-import { UI } from "@/nomas/ui"
 import { TransactionProvider, WalletKitProvider } from "@ciwallet-sdk/providers"
 import { ChainId } from "@ciwallet-sdk/types"
 import { HeroUIProvider } from "@heroui/react"
 import { IconContext } from "@phosphor-icons/react"
 import { ethers } from "ethers"
-import { Provider } from "react-redux"
 import { signTransaction } from "./adapter"
 import { Nomas } from "./nomas"
 import { defaultStorageAdapter, StorageProvider } from "@ciwallet-sdk/providers"
+import { ReduxProvider } from "./nomas/redux"
 
 function App() {
     return (
@@ -94,7 +92,7 @@ function App() {
                         adapter: defaultStorageAdapter
                     }}
                 >   
-                    <Provider store={store}>
+                    <ReduxProvider>
                         <SingletonHookProvider>
                             <IconContext.Provider
                                 value={{
@@ -104,12 +102,11 @@ function App() {
                                 <HeroUIProvider>
                                     <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
                                         <Nomas />
-                                        <UI />
                                     </div>
                                 </HeroUIProvider>
                             </IconContext.Provider>
                         </SingletonHookProvider>
-                    </Provider>
+                    </ReduxProvider>
                 </StorageProvider>
             </TransactionProvider>
         </WalletKitProvider>

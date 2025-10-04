@@ -1,27 +1,22 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { ChainId, TokenId, TokenType } from "@ciwallet-sdk/types"
-import { ERC20Contract } from "@ciwallet-sdk/contracts"
 import {
     setWithdrawPage,
     useAppDispatch,
     useAppSelector,
-    WithdrawPageState,
+    WithdrawPage,
 } from "@/nomas/redux"
 import {
     useWalletKit,
     type SignAndSendTransactionResponse,
 } from "@ciwallet-sdk/providers"
 import { ethers } from "ethers"
-import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
-import type { EvmSerializedTx } from "@ciwallet-sdk/classes"
-import { useBatchAggregatorSwrMutations } from "../mixin"
-import SuperJSON from "superjson"
-import { toRaw } from "@ciwallet-sdk/utils"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useNonce, useTransfer } from "@ciwallet-sdk/hooks"
 import { erc20Abi } from "@ciwallet-sdk/misc"
+import { tokenManagerObj } from "@/nomas/obj"
 
 type Result = {
   status: boolean;
@@ -80,8 +75,7 @@ export const useWithdrawFormik = () => {
 }
 
 export const useWithdrawFormikCore = () => {
-    const network = useAppSelector((state) => state.base.network)
-    const tokenManager = useAppSelector((state) => state.token.manager)
+    const network = useAppSelector((state) => state.persits.session.network)
     const { adapter } = useWalletKit()
     const { handle } = useTransfer()
     const { nonceHandle } = useNonce()
@@ -114,7 +108,7 @@ export const useWithdrawFormikCore = () => {
                 })
                 console.log("nonce in formik:", nonceValue)
 
-                const token = tokenManager.getTokenById(values.tokenId)
+                const token = tokenManagerObj.getTokenById(values.tokenId)
 
                 if (!token) {
                     throw new Error("Token not found")
@@ -232,7 +226,7 @@ export const useWithdrawFormikCore = () => {
                 break
             }
             case ChainId.Solana: {
-                const token = tokenManager.getTokenById(values.tokenId)
+                const token = tokenManagerObj.getTokenById(values.tokenId)
                 if (!token) {
                     throw new Error("Token not found")
                 }
@@ -278,7 +272,7 @@ export const useWithdrawFormikCore = () => {
                 throw new Error(`Chain ${values.chainId} is not supported`)
             }
             }
-            dispatch(setWithdrawPage(WithdrawPageState.ResultTransaction))
+            dispatch(setWithdrawPage(WithdrawPage.ResultTransaction))
         },
     })
 }

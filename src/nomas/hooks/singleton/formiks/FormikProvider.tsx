@@ -6,7 +6,7 @@ import type { SwapFormikValues } from "./useSwapFormik"
 import {
     useWithdrawFormikCore,
     type WithdrawFormikValues,
-} from "./withdrawFormik"
+} from "./useWithdrawFormik"
 import type { CreatePasswordFormikValues } from "./useCreatePasswordFormik"
 import { useCreatePasswordFormikCore } from "./useCreatePasswordFormik"
 

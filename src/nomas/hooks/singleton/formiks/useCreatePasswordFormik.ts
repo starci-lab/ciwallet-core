@@ -2,10 +2,11 @@ import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
-import { Mnemonic, WalletGenerator } from "@ciwallet-sdk/classes"
+import { Mnemonic } from "@ciwallet-sdk/classes"
 import { ChainId } from "@ciwallet-sdk/types"
-import { StorageCollection, useStorage } from "@ciwallet-sdk/providers"
-import { useAppSelector } from "@/nomas/redux"
+import { InitPage, addAccount, setEncryptedMnemonic, setInitPage, useAppDispatch } from "@/nomas/redux"
+import { encryptionObj, walletGeneratorObj } from "@/nomas/obj"
+import { v4 as uuidv4 } from "uuid"
 
 export interface CreatePasswordFormikValues {
     password: string;
@@ -37,8 +38,7 @@ export const useCreatePasswordFormik = () => {
 }
 
 export const useCreatePasswordFormikCore = () => {
-    const { adapter } = useStorage()
-    const encryption = useAppSelector((state) => state.crypto.encryption)
+    const dispatch = useAppDispatch()
     return useFormik<CreatePasswordFormikValues>({
         initialValues: {
             password: "",
@@ -49,28 +49,32 @@ export const useCreatePasswordFormikCore = () => {
             // generate mnemonic
             const mnemonic = new Mnemonic().generate(true)
             // generate wallets
-            const walletGenerator = new WalletGenerator()
             // generate wallets
-            const wallets = await walletGenerator.generateWallets({
+            const wallets = await walletGeneratorObj.generateWallets({
                 mnemonic,
                 chainIds: [ChainId.Monad, ChainId.Sui, ChainId.Solana],
                 password: values.password,
             })
-            console.log("wallets", wallets)
             // encrypt mnemonic
-            const encryptedMnemonic = await encryption.encrypt(mnemonic, values.password)
+            const encryptedMnemonic = await encryptionObj.encrypt(mnemonic, values.password)
             // save mnemonic to storage
-            await adapter.create(
-                StorageCollection.Mnemonic,
-                {
-                    encryptedMnemonic,
-                }
-            )
-            // save wallets to storage
-            await adapter.createMany(
-                StorageCollection.Wallet,
-                wallets
-            )
+            dispatch(setEncryptedMnemonic(encryptedMnemonic))
+            Object.entries(wallets).forEach(([chainId, wallet]) => {
+                dispatch(
+                    addAccount(
+                        { 
+                            chainId: chainId as ChainId, 
+                            account: {
+                                id: uuidv4(),
+                                accountAddress: wallet.accountAddress,
+                                chainId: chainId as ChainId,
+                                encryptedPrivateKey: wallet.privateKey,
+                                name: "Account 1",
+                                publicKey: wallet.publicKey,
+                                avatarUrl: "",
+                            } }))
+                dispatch(setInitPage(InitPage.Splash))
+            })
         },
     })
 }

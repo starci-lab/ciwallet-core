@@ -1,9 +1,10 @@
 import type { ChainId, Network } from "./chain"
 
 export interface Account {
-  address: string;
+  accountAddress: string;
   name?: string;
   publicKey?: string;
   chainId: ChainId;
   network?: Network;
+  avatarUrl?: string;
 }

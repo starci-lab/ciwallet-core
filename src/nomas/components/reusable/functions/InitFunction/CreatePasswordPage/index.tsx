@@ -1,5 +1,12 @@
 import React from "react"
-import { NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasInput } from "../../../../extends"
+import { 
+    NomasButton, 
+    NomasCard, 
+    NomasCardBody, 
+    NomasCardFooter, 
+    NomasCardHeader, 
+    NomasInput
+} from "../../../../extends"
 import { useCreatePasswordFormik } from "@/nomas/hooks"
 
 export const CreatePasswordPage = () => {

@@ -62,12 +62,12 @@ export class WalletGenerator {
         mnemonic,
         chainIds,
         password,
-    }: GenerateWalletsParams): Promise<Array<Wallet>> {
-        const wallets: Array<Wallet> = []
+    }: GenerateWalletsParams): Promise<Record<ChainId, Wallet>> {
+        const wallets: Partial<Record<ChainId, Wallet>> = {}
         await Promise.all(chainIds.map(async (chainId) => {
             const wallet = await this.generateWallet({ mnemonic, chainId, password })
-            wallets.push(wallet)
+            wallets[chainId] = wallet
         }))
-        return wallets
+        return wallets as Record<ChainId, Wallet>
     }
 }

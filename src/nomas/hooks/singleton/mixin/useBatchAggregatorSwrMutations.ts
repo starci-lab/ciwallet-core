@@ -1,9 +1,9 @@
 import type { QuoteParams } from "@ciwallet-sdk/classes"
 import useSWRMutation from "swr/mutation"
-import { useAppSelector } from "@/nomas/redux"
+import { aggregatorManagerObj } from "@/nomas/obj"
 
 export const useBatchAggregatorSwrMutationsCore = () => {
-    const aggregatorManager = useAppSelector(state => state.aggregator.manager)
+    const aggregatorManager = aggregatorManagerObj
 
     const swrMutation = useSWRMutation(
         "BATCH_AGGREGATOR_SWR_MUTATION",

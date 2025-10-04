@@ -1,24 +1,26 @@
 import React from "react"
 import { NomasAvatar, NomasCard, NomasCardBody, NomasCardHeader, NomasChip } from "@/nomas/components"
-import { setSwapPage, SwapPageState, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { setSwapPage, SwapPage, useAppDispatch } from "@/nomas/redux"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { Spacer } from "@heroui/react"
+import { tokenManagerObj } from "@/nomas/obj"
+import { aggregatorManagerObj } from "@/nomas/obj"
 
 export const NomasAggregationPage = () => {
     const dispatch = useAppDispatch()
     const swapFormik = useSwapFormik()
     const aggregations = swapFormik.values.aggregations
     const bestAggregationId = swapFormik.values.bestAggregationId
-    const tokenManager = useAppSelector((state) => state.token.manager)
+    const tokenManager = tokenManagerObj
     const tokenOut = tokenManager.getTokenById(swapFormik.values.tokenOut)
-    const aggregatorManager = useAppSelector((state) => state.aggregator.manager)
+    const aggregatorManager = aggregatorManagerObj
     return (
         <>
             <NomasCardHeader
                 title="Nomas Aggregation"
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setSwapPage(SwapPageState.Swap))
+                    dispatch(setSwapPage(SwapPage.Swap))
                 }}
             />
             <NomasCardBody>
