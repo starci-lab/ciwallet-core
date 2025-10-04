@@ -41,23 +41,35 @@ export const NomasCardHeader = (props: NomasCardHeaderProps) => {
             {...rest}
             className={cn("flex items-center justify-between", props.className)}
         >
-            {showBackButton ? (
-                <IconButton
-                    icon={<ArrowLeftIcon />}
-                    onPress={onBackButtonPress}
-                    className="shrink-0"
-                />
-            ) : (
-                <div className="w-9" />
-            )}
+            {!props.children
+                ? (showBackButton
+                    ? (
+                        <IconButton
+                            icon={<ArrowLeftIcon />}
+                            onPress={onBackButtonPress}
+                            className="shrink-0"
+                        />
+                    ) : (
+                        <div className="w-9" />
+                    )
+                )
+                : null}
+            
 
             {/* Center */}
-            <div className="flex-1 text-center font-medium text-lg text-foreground-100">
-                {title}
-            </div>
+            {title && (
+                <div className="flex-1 text-center font-medium text-lg text-foreground-100">
+                    {title}
+                </div>
+            )}
+
+            {/** Center Content */}
+            {props.children}
 
             {/* Right */}
-            <div className="w-9" />
+            {!props.children && (
+                <div className="w-9" />
+            )}
         </CardHeader>
     )
 }
