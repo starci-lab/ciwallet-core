@@ -1,18 +1,17 @@
 import { NomasCardBody } from "@/nomas/components/extends"
-import { useAppSelector } from "@/nomas/redux"
 import { Button } from "@heroui/react"
 import { Copy } from "phosphor-react"
 import { QRCodeSVG } from "qrcode.react"
 import React from "react"
 import { ChainId } from "@ciwallet-sdk/types"
+import { chainManagerObj } from "@/nomas/obj"
 
 interface DepositInfoProps {
     selectedChainId: ChainId
 }
 
 export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
-    const chainManager = useAppSelector((state) => state.chain.manager)
-    const selectedChain = chainManager.getChainById(selectedChainId)
+    const selectedChain = chainManagerObj.getChainById(selectedChainId)
     const address = "0x1e13fseteg53014dg34tg54u253y5y4c60464423"
 
     const handleCopy = () => {
@@ -20,7 +19,7 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
     }
 
     return (
-        <NomasCardBody className="flex flex-col items-center gap-6 p-6 bg-content3 rounded-2xl">
+        <NomasCardBody>
 
             {/* QR + Network */}
             <div className="flex flex-col items-center gap-3">

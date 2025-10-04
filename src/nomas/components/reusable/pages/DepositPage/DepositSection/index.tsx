@@ -1,12 +1,12 @@
 import { NomasCard, NomasCardBody, NomasCardHeader } from "@/nomas/components/extends"
 import { SelectChainTab } from "@/nomas/components/styled"
-import { useAppSelector } from "@/nomas/redux"
-import React, { useState } from "react"
-import { DepositInfo } from "./DepositInfo"
+import { chainManagerObj } from "@/nomas/obj"
 import { ChainId } from "@ciwallet-sdk/types"
+import { useState } from "react"
+import { DepositInfo } from "./DepositInfo"
 
 export const DepositSection = () => {
-    const chainManager = useAppSelector((state) => state.chain.manager)
+    const chainManager = chainManagerObj
     const [selectedChainId, setSelectedChainId] = useState<ChainId>(ChainId.Monad)
     
     //TODO: Remove the mt-4 later
