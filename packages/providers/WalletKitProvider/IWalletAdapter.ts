@@ -90,8 +90,8 @@ export interface SignTransactionParams extends BaseParams {
   chainId: ChainId;
   // network
   network: Network;
-  // rpc
-  rpc: string;
+  // rpcs
+  rpcs: Array<string>;
 }
 
 export interface SignTransactionResponse {
@@ -109,8 +109,8 @@ export interface SignAndSendTransactionParams extends BaseParams {
   chainId: ChainId;
   // network
   network: Network;
-  // rpc
-  rpc: string;
+  // rpcs
+  rpcs: Array<string>;
 }
 
 export interface SignAndSendTransactionResponse {
