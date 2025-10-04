@@ -1,3 +1,6 @@
 export * from "./providers"
 export * from "./aggregator"
 export * from "./data"
+export * from "./wallet"
+export * from "./dexie"
+export * from "./crypto"

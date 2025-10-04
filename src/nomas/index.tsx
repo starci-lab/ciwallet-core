@@ -1,14 +1,13 @@
-import React from "react"
 //import { Swap } from "./components"
-// import { PotfolioPage } from "./components/reusable/pages"
-import { DepositPage } from "./components/reusable/pages/DepositPage"
+//import { PotfolioPage } from "./components/reusable/pages"
+import { InitFunction } from "./components/reusable/functions"
+import { SingletonHookProvider } from "./hooks/singleton"
 
 export const Nomas = () => {
     return (
-        <> 
-            {/* <PotfolioPage/> */}
+        <SingletonHookProvider>
+            <InitFunction />
             {/* <Swap/>  */}
-            <DepositPage/>
-        </>
+        </SingletonHookProvider>
     )
 }

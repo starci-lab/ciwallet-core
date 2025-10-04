@@ -16,12 +16,13 @@ export interface NomasCardProps extends CardProps {
     asCore?: boolean
 }
 export const NomasCard = (props: NomasCardProps) => {
-    return <Card {...props} className={cn(props.className, 
-        {
-            "bg-gradient-to-b from-[#292929] to-[#141414]": props.asCore,
-            "border-t border-foreground-600": props.asCore,
-        },
-    )} />
+    return <Card {...props} className={
+        cn(props.className, 
+            {
+                "bg-gradient-to-b from-[#2D2D2D] to-[#242424]": props.asCore,
+                "border-t border-content3-200": props.asCore,
+            },
+        )} />
 }
 
 export const NomasCardBody = (props: HTMLHeroUIProps<"div">) => {
@@ -57,7 +58,7 @@ export const NomasCardHeader = (props: NomasCardHeaderProps) => {
 
             {/* Center */}
             {title && (
-                <div className="flex-1 text-center font-medium text-lg">
+                <div className="flex-1 text-center font-medium text-lg text-foreground-100">
                     {title}
                 </div>
             )}

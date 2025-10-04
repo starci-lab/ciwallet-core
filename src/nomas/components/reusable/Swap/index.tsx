@@ -1,24 +1,20 @@
 import React from "react"
 import { NomasCard } from "../../extends"
-import { SwapPageState, useAppSelector } from "../../../redux"
+import { SwapPage, useAppSelector } from "../../../redux"
 import { SelectTokenPage } from "./SelectTokenPage"
-import { SwapPage } from "./SwapPage"
 import { NomasAggregationPage } from "./NomasAggregationPage"
+
 export const Swap = () => {
-    const swapPage = useAppSelector(state => state.pages.swapPage)
+    const swapPage = useAppSelector((state) => state.stateless.pages.swapPage)
     const renderPage = () => {
         switch (swapPage) {
-        case SwapPageState.SelectToken:
+        case SwapPage.Swap:
             return <SelectTokenPage />
-        case SwapPageState.Swap:
-            return <SwapPage />
-        case SwapPageState.NomasAggregation:
+        case SwapPage.SelectToken:
+            return <div/>
+        case SwapPage.NomasAggregation:
             return <NomasAggregationPage />
         }
     }
-    return (
-        <NomasCard asCore>
-            {renderPage()}
-        </NomasCard>
-    )
+    return <NomasCard asCore>{renderPage()}</NomasCard>
 }

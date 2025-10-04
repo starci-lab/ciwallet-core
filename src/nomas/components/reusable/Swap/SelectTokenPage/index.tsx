@@ -6,7 +6,7 @@ import {
 } from "../../../extends"
 import {
     setSwapPage,
-    SwapPageState,
+    SwapPage,  
     useAppDispatch,
     useAppSelector
 } from "../../../../redux"
@@ -15,27 +15,28 @@ import { Spacer } from "@heroui/react"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { TokenCard } from "../../TokenCard"
 import { SelectChainTab } from "../../../styled"
+import { tokenManagerObj } from "@/nomas/obj"
+import { chainManagerObj } from "@/nomas/obj"
 
 export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()
-    const chainManager = useAppSelector((state) => state.chain.manager)
     const swapFormik = useSwapFormik()
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const network = useAppSelector((state) => state.base.network)
+    const tokenManager = tokenManagerObj
+    const network = useAppSelector((state) => state.persits.session.network)
     return (
         <>
             <NomasCardHeader
                 title="Select Token"
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setSwapPage(SwapPageState.Swap))
+                    dispatch(setSwapPage(SwapPage.Swap))
                 }}
             />
             <NomasCardBody>
-                <NomasCard className="bg-content3">
+                <NomasCard>
                     <NomasCardBody>
                         <SelectChainTab
-                            chainManager={chainManager}
+                            chainManager={chainManagerObj}
                             isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
                             onSelect={(chainId) => {
                                 swapFormik.setFieldValue("tokenInChainId", chainId)
@@ -44,7 +45,7 @@ export const SelectTokenPage = () => {
                     </NomasCardBody>
                 </NomasCard>
                 <Spacer y={4}/>
-                <NomasCard className="bg-content3">
+                <NomasCard>
                     <NomasCardBody className="gap-2">
                         {tokenManager
                             .getTokensByChainIdAndNetwork(swapFormik.values.tokenInChainId ?? ChainId.Monad, network)
@@ -59,7 +60,7 @@ export const SelectTokenPage = () => {
                                                 } else {
                                                     swapFormik.setFieldValue("tokenOut", token.tokenId)
                                                 }
-                                                dispatch(setSwapPage(SwapPageState.Swap))
+                                                dispatch(setSwapPage(SwapPage.Swap))
                                             }
                                         }
                                         key={token.tokenId}

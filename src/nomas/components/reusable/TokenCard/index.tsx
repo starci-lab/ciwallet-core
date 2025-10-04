@@ -31,7 +31,7 @@ export const TokenCard = ({ token, chainId, onPress, isPressable = true }: Token
     return (
         <NomasCard
             isPressable={isPressable}
-            className="flex items-center bg-content2"
+            className="flex items-center"
             onClick={onPress}
         >
             <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2">
@@ -47,7 +47,7 @@ export const TokenCard = ({ token, chainId, onPress, isPressable = true }: Token
                     </div>
                     <div className="flex flex-col">
                         <div className="text-sm font-medium">{token.name}</div>
-                        <div className="text-xs text-foreground-500">{token.symbol}</div>
+                        <div className="text-xs text-foreground-500 text-left">{token.symbol}</div>
                     </div>
                 </div>
         

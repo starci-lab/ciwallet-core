@@ -149,7 +149,7 @@ export const SwapPage = () => {
                 </div>
                 <Spacer y={4} />
                 <div className="items-center -space-y-2 flex flex-col">
-                    <NomasCard className="bg-content3 w-full">
+                    <NomasCard className="bg-content2-100 w-full">
                         <NomasCardBody>
                             <div className="flex items-center gap-2 justify-between">
                                 <div className="text-xs">You Pay</div>
@@ -191,7 +191,7 @@ export const SwapPage = () => {
                                 />
                             </div>
                             <Spacer y={1.5} />
-                            <NomasCard className="bg-content2">
+                            <NomasCard className="bg-content2-200">
                                 <NomasCardBody className="flex-row flex justify-between items-center gap-">
                                     <SelectToken
                                         token={tokenInEntity}
@@ -214,6 +214,7 @@ export const SwapPage = () => {
                                                 swapFormik.setFieldValue("tokenInFocused", false)
                                                 swapFormik.setFieldTouched("amountIn")
                                             }}
+                
                                             isInvalid={
                                                 !!(
                                                     swapFormik.touched.amountIn &&
@@ -246,14 +247,14 @@ export const SwapPage = () => {
                         }}
                         className="z-50"
                     />
-                    <NomasCard className="bg-content3 w-full">
+                    <NomasCard className="bg-content2-100 w-full">
                         <NomasCardBody>
                             <div className="flex items-center gap-2 justify-between">
                                 <div className="text-xs">You Receive</div>
                                 <Wallet disableFocus balance={swapFormik.values.balanceOut} />
                             </div>
                             <Spacer y={1.5} />
-                            <NomasCard className="bg-content2">
+                            <NomasCard className="bg-content2-200">
                                 <NomasCardBody className="flex-row flex justify-between items-center gap-">
                                     <SelectToken
                                         token={tokenManager.getTokenById(

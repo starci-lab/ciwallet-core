@@ -11,7 +11,7 @@ export interface SelectChainTabProps {
 
 export const SelectChainTab = ({ chainManager, isSelected, onSelect }: SelectChainTabProps) => {
     return (
-        <NomasCard className="bg-content3">
+        <NomasCard className="bg-content3-100">
             <NomasCardBody>
                 <div className="flex gap-4 items-center">
                     {chainManager.toObject().map((chain) => {

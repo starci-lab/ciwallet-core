@@ -4,7 +4,7 @@ import { ChainId, TokenId } from "@ciwallet-sdk/types"
 import {
     ERC20Contract,
 } from "@ciwallet-sdk/contracts"
-import { useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccount, useAppSelector } from "@/nomas/redux"
 import { useWalletKit } from "@ciwallet-sdk/providers"
 import { ethers } from "ethers"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
@@ -16,27 +16,27 @@ import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 
 export interface Aggregation {
-  aggregator: AggregatorId;
-  amountOut: number;
+    aggregator: AggregatorId;
+    amountOut: number;
 }
 
 export interface SwapFormikValues {
-  balanceIn: number;
-  balanceOut: number;
-  tokenIn: TokenId;
-  tokenOut: TokenId;
-  tokenInChainId: ChainId;
-  tokenOutChainId: ChainId;
-  isInput: boolean;
-  amountIn: string;
-  amountOut: string;
-  slippage: number;
-  tokenInFocused: boolean;
-  quoting: boolean;
-  aggregations: Array<Aggregation>;
-  bestAggregationId: AggregatorId;
-  refreshKey: number;
-  protocols: Array<ProtocolData>;
+    balanceIn: number;
+    balanceOut: number;
+    tokenIn: TokenId;
+    tokenOut: TokenId;
+    tokenInChainId: ChainId;
+    tokenOutChainId: ChainId;
+    isInput: boolean;
+    amountIn: string;
+    amountOut: string;
+    slippage: number;
+    tokenInFocused: boolean;
+    quoting: boolean;
+    aggregations: Array<Aggregation>;
+    bestAggregationId: AggregatorId;
+    refreshKey: number;
+    protocols: Array<ProtocolData>;
 }
 
 const swapValidationSchema = Yup.object({
@@ -84,8 +84,9 @@ export const useSwapFormik = () => {
 }
 
 export const useSwapFormikCore = () => {
-    const network = useAppSelector((state) => state.base.network)
-    const tokenManager = useAppSelector((state) => state.token.manager)
+    const network = useAppSelector((state) => state.persits.session.network)
+    const chainId = useAppSelector((state) => state.persits.session.chainId)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persits))
     const { adapter } = useWalletKit()
     const { swrMutation } = useBatchAggregatorSwrMutations()
     return useFormik<SwapFormikValues>({
@@ -113,14 +114,14 @@ export const useSwapFormikCore = () => {
             if (!adapter) {
                 throw new Error("Kimochi")
             }
-            const senderAddress = "0xA7C1d79C7848c019bCb669f1649459bE9d076DA3"
+            const senderAddress = selectedAccount?.accountAddress ?? ""
             const rpcProvider = new ethers.JsonRpcProvider(
                 "https://testnet-rpc.monad.xyz"
             )
             const erc20Contract = ERC20Contract({
                 chainId: values.tokenInChainId,
                 network,
-                tokenAddress: tokenManager.getTokenById(values.tokenIn)?.address ?? "",
+                tokenAddress: selectedAccount?.accountAddress ?? "",
             })
             const nonce = await rpcProvider.getTransactionCount(senderAddress)
             const { to, data, value } = SuperJSON.parse<EvmSerializedTx>(
@@ -136,7 +137,7 @@ export const useSwapFormikCore = () => {
                     to,
                     toRaw(
                         Number(values.amountIn),
-                        tokenManager.getTokenById(values.tokenIn)?.decimals
+                        18
                     ).toString()
                 )
             approveTx.chainId = BigInt(10143)

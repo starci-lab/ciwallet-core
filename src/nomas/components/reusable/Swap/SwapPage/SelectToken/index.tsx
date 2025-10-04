@@ -36,7 +36,7 @@ export const SelectToken = ({ token, chainMetadata, onSelect }: SelectTokenProps
         >
             <div>
                 <div className="text-sm">{token.name}</div>
-                <div className="text-foreground-500 text-xs">{token.symbol}</div>
+                <div className="text-foreground-100 text-xs text-left">{token.symbol}</div>
             </div>
         </NomasButton>
     )
