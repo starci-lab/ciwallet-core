@@ -1,6 +1,6 @@
 import { ArrowsLeftRightIcon, BankIcon, ImagesSquareIcon, TrendUpIcon, WalletIcon } from "@phosphor-icons/react"
 import React from "react"
-import { NomasCard } from "../../extends/NomasCard"
+import { NomasCard } from "../../../../extends/NomasCard"
 import { MenuItemButton } from "./MenuItemButton"
 
 type MenuKey = "trade" | "perp" | "home" | "nfts" | "defi"
@@ -20,7 +20,7 @@ const items: MenuItem[] = [
     { key: "defi", label: "Defi", icon: <BankIcon size={18} />, disabled: true },
 ]
 
-export const MainMenu = () => {
+export const MenuSection = () => {
     const [active, setActive] = React.useState<MenuKey>("home")
 
     return (

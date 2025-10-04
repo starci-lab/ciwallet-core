@@ -4,7 +4,15 @@ import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { Mnemonic } from "@ciwallet-sdk/classes"
 import { ChainId } from "@ciwallet-sdk/types"
-import { InitPage, addAccount, setEncryptedMnemonic, setInitPage, useAppDispatch } from "@/nomas/redux"
+import { 
+    InitPage, 
+    addAccount, 
+    setEncryptedMnemonic, 
+    setInitialized, 
+    setInitPage, 
+    useAppDispatch,
+    setPassword
+} from "@/nomas/redux"
 import { encryptionObj, walletGeneratorObj } from "@/nomas/obj"
 import { v4 as uuidv4 } from "uuid"
 
@@ -74,7 +82,9 @@ export const useCreatePasswordFormikCore = () => {
                                 avatarUrl: "",
                             } }))
                 dispatch(setInitPage(InitPage.Splash))
+                dispatch(setPassword(values.password))
             })
+            dispatch(setInitialized(true))
         },
     })
 }

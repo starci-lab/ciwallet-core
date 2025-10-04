@@ -24,6 +24,9 @@ export interface SessionSlice {
     encryptedMnemonic: string;
     network: Network;
     chainId: ChainId;
+    initialized: boolean;
+    // use worker to remove after a period of time
+    password: string;
 }
 
 const initialState: SessionSlice = {
@@ -31,12 +34,18 @@ const initialState: SessionSlice = {
     encryptedMnemonic: "",
     network: Network.Mainnet,
     chainId: ChainId.Monad,
+    initialized: false,
+    password: "",
 }
 
 export const sessionSlice = createSlice({
     name: "session",
     initialState,
     reducers: {
+        // set password
+        setPassword: (state, action: PayloadAction<string>) => {
+            state.password = action.payload
+        },
         // add account
         addAccount: (
             state, 
@@ -79,6 +88,10 @@ export const sessionSlice = createSlice({
         setChainId: (state, action: PayloadAction<ChainId>) => {
             state.chainId = action.payload
         },
+        // set initialized
+        setInitialized: (state, action: PayloadAction<boolean>) => {
+            state.initialized = action.payload
+        },
     },
     selectors: {
         selectSelectedAccount: (state) => {
@@ -105,10 +118,12 @@ export interface SetSelectedAccountIdParams {
 
 export const sessionReducer = persistReducer(getStorageConfig(), sessionSlice.reducer)
 export const {
+    setPassword,
     addAccount,
     setEncryptedMnemonic,
     setSelectedAccountId,
     setNetwork,
     setChainId,
+    setInitialized,
 } = sessionSlice.actions
 export const { selectSelectedAccount } = sessionSlice.selectors

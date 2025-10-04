@@ -1,6 +1,6 @@
 import React from "react"
 import { cn } from "@heroui/react"
-import { NomasButtonTextWithIcon } from "../../../extends/NomasButton"
+import { NomasButtonTextWithIcon } from "../../../../../extends/NomasButton"
 import type { MenuItem } from "../index"
 
 export interface MenuItemButtonProps {

@@ -5,8 +5,8 @@ window.Buffer = Buffer
 
 import { createRoot } from "react-dom/client"
 import "./global.css"
-import App from "./App.tsx"
+import { Nomas } from "./nomas"
 
 createRoot(document.getElementById("root")!).render(
-    <App />
+    <Nomas />
 )

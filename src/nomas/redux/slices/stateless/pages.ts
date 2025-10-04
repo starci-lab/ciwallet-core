@@ -9,6 +9,7 @@ export interface PagesSlice {
 export enum InitPage {
     Launch = "launch",
     CreatePassword = "createPassword",
+    InputPassword = "inputPassword",
     Splash = "splash",
 }
 

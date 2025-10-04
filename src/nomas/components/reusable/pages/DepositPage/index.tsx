@@ -1,5 +1,5 @@
 import React from "react"
-import { MainMenu } from "../../MainMenu"
+import { MainMenu } from "../../scenes/MainScene/MenuSection"
 import { BalanceSection } from "./BalanceSection"
 import { DepositSection } from "./DepositSection"
 
