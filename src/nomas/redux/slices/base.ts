@@ -6,7 +6,7 @@ export interface BaseSlice {
 }
 
 const initialState: BaseSlice = {
-    network: Network.Mainnet,
+    network: Network.Testnet,
 }
 
 export const baseSlice = createSlice({

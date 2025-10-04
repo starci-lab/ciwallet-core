@@ -77,7 +77,7 @@
     "build:lib": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && npm run build:lib",
-    "lint": "eslint .",
+    "lint": "eslint --fix .",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -89,6 +89,7 @@
     "@noble/ed25519": "^3.0.0",
     "@phosphor-icons/react": "^2.1.10",
     "@reduxjs/toolkit": "^2.8.2",
+    "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "axios": "^1.11.0",
     "bip39": "^3.1.0",
@@ -108,6 +109,7 @@
     "styled-components": "^6.1.19",
     "superjson": "^2.2.2",
     "swr": "^2.3.6",
+    "vite-plugin-node-polyfills": "^0.24.0",
     "tweetnacl": "^1.0.3",
     "vite-plugin-web-extension": "^4.4.5",
     "webextension-polyfill": "^0.12.0",

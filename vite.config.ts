@@ -1,15 +1,19 @@
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
+import inject from "@rollup/plugin-inject"
 import tailwindcss from "@tailwindcss/vite"
+import react from "@vitejs/plugin-react"
 import path from "path"
+import { defineConfig } from "vite"
 import webExtension from "vite-plugin-web-extension"
 
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
-        react(), 
+        react(),
         tailwindcss(),
-        webExtension()
+        webExtension(),
+        inject({
+            Buffer: ["buffer", "Buffer"],
+        }),
     ],
     resolve: {
         alias: {

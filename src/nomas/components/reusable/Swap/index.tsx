@@ -4,8 +4,9 @@ import { SwapPageState, useAppSelector } from "../../../redux"
 import { SelectTokenPage } from "./SelectTokenPage"
 import { SwapPage } from "./SwapPage"
 import { NomasAggregationPage } from "./NomasAggregationPage"
+import { WithdrawPage } from "../pages"
 export const Swap = () => {
-    const swapPage = useAppSelector(state => state.pages.swapPage)
+    const swapPage = useAppSelector((state) => state.pages.swapPage)
     const renderPage = () => {
         switch (swapPage) {
         case SwapPageState.SelectToken:
@@ -16,9 +17,5 @@ export const Swap = () => {
             return <NomasAggregationPage />
         }
     }
-    return (
-        <NomasCard asCore>
-            {renderPage()}
-        </NomasCard>
-    )
+    return <NomasCard asCore>{renderPage()}</NomasCard>
 }
