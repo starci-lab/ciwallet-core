@@ -4,17 +4,22 @@
   "version": "1.0.0",
   "description": "Nomas Wallet overlay extension",
   "background": {
-    "service_worker": "src/background.ts"
+    "service_worker": "src/nomas/background/main.ts"
   },
   "action": {
     "default_title": "Nomas Wallet"
   },
-  "permissions": ["scripting", "activeTab"],
+  "permissions": [
+    "scripting", 
+    "activeTab",
+    "storage"
+  ],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/content.ts"]
+      "js": ["src/nomas/content/main.ts"],
+      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [

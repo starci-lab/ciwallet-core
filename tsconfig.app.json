@@ -42,5 +42,5 @@
     },
     
   },
-  "include": ["src", "packages"]
+  "include": ["src", "packages", "global.d.ts"]
 }
