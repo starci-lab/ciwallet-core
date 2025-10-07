@@ -3,24 +3,22 @@ import {
     NomasCard,
     NomasCardBody,
     NomasDivider,
-} from "../../../../extends"
+} from "../../../../../../extends"
 import {
     useAppSelector,
     useAppDispatch,
     setWithdrawPage,
-    WithdrawPageState,
+    WithdrawPage,
 } from "@/nomas/redux"
 import { SpinnerGapIcon } from "@phosphor-icons/react"
 import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks"
 import { useEffect, useRef } from "react"
+import { tokenManagerObj } from "@/nomas/obj"
 
 export const ProcessTransaction = () => {
     const dispatch = useAppDispatch()
     const withdrawFormik = useWithdrawFormik()
-
-    const chainManager = useAppSelector((state) => state.chain.manager)
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const token = tokenManager.getTokenById(withdrawFormik.values.tokenId)
+    const token = tokenManagerObj.getTokenById(withdrawFormik.values.tokenId)
     const hasSubmitted = useRef(false)
 
     useEffect(() => {

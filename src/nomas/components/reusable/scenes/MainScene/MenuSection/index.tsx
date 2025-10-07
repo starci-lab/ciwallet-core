@@ -29,7 +29,7 @@ export const MenuSection = () => {
     //TODO: when screen is ready, remove the perp function
     const keyToFunction: Record<MenuKey, Function> = {
         home: Function.Deposit,
-        trade: Function.Deposit,
+        trade: Function.Withdraw,
         perp: Function.Deposit,
         nfts: Function.Deposit,
         defi: Function.Deposit,

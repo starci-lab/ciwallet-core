@@ -4,7 +4,7 @@ import {
     NomasCardBody,
     NomasCardHeader,
     NomasSpinner,
-} from "../../../../extends"
+} from "../../../../../../extends"
 import { ChainId, type Token } from "@ciwallet-sdk/types"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
@@ -28,7 +28,7 @@ export const TokenCardWithdraw = ({
     const { handle } = useBalance()
     const withdrawFormik = useWithdrawFormik()
 
-    const network = useAppSelector((state) => state.base.network)
+    const network = useAppSelector((state) => state.persits.session.network)
 
     const { data, isLoading } = useSWR(
         ["withdraw-balance", token.address, network, chainId],

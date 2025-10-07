@@ -5,11 +5,11 @@ import {
     NomasCardBody,
     NomasDivider,
     NomasTooltip,
-} from "../../../../extends"
+} from "../../../../../../extends"
 import {
     useAppSelector,
     useAppDispatch,
-    WithdrawPageState,
+    WithdrawPage,
     setWithdrawPage,
 } from "@/nomas/redux"
 import { Snippet } from "@heroui/react"
@@ -17,14 +17,13 @@ import { useWithdrawFormik } from "@/nomas/hooks/singleton"
 import { shortenAddress } from "@ciwallet-sdk/utils"
 import { InfoIcon } from "@phosphor-icons/react"
 import { useState, useEffect } from "react"
+import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 
 export const SignTransaction = () => {
     const dispatch = useAppDispatch()
     const withdrawFormik = useWithdrawFormik()
-    const chainManager = useAppSelector((state) => state.chain.manager)
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const token = tokenManager.getTokenById(withdrawFormik.values.tokenId)
-    const chainMetadata = chainManager.getChainById(
+    const token = tokenManagerObj.getTokenById(withdrawFormik.values.tokenId)
+    const chainMetadata = chainManagerObj.getChainById(
         withdrawFormik.values.chainId,
     )
 
@@ -113,7 +112,7 @@ export const SignTransaction = () => {
             <NomasButton
                 className="py-6"
                 onPress={() => {
-                    dispatch(setWithdrawPage(WithdrawPageState.ProcessTransaction))
+                    dispatch(setWithdrawPage(WithdrawPage.ProcessTransaction))
                 }}
                 isDisabled={countdown > 0}
             >
