@@ -4,7 +4,7 @@ import {
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
-} from "../../../extends"
+} from "../../../../../extends"
 import { InitWithdraw } from "./InitWithdraw"
 import { ProcessTransaction } from "./ProcessTransaction"
 import { ResultTransaction } from "./ResultTransaction"
@@ -14,26 +14,26 @@ import {
     setWithdrawPage,
     useAppDispatch,
     useAppSelector,
-    WithdrawPageState,
+    WithdrawPage,
 } from "@/nomas/redux"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import { ChooseTokenTab } from "./ChooseTokenTab"
 
-export const WithdrawPage = () => {
+export const WithdrawFunction = () => {
     const dispatch = useAppDispatch()
-    const withdrawPage = useAppSelector((state) => state.withdraw.withdrawPage)
+    const withdrawPage = useAppSelector((state) => state.stateless.pages.withdrawPage)
 
     const pageRender = () => {
         switch (withdrawPage) {
-        case WithdrawPageState.InitWithdraw:
+        case WithdrawPage.InitWithdraw:
             return <InitWithdraw />
-        case WithdrawPageState.SignTransaction:
+        case WithdrawPage.SignTransaction:
             return <SignTransaction />
-        case WithdrawPageState.ProcessTransaction:
+        case WithdrawPage.ProcessTransaction:
             return <ProcessTransaction />
-        case WithdrawPageState.ResultTransaction:
+        case WithdrawPage.ResultTransaction:
             return <ResultTransaction />
-        case WithdrawPageState.ChooseTokenTab:
+        case WithdrawPage.ChooseTokenTab:
             return <ChooseTokenTab />
         }
     }
@@ -45,7 +45,7 @@ export const WithdrawPage = () => {
                     title="Withdraw"
                     showBackButton
                     onBackButtonPress={() => {
-                        dispatch(setWithdrawPage(WithdrawPageState.InitWithdraw))
+                        dispatch(setWithdrawPage(WithdrawPage.InitWithdraw))
                     }}
                 />
                 <NomasCardBody>

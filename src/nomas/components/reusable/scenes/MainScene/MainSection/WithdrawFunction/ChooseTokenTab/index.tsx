@@ -2,12 +2,12 @@ import {
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
-} from "../../../../extends"
+} from "../../../../../../extends"
 import {
     useAppSelector,
     useAppDispatch,
     setWithdrawPage,
-    WithdrawPageState,
+    WithdrawPage,
 } from "@/nomas/redux"
 import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks"
 import { useEffect, useState } from "react"
@@ -47,7 +47,7 @@ export const ChooseTokenTab = () => {
                         onPress={() => {
                             console.log("Select token:", token)
                             withdrawFormik.setFieldValue("tokenId", token.tokenId)
-                            dispatch(setWithdrawPage(WithdrawPageState.InitWithdraw))
+                            dispatch(setWithdrawPage(WithdrawPage.InitWithdraw))
                         }}
                     />
                 ))}

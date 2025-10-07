@@ -6,28 +6,27 @@ import {
     NomasDivider,
     NomasLink,
     NomasTooltip,
-} from "../../../../extends"
+} from "../../../../../../extends"
 import {
     useAppSelector,
     useAppDispatch,
     setWithdrawPage,
-    WithdrawPageState,
+    WithdrawPage,
 } from "@/nomas/redux"
 import { InfoIcon } from "@phosphor-icons/react"
 import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks"
 import { formatBigInt } from "@ciwallet-sdk/utils"
+import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 
 export const ResultTransaction = () => {
     const dispatch = useAppDispatch()
     const withdrawFormik = useWithdrawFormik()
 
-    const chainManager = useAppSelector((state) => state.chain.manager)
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const token = tokenManager.getTokenById(withdrawFormik.values.tokenId)
-    const chainMetadata = chainManager.getChainById(
+    const token = tokenManagerObj.getTokenById(withdrawFormik.values.tokenId)
+    const chainMetadata = chainManagerObj.getChainById(
         withdrawFormik.values.chainId,
     )
-    const txDetails = chainManager.getTransactionDetails(
+    const txDetails = chainManagerObj.getTransactionDetails(
         withdrawFormik.values.result?.data?.signature ?? "",
         withdrawFormik.values.chainId,
     )
@@ -113,7 +112,7 @@ export const ResultTransaction = () => {
                 className="py-6 border-1 border-foreground-700"
                 onPress={() => {
                     console.log("Result")
-                    dispatch(setWithdrawPage(WithdrawPageState.InitWithdraw))
+                    dispatch(setWithdrawPage(WithdrawPage.InitWithdraw))
                 }}
             >
         Proceed

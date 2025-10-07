@@ -8,13 +8,12 @@ import {
     NomasCardBody,
     NomasDivider,
     NomasSpinner,
-} from "../../../../extends"
+} from "../../../../../../extends"
 import {
     useAppSelector,
     useAppDispatch,
-    setWithdrawChainId,
     setWithdrawPage,
-    WithdrawPageState,
+    WithdrawPage,
 } from "@/nomas/redux"
 import { ButtonSelectTokenWithdraw } from "../ButtonSelectTokenWithdraw"
 import { ClipboardIcon, GearIcon } from "@phosphor-icons/react"
@@ -23,26 +22,22 @@ import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks/"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
 import { useEffect } from "react"
+import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 
 export const InitWithdraw = () => {
     const dispatch = useAppDispatch()
     const withdrawFormik = useWithdrawFormik()
     const { handle } = useBalance()
 
-    const network = useAppSelector((state) => state.base.network)
-    const withdrawChainId = useAppSelector((state) => state.withdraw.chainId)
-    const chainManager = useAppSelector((state) => state.chain.manager)
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const accountManager = useAppSelector((state) => state.accounts.manager)
-    const token = tokenManager.getTokenById(withdrawFormik.values.tokenId)
-    const chainMetadata = chainManager.getChainById(
+    const network = useAppSelector((state) => state.persits.session.network)
+    const withdrawChainId = useAppSelector((state) => state.persits.session.chainId)
+    const accountManager = useAppSelector((state) => state.persits.session.accounts[withdrawFormik.values.chainId])
+    const token = tokenManagerObj.getTokenById(withdrawFormik.values.tokenId)
+    const chainMetadata = chainManagerObj.getChainById(
         withdrawFormik.values.chainId,
     )
     // const walletAddress = '0xA7C1d79C7848c019bCb669f1649459bE9d076DA3';
-    const walletAddress = accountManager.getAccount(
-        withdrawFormik.values.chainId,
-        network,
-    )?.address as string
+    const walletAddress = accountManager?.accounts[0]?.accountAddress
 
     const { isLoading: isBalanceLoading } = useSWR(
         [
@@ -58,7 +53,7 @@ export const InitWithdraw = () => {
             const balance = await handle({
                 chainId: withdrawFormik.values.chainId,
                 network,
-                address: walletAddress,
+                address: walletAddress || "",
                 tokenAddress: token.address,
                 decimals: token.decimals,
             })
@@ -96,14 +91,14 @@ export const InitWithdraw = () => {
                     <p className="text-foreground-100">From</p>
 
                     <SelectChainTab
-                        chainManager={chainManager}
+                        chainManager={chainManagerObj}
                         isSelected={(chainId) => chainId === withdrawChainId}
                         onSelect={(chainId) => {
-                            dispatch(setWithdrawChainId(chainId))
+                            dispatch(setWithdrawPage(WithdrawPage.InitWithdraw))
                             withdrawFormik.setFieldValue("chainId", chainId)
                             withdrawFormik.setFieldValue(
                                 "tokenId",
-                                tokenManager.getNativeToken(chainId, network)?.tokenId,
+                                tokenManagerObj.getNativeToken(chainId, network)?.tokenId,
                             )
                         }}
                     />
@@ -152,7 +147,7 @@ export const InitWithdraw = () => {
                                     token={token}
                                     chainMetadata={chainMetadata}
                                     onSelect={() => {
-                                        dispatch(setWithdrawPage(WithdrawPageState.ChooseTokenTab))
+                                        dispatch(setWithdrawPage(WithdrawPage.ChooseTokenTab))
                                     }}
                                 />
 
@@ -275,7 +270,7 @@ export const InitWithdraw = () => {
                     const isValid = withdrawFormik.isValid
 
                     if (isValid) {
-                        dispatch(setWithdrawPage(WithdrawPageState.SignTransaction))
+                        dispatch(setWithdrawPage(WithdrawPage.SignTransaction))
                     }
                 }}
                 disabled={!withdrawFormik.isValid}
