@@ -1,5 +1,5 @@
 import QRCodeStyling from "qr-code-styling"
-import React, { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 
 export interface QRCodeProps {
     // data to be encoded
