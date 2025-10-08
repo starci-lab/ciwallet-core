@@ -1,7 +1,7 @@
-import { Platform, type BaseParams } from "@ciwallet-sdk/types"
-import { chainIdToPlatform } from "@ciwallet-sdk/utils"
-import { useWalletKit } from "@ciwallet-sdk/providers"
-import { JsonRpcProvider } from "ethers"
+import { Platform, type BaseParams } from '@ciwallet-sdk/types';
+import { chainIdToPlatform } from '@ciwallet-sdk/utils';
+import { useWalletKit } from '@ciwallet-sdk/providers';
+import { JsonRpcProvider } from 'ethers';
 
 export interface UseGetNonceParams extends BaseParams {
   // to address in solana, we use ata

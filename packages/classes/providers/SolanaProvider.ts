@@ -20,10 +20,6 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
-  sendAndConfirmTransaction,
-  LAMPORTS_PER_SOL,
-  type Commitment,
-  Keypair,
   sendAndConfirmRawTransaction,
 } from "@solana/web3.js"
 
@@ -32,6 +28,8 @@ import {
   createTransferInstruction,
   getAccount,
   TOKEN_PROGRAM_ID,
+  getMint,
+  createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token"
 
 import bs58 from "bs58"
@@ -67,9 +65,7 @@ export class SolanaProvider implements IAction, IQuery {
     const toPubkey = new PublicKey(toAddress)
 
     let tx: Transaction
-
-    // ✅ Case 1: Native SOL transfer
-    if (tokenAddress === "native") {
+    if (!tokenAddress) {
       tx = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey,
@@ -78,37 +74,55 @@ export class SolanaProvider implements IAction, IQuery {
         })
       )
     } else {
-      // ✅ Case 2: SPL Token transfer
       const mint = new PublicKey(tokenAddress)
+      const mintInfo = await getMint(this.connection, mint)
+      const decimals = mintInfo.decimals
+
       const fromAta = await getAssociatedTokenAddress(mint, fromPubkey)
       const toAta = await getAssociatedTokenAddress(mint, toPubkey)
 
-      tx = new Transaction().add(
-        createTransferInstruction(
-          fromAta,
-          toAta,
-          fromPubkey,
-          BigInt(Math.floor(amount * 10 ** decimals)),
-          [],
-          TOKEN_PROGRAM_ID
+      const toAccountInfo = await this.connection.getAccountInfo(toAta)
+      if (!toAccountInfo) {
+        tx = new Transaction().add(
+          createAssociatedTokenAccountInstruction(
+            fromPubkey,
+            toAta,
+            toPubkey,
+            mint
+          ),
+          createTransferInstruction(
+            fromAta,
+            toAta,
+            fromPubkey,
+            BigInt(Math.floor(amount * 10 ** decimals)),
+            [],
+            TOKEN_PROGRAM_ID
+          )
         )
-      )
+      } else {
+        tx = new Transaction().add(
+          createTransferInstruction(
+            fromAta,
+            toAta,
+            fromPubkey,
+            BigInt(Math.floor(amount * 10 ** decimals)),
+            [],
+            TOKEN_PROGRAM_ID
+          )
+        )
+      }
     }
 
-    // ✅ Step 3: Assign blockhash + fee payer
     const { blockhash } = await this.connection.getLatestBlockhash()
     tx.recentBlockhash = blockhash
     tx.feePayer = fromPubkey
 
-    // ✅ Step 4: Ensure we can sign
     if (!this.walletAdapter.signTransaction) {
       throw new Error("Wallet adapter does not support signTransaction")
     }
 
-    // ✅ Step 5: Serialize for signing
     const serializedTx = tx.serialize({ requireAllSignatures: false })
 
-    // ✅ Step 6: Ask adapter to sign
     const signedResponse = await this.walletAdapter.signTransaction({
       chainId: this.chainId,
       network: this.network,
@@ -121,14 +135,12 @@ export class SolanaProvider implements IAction, IQuery {
       throw new Error("No signed transaction returned from wallet adapter")
     }
 
-    // ✅ Step 7: Send + confirm the full signed transaction
     const sig = await sendAndConfirmRawTransaction(
       this.connection,
       Buffer.from(signedResponse.signedTransaction, "base64"),
       { commitment: "confirmed" }
     )
 
-    console.log("Confirmed tx:", sig)
     return { txHash: sig }
   }
 
@@ -148,10 +160,16 @@ export class SolanaProvider implements IAction, IQuery {
     try {
       const mint = new PublicKey(tokenAddress)
       const ata = await getAssociatedTokenAddress(mint, pubkey)
+
+      const accountInfo = await this.connection.getAccountInfo(ata)
+      if (!accountInfo) {
+        return { amount: 0 }
+      }
+
       const account = await getAccount(this.connection, ata)
       return { amount: Number(account.amount) / 10 ** decimals }
     } catch (err) {
-      console.error(err)
+      console.error("fetchBalance error", err)
       return { amount: 0 }
     }
   }
