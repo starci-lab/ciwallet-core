@@ -22,7 +22,7 @@ export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()
     const swapFormik = useSwapFormik()
     const tokenManager = tokenManagerObj
-    const network = useAppSelector((state) => state.persits.session.network)
+    const network = useAppSelector((state) => state.persist.session.network)
     return (
         <>
             <NomasCardHeader

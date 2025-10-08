@@ -37,7 +37,7 @@ export const useInputPasswordFormik = () => {
 
 export const useInputPasswordFormikCore = () => {
     const dispatch = useAppDispatch()
-    const encryptedMnemonic = useAppSelector((state) => state.persits.session.encryptedMnemonic)
+    const encryptedMnemonic = useAppSelector((state) => state.persist.session.encryptedMnemonic)
     return useFormik<InputPasswordFormikValues>({
         initialValues: {
             password: "",

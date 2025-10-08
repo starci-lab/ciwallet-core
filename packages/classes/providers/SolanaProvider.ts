@@ -42,8 +42,8 @@ export class SolanaProvider implements IAction, IQuery {
     public readonly chainId: ChainId,
     public readonly network: Network,
     public readonly walletAdapter: IWalletAdapter,
-    public readonly publicKeyStr: string = "3xaKeNNV4gdAs6ovtjrxtfUqc5bG2q6hbokP8qM3ToQu",
-    public readonly privateKeyStr: string = "52xsZAJqLEECmk8MZML2on3ViwBjJrffenB7KBKz7vEVjULKNrPHvhjBeoNM5DwDo2SKvmc8XuLhcwDHSjSSSuMb"
+    public readonly publicKeyStr: string,
+    public readonly privateKeyStr?: string
   ) {
     const { chains } = this.walletAdapter
     if (!chains.some((chain) => chain.chainId === chainId)) {
@@ -119,6 +119,10 @@ export class SolanaProvider implements IAction, IQuery {
 
     if (!this.walletAdapter.signTransaction) {
       throw new Error("Wallet adapter does not support signTransaction")
+    }
+
+    if (!this.privateKeyStr) {
+      throw new Error("Private key is required for signing")
     }
 
     const serializedTx = tx.serialize({ requireAllSignatures: false })

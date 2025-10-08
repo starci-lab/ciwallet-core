@@ -20,25 +20,34 @@ export const useBalance = () => {
   }: UseBalanceParams) => {
     switch (chainIdToPlatform(chainId)) {
       case Platform.Evm: {
-        return new EvmProvider(chainId, network, adapter).fetchBalance({
-          accountAddress: address,
-          tokenAddress,
-          decimals,
-        })
+        return new EvmProvider(chainId, network, adapter, address).fetchBalance(
+          {
+            accountAddress: address,
+            tokenAddress,
+            decimals,
+          }
+        )
       }
       case Platform.Solana: {
-        return new SolanaProvider(chainId, network, adapter).fetchBalance({
+        return new SolanaProvider(
+          chainId,
+          network,
+          adapter,
+          address
+        ).fetchBalance({
           accountAddress: address,
           tokenAddress,
           decimals,
         })
       }
       case Platform.Sui:
-        return new SuiProvider(chainId, network, adapter).fetchBalance({
-          accountAddress: address,
-          tokenAddress,
-          decimals,
-        })
+        return new SuiProvider(chainId, network, adapter, address).fetchBalance(
+          {
+            accountAddress: address,
+            tokenAddress,
+            decimals,
+          }
+        )
       default:
         throw new Error(`Chain ${chainId} is not supported`)
     }

@@ -18,9 +18,9 @@ export const ChooseTokenTab = () => {
     const dispatch = useAppDispatch()
     const withdrawFormik = useWithdrawFormik()
 
-    const chainManager = useAppSelector((state) => state.chain.manager)
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const network = useAppSelector((state) => state.base.network)
+    const chainManager = useAppSelector((state) => state.stateless.withdraw.chainManager)
+    const tokenManager = useAppSelector((state) => state.stateless.withdraw.tokenManager)
+    const network = useAppSelector((state) => state.persist.session.network)
     const chainMetadata = chainManager.getChainById(
         withdrawFormik.values.chainId,
     )
@@ -45,7 +45,6 @@ export const ChooseTokenTab = () => {
                         chainId={chainMetadata!.id}
                         isPressable
                         onPress={() => {
-                            console.log("Select token:", token)
                             withdrawFormik.setFieldValue("tokenId", token.tokenId)
                             dispatch(setWithdrawPage(WithdrawPage.InitWithdraw))
                         }}

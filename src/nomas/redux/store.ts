@@ -1,14 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit"
 import {
     statelessReducer,
-    persitsReducer,
+    persistReducer,
 } from "./slices"
 import { persistStore } from "redux-persist"
 
 export const store = configureStore({
     reducer: {
         stateless: statelessReducer,
-        persits: persitsReducer,
+        persist: persistReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

@@ -23,12 +23,13 @@ import { fromBase64, toBase64 } from "@mysten/bcs"
 export class SuiProvider implements IAction, IQuery {
   private readonly chain: Chain
   private readonly client: SuiClient
-  private readonly accountAddress: string
 
   constructor(
     public readonly chainId: ChainId,
     public readonly network: Network,
-    public readonly walletAdapter: IWalletAdapter
+    public readonly walletAdapter: IWalletAdapter,
+    public readonly publicKeyStr: string,
+    public readonly privateKeyStr?: string
   ) {
     const { chains } = this.walletAdapter
     if (!chains.some((chain) => chain.chainId === chainId)) {
@@ -36,8 +37,8 @@ export class SuiProvider implements IAction, IQuery {
     }
     this.chain = chains.find((chain) => chain.chainId === chainId)!
     this.client = new SuiClient({ url: this.chain.rpcs.at(0)! })
-    this.accountAddress =
-      "0x57eaa973b4ce408e82b1c67667f33e9559d30d952baf5d9b3d994eb5ccf8d92d"
+    // this.accountAddress =
+    //   "0x57eaa973b4ce408e82b1c67667f33e9559d30d952baf5d9b3d994eb5ccf8d92d"
   }
 
   /** Transfer SUI or other coin */
@@ -49,7 +50,7 @@ export class SuiProvider implements IAction, IQuery {
   }: TransferParams): Promise<TransferResponse> {
     const tx = new Transaction()
 
-    tx.setSender(this.accountAddress)
+    tx.setSender(this.publicKeyStr)
     tx.setGasBudget(5000000)
 
     if (!tokenAddress || tokenAddress === "native") {
@@ -59,7 +60,7 @@ export class SuiProvider implements IAction, IQuery {
       tx.transferObjects([coin], tx.pure.address(toAddress))
     } else {
       const coins = await this.client.getCoins({
-        owner: this.accountAddress,
+        owner: this.publicKeyStr,
         coinType: tokenAddress,
       })
 
@@ -80,12 +81,18 @@ export class SuiProvider implements IAction, IQuery {
       throw new Error("Wallet adapter does not support signTransaction")
     }
 
+    if (!this.privateKeyStr) {
+      throw new Error("Private key is required for signing transaction")
+    }
+
     const bytes = await tx.build({ client: this.client })
 
     const signed = await this.walletAdapter.signTransaction({
       chainId: this.chainId,
       network: this.network,
       transaction: toBase64(bytes),
+      privateKey: this.privateKeyStr,
+      rpcs: this.chain.rpcs,
     })
 
     const res = await this.client.executeTransactionBlock({
@@ -107,7 +114,9 @@ export class SuiProvider implements IAction, IQuery {
     tokenAddress,
     decimals = 9,
   }: FetchBalanceParams): Promise<FetchBalanceResponse> {
-    const address = accountAddress || this.accountAddress
+    console.log({ accountAddress, tokenAddress, decimals });
+    
+    const address = accountAddress || this.publicKeyStr
 
     let balance: CoinBalance
 

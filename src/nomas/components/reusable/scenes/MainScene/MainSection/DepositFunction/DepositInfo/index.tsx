@@ -12,7 +12,7 @@ interface DepositInfoProps {
 }
 
 export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
-    const accounts = useAppSelector((state) => state.persits.session.accounts[selectedChainId])
+    const accounts = useAppSelector((state) => state.persist.session.accounts[selectedChainId])
     const selectedChain = chainManagerObj.getChainById(selectedChainId)
     const address = accounts?.accounts[0]?.accountAddress
     const handleCopy = () => {

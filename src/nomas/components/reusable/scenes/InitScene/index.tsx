@@ -7,7 +7,7 @@ import { useLayoutEffect } from "react"
 export const InitScene = () => {
     // retrieve init page from redux
     const initPage = useAppSelector((state) => state.stateless.pages.initPage)
-    const initialized = useAppSelector((state) => state.persits.session.initialized)
+    const initialized = useAppSelector((state) => state.persist.session.initialized)
     const dispatch = useAppDispatch()
     // if initialized, set init page to input password
     useLayoutEffect(() => {
