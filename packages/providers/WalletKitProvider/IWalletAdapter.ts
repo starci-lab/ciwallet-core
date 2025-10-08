@@ -86,10 +86,6 @@ export interface SignTransactionParams extends BaseParams {
   transaction: string;
   // private key
   privateKey: string;
-  // chain id
-  chainId: ChainId;
-  // network
-  network: Network;
   // rpcs
   rpcs: Array<string>;
 }
