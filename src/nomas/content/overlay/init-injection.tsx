@@ -1,6 +1,6 @@
 import React from "react"
 import { createRoot, type Root } from "react-dom/client"
-import { createOverlayContainer, createShadowRoot, injectStyles } from "./dom"
+import { createOverlayContainer, createShadowRoot, injectTailwindToShadow } from "./dom"
 import { getSpecialWebAppConfig } from "./special-web-apps"
 import { OverlayRoot } from "./OverlayRoot" // React component for the overlay UI
 
@@ -28,19 +28,18 @@ export const initInjection = () => {
     setTimeout(() => {
         // If body is not yet available, retry later
         if (!document.body) return initInjection()
-
+        console.log("[Nomas] HTML5 Body is available")
         // 1. Create a fixed container in the DOM for the overlay
         const container = createOverlayContainer()
-
+        console.log("[Nomas] Container created")
         // 2. Attach a Shadow DOM to this container to isolate styles & markup
         shadowRoot = createShadowRoot(container)
-
-        // 3. Inject CSS for the overlay panel directly into the shadow DOM
-        injectStyles(shadowRoot)
-
+        console.log("[Nomas] Shadow root created")
+        injectTailwindToShadow(shadowRoot)
+        console.log("[Nomas] Tailwind injected")
         // 4. Mount the React application inside the shadow DOM
         mountReact(shadowRoot)
-
+        console.log("[Nomas] React mounted")
     }, injectDelay) // Delay ensures SPA pages like Twitter/Gmail finish rendering
 }
 
@@ -54,7 +53,6 @@ export const mountReact = (shadow: ShadowRoot) => {
     // Create an empty container inside the shadow DOM
     const rootEl = document.createElement("div")
     shadow.appendChild(rootEl)
-
     // Initialize React root and render the overlay UI into it
     reactRoot = createRoot(rootEl)
     reactRoot.render(<OverlayRoot />)

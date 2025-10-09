@@ -19,8 +19,8 @@ export const getStorageConfig = () => {
     console.log("[Env Check]", import.meta.env.MODE, import.meta.env.VITE_APP_ENV)
     if (appEnv === "EXTENSION") {
         // If we are building for browser extension
-        // return syncStorageConfig
-        return indexeddbStorageConfig // demo fallback
+        return syncStorageConfig
+        //return indexeddbStorageConfig // demo fallback
     } else {
         // Default: Web environment
         return indexeddbStorageConfig

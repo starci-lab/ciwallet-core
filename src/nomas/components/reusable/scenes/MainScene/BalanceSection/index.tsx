@@ -7,7 +7,7 @@ import { NomasDivider } from "@/nomas/components/extends"
 
 export const BalanceSection = () => {
     return (
-        <NomasCard asCore className="max-w-md mx-auto">
+        <NomasCard className="max-w-md mx-auto">
             <NomasCardHeader className="justify-between items-center py-4">
                 <div className="flex flex-row items-center gap-3">
                     <div className="relative">

@@ -12,14 +12,12 @@ import {
 import {
     useAppSelector,
     useAppDispatch,
-    setWithdrawChainId,
     setWithdrawPage,
-    WithdrawPageState,
 } from "@/nomas/redux"
 import { ButtonSelectTokenWithdraw } from "../ButtonSelectTokenWithdraw"
 import { ClipboardIcon, GearIcon } from "@phosphor-icons/react"
-import { cn, Input, Textarea } from "@heroui/react"
-import { useWithdrawFormik } from "@/nomas/hooks/singleton/formiks/"
+import { NomasInput, NomasTextarea } from "@/nomas/components"
+import { useWithdrawFormik } from "@/nomas/hooks"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
 import { useEffect } from "react"

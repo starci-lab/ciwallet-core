@@ -1,15 +1,15 @@
 import React from "react"
-import { cn, type ButtonProps } from "@heroui/react"
-import { NomasButton } from "../../extends"
+import { NomasButton, type NomasButtonProps } from "../../extends"
+import { twMerge } from "tailwind-merge"
 
-export interface IconButtonProps extends ButtonProps {
+export interface IconButtonProps extends NomasButtonProps {
     icon: React.ReactNode
 }
 
 export const IconButton = ({ icon, ...props }: IconButtonProps) => {
     return (
-        <NomasButton {...props} size="sm" asBase isIconOnly radius="full" className={
-            cn(props.className)}>
+        <NomasButton {...props} className={
+            twMerge(props.className)}>
             {icon}
         </NomasButton>
     )

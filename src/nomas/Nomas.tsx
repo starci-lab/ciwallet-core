@@ -5,9 +5,9 @@ import { ChainId } from "@ciwallet-sdk/types"
 import { signTransaction } from "@/adapter"
 import { ReduxProvider, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
-import { HeroUIProvider } from "@heroui/react"
 import { Scene } from "@/nomas/redux"
 import { InitScene, MainScene } from "./components/reusable/scenes"
+import "./global.css"
 
 export const Nomas = () => {
     return (
@@ -57,11 +57,9 @@ export const Nomas = () => {
                             className: "h-5 w-5",
                         }}
                     >
-                        <HeroUIProvider>
-                            <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
-                                <NomasContent />
-                            </div>
-                        </HeroUIProvider>
+                        <div className="max-w-[500px] my-6 mx-auto font-sans text-foreground">
+                            <NomasContent />
+                        </div>
                     </IconContext.Provider>
                 </SingletonHookProvider>
             </ReduxProvider>

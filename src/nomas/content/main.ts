@@ -2,7 +2,6 @@ import { initMessageListener } from "./messages"
 import { initInjection } from "./overlay"
 
 console.log("[Nomas] Content script initializing...")
-
 if (!window.nomasWalletInjected) {
     window.nomasWalletInjected = true
 

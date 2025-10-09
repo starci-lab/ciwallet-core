@@ -1,4 +1,4 @@
-import BN from "bn.js"  
+import BN from "bn.js"
 import { Decimal } from "decimal.js"
 
 export const toRaw = (amount: number, decimals: number = 18): BN => {

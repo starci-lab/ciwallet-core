@@ -1,97 +1,106 @@
+// src/components/nomas/NomasButton.tsx
 import React from "react"
-import { Button, cn, Tooltip, type ButtonProps } from "@heroui/react"
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "../shadcn"
+import { twMerge } from "tailwind-merge"
+import { NomasSpinner } from "./NomasSpinner"
 
-export interface NomasButtonProps extends ButtonProps {
-    asBase?: boolean;
+export interface NomasButtonProps extends React.ComponentProps<"button"> {
+  isLoading?: boolean
+  isDisabled?: boolean
+  xlSize?: boolean
 }
 
-export const NomasButton = (props: NomasButtonProps) => {
-    return (
-        <Button
-            {...props}
-            className={
-                cn(
-                    {
-                        "shadow-md border-t border-content3-200": props.asBase,
-                        "bg-content3-100": !props.asBase,
-                    },
-                    props.className
-                )}
-        />
-    )
-}
+export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>(
+    ({ className, isLoading, isDisabled, xlSize, ...props }, ref) => {
+        return (
+            <Button
+                ref={ref}
+                className={
+                    twMerge(
+                        "shadow-button bg-button h-12 bg-button:hover radius-button text-muted cursor-pointer",
+                        xlSize && "h-14 text-base",
+                        className
+                    )}
+                disabled={isDisabled || isLoading}
+                {...props}
+            >
+                {isLoading && <NomasSpinner />}
+                {props.children}
+            </Button>
+        )
+    }
+)
+NomasButton.displayName = "NomasButton"
 
-export const NomasButtonIcon = (props: NomasButtonProps) => {
-    return (
-        <Button
-            isIconOnly
-            size="sm"
-            asBase
-            className={cn("rounded-full border-foreground-600 bg-foreground-700", props.className)}
-            {...props}
-        >
-            {props.children}
-        </Button>
-    )
-}
+export const NomasButtonIcon = React.forwardRef<HTMLButtonElement, NomasButtonProps>(
+    ({ className, children, ...props }, ref) => {
+        return (
+            <Button
+                ref={ref}
+                size="icon-sm"
+                className={
+                    twMerge(
+                        "shadow-button bg-button bg-button:hover rounded-full text-base cursor-pointer",
+                        className
+                    )}
+                {...props}
+            >
+                {children}
+            </Button>
+        )
+    }
+)
+NomasButtonIcon.displayName = "NomasButtonIcon"
 
 export interface NomasButtonTextWithIconProps extends NomasButtonProps {
-  icon: React.ReactNode;
-  useGradient?: boolean;
-  tooltip?: string;
-  startContent?: React.ReactNode;
-  iconPosition?: "start" | "end";
+  icon: React.ReactNode
+  tooltip?: string
+  iconPosition?: "start" | "end"
+  useGradient?: boolean
 }
 
-export const NomasButtonTextWithIcon = (props: NomasButtonTextWithIconProps) => {
+export const NomasButtonTextWithIcon: React.FC<NomasButtonTextWithIconProps> = (props) => {
     if (props.tooltip) {
         return (
-            <Tooltip content={props.tooltip}>
-                <NomasButtonTextWithIconCore {...props} />
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <NomasButtonTextWithIconCore {...props} />
+                </TooltipTrigger>
+                <TooltipContent>{props.tooltip}</TooltipContent>
             </Tooltip>
         )
     }
-    return (
-        <NomasButtonTextWithIconCore {...props} />
-    )
+    return <NomasButtonTextWithIconCore {...props} />
 }
 
-const NomasButtonTextWithIconCore = (
-    props: NomasButtonTextWithIconProps
-) => {
-    const { iconPosition = "end", icon, ...restProps } = props
+const NomasButtonTextWithIconCore: React.FC<NomasButtonTextWithIconProps> = (props) => {
+    const { icon, iconPosition = "end", useGradient, children, ...rest } = props
 
     const iconElement = (
-        <div
-            className={cn(
-                "rounded-small w-8 h-8 grid place-items-center bg-foreground-700 text-foreground"
-            )}
-        >
+        <div className="rounded-md grid place-items-center bg-foreground text-background">
             {icon}
         </div>
     )
 
     return (
         <NomasButton
-            size="sm"
-            asBase
-            className={cn("pr-0 w-fit bg-content3-300 text-sm", props.className)}
-            endContent={iconPosition === "end" ? iconElement : undefined}
-            startContent={iconPosition === "start" ? iconElement : undefined}
-            {...restProps}
+            className={twMerge("pr-0 w-fit shadow-button bg-button bg-button:hover rounded-full text-muted cursor-pointer", props.className)}
+            {...rest}
         >
-            {props.useGradient ? (
-                <div
-                    className={cn("text-foreground", "bg-clip-text text-transparent")}
+            {iconPosition === "start" && iconElement}
+            {useGradient ? (
+                <span
+                    className="bg-clip-text text-transparent"
                     style={{
                         backgroundImage: "linear-gradient(to right, #9ee3b0, #e6b8e0)",
                     }}
                 >
-                    {props.children}
-                </div>
+                    {children}
+                </span>
             ) : (
-                props.children
+                children
             )}
+            {iconPosition === "end" && iconElement}
         </NomasButton>
     )
 }

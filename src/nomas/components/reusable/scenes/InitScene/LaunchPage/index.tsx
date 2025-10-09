@@ -1,50 +1,51 @@
 import React from "react"
-import { NomasCard, NomasCardBody } from "../../../../extends"
+import { NomasCard, NomasCardBody, NomasCardVariant, NomasLink, NomasSpacer } from "../../../../extends"
 import { NomasButtonTextWithIcon } from "../../../../extends"
-import { RocketLaunchIcon } from "@phosphor-icons/react"
+import { CloudArrowUpIcon, DownloadSimpleIcon } from "@phosphor-icons/react"
 import { InitPage, setInitPage, useAppDispatch } from "@/nomas/redux"
+import { assetsConfig } from "@/nomas/resources"
 
 export const LaunchPage = () => {
     const dispatch = useAppDispatch()
     return (
         <NomasCard
-            asCore
+            variant={NomasCardVariant.Gradient}
         >
-            <NomasCardBody className="flex flex-col items-center gap-8">
-                <div className="w-16 h-16 rounded-full grid place-items-center bg-content3-200/30 border border-content3-100">
-                    <img src="/icons/common/nomas-logo.png" alt="Nomas Wallet" className="w-16 h-16" />
+            <NomasCardBody className="flex flex-col items-center">
+                <NomasSpacer y={6} />
+                <div className="w-24 h-24 rounded-full border border-button shadow-button">
+                    <img src={assetsConfig().app.logo} alt="Nomas Wallet" className="w-24 h-24" />
                 </div>
-
+                <NomasSpacer y={4} />
                 <div className="text-center">
-                    <div className="text-4xl font-extrabold tracking-tight text-foreground">Nomas Wallet</div>
-                    <div className="mt-2 text-sm text-foreground">Simple - Seamless - Synergy</div>
+                    <div className="text-4xl font-extrabold tracking-tight text-muted">Nomas Wallet</div>
+                    <div className="mt-2 text-sm text-muted">Simple - Seamless - Synergy</div>
                 </div>
+                <NomasSpacer y={4} />
                 <NomasButtonTextWithIcon
-                    size="lg"
                     className="w-full justify-between"
-                    icon={<RocketLaunchIcon className="w-5 h-5" weight="fill" />}
-                    onPress={async () => {
+                    icon={
+                        <img src={assetsConfig().app.rocket} alt="Rocket" className="w-10 h-10" />
+                    }
+                    xlSize
+                    onClick={async () => {
                         dispatch(setInitPage(InitPage.CreatePassword))
                     }}
                 >
                     Rocket Launch
                 </NomasButtonTextWithIcon>
-
-                <div className="w-full flex items-center justify-between gap-4 text-sm">
-                    {/* <NomasButtonTextWithIcon
-                        className="px-3"
-                        icon={<SignIn className="w-4 h-4" />}
-                    >
-                        I already have a Wallet
-                    </NomasButtonTextWithIcon>
-
-                    <NomasButtonTextWithIcon
-                        className="px-3"
-                        icon={<PaperPlaneTilt className="w-4 h-4" weight="fill" />}
-                    >
-                        Connect Telegram
-                    </NomasButtonTextWithIcon> */}
+                <NomasSpacer y={4} />
+                <div className="w-full text-start justify-between flex px-6">
+                    <div className="flex items-center gap-1 text-xs">
+                        <NomasLink>I already have a wallet</NomasLink>
+                        <DownloadSimpleIcon className="w-4 h-4 text-muted" />
+                    </div>
+                    <div className="flex items-center gap-1 text-xs">
+                        <NomasLink>Backup from cloud</NomasLink>
+                        <CloudArrowUpIcon className="w-4 h-4 text-muted" />
+                    </div>
                 </div>
+                <NomasSpacer y={6} />
             </NomasCardBody>
         </NomasCard>
     )

@@ -5,22 +5,25 @@ import {
     NomasCardBody, 
     NomasCardFooter, 
     NomasCardHeader, 
-    NomasInput
+    NomasCardVariant, 
+    NomasInput,
+    NomasLink
 } from "../../../../extends"
 import { useInputPasswordFormik } from "@/nomas/hooks"
+import { NomasSpacer } from "../../../../extends"
 
 export const InputPasswordPage = () => {
     const formik = useInputPasswordFormik()
     return (
         <NomasCard
-            asCore
+            variant={NomasCardVariant.Gradient}
         >
             <NomasCardHeader title="Input Password" />
-            <NomasCardBody className="flex flex-col items-center gap-8">
+            <NomasCardBody className="flex flex-col items-center">
                 <NomasInput
+                    isPassword
                     label="Password"
                     placeholder="Enter your password"
-                    type="password"
                     isRequired
                     value={formik.values.password}
                     onValueChange={formik.handleChange("password")}
@@ -28,13 +31,17 @@ export const InputPasswordPage = () => {
                     isInvalid={!!(formik.errors.password && formik.touched.password)}
                     errorMessage={formik.errors.password}
                 />
+                <NomasSpacer y={4} />
+                <div className="w-full text-start">
+                    <NomasLink className="text-xs text-start">Forgot Password?</NomasLink>
+                </div>
             </NomasCardBody>
             <NomasCardFooter>
                 <NomasButton 
-                    asBase 
+                    className="w-full"
                     isLoading={formik.isSubmitting}
                     isDisabled={!formik.isValid}
-                    onPress={() => formik.submitForm()}>
+                    onClick={async () => await formik.submitForm()}>
                     Continue
                 </NomasButton>
             </NomasCardFooter>

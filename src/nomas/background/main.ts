@@ -1,4 +1,4 @@
-import browser from "webextension-polyfill"
+import * as browser from "webextension-polyfill"
 import { BackgroundMessageType, type ExtensionMessage } from "../content/messages/types"
 // Listener để nhận message gửi từ content script hoặc popup
 browser.runtime.onMessage.addListener((

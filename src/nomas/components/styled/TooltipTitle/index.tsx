@@ -1,7 +1,8 @@
 import React from "react"
-import { Tooltip, cn } from "@heroui/react"
 import { InfoIcon } from "@phosphor-icons/react"
 import { cva } from "class-variance-authority"
+import { twMerge } from "tailwind-merge"
+import { NomasTooltip } from "../../extends"
 
 export interface TooltipTitleProps {
     title: string
@@ -35,12 +36,12 @@ const infoCva = cva("text-foreground-500", {
 
 export const TooltipTitle = ({ title, tooltip, size }: TooltipTitleProps) => {
     return (
-        <div className={cn(titleCva({ size }), "flex items-center gap-1")}>
+        <div className={twMerge(titleCva({ size }), "flex items-center gap-1")}>
             {title}
             {tooltip && (
-                <Tooltip content={tooltip}>
+                <NomasTooltip content={tooltip}>
                     <InfoIcon className={infoCva({ size })}/>
-                </Tooltip>
+                </NomasTooltip>
             )}
         </div>
     )

@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans/index.css";
+@import "tw-animate-css";
+
+:host {
+  /* Font */
+  --font-sans: "Plus Jakarta Sans Variable", sans-serif;
+  /* Primary text color (white) — used for titles and main content */
+  --text: hsl(0 0% 100%);
+  /* Muted text color (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text */
+  --text-muted: hsl(0 0% 70.2%);
+  /* Muted hover text color */
+  --text-muted-hover:hsl(0 0% 80%);
+  /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
+  --card-gradient: linear-gradient(0deg, hsl(0 0% 7%) 0%, hsl(0 0% 22%) 100%);
+  /* Card radius */
+  --card-radius: 32px;
+  /* Card border color */
+  --card-border: hsla(0 0% 0% / 0.55);
+  /* Card shadow */
+  --card-shadow: 
+  /* inner shadow */ 0px 2px 2.1px 0px rgba(255, 255, 255, 0.3)
+      inset,
+    /* outer shadow */ 0 10px 30px -10px rgba(0, 0, 0, 0.1),
+    /* middle shadow */ 0 5px 15px -5px rgba(0, 0, 0, 0.05),
+    /* inner shadow */ 0 1px 3px rgba(0, 0, 0, 0.2);
+  /* Button shadow */
+  --button-shadow: 
+  /* inner shadow */  
+ /* subtle inner highlight */ 0px 1px
+      1.5px 0px rgba(255, 255, 255, 0.2) inset,
+    /* soft outer shadow */ 0 4px 12px -4px rgba(0, 0, 0, 0.25),
+    /* light base shadow */ 0 1px 3px rgba(0, 0, 0, 0.15);
+  /* Button background color */
+  --button-background: hsl(0 0% 19.6%);
+  /* Button hover background color */
+  --button-hover-background: hsl(0 0% 25%);
+  /* Button radius */
+  --button-radius: 12px;
+  /* Input border color */
+  --input-border: hsl(0 0% 22%);
+  /* Input bg color */
+  --input-background: hsl(0 0% 4.7%);
+  /* Input radius */
+  --input-radius: 12px;
+  /* Danger color */
+  --danger: hsl(359 100% 65.1%);
+  /* Warning color */
+  --warning: hsl(34 100% 50%);
+  /* Success color */
+  --success: hsl(145 100% 39.2%);
+}
+
+@layer utilities {
+  .bg-card-gradient {
+    background-image: var(--card-gradient);
+  }
+  .radius-card {
+    border-radius: var(--card-radius);
+  }
+  .border-card {
+    border: 1px solid var(--card-border);
+  }
+  .shadow-card {
+    box-shadow: var(--card-shadow);
+  }
+  .text-muted {
+    color: var(--text-muted);
+  }
+  .text-muted-hover {
+    color: var(--text-muted);
+  }
+  .text-muted-hover:hover {
+    color: var(--text-muted-hover);
+  }
+  .text-base {
+    color: var(--text);
+  }
+  .shadow-button {
+    box-shadow: var(--button-shadow);
+  }
+  .bg-button {
+    background-color: var(--button-background);
+    transition: background-color 0.2s ease;
+  }
+  .bg-button:hover {
+    background-color: var(--button-hover-background) !important;
+  }
+  .radius-button {
+    border-radius: var(--button-radius);
+  }
+  .border-input {
+    border: 1px solid var(--input-border);
+  }
+  .bg-input {
+    background-color: var(--input-background);
+  }
+  .radius-input {
+    border-radius: var(--input-radius);
+  }
+  .text-danger {
+    color: var(--danger);
+  }
+  .text-warning {
+    color: var(--warning);
+  }
+  .text-success {
+    color: var(--success);
+  }
+  .border-danger {
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  }
+}

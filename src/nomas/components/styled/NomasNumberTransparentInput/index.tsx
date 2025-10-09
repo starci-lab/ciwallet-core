@@ -1,8 +1,10 @@
 import React from "react"
-import { Input, type InputProps, cn } from "@heroui/react"
+import { Input } from "../../shadcn"
 import { sanitizeNumericInput } from "@ciwallet-sdk/utils"
+import { twMerge } from "tailwind-merge"
+import type { NomasInputProps } from "../../extends"
 
-export const NomasNumberTransparentInput = (props: InputProps) => {
+export const NomasNumberTransparentInput = (props: NomasInputProps) => {
     const onValueChange = (value: string) => {
         const sanitizeInput = sanitizeNumericInput(value)
         if (sanitizeInput != null) {
@@ -12,30 +14,11 @@ export const NomasNumberTransparentInput = (props: InputProps) => {
 
     return (
         <Input  
-            disableAnimation
-            classNames={{
-                inputWrapper: cn(
-                    "!bg-transparent px-0", 
-                    "data-[hover=true]:!bg-transparent",
-                    "group-data-[focus=true]:!bg-transparent",
-                    "group-data-[focus-visible=true]:!ring-none",
-                    props.classNames?.inputWrapper
-                ),
-                innerWrapper: cn(
-                    "!bg-transparent px-0 ",
-                    props.classNames?.innerWrapper
-                ),
-                mainWrapper: cn(
-                    "!bg-transparent px-0 hover:!bg-transparent",
-                    props.classNames?.mainWrapper
-                ),
-                input: cn(
-                    "!bg-transparent px-0 text-xl text-right",
-                    props.classNames?.input
-                )
-            }}
+            className={twMerge("!bg-transparent px-0 text-xl text-right", props.className)}
             {...props}
-            onValueChange={onValueChange}
+            onChange={
+                (event) => onValueChange(event.target.value)
+            }
         />
     )
 }

@@ -1,6 +1,5 @@
 import { NomasCardBody } from "@/nomas/components/extends"
-import { Button } from "@heroui/react"
-import { Copy } from "phosphor-react"
+import { NomasButton } from "@/nomas/components/extends"
 import React from "react"
 import { ChainId } from "@ciwallet-sdk/types"
 import { chainManagerObj } from "@/nomas/obj"
@@ -52,13 +51,12 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
             </div>
 
             {/* Copy Button */}
-            <Button
+            <NomasButton
                 onPress={handleCopy}
-                startContent={<Copy size={16} />}
                 className="w-full bg-foreground-700 hover:bg-foreground-600 rounded-xl text-white font-medium"
             >
         Copy Address
-            </Button>
+            </NomasButton>
         </NomasCardBody>
     )
 }

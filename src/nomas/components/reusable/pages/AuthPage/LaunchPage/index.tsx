@@ -1,5 +1,5 @@
 import React from "react"
-import { NomasCard, NomasCardBody } from "../../../../extends"
+import { NomasCard, NomasCardBody, NomasCardVariant } from "../../../../extends"
 import { NomasButtonTextWithIcon } from "../../../../extends/NomasButton"
 import { RocketLaunchIcon } from "@phosphor-icons/react"
 import { useWalletBootstrap } from "@/nomas/hooks/singleton/wallet"
@@ -12,12 +12,10 @@ export const Launch = ({ onLaunched }: LaunchProps) => {
     const { bootstrap } = useWalletBootstrap()
     return (
         <NomasCard
-            asCore
-            radius="lg"
-            className="w-full max-w-xl mx-auto px-6 py-10 bg-gradient-to-b from-[#2D2D2D] to-[#242424] border-t border-content3-200"
+            variant={NomasCardVariant.Gradient}
         >
             <NomasCardBody className="flex flex-col items-center gap-8">
-                <div className="w-16 h-16 rounded-full grid place-items-center bg-content3-200/30 border border-content3-100">
+                <div className="w-16 h-16 rounded-full grid place-items-center bg-muted border border-border">
                     <img src="/icons/common/nomas-logo.png" alt="Nomas Wallet" className="w-16 h-16" />
                 </div>
 

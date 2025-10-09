@@ -1,5 +1,5 @@
 import React from "react"
-import { cn } from "@heroui/react"
+import { twMerge } from "tailwind-merge"
 import { NomasButtonTextWithIcon } from "../../../../../extends/NomasButton"
 import type { MenuItem } from "../index"
 
@@ -17,7 +17,7 @@ export const MenuItemButton = ({ item, active, onPress }: MenuItemButtonProps) =
                 iconPosition="start"
                 isDisabled={item.disabled}
                 onPress={onPress}
-                className={cn(
+                className={twMerge(
                     "flex-col rounded-full gap-1 p-2 min-w-0 w-16 h-16 transition-all duration-200",
                     "justify-center items-center",
                     active 
@@ -25,7 +25,7 @@ export const MenuItemButton = ({ item, active, onPress }: MenuItemButtonProps) =
                         : "bg-foreground-800 opacity-20 hover:bg-foreground-600"
                 )}
             >
-                <div className={cn(
+                <div className={twMerge(
                     "text-xs font-medium transition-colors duration-200 mt-1",
                     active ? "text-white" : "text-foreground-100"
                 )}>

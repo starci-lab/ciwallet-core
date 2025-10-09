@@ -1,3 +1,3 @@
 export * from "./TokenCard"
 export * from "./Swap"
-export * from "./functions"
+export * from "./scenes"

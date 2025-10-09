@@ -11,7 +11,7 @@ import {
     useAppSelector
 } from "../../../../redux"
 import { ChainId } from "@ciwallet-sdk/types"
-import { Spacer } from "@heroui/react"
+import { NomasSpacer } from "@/nomas/components"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { TokenCard } from "../../TokenCard"
 import { SelectChainTab } from "../../../styled"
@@ -44,7 +44,7 @@ export const SelectTokenPage = () => {
                         />
                     </NomasCardBody>
                 </NomasCard>
-                <Spacer y={4}/>
+                <NomasSpacer y={4}/>
                 <NomasCard>
                     <NomasCardBody className="gap-2">
                         {tokenManager

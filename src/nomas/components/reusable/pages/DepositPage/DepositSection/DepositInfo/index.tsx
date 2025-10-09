@@ -1,5 +1,4 @@
-import { NomasCardBody } from "@/nomas/components/extends"
-import { Button } from "@heroui/react"
+import { NomasButton, NomasCardBody } from "@/nomas/components"
 import { Copy } from "phosphor-react"
 import { QRCodeSVG } from "qrcode.react"
 import React from "react"
@@ -52,13 +51,13 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
             </div>
 
             {/* Copy Button */}
-            <Button
+            <NomasButton
                 onPress={handleCopy}
                 startContent={<Copy size={16} />}
                 className="w-full bg-foreground-700 hover:bg-foreground-600 rounded-xl text-white font-medium"
             >
         Copy Address
-            </Button>
+            </NomasButton>
         </NomasCardBody>
     )
 }

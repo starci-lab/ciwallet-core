@@ -1,78 +1,124 @@
 import React from "react"
+import { twMerge } from "tailwind-merge"
+import { ArrowLeftIcon } from "@phosphor-icons/react"
 import {
     Card,
-    CardBody,
     CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
     CardFooter,
-    type CardProps,
-    type CardFooterProps,
-    type HTMLHeroUIProps,
-} from "@heroui/react"
-import { cn } from "@heroui/react"
-import { IconButton } from "../styled"
-import { ArrowLeftIcon } from "@phosphor-icons/react"
+} from "../shadcn"
+import { cva } from "class-variance-authority"
+import { NomasButtonIcon } from "./NomasButton"
 
-export interface NomasCardProps extends CardProps {
-    asCore?: boolean
+export enum NomasCardVariant {
+    Gradient = "gradient",
 }
-export const NomasCard = (props: NomasCardProps) => {
-    return <Card {...props} className={
-        cn(props.className, 
-            {
-                "bg-gradient-to-b from-[#2D2D2D] to-[#242424]": props.asCore,
-                "border-t border-content3-200": props.asCore,
+
+// NomasCard Container
+export interface NomasCardProps extends React.ComponentProps<typeof Card> {
+  variant?: NomasCardVariant
+}
+
+const cardCva = cva(
+    "radius-card border text-text shadow-card py-0 gap-0", // base styles
+    {
+        variants: {
+            variant: {
+                gradient: "bg-card-gradient border-card", // gradient variant
             },
-        )} />
-}
-
-export const NomasCardBody = (props: HTMLHeroUIProps<"div">) => {
-    return <CardBody {...props} />
-}
-
-export interface NomasCardHeaderProps extends HTMLHeroUIProps<"div"> {
-    showBackButton?: boolean
-    onBackButtonPress?: () => void
-}
-export const NomasCardHeader = (props: NomasCardHeaderProps) => {
-    const { showBackButton, onBackButtonPress, title, ...rest } = props
+        },
+        defaultVariants: {
+            variant: undefined,
+        },  
+    }
+)
   
+export const NomasCard = React.forwardRef<HTMLDivElement, NomasCardProps>(
+    ({ className, variant, ...props }, ref) => {
+        return (
+            <Card
+                ref={ref}
+                className={twMerge(cardCva({ variant }), className)}
+                {...props}
+            />
+        )
+    }
+)
+NomasCard.displayName = "NomasCard" 
+
+// NomasCardHeader
+export interface NomasCardHeaderProps
+  extends React.ComponentProps<typeof CardHeader> {
+  title?: string
+  description?: string
+  showBackButton?: boolean
+  onBackButtonPress?: () => void
+}
+
+export const NomasCardHeader = React.forwardRef<
+  HTMLDivElement,
+  NomasCardHeaderProps
+>(({ className, title, description, showBackButton, onBackButtonPress, children, ...props }, ref) => {
     return (
         <CardHeader
-            {...rest}
-            className={cn("flex items-center justify-between", props.className)}
+            ref={ref}
+            className={twMerge("flex items-center justify-between p-6 pb-3", className)}
+            {...props}
         >
-            {!props.children
-                ? (showBackButton
-                    ? (
-                        <IconButton
-                            icon={<ArrowLeftIcon />}
-                            onPress={onBackButtonPress}
-                            className="shrink-0"
-                        />
-                    ) : (
-                        <div className="w-9" />
-                    )
-                )
-                : null}
-            
-
-            {/* Center */}
-            {title && (
-                <div className="flex-1 text-center font-medium text-lg text-foreground-100">
-                    {title}
-                </div>
-            )}
-
-            {/** Center Content */}
-            {props.children}
-
-            {/* Right */}
-            {!props.children && (
+            {/* Left: back button or spacer */}
+            {showBackButton ? (
+                <NomasButtonIcon
+                    onClick={onBackButtonPress}
+                >
+                    <ArrowLeftIcon className="w-6 h-6" weight="bold" />
+                </NomasButtonIcon>
+            ) : (
                 <div className="w-9" />
             )}
+
+            {/* Center: title & description */}
+            <div className="flex-1 text-center">
+                {title && (
+                    <CardTitle className="text-lg font-semibold text-muted">
+                        {title}
+                    </CardTitle>
+                )}
+                {description && (
+                    <CardDescription className="text-sm text-muted">
+                        {description}
+                    </CardDescription>
+                )}
+            </div>
+
+            {/* Right: spacer or custom children */}
+            {children ? children : <div className="w-9" />}
         </CardHeader>
     )
-}
-export const NomasCardFooter = (props: CardFooterProps) => {
-    return <CardFooter {...props} />
-}
+})
+NomasCardHeader.displayName = "NomasCardHeader"
+
+// NomasCardBody (Content)
+export const NomasCardBody = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof CardContent>
+>(({ className, ...props }, ref) => {
+    return <CardContent ref={ref} className={twMerge("p-6", className)} {...props} />
+})
+NomasCardBody.displayName = "NomasCardBody"
+
+// NomasCardFooter
+export const NomasCardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof CardFooter>
+>(({ className, ...props }, ref) => {
+    return (
+        <CardFooter
+            ref={ref}
+            className={twMerge("flex items-center justify-end p-6 pt-3", className)}
+            {...props}
+        />
+    )
+})
+NomasCardFooter.displayName = "NomasCardFooter"

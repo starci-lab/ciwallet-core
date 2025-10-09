@@ -1,61 +1,35 @@
 import React from "react"
-import { Spinner, type SpinnerProps } from "@heroui/react"
-import { cva } from "class-variance-authority"
+import { twMerge } from "tailwind-merge"
 
-export interface NomasSpinnerProps extends SpinnerProps {
-    baseSize?: "xs" | "sm"
+export interface NomasSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+  size?: "xs" | "sm" | "md" | "lg"
 }
 
-const baseSizeCva = cva("text-foreground-500", {
-    variants: {
-        baseSize: {
-            xs: "w-4 h-4",
-            sm: "w-5 h-5",
-        },
-    },
-    defaultVariants: {
-        baseSize: "sm",
-    },
-})
+/**
+ * A simple Tailwind-based loading spinner.
+ * Works seamlessly inside buttons, cards, etc.
+ */
+export const NomasSpinner = React.forwardRef<HTMLDivElement, NomasSpinnerProps>(
+    ({ size = "sm", className, ...props }, ref) => {
+        const sizeClasses = {
+            xs: "w-3 h-3 border-2",
+            sm: "w-4 h-4 border-2",
+            md: "w-5 h-5 border-2",
+            lg: "w-6 h-6 border-[3px]",
+        }[size]
 
-const circle1Cva = cva("border-2", {
-    variants: {
-        baseSize: {
-            xs: "w-4 h-4",
-            sm: "w-5 h-5",
-        },
-    },
-    defaultVariants: {
-        baseSize: "xs",
-    },
-})
+        return (
+            <div
+                ref={ref}
+                className={twMerge(
+                    "inline-block animate-spin rounded-full border-muted-foreground/30 border-t-foreground",
+                    sizeClasses,
+                    className
+                )}
+                {...props}
+            />
+        )
+    }
+)
 
-const circle2Cva = cva("border-2", {
-    variants: {
-        baseSize: {
-            xs: "w-4 h-4",
-            sm: "w-5 h-5",
-        },
-    },
-    defaultVariants: {
-        baseSize: "xs",
-    },
-})
-
-const spinnerBarsCva = cva("", {
-    variants: {
-        baseSize: {
-            xs: "",
-            sm: "",
-        },
-    },
-})
-
-export const NomasSpinner = (props: NomasSpinnerProps) => {
-    return <Spinner size="sm" color="current" {...props} classNames={{
-        base: baseSizeCva({ baseSize: props.baseSize }),
-        circle1: circle1Cva({ baseSize: props.baseSize }),
-        circle2: circle2Cva({ baseSize: props.baseSize }),
-        spinnerBars: spinnerBarsCva({ baseSize: props.baseSize }),
-    }} />
-}
+NomasSpinner.displayName = "NomasSpinner"

@@ -3,6 +3,7 @@ import { LaunchPage } from "./LaunchPage"
 import { CreatePasswordPage } from "./CreatePasswordPage"
 import { InputPasswordPage } from "./InputPasswordPage"
 import { useLayoutEffect } from "react"
+import { SplashPage } from "./SplashPage"
 
 export const InitScene = () => {
     // retrieve init page from redux
@@ -25,7 +26,7 @@ export const InitScene = () => {
         case InitPage.InputPassword:
             return <InputPasswordPage />
         case InitPage.Splash:
-            return <div />
+            return <SplashPage />
         }
     }
     // return render content

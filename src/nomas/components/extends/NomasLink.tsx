@@ -1,19 +1,29 @@
 import React from "react"
-import { Link, type LinkProps } from "@heroui/react"
+import { twMerge } from "tailwind-merge"
 
-export interface NomasLinkProps extends LinkProps {
-    asButton?: boolean
+/**
+ * A styled Link component compatible with Shadcn UI.
+ */
+export interface NomasLinkProps extends React.HTMLAttributes<HTMLDivElement> {
+    onPress?: () => void
 }
-export const NomasLink = ({ children, asButton, ...props }: NomasLinkProps) => {
-    return (
-        asButton ? (
-            <Link as="button" {...props}>
+export const NomasLink = React.forwardRef<HTMLDivElement, NomasLinkProps>(
+    ({ className, children, onPress, ...props }, ref) => {
+        return (
+            <div
+                onClick={onPress ? () => onPress() : undefined}
+                ref={ref}
+                className={
+                    twMerge(
+                        "underline text-muted-hover cursor-pointer",
+                        className
+                    )}
+                {...props}
+            >
                 {children}
-            </Link>
-        ) : (
-            <Link {...props}>
-                {children}
-            </Link>
+            </div>
         )
-    )
-}
+    }
+)
+
+NomasLink.displayName = "NomasLink"

@@ -20,10 +20,6 @@ import {
     PublicKey,
     SystemProgram,
     Transaction,
-    sendAndConfirmTransaction,
-    LAMPORTS_PER_SOL,
-    type Commitment,
-    Keypair,
     sendAndConfirmRawTransaction,
 } from "@solana/web3.js"
 
@@ -33,8 +29,6 @@ import {
     getAccount,
     TOKEN_PROGRAM_ID,
 } from "@solana/spl-token"
-
-import bs58 from "bs58"
 
 export class SolanaProvider implements IAction, IQuery {
     private readonly chain: Chain
