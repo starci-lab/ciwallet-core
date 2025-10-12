@@ -1,17 +1,14 @@
-import { NomasCard, NomasCardBody, NomasCardHeader } from "@/nomas/components/extends"
-import { SelectChainTab } from "@/nomas/components/styled"
-import { chainManagerObj } from "@/nomas/obj"
-import { ChainId } from "@ciwallet-sdk/types"
-import { useState } from "react"
+import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant } from "@/nomas/components/extends"
+import { SelectChainTab } from "@/nomas/components"
 import { DepositInfo } from "./DepositInfo"
+import { setDepositSelectedChainId, useAppDispatch, useAppSelector } from "@/nomas/redux"
 
 export const DepositFunction = () => {
-    const chainManager = chainManagerObj
-    const [selectedChainId, setSelectedChainId] = useState<ChainId>(ChainId.Monad)
-    
+    const selectedChainId = useAppSelector((state) => state.stateless.functions.deposit.selectedChainId)
+    const dispatch = useAppDispatch()
     //TODO: Remove the mt-4 later
     return (
-        <NomasCard asCore className="max-w-md mx-auto mt-4">
+        <NomasCard variant={NomasCardVariant.Gradient} className="max-w-md mx-auto mt-4">
             <NomasCardHeader
                 title="Deposit"
                 showBackButton
@@ -19,10 +16,9 @@ export const DepositFunction = () => {
             />
             <NomasCardBody>
                 <SelectChainTab
-                    chainManager={chainManager}
                     isSelected={(chainId) => selectedChainId === chainId}
                     onSelect={(chainId) => {
-                        setSelectedChainId(chainId)
+                        dispatch(setDepositSelectedChainId(chainId))
                     }}
                 />
             </NomasCardBody>

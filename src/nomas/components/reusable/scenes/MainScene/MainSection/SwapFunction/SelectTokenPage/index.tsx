@@ -36,7 +36,6 @@ export const SelectTokenPage = () => {
                 <NomasCard>
                     <NomasCardBody>
                         <SelectChainTab
-                            chainManager={chainManagerObj}
                             isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
                             onSelect={(chainId) => {
                                 swapFormik.setFieldValue("tokenInChainId", chainId)

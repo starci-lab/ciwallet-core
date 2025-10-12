@@ -1,9 +1,10 @@
 import { NomasCardBody } from "@/nomas/components/extends"
 import { NomasButton } from "@/nomas/components/extends"
-import React from "react"
+import React, { useEffect } from "react"
 import { ChainId } from "@ciwallet-sdk/types"
-import { chainManagerObj } from "@/nomas/obj"
+import { chainManagerObj, encryptionObj } from "@/nomas/obj"
 import { QRCode } from "@/nomas/components/styled"
+import { selectSelectedAccount, useAppSelector } from "@/nomas/redux"
 
 interface DepositInfoProps {
     selectedChainId: ChainId
@@ -11,15 +12,14 @@ interface DepositInfoProps {
 
 export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
     const selectedChain = chainManagerObj.getChainById(selectedChainId)
-    const address = "0x1e13fseteg53014dg34tg54u253y5y4c60464423"
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(address)
-    }
-
+    const account = useAppSelector(state => selectSelectedAccount(state.persists))
+    const password = useAppSelector(state => state.persists.session.password)
+    if (!account) throw new Error("Account not found")
+    useEffect(() => {
+        encryptionObj.decrypt(account.encryptedPrivateKey, password).then(console.log)
+    }, [account.encryptedPrivateKey, password])
     return (
         <NomasCardBody>
-
             {/* QR + Network */}
             <div className="flex flex-col items-center gap-3">
                 {/* Network name */}
@@ -33,7 +33,7 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
                 {/* QR Code */}
                 <div className="bg-black rounded-xl p-2 shadow-inner size-fit">
                     <QRCode
-                        data={address}
+                        data={account.accountAddress}
                         size={192}
                     />
                 </div>
@@ -42,7 +42,7 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
             {/* Address + Info */}
             <div className="flex flex-col items-center gap-2">
                 <code className="text-foreground-300 text-sm break-all text-center">
-                    {address}
+                    {account.accountAddress}
                 </code>
                 <p className="text-foreground-500 text-xs flex items-center gap-1">
                     <span>ℹ️</span> This address can only be used to receive compatible
@@ -52,7 +52,9 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
 
             {/* Copy Button */}
             <NomasButton
-                onPress={handleCopy}
+                onClick={() => {
+                    navigator.clipboard.writeText(account.accountAddress)
+                }}
                 className="w-full bg-foreground-700 hover:bg-foreground-600 rounded-xl text-white font-medium"
             >
         Copy Address

@@ -1,21 +1,21 @@
 import React from "react"
 import { useAppSelector } from "@/nomas/redux"
-import { Function } from "@/nomas/redux"
+import { HomeTab } from "@/nomas/redux"
 import { DepositFunction } from "./DepositFunction"
 import { SwapFunction } from "./SwapFunction"
 
 export const MainSection = () => {
-    const currentFunction = useAppSelector((state) => state.stateless.function.function)
+    const homeTab = useAppSelector((state) => state.stateless.tabs.homeTab)
     const renderContent = () => {
-        switch (currentFunction) {
-        case Function.Deposit: {
+        switch (homeTab) {
+        case HomeTab.Home: {
             return <DepositFunction />
         }
-        case Function.Swap: {
+        case HomeTab.Trade: {
             return <SwapFunction />
         }
         default:
-            throw new Error(`Unknown function: ${currentFunction}`)
+            throw new Error(`Unknown function: ${homeTab}`)
         }
     }
     return <>{renderContent()}</>
