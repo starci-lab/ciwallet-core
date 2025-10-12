@@ -1,7 +1,9 @@
 import type { ColyseusClient } from "@/game/colyseus/client"
 import { gameConfigManager } from "@/game/configs/gameConfig"
-import { useUserStore } from "@/store/userStore"
-import { eventBus } from "@/game/tilemap"
+// import { useUserStore } from "@/store/userStore"
+import { eventBus } from "@/game/event-bus"
+import { setNomToken } from "@/nomas/redux"
+import { useDispatch } from "react-redux"
 
 // Export eventBus for other modules
 export { eventBus }
@@ -11,21 +13,21 @@ export const PurchaseEvents = {
     PurchaseInitiated: "purchase:initiated",
     PurchaseSuccess: "purchase:success",
     PurchaseFailed: "purchase:failed",
-    PurchasePending: "purchase:pending"
+    PurchasePending: "purchase:pending",
 } as const
 
 export interface PurchaseRequest {
-  itemType: "food" | "toy" | "clean" | "pet" | "background" | "furniture";
-  itemId: string;
-  quantity: number;
-  price: number;
+  itemType: "food" | "toy" | "clean" | "pet" | "background" | "furniture"
+  itemId: string
+  quantity: number
+  price: number
 }
 
 export interface PurchaseResponse {
-  success: boolean;
-  message: string;
-  currentTokens?: number;
-  itemData?: unknown;
+  success: boolean
+  message: string
+  currentTokens?: number
+  itemData?: unknown
 }
 
 /**
@@ -49,11 +51,11 @@ export class PurchaseSystem {
             this.colyseusClient.room.onMessage(
                 "purchase_response",
                 (message: {
-          purchaseId: string;
-          success: boolean;
-          message: string;
-          currentTokens?: number;
-          itemData?: unknown;
+          purchaseId: string
+          success: boolean
+          message: string
+          currentTokens?: number
+          itemData?: unknown
         }) => {
                     this.handlePurchaseResponse(message)
                 }
@@ -65,11 +67,11 @@ export class PurchaseSystem {
         eventBus.on(
             "purchase_response",
             (message: {
-        purchaseId: string;
-        success: boolean;
-        message: string;
-        currentTokens?: number;
-        itemData?: unknown;
+        purchaseId: string
+        success: boolean
+        message: string
+        currentTokens?: number
+        itemData?: unknown
       }) => this.handlePurchaseResponse(message)
         )
     }
@@ -96,7 +98,7 @@ export class PurchaseSystem {
             itemType,
             itemId,
             quantity,
-            price: itemData.price * quantity
+            price: itemData.price * quantity,
         }
 
         // Store pending purchase for response handling
@@ -108,7 +110,7 @@ export class PurchaseSystem {
             itemType,
             itemId,
             quantity,
-            price: request.price
+            price: request.price,
         })
 
         // Send to server - server will validate tokens, inventory, etc.
@@ -121,11 +123,11 @@ export class PurchaseSystem {
         itemType: string,
         itemId: string
     ): {
-    id: string;
-    name: string;
-    price: number;
-    texture: string;
-    image_url?: string;
+    id: string
+    name: string
+    price: number
+    texture: string
+    image_url?: string
   } | null {
         switch (itemType) {
         case "food":
@@ -164,7 +166,7 @@ export class PurchaseSystem {
                         itemType: request.itemType,
                         itemId: request.itemId,
                         quantity: request.quantity,
-                        price: request.price
+                        price: request.price,
                     })
                     console.log(
                         `📤 Purchase request sent (after retry): ${purchaseId}`,
@@ -186,25 +188,25 @@ export class PurchaseSystem {
             itemType: request.itemType,
             itemId: request.itemId,
             quantity: request.quantity,
-            price: request.price
+            price: request.price,
         })
 
         console.log(`📤 Purchase request sent: ${purchaseId}`, request)
     }
 
     private handlePurchaseResponse(message: {
-    purchaseId: string;
-    success: boolean;
-    message: string;
-    currentTokens?: number;
-    itemData?: unknown;
+    purchaseId: string
+    success: boolean
+    message: string
+    currentTokens?: number
+    itemData?: unknown
   }) {
         const {
             purchaseId,
             success,
             message: responseMessage,
             currentTokens,
-            itemData
+            itemData,
         } = message
 
         const pendingPurchase = this.pendingPurchases.get(purchaseId)
@@ -219,7 +221,9 @@ export class PurchaseSystem {
         if (success) {
             // Update client state from server response
             if (currentTokens !== undefined) {
-                useUserStore.getState().setNomToken(currentTokens)
+                const userDispatch = useDispatch()
+                userDispatch(setNomToken(currentTokens))
+                // useUserStore.getState().setNomToken(currentTokens)
                 console.log(`💰 Tokens updated from server: ${currentTokens}`)
             }
 
@@ -230,7 +234,7 @@ export class PurchaseSystem {
                 itemId: pendingPurchase.itemId,
                 quantity: pendingPurchase.quantity,
                 newTokenBalance: currentTokens,
-                itemData
+                itemData,
             })
 
             console.log(`✅ Purchase successful: ${purchaseId}`)
@@ -240,7 +244,7 @@ export class PurchaseSystem {
                 purchaseId,
                 itemType: pendingPurchase.itemType,
                 itemId: pendingPurchase.itemId,
-                reason: responseMessage
+                reason: responseMessage,
             })
 
             console.log(`❌ Purchase failed: ${purchaseId} - ${responseMessage}`)
@@ -252,7 +256,7 @@ export class PurchaseSystem {
             purchaseId: "unknown",
             itemType: "unknown",
             itemId: "unknown",
-            reason
+            reason,
         })
     }
 
