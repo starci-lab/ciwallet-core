@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { GameRoomState } from "@/game/schema/ChatSchema"
 import { Room, Client, getStateCallbacks } from "colyseus.js"
-import { setNomToken, useAppSelector, type UserSlice } from "@/nomas/redux"
-import { useDispatch } from "react-redux"
+import { setNomToken, store, type UserSlice } from "@/nomas/redux"
 import type { Dispatch } from "redux"
 import { eventBus } from "@/game/event-bus"
 
@@ -19,8 +18,8 @@ export class ColyseusClient {
         this.scene = scene
         this.gameUI = gameUI
         this.setupClickTracking()
-        this.user = useAppSelector((state) => state.stateless.user)
-        this.dispatch = useDispatch()
+        this.user = store.getState().stateless.user
+        this.dispatch = store.dispatch
     }
 
     // Method to set GameUI reference after initialization
@@ -44,6 +43,11 @@ export class ColyseusClient {
 
         try {
             console.log("🔄 Connecting to Colyseus:", backendUrl)
+            console.log("🔄 User data from Redux store:", {
+                addressWallet: this.user.addressWallet,
+                nomToken: this.user.nomToken,
+                isAuthenticated: this.user.isAuthenticated,
+            })
 
             this.room = await client.joinOrCreate("single_player", {
                 name: "Pet Game",

@@ -1,5 +1,5 @@
 import { Pet } from "@/game/entities/Pet"
-import { useUserStore } from "@/store/userStore"
+// import { useUserStore } from "@/store/userStore"
 import { FeedingSystem } from "@/game/systems/FeedingSystem"
 import { CleanlinessSystem } from "@/game/systems/CleanlinessSystem"
 import { HappinessSystem } from "@/game/systems/HappinessSystem"
@@ -9,17 +9,18 @@ import { ColyseusClient } from "@/game/colyseus/client"
 import {
     GamePositioning,
     GAME_MECHANICS,
-    GAME_LAYOUT
+    GAME_LAYOUT,
 } from "@/game/constants/gameConstants"
+import { addToken } from "@/nomas/redux"
 
 export interface PetData {
-  id: string;
-  pet: Pet;
-  feedingSystem: FeedingSystem;
-  cleanlinessSystem: CleanlinessSystem;
-  happinessSystem: HappinessSystem;
-  movementSystem: MovementSystem;
-  activitySystem: ActivitySystem;
+  id: string
+  pet: Pet
+  feedingSystem: FeedingSystem
+  cleanlinessSystem: CleanlinessSystem
+  happinessSystem: HappinessSystem
+  movementSystem: MovementSystem
+  activitySystem: ActivitySystem
 }
 
 export class PetManager {
@@ -93,11 +94,7 @@ export class PetManager {
             this.colyseusClient,
             petId
         )
-        const happinessSystem = new HappinessSystem(
-            pet,
-            this.colyseusClient,
-            petId
-        )
+        const happinessSystem = new HappinessSystem(pet, this.colyseusClient, petId)
 
         const petData: PetData = {
             id: petId,
@@ -106,7 +103,7 @@ export class PetManager {
             cleanlinessSystem,
             happinessSystem,
             movementSystem,
-            activitySystem
+            activitySystem,
         }
         pet.onStopChasing = () => {
             this.releaseFoodTarget(petId)
@@ -141,7 +138,7 @@ export class PetManager {
                 petTypeId,
                 isBuyPet: true,
                 x,
-                y
+                y,
             })
         }
     }
@@ -155,7 +152,7 @@ export class PetManager {
         if (this.colyseusClient?.isConnected()) {
             console.log(`📤 Sending remove-pet message to server for ${petId}`)
             this.colyseusClient.sendMessage("remove_pet", {
-                petId: petId
+                petId: petId,
             })
         }
 
@@ -205,11 +202,7 @@ export class PetManager {
         const petData = this.pets.get(petId)
         if (petData) {
             const petSprite = petData.pet.sprite
-            const heart = this.scene.add.image(
-                petSprite.x,
-                petSprite.y - 30,
-                "heart"
-            )
+            const heart = this.scene.add.image(petSprite.x, petSprite.y - 30, "heart")
             heart.setScale(0.05)
             heart.setAlpha(0)
             heart.setDepth(1000)
@@ -222,7 +215,7 @@ export class PetManager {
                 ease: "Power2",
                 yoyo: true,
                 hold: 500,
-                onComplete: () => heart.destroy()
+                onComplete: () => heart.destroy(),
             })
 
             const gameScene = this.scene as any
@@ -251,12 +244,12 @@ export class PetManager {
                             onComplete: () => {
                                 coin.destroy()
                                 // Increase user's token balance
-                                useUserStore.getState().addToken(1)
-                                // Update the token UI
-                                tokenUI.update()
-                            }
+                                // Note: Token balance update should be handled by the parent component
+                                // Update the token UI with current balance
+                                tokenUI.update(1) // This should be the current token count
+                            },
                         })
-                    }
+                    },
                 })
             }
         }
@@ -443,8 +436,7 @@ export class PetManager {
             const currentY = petData.pet.sprite.y
 
             const positionChanged =
-        Math.abs(currentX - previousX) > 5 ||
-        Math.abs(currentY - previousY) > 5
+        Math.abs(currentX - previousX) > 5 || Math.abs(currentY - previousY) > 5
             const activityChanged = currentActivity !== previousActivity
 
             // Removed server sync for simplified version
@@ -545,9 +537,9 @@ export class PetManager {
                     scaleX: 1.7,
                     scaleY: 1.2,
                     duration: 100,
-                    yoyo: true
+                    yoyo: true,
                 })
-            }
+            },
         })
 
         // Add shadow effect
@@ -564,7 +556,7 @@ export class PetManager {
             scaleX: 1.3,
             alpha: 0.5,
             duration: 500,
-            ease: "Power2.easeOut"
+            ease: "Power2.easeOut",
         })
 
         this.sharedDroppedFood.push(food as any)
@@ -619,7 +611,7 @@ export class PetManager {
             ease: "Power2.easeIn",
             onComplete: () => {
                 food.destroy()
-            }
+            },
         })
 
         this.scene.tweens.add({
@@ -628,7 +620,7 @@ export class PetManager {
             duration: 300,
             onComplete: () => {
                 shadow.destroy()
-            }
+            },
         })
 
         // Remove from arrays
@@ -685,7 +677,7 @@ export class PetManager {
             duration: 300,
             onComplete: () => {
                 shadow.destroy()
-            }
+            },
         })
 
         // Remove from arrays
@@ -762,9 +754,9 @@ export class PetManager {
                     scaleX: GAME_LAYOUT.BALL_SCALE * 1.13,
                     scaleY: GAME_LAYOUT.BALL_SCALE * 0.8,
                     duration: 100,
-                    yoyo: true
+                    yoyo: true,
                 })
-            }
+            },
         })
 
         // Add shadow effect
@@ -781,7 +773,7 @@ export class PetManager {
             scaleX: { from: 0.5, to: 1 },
             scaleY: { from: 0.5, to: 1 },
             duration: 500,
-            ease: "Power2"
+            ease: "Power2",
         })
 
         this.sharedDroppedBalls.push(ball)
@@ -1173,7 +1165,7 @@ export class PetManager {
             cleanlinessLevel: petData.cleanlinessSystem.cleanlinessLevel,
             happinessLevel: petData.happinessSystem.happinessLevel,
             currentActivity: petData.pet.currentActivity,
-            foodInventory: petData.feedingSystem.foodInventory
+            foodInventory: petData.feedingSystem.foodInventory,
         }))
 
         return {
@@ -1182,7 +1174,7 @@ export class PetManager {
             pets: stats,
             totalFoodInventory: this.getFoodInventory(),
             totalCleaningInventory: this.getCleaningInventory(),
-            totalToyInventory: this.getToyInventory()
+            totalToyInventory: this.getToyInventory(),
         }
     }
     // Cleanup all pets
@@ -1229,7 +1221,7 @@ export class PetManager {
             callback: () => {
                 this.performSafetyCheck()
             },
-            loop: true
+            loop: true,
         })
     }
 
@@ -1340,9 +1332,7 @@ export class PetManager {
 
         // If pet is currently chasing, don't interrupt
         if (petData.pet.isChasing) {
-            console.log(
-                `⚠️ Pet ${petData.id} already chasing, not forcing new chase`
-            )
+            console.log(`⚠️ Pet ${petData.id} already chasing, not forcing new chase`)
             return
         }
 

@@ -29,6 +29,9 @@ export const userSlice = createSlice({
                 state.nomToken = state.nomToken - amount
             }
         },
+        addToken: (state, action: PayloadAction<number>) => {
+            state.nomToken = state.nomToken + action.payload
+        },
         setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
             state.isAuthenticated = action.payload
         },
@@ -37,5 +40,10 @@ export const userSlice = createSlice({
 
 export const userReducer = userSlice.reducer
 
-export const { setAddressWallet, setNomToken, spendToken, setIsAuthenticated } =
-  userSlice.actions
+export const {
+    setAddressWallet,
+    setNomToken,
+    spendToken,
+    setIsAuthenticated,
+    addToken,
+} = userSlice.actions

@@ -1,4 +1,4 @@
-import { useUserStore } from "@/store/userStore"
+// import { useUserStore } from "@/store/userStore"
 
 const UI_FONT = "monospace"
 const TOKEN_BG_COLOR = 0x101010 // Inner panel color
@@ -73,20 +73,19 @@ export class TokenUI {
                 color: TOKEN_TEXT_COLOR,
                 fontStyle: "bold",
                 fontFamily: UI_FONT,
-                align: "left"
+                align: "left",
             })
             .setOrigin(0, 0.5)
             .setDepth(TOKEN_UI_DEPTH + 3)
 
-        this.update()
+        this.update(0) // Initialize with 0 tokens
     }
 
     getTokenIconPosition() {
         return { x: this.tokenText.x, y: this.tokenText.y }
     }
 
-    update() {
-        const nomToken = useUserStore.getState().nomToken
+    update(nomToken: number) {
         this.tokenText.setText(nomToken.toLocaleString())
     }
 }

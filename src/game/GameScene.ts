@@ -1,4 +1,3 @@
-import { SceneName } from "packages/constants"
 import { loadAllAssets } from "@/game/load/asset"
 import Phaser from "phaser"
 import { GameUI } from "@/game/ui/GameUI"
@@ -12,7 +11,8 @@ import { eventBus, EventNames } from "@/game/event-bus"
 import { TilemapInputSystem } from "@/game/tilemap/TileMapInputSystem"
 import { PurchaseUI } from "@/game/ui/PurchaseUI"
 import { PurchaseSystem } from "@/game/systems"
-const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:3002"
+import { SceneName } from "@/game/configs/phaser-config"
+const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
 
 export class GameScene extends Phaser.Scene {
     rexUI!: RexUIPlugin
@@ -117,6 +117,11 @@ export class GameScene extends Phaser.Scene {
 
         // Set GameUI reference in ColyseusClient for notifications
         this.colyseusClient.setGameUI(this.gameUI)
+
+        // Connect to Colyseus after UI is ready
+        this.connectToColyseus().catch((error) => {
+            console.error("❌ Failed to connect to Colyseus:", error)
+        })
     }
 
     private setupTileInputListeners() {

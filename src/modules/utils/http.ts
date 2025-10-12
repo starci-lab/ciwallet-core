@@ -1,10 +1,10 @@
-import { envConfig } from "@/configs/env"
-import { ROUTES } from "@/constants/routes"
+// import { envConfig } from "@/modules/configs/env"
+import { ROUTES } from "@/constants/route"
 import {
     setAccessTokenToLS,
     setAddressWalletToLS,
     setRefreshTokenToLS,
-} from "@/utils/auth"
+} from "@/modules/utils/auth"
 import type { AxiosError, AxiosInstance } from "axios"
 import axios from "axios"
 
@@ -16,7 +16,7 @@ export class Http {
         this.accessToken = ""
         this.refreshToken = ""
         this.instance = axios.create({
-            baseURL: envConfig.baseUrl,
+            baseURL: import.meta.env.VITE_BASE_URL,
             timeout: 10000,
             headers: {
                 "Content-Type": "application/json",

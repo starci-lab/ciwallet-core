@@ -1,16 +1,21 @@
-import { useEffect, useRef, useState, type FC } from "react"
+import { useEffect, useMemo, useRef, useState, type FC } from "react"
 import { Game } from "phaser"
 import { useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { eventBus, PurchaseEvents, type PurchaseSystem } from "@/game/systems"
 import { ReactShopModal } from "@/game/ui/modal/ReactShopModal"
 import { createPortal } from "react-dom"
 // import type { GameRoomState } from "@/game/schema/ChatSchema"
-import { getConfig, CONTAINER_ID } from "@/game/configs/phaser-config"
-import { SceneName } from "packages/constants/game"
+import {
+    getConfig,
+    CONTAINER_ID,
+    SceneName,
+} from "@/game/configs/phaser-config"
 import { GameScene as PhaserGameScene } from "@/game/GameScene"
 import http from "@/modules/utils/http"
-import { ROUTES } from "packages/constants/route"
 import { setAddressWallet } from "@/nomas/redux/slices/stateless/user"
+import { ROUTES } from "@/constants/route"
+import type { GameRoomState } from "@/game/schema/ChatSchema"
+import { createColyseus } from "@/nomas/hooks/singleton/colyseus/createColyseus"
 
 export type GameSceneProps = {
   signMessage: (message: string) => Promise<string>
@@ -31,6 +36,13 @@ export const GameScene: FC<GameSceneProps> = ({ signMessage, publicKey }) => {
     const [isUserAuthenticated, setIsUserAuthenticated] = useState(
         !!addressWallet
     )
+    const colyseusApi = useMemo(() => {
+        const env = import.meta.env as { VITE_BASE_SOCKET?: string }
+        return createColyseus<GameRoomState>(
+            env.VITE_BASE_SOCKET || "ws://localhost:2567"
+        )
+    }, [])
+    const hookRoom = colyseusApi.useColyseusRoom()
 
     // Colyseus connection will be handled by the Phaser scene directly
 
@@ -108,6 +120,43 @@ export const GameScene: FC<GameSceneProps> = ({ signMessage, publicKey }) => {
 
     // Colyseus connection is handled by the Phaser scene
 
+    useEffect(() => {
+        if (!isUserAuthenticated) return
+        const scene = sceneRef.current
+        if (!scene) return
+        if (hookRoom) return
+
+        const connect = () => {
+            colyseusApi
+                .connectToColyseus("single_player", {
+                    name: "Pet Game",
+                    addressWallet: addressWallet || undefined,
+                })
+                .catch(() => {
+                    // ignore
+                })
+        }
+
+        if (isGameInitialized) {
+            connect()
+            return
+        }
+
+        scene.events.once("assets-ready", connect)
+        return () => {
+            // phaser's event emitter typings are broad; cast to unknown first
+            scene.events.off(
+                "assets-ready",
+        connect as unknown as (...args: unknown[]) => void
+            )
+        }
+    }, [
+        isUserAuthenticated,
+        isGameInitialized,
+        hookRoom,
+        addressWallet,
+        colyseusApi,
+    ])
     // Colyseus connection is handled by the Phaser scene itself
 
     useEffect(() => {

@@ -45,11 +45,7 @@ export class GameUI {
         this.navigationUI = new NavigationUI(scene)
         this.petShopModal = new PetShopModal(petManager, this.notificationUI)
         this.petDetailsModal = new PetDetailsModal()
-        this.inputManager = new InputManager(
-            scene,
-            petManager,
-            this.notificationUI
-        )
+        this.inputManager = new InputManager(scene, petManager, this.notificationUI)
     // Legacy ShopModal and ShopUI removed
     }
 
@@ -92,7 +88,7 @@ export class GameUI {
                 color: "#ffffff",
                 fontStyle: "bold",
                 fontFamily: "monospace",
-                align: "center"
+                align: "center",
             })
             .setOrigin(0.5)
 
@@ -119,11 +115,13 @@ export class GameUI {
     }
 
     // Update all UI components
-    updateUI() {
+    updateUI(tokenValue?: number) {
         this.feedingUI.update()
         this.cleanlinessUI.update()
         this.happinessUI.update()
-        this.tokenUI.update()
+        if (tokenValue !== undefined) {
+            this.tokenUI.update(tokenValue)
+        }
         this.petDetailsModal.update()
     }
 
