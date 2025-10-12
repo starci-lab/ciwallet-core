@@ -11,18 +11,18 @@ export enum Scene {
 }
 
 const initialState: SceneSlice = {
-  // scene: Scene.Init,
-  scene: Scene.Game,
+    // scene: Scene.Init,
+    scene: Scene.Game,
 }
 
 export const sceneSlice = createSlice({
-  name: "scene",
-  initialState,
-  reducers: {
-    setScene: (state, action: PayloadAction<Scene>) => {
-      state.scene = action.payload
+    name: "scene",
+    initialState,
+    reducers: {
+        setScene: (state, action: PayloadAction<Scene>) => {
+            state.scene = action.payload
+        },
     },
-  },
 })
 
 export const { setScene } = sceneSlice.actions

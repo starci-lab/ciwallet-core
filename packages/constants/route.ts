@@ -1,4 +1,4 @@
 export const ROUTES = {
-  getMessage: "/auth/message",
-  verify: "/auth/verify",
+    getMessage: "/auth/message",
+    verify: "/auth/verify",
 }

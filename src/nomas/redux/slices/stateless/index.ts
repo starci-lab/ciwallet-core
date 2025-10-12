@@ -5,10 +5,10 @@ import { functionReducer } from "./function"
 import { userReducer } from "@/nomas/redux/slices/stateless/user"
 
 export const statelessReducer = combineReducers({
-  pages: pagesReducer,
-  scene: sceneReducer,
-  function: functionReducer,
-  user: userReducer,
+    pages: pagesReducer,
+    scene: sceneReducer,
+    function: functionReducer,
+    user: userReducer,
 })
 
 export * from "./pages"

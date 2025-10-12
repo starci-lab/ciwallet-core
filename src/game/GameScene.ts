@@ -1,14 +1,5 @@
 import { SceneName } from "@/constants/scene"
-import {
-  loadBackgroundAssets,
-  loadFoodAssets,
-  loadPoopAssets,
-  loadCleaningAssets,
-  loadToyAssets,
-  loadEffectAssets,
-  loadUiAssets,
-  loadAllPetAssets,
-} from "@/game/load"
+import { loadAllAssets } from "@/game/load/asset"
 import Phaser from "phaser"
 import { GameUI } from "@/game/ui/GameUI"
 import { ColyseusClient } from "@/game/colyseus/client"
@@ -38,14 +29,7 @@ export class GameScene extends Phaser.Scene {
     super({ key: SceneName.Gameplay })
   }
   preload() {
-    loadAllPetAssets(this)
-    loadBackgroundAssets(this)
-    loadFoodAssets(this)
-    loadPoopAssets(this)
-    loadCleaningAssets(this)
-    loadToyAssets(this)
-    loadEffectAssets(this)
-    loadUiAssets(this)
+    loadAllAssets(this)
   }
   async create() {
     // Disable browser context menu on right click for the whole scene
@@ -68,7 +52,7 @@ export class GameScene extends Phaser.Scene {
 
     // Setup cursor
     this.input.setDefaultCursor(
-      `url(./src/assets/images/cursor/navigation_nw.png), pointer`
+      "url(../../../public/assets/game/cursor/navigation_nw.png), pointer"
     )
 
     // Multiplayer connection is managed externally (React via use-colyseus) or via explicit call

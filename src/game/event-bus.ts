@@ -8,9 +8,9 @@ export const eventBus = new GlobalEventBus()
 
 // Event names used across React and Phaser
 export const EventNames = {
-  TileSelected: "ui:tile:selected",
-  TileHovered: "ui:tile:hovered",
-  TileCleared: "ui:tile:cleared",
+    TileSelected: "ui:tile:selected",
+    TileHovered: "ui:tile:hovered",
+    TileCleared: "ui:tile:cleared",
 } as const
 
 export type TilemapEventPayload = {
