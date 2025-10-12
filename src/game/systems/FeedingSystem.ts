@@ -1,17 +1,19 @@
 import type { ColyseusClient } from "@/game/colyseus/client"
 import { Pet } from "../entities/Pet"
-import { useUserStore } from "@/store/userStore"
+// import { useUserStore } from "@/store/userStore"
 import { gameConfigManager } from "@/game/configs/gameConfig"
 import { GAME_MECHANICS } from "../constants/gameConstants"
+import { spendToken, useAppSelector } from "@/nomas/redux"
+import { useDispatch } from "react-redux"
 
 // Hunger states
 export const HungerState = {
     Full: "full",
     Normal: "normal",
     Hungry: "hungry",
-    Starving: "starving"
+    Starving: "starving",
 } as const
-export type HungerState = (typeof HungerState)[keyof typeof HungerState];
+export type HungerState = (typeof HungerState)[keyof typeof HungerState]
 
 export function getHungerState(hungerLevel: number): HungerState {
     if (hungerLevel >= 95) return HungerState.Full
@@ -78,7 +80,9 @@ export class FeedingSystem {
             )
 
             // Check if player has enough tokens before sending to server
-            const currentTokens = useUserStore.getState().nomToken
+            const currentTokens = useAppSelector(
+                (state) => state.stateless.user.nomToken
+            )
             if (currentTokens < foodPrice) {
                 console.log(
                     `❌ Not enough tokens: need ${foodPrice}, have ${currentTokens}`
@@ -96,12 +100,10 @@ export class FeedingSystem {
         } else {
             console.log("🔌 Offline mode - using local validation")
 
-            const spendToken = useUserStore.getState().spendToken
-            if (spendToken(foodPrice)) {
+            const userDispatch = useDispatch()
+            if (userDispatch(spendToken(foodPrice))) {
                 this.foodInventory += 1
-                console.log(
-                    `✅ Purchase successful: ${foodId} for ${foodPrice} tokens`
-                )
+                console.log(`✅ Purchase successful: ${foodId} for ${foodPrice} tokens`)
                 return true
             } else {
                 console.log(`❌ Not enough tokens: need ${foodPrice}`)
@@ -134,11 +136,11 @@ export class FeedingSystem {
 
         // Send eaten food event to server if connected
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
-            const userStore = useUserStore.getState()
+            const userStore = useAppSelector((state) => state.stateless.user)
             this.colyseusClient.eatedFood({
                 hunger_level: this.hungerLevel,
                 pet_id: this.petId,
-                owner_id: userStore.addressWallet || "unknown"
+                owner_id: userStore.addressWallet || "unknown",
             })
             console.log(`📤 Sent 'eated_food' to server for pet ${this.petId}`)
         }
