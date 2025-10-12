@@ -18,7 +18,7 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     setAddressWallet: (state, action: PayloadAction<string>) => {
-i      state.addressWallet = action.payload
+      state.addressWallet = action.payload
     },
     setNomToken: (state, action: PayloadAction<number>) => {
       state.nomToken = action.payload
@@ -31,4 +31,5 @@ i      state.addressWallet = action.payload
 
 export const userReducer = userSlice.reducer
 
-export const { setAddressWallet, setNomToken, setIsAuthenticated } = userSlice.actions
+export const { setAddressWallet, setNomToken, setIsAuthenticated } =
+  userSlice.actions
