@@ -1,7 +1,8 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { ChainId, Network } from "@ciwallet-sdk/types"
+import { ChainId, Network, TokenId, type Token } from "@ciwallet-sdk/types"
 import { persistReducer } from "redux-persist"
 import { getStorageConfig } from "../../utils"
+import { tokenManagerObj } from "@/nomas/obj"
 
 export interface ReduxAccount {
     // generated id from uuid
@@ -29,6 +30,7 @@ export interface SessionSlice {
     // use worker to remove after a period of time
     password: string;
     rpcs: Record<ChainId, Record<Network, Array<string>>>;
+    tokens: Record<ChainId, Record<Network, Array<Token>>>;    
 }
 
 const initialState: SessionSlice = {
@@ -70,6 +72,24 @@ const initialState: SessionSlice = {
             [Network.Testnet]: [
                 "https://fullnode.testnet.sui.io:443",
             ],
+        },
+    },
+    tokens: {
+        [ChainId.Monad]: {
+            [Network.Mainnet]: [],
+            [Network.Testnet]: [],
+        },
+        [ChainId.Solana]: {
+            [Network.Mainnet]: [],
+            [Network.Testnet]: [],
+        },
+        [ChainId.Sui]: {
+            [Network.Mainnet]: [],
+            [Network.Testnet]: [],
+        },
+        [ChainId.Aptos]: {
+            [Network.Mainnet]: [],
+            [Network.Testnet]: [],
         },
     },
 }
@@ -153,6 +173,22 @@ export const sessionSlice = createSlice({
             )
             return account
         },
+        selectTokens: (state) => {
+            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(state.chainId, state.network)
+            tokens.push(
+                ...(state.tokens?.[state.chainId]?.[state.network] || []),
+            )
+            return tokens
+        },
+        selectTokenById: (state, tokenId: TokenId) => {
+            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(state.chainId, state.network)
+            tokens.push(
+                ...(state.tokens?.[state.chainId]?.[state.network] || []),
+            )
+            const token = tokens.find((token) => token.tokenId === tokenId)
+            if (!token) throw new Error("Token not found")
+            return token
+        },
     },
 })
 
@@ -183,4 +219,4 @@ export const {
     setInitialized,
     addRpc,
 } = sessionSlice.actions
-export const { selectSelectedAccount } = sessionSlice.selectors
+export const { selectSelectedAccount, selectTokens, selectTokenById } = sessionSlice.selectors

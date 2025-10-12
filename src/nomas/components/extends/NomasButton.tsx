@@ -8,24 +8,28 @@ export interface NomasButtonProps extends React.ComponentProps<"button"> {
   isLoading?: boolean
   isDisabled?: boolean
   xlSize?: boolean
+  startIcon?: React.ReactNode
+  endIcon?: React.ReactNode
 }
 
 export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>(
-    ({ className, isLoading, isDisabled, xlSize, ...props }, ref) => {
+    ({ className, isLoading, isDisabled, xlSize, startIcon, endIcon, ...props }, ref) => {
         return (
             <Button
                 ref={ref}
                 className={
                     twMerge(
                         "shadow-button bg-button h-12 bg-button:hover radius-button text-muted cursor-pointer",
-                        xlSize && "h-14 text-base",
+                        xlSize && "h-14 text",
                         className
                     )}
                 disabled={isDisabled || isLoading}
                 {...props}
             >
+                {!isLoading && startIcon && startIcon}
                 {isLoading && <NomasSpinner />}
                 {props.children}
+                {endIcon && endIcon}
             </Button>
         )
     }
@@ -40,7 +44,7 @@ export const NomasButtonIcon = React.forwardRef<HTMLButtonElement, NomasButtonPr
                 size="icon-sm"
                 className={
                     twMerge(
-                        "shadow-button bg-button bg-button:hover rounded-full text-base cursor-pointer",
+                        "shadow-button bg-button bg-button:hover rounded-full text cursor-pointer",
                         className
                     )}
                 {...props}

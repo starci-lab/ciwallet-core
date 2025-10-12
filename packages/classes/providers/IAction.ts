@@ -21,6 +21,7 @@ export interface ApproveParams {
     spender: string
     amount: number
     tokenAddress: string
+    decimals?: number
 }
 
 export interface ApproveResponse {

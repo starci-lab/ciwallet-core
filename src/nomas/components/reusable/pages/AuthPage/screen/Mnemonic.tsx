@@ -32,7 +32,7 @@ export const Mnemonic = () => {
                     ))}
                 </div>
 
-                <NomasButton asBase className="mt-4 w-full py-6 text-base" disabled>
+                <NomasButton asBase className="mt-4 w-full py-6 text" disabled>
                     I&apos;ve saved my recovery phrase
                 </NomasButton>
             </NomasCardBody>

@@ -29,7 +29,7 @@ export const NomasChip = React.forwardRef<HTMLDivElement, NomasChipProps>(
                     "inline-flex items-center gap-1 rounded-full",
                     size === "sm" && "text-xs px-2 py-0.5",
                     size === "md" && "text-sm px-3 py-1",
-                    size === "lg" && "text-base px-4 py-1.5",
+                    size === "lg" && "text px-4 py-1.5",
                     className
                 )}
                 {...props}

@@ -1,13 +1,10 @@
 import React from "react"
 import { TokenCard2 } from "../../../TokenCard2"
-import { useAppSelector } from "@/nomas/redux"
+import { selectTokens, useAppSelector } from "@/nomas/redux"
 import { NomasCard, NomasCardBody } from "../../../../extends"
 
 export const TokenList = () => {
-    const tokenManager = useAppSelector((state) => state.token.manager)
-    const potfolioChainId = useAppSelector((state) => state.potfolio.chainId)
-    const network = useAppSelector((state) => state.base.network)
-    const tokens = tokenManager.getTokensByChainIdAndNetwork(potfolioChainId, network)
+    const tokens = useAppSelector((state) => selectTokens(state.persists))
     return (
         <NomasCard className="bg-content3">
             <NomasCardBody>

@@ -10,7 +10,7 @@ export interface TooltipTitleProps {
     size: "xs" | "sm"
 }
 
-const titleCva = cva("text-sm font-medium text-foreground-500", {
+const titleCva = cva("text-muted text-sm font-medium", {
     variants: {
         size: {
             xs: "text-xs",

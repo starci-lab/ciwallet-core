@@ -1,16 +1,16 @@
 import { ChainId } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
-export interface DepositFunctionSlice {
+export interface DepositSectionSlice {
     selectedChainId: ChainId;
 }
 
-const initialState: DepositFunctionSlice = {
+const initialState: DepositSectionSlice = {
     selectedChainId: ChainId.Monad,
 }
 
-export const depositFunctionSlice = createSlice({
-    name: "depositFunction",
+export const depositSectionSlice = createSlice({
+    name: "depositSection",
     initialState,
     reducers: {
         setDepositSelectedChainId: (state, action: PayloadAction<ChainId>) => {
@@ -19,5 +19,5 @@ export const depositFunctionSlice = createSlice({
     },
 })
 
-export const { setDepositSelectedChainId } = depositFunctionSlice.actions
-export const depositFunctionReducer = depositFunctionSlice.reducer
+export const { setDepositSelectedChainId } = depositSectionSlice.actions
+export const depositSectionReducer = depositSectionSlice.reducer

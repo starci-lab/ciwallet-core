@@ -8,15 +8,44 @@ try {
     browser = null
 }
 
-export const assetsConfig = () => {
+const getUrl = (path: string) => {
     const isExtension = import.meta.env.VITE_APP_ENV === "EXTENSION"
+    return (isExtension ? browser?.runtime.getURL(path) : path) ?? ""
+}
+
+export const assetsConfig = () => {
     return {
         app: {
-            logo: (isExtension ? browser?.runtime.getURL("/assets/app/logo.svg") : "/assets/app/logo.svg") ?? "",
-            rocket: (isExtension ? browser?.runtime.getURL("/assets/app/rocket.svg") : "/assets/app/rocket.svg") ?? "",
-            create: (isExtension ? browser?.runtime.getURL("/assets/app/create.svg") : "/assets/app/create.svg") ?? "",
-            encrypt: (isExtension ? browser?.runtime.getURL("/assets/app/encrypt.svg") : "/assets/app/encrypt.svg") ?? "",
-            done: (isExtension ? browser?.runtime.getURL("/assets/app/done.svg") : "/assets/app/done.svg") ?? "",
+            logo: getUrl("/assets/app/logo.svg"),
+            rocket: getUrl("/assets/app/rocket.svg"),
+            create: getUrl("/assets/app/create.svg"),
+            encrypt: getUrl("/assets/app/encrypt.svg"),
+            done: getUrl("/assets/app/done.svg"),
+        },
+        tokens: {
+            aptos: getUrl("/assets/tokens/aptos.svg"),
+            mon: getUrl("/assets/tokens/mon.png"),
+            solana: getUrl("/assets/tokens/solana.png"),
+            sui: getUrl("/assets/tokens/sui.jpeg"),
+            usdc: getUrl("/assets/tokens/usdc.svg"),
+        },
+        chains: {
+            aptos: {
+                iconUrl: getUrl("/assets/chains/aptos.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/aptos-inverted.svg"),
+            },
+            monad: {
+                iconUrl: getUrl("/assets/chains/monad.png"),
+                iconInvertedUrl: getUrl("/assets/chains/monad.png"),
+            },
+            solana: {
+                iconUrl: getUrl("/assets/chains/solana.png"),
+                iconInvertedUrl: getUrl("/assets/chains/solana.png"),
+            },
+            sui: {
+                iconUrl: getUrl("/assets/chains/sui.jpeg"),
+                iconInvertedUrl: getUrl("/assets/chains/sui.jpeg"),
+            }
         }
     }
 }

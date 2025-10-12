@@ -72,4 +72,27 @@ export class ChainManager {
             return ""
         }
     }
+
+    public injectIconUrl(options: {
+        chainId?: ChainId
+        iconUrl?: string
+        iconInvertedUrl?: string
+    }) {
+        const { chainId, iconUrl, iconInvertedUrl } = options
+
+        // If a specific chainId is provided → update only that chain
+        if (chainId) {
+            const chain = this.getChainById(chainId)
+            if (!chain) return
+            if (iconUrl) chain.iconUrl = iconUrl
+            if (iconInvertedUrl) chain.iconInvertedUrl = iconInvertedUrl
+            return
+        }
+
+        // If no chainId provided → apply updates globally for all chains
+        for (const chain of this.chains) {
+            if (iconUrl) chain.iconUrl = iconUrl
+            if (iconInvertedUrl) chain.iconInvertedUrl = iconInvertedUrl
+        }
+    }
 }

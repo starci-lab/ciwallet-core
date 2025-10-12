@@ -13,12 +13,16 @@
   --text-muted-dark: hsl(0 0% 29.8%);
   /* Muted hover text color */
   --text-muted-hover:hsl(0 0% 80%);
+  /* Card dark color */
+  --card-dark: hsl(0 0% 6%);
   /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
   --card-gradient: linear-gradient(0deg, hsl(0 0% 7%) 0%, hsl(0 0% 22%) 100%);
   /* Card radius */
   --card-radius: 32px;
   /* Card border color */
   --card-border: hsla(0 0% 0% / 0.55);
+  /* Radius card inner */
+  --card-radius-inner: 24px;
   /* Card shadow */
   --card-shadow: 
   /* inner shadow */ 0px 2px 2.1px 0px rgba(255, 255, 255, 0.3)
@@ -75,7 +79,7 @@
   .text-muted-hover:hover {
     color: var(--text-muted-hover);
   }
-  .text-base {
+  .text {
     color: var(--text);
   }
   .shadow-button {
@@ -114,5 +118,11 @@
   }
   .text-muted-dark {
     color: var(--text-muted-dark);
+  }
+  .bg-card-dark {
+    background-color: var(--card-dark);
+  }
+  .radius-card-inner {
+    border-radius: var(--card-radius-inner);
   }
 }

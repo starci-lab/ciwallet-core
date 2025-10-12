@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { Input } from "../shadcn"
 import { EyeIcon, EyeClosedIcon } from "@phosphor-icons/react"
 import { NomasWarningText } from "./NomasWarningText"
+import { sanitizeNumericInput } from "@ciwallet-sdk/utils"
 
 export interface NomasInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
@@ -13,6 +14,7 @@ export interface NomasInputProps
   errorMessage?: string
   isRequired?: boolean
   isPassword?: boolean
+  numericOnly?: boolean
 }
 
 export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
@@ -27,6 +29,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
             errorMessage,
             className,
             isPassword,
+            numericOnly,
             ...props
         },
         ref
@@ -48,12 +51,18 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
                         ref={ref}
                         value={value}
                         placeholder={label ?? placeholder}
-                        onChange={(e) => onValueChange?.(e.target.value)}
+                        onChange={(event) => {
+                            if (numericOnly) {
+                                onValueChange?.(sanitizeNumericInput(event.target.value) || "")
+                            } else {
+                                onValueChange?.(event.target.value)
+                            }
+                        }}
                         onBlur={onBlur}
                         type={isPassword ? (showPassword ? "text" : "password") : "text"}
                         className={
                             twMerge(
-                                "ring-0 focus-visible:ring-0 !border-none text-sm text-base",
+                                "ring-0 focus-visible:ring-0 !border-none text-sm text",
                             )}
                         {...props}
                     />

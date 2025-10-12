@@ -31,20 +31,15 @@ import {
 } from "@solana/spl-token"
 
 export class SolanaProvider implements IAction, IQuery {
-    private readonly chain: Chain
     private readonly connection: Connection
     private readonly publicKey: PublicKey
     constructor(
     public readonly chainId: ChainId,
     public readonly network: Network,
-    public readonly walletAdapter: IWalletAdapter,
+    public readonly privateKey: string,
+    private readonly rpcs: Array<string>,
     ) {
-        const { chains } = this.walletAdapter
-        if (!chains.some((chain) => chain.chainId === chainId)) {
-            throw new Error(`Chain ${chainId} is not supported`)
-        }
-        this.chain = chains.find((chain) => chain.chainId === chainId)!
-        this.connection = new Connection(this.chain.rpcs.at(0)!, "confirmed")
+        this.connection = new Connection(this.rpcs.at(0)!, "confirmed")
         this.publicKey = new PublicKey(
             "3xaKeNNV4gdAs6ovtjrxtfUqc5bG2q6hbokP8qM3ToQu",
         )
@@ -57,71 +52,14 @@ export class SolanaProvider implements IAction, IQuery {
         tokenAddress,
         decimals = 9,
     }: TransferParams): Promise<TransferResponse> {
-        const fromPubkey = this.publicKey
-        const toPubkey = new PublicKey(toAddress)
-
-        let tx: Transaction
-
-        // ✅ Case 1: Native SOL transfer
-        if (tokenAddress === "native") {
-            tx = new Transaction().add(
-                SystemProgram.transfer({
-                    fromPubkey,
-                    toPubkey,
-                    lamports: BigInt(Math.floor(amount * 10 ** decimals)),
-                }),
-            )
-        } else {
-            // ✅ Case 2: SPL Token transfer
-            const mint = new PublicKey(tokenAddress)
-            const fromAta = await getAssociatedTokenAddress(mint, fromPubkey)
-            const toAta = await getAssociatedTokenAddress(mint, toPubkey)
-
-            tx = new Transaction().add(
-                createTransferInstruction(
-                    fromAta,
-                    toAta,
-                    fromPubkey,
-                    BigInt(Math.floor(amount * 10 ** decimals)),
-                    [],
-                    TOKEN_PROGRAM_ID,
-                ),
-            )
-        }
-
-        // ✅ Step 3: Assign blockhash + fee payer
-        const { blockhash } = await this.connection.getLatestBlockhash()
-        tx.recentBlockhash = blockhash
-        tx.feePayer = fromPubkey
-
-        // ✅ Step 4: Ensure we can sign
-        if (!this.walletAdapter.signTransaction) {
-            throw new Error("Wallet adapter does not support signTransaction")
-        }
-
-        // ✅ Step 5: Serialize for signing
-        const serializedTx = tx.serialize({ requireAllSignatures: false })
-
-        // ✅ Step 6: Ask adapter to sign
-        const signedResponse = await this.walletAdapter.signTransaction({
-            chainId: this.chainId,
-            network: this.network,
-            transaction: Buffer.from(serializedTx).toString("base64"),
+        throw new Error("Transfer not implemented for Solana", {
+            cause: {
+                amount,
+                toAddress,
+                tokenAddress,
+                decimals,
+            },
         })
-
-        if (!signedResponse.signedTransaction) {
-            throw new Error("No signed transaction returned from wallet adapter")
-        }
-
-        // ✅ Step 7: Send + confirm the full signed transaction
-        const sig = await sendAndConfirmRawTransaction(
-            this.connection,
-            Buffer.from(signedResponse.signedTransaction, "base64"),
-            { commitment: "confirmed" },
-        )
-
-        console.log("Confirmed tx:", sig)
-        return { txHash: sig }
     }
 
     /** Fetch balance of SOL or SPL token */

@@ -1,6 +1,6 @@
 import React from "react"
 import { twMerge } from "tailwind-merge"
-import { Avatar } from "../shadcn"
+import { Avatar, AvatarImage } from "../shadcn"
 
 // Root
 export const NomasAvatar = React.forwardRef<
@@ -18,3 +18,11 @@ export const NomasAvatar = React.forwardRef<
     />
 ))
 NomasAvatar.displayName = "NomasAvatar"
+
+export const NomasAvatarImage = React.forwardRef<
+  React.ComponentRef<typeof AvatarImage>,
+  React.ComponentPropsWithoutRef<typeof AvatarImage>
+>(({ className, ...props }, ref) => (
+    <AvatarImage ref={ref} className={twMerge("aspect-square size-full", className)} {...props} />
+))
+NomasAvatarImage.displayName = "NomasAvatarImage"

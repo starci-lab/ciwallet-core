@@ -4,10 +4,10 @@ import tailwindStyles from "../../global.css"
  * Creates the fixed container element that will host the Shadow DOM.
  * This container is appended directly to <body> of the host page.
  */
+export const CONTAINER_ID = "nomas-wallet-overlay-container"
 export const createOverlayContainer = (): HTMLDivElement => {
     const container = document.createElement("div")
-    container.id = "nomas-wallet-overlay-container"
-  
+    container.id = CONTAINER_ID
     Object.assign(container.style, {
         position: "fixed",
         top: "0",

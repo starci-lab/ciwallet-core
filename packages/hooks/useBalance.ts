@@ -1,5 +1,4 @@
 import { EvmProvider, SolanaProvider } from "@ciwallet-sdk/classes"
-import { useWalletKit } from "@ciwallet-sdk/providers"
 import { Platform, type BaseParams } from "@ciwallet-sdk/types"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
@@ -8,26 +7,27 @@ export interface UseBalanceParams extends BaseParams {
   address: string;
   tokenAddress?: string;
   decimals?: number;
+  rpcs: Array<string>;
 }
 export const useBalance = () => {
-    const { adapter } = useWalletKit()
     const handle = ({
         chainId,
         network,
         address,
         tokenAddress,
         decimals = 18,
+        rpcs,
     }: UseBalanceParams) => {
         switch (chainIdToPlatform(chainId)) {
         case Platform.Evm: {
-            return new EvmProvider(chainId, network, adapter).fetchBalance({
+            return new EvmProvider({ chainId, network, rpcs }).fetchBalance({
                 accountAddress: address,
                 tokenAddress,
                 decimals,
             })
         }
         case Platform.Solana: {
-            return new SolanaProvider(chainId, network, adapter).fetchBalance({
+            return new SolanaProvider(chainId, network, "", rpcs).fetchBalance({
                 accountAddress: address,
                 tokenAddress,
                 decimals,

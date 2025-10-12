@@ -4,7 +4,7 @@ import { DepositInfo } from "./DepositInfo"
 import { setDepositSelectedChainId, useAppDispatch, useAppSelector } from "@/nomas/redux"
 
 export const DepositFunction = () => {
-    const selectedChainId = useAppSelector((state) => state.stateless.functions.deposit.selectedChainId)
+    const selectedChainId = useAppSelector((state) => state.stateless.sections.deposit.selectedChainId)
     const dispatch = useAppDispatch()
     //TODO: Remove the mt-4 later
     return (

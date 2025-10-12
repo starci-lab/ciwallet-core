@@ -14,11 +14,15 @@ import { NomasButtonIcon } from "./NomasButton"
 
 export enum NomasCardVariant {
     Gradient = "gradient",
+    Transparent = "transparent",
+    Dark = "dark",
+    Button = "button",
 }
 
 // NomasCard Container
 export interface NomasCardProps extends React.ComponentProps<typeof Card> {
   variant?: NomasCardVariant
+  isInner?: boolean
 }
 
 const cardCva = cva(
@@ -27,20 +31,28 @@ const cardCva = cva(
         variants: {
             variant: {
                 gradient: "bg-card-gradient border-card", // gradient variant
+                transparent: "bg-transparent border-none !shadow-none !border-none", // transparent variant
+                dark: "bg-card-dark !shadow-none", // dark variant
+                button: "bg-button shadow-button radius-button cursor-pointer border-none", // button variant
+            },
+            isInner: {
+                true: "radius-card-inner",
+                false: "radius-card",
             },
         },
         defaultVariants: {
             variant: undefined,
+            isInner: false,
         },  
     }
 )
   
 export const NomasCard = React.forwardRef<HTMLDivElement, NomasCardProps>(
-    ({ className, variant, ...props }, ref) => {
+    ({ className, variant, isInner, ...props }, ref) => {
         return (
             <Card
                 ref={ref}
-                className={twMerge(cardCva({ variant }), className)}
+                className={twMerge(cardCva({ variant, isInner }), className)}
                 {...props}
             />
         )

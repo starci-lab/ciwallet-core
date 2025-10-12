@@ -1,4 +1,3 @@
-import type { Chain, IWalletAdapter } from "@ciwallet-sdk/providers"
 import type { ChainId, Network } from "@ciwallet-sdk/types"
 import type {
     ApproveParams,
@@ -19,63 +18,98 @@ import { Contract, ethers } from "ethers"
 import { toDenomination } from "@ciwallet-sdk/utils"
 import BN from "bn.js"
 
+export interface EvmProviderParams {
+    chainId: ChainId;
+    network: Network;
+    // left this blank if you don't want to sign the transaction
+    privateKey?: string;
+    rpcs: Array<string>;
+}
 export class EvmProvider implements IAction, IQuery {
-    private readonly chain: Chain
     private readonly provider: ethers.JsonRpcProvider
+    private readonly signer: ethers.Wallet
+
     constructor(
-    public readonly chainId: ChainId,
-    public readonly network: Network,
-    public readonly walletAdapter: IWalletAdapter
+    public readonly params: EvmProviderParams,
     ) {
-        const { chains } = this.walletAdapter
-        if (!chains.some((chain) => chain.chainId === chainId)) {
-            throw new Error(`Chain ${chainId} is not supported`)
-        }
-        this.chain = chains.find((chain) => chain.chainId === chainId)!
-        this.provider = new ethers.JsonRpcProvider(this.chain.rpcs.at(0)!)
+        const { privateKey, rpcs } = this.params
+        this.provider = new ethers.JsonRpcProvider(rpcs.at(0)!)
+        this.signer = privateKey ? new ethers.Wallet(privateKey, this.provider) : undefined!
     }
 
+    // -------------------------------------
+    // Transfer native or ERC20 token
+    // -------------------------------------
     async transfer({
         amount,
         toAddress,
         tokenAddress,
         decimals = 18,
     }: TransferParams): Promise<TransferResponse> {
-        const contract = new Contract(tokenAddress, erc20Abi, this.provider)
-        const tx = await contract
-            .getFunction("transfer")
-            .send(toAddress, ethers.parseUnits(amount.toString(), decimals))
-        return {
-            txHash: tx.hash,
+        if (!tokenAddress) {
+            // Native transfer (ETH, BNB, etc.)
+            const tx = await this.signer.sendTransaction({
+                to: toAddress,
+                value: ethers.parseUnits(amount.toString(), decimals),
+            })
+            return { txHash: tx.hash }
         }
+
+        // ERC20 transfer
+        const contract = new Contract(tokenAddress, erc20Abi, this.signer)
+        const tx = await contract.transfer(
+            toAddress,
+            ethers.parseUnits(amount.toString(), decimals)
+        )
+        return { txHash: tx.hash }
     }
 
+    // -------------------------------------
+    // Approve ERC20 spender
+    // -------------------------------------
+    async approve({
+        spender,
+        amount,
+        tokenAddress,
+        decimals = 18,
+    }: ApproveParams): Promise<ApproveResponse> {
+        const contract = new Contract(tokenAddress, erc20Abi, this.signer)
+        const tx = await contract.approve(
+            spender,
+            ethers.parseUnits(amount.toString(), decimals)
+        )
+        return { txHash: tx.hash }
+    }
+
+    // -------------------------------------
+    // Fetch balance
+    // -------------------------------------
     async fetchBalance({
         accountAddress,
         tokenAddress,
-        decimals,
+        decimals = 18,
     }: FetchBalanceParams): Promise<FetchBalanceResponse> {
         if (!tokenAddress) {
+            // native
             const balance = await this.provider.getBalance(accountAddress)
-            return {
-                amount: toDenomination(new BN(balance), decimals),
-            }
+            return { amount: toDenomination(new BN(balance.toString()), decimals) }
         }
+
+        // ERC20
         const contract = new Contract(tokenAddress, erc20Abi, this.provider)
         try {
-            const rawAmount = await contract.getFunction("balanceOf").staticCall(accountAddress)
-            const amount = toDenomination(new BN(rawAmount), decimals)
-            return {
-                amount,
-            }
+            const rawAmount = await contract.balanceOf(accountAddress)
+            const amount = toDenomination(new BN(rawAmount.toString()), decimals)
+            return { amount }
         } catch (error) {
-            console.log(error)
-            return {
-                amount: 0,
-            }
+            console.error("fetchBalance error:", error)
+            return { amount: 0 }
         }
     }
 
+    // -------------------------------------
+    // Fetch token metadata
+    // -------------------------------------
     async fetchTokenMetadata(
         params: FetchTokenMetadataParams
     ): Promise<FetchTokenMetadataResponse> {
@@ -83,15 +117,21 @@ export class EvmProvider implements IAction, IQuery {
         throw new Error("Not implemented")
     }
 
-    async approve({
-        spender,
-        amount,
-        tokenAddress,
-    }: ApproveParams): Promise<ApproveResponse> {
-        const contract = new Contract(tokenAddress, erc20Abi, this.provider)
-        const tx = await contract.getFunction("approve").send(spender, amount)
-        return {
-            txHash: tx.hash,
-        }
+    // -------------------------------------
+    // Sign message (EIP-191)
+    // -------------------------------------
+    async signMessage(message: string): Promise<string> {
+        return await this.signer.signMessage(message)
+    }
+
+    // -------------------------------------
+    // (Optional) Sign typed data (EIP-712)
+    // -------------------------------------
+    async signTypedData(
+        domain: Record<string, ethers.TypedDataDomain>,
+        types: Record<string, Array<ethers.TypedDataField>>,
+        value: Record<string, Record<string, never>>
+    ): Promise<string> {
+        return await this.signer.signTypedData(domain, types, value)
     }
 }

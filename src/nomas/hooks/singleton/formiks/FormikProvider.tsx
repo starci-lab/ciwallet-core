@@ -9,14 +9,16 @@ import {
 } from "./useWithdrawFormik"
 import type { CreatePasswordFormikValues } from "./useCreatePasswordFormik"
 import { useCreatePasswordFormikCore } from "./useCreatePasswordFormik"
-import type { InputPasswordFormikValues } from "./useInputPasswordFormik"
-import { useInputPasswordFormikCore } from "./useInputPasswordFormik"
+import type { TransferFormikValues } from "./useTransferFormik"
+import { useTransferFormikCore } from "./useTransferFormik"
+import { useInputPasswordFormikCore, type InputPasswordFormikValues } from "./useInputPasswordFormik"
 
 export interface FormikContextType {
   swapFormik: ReturnType<typeof useFormik<SwapFormikValues>>;
   withdrawFormik: ReturnType<typeof useFormik<WithdrawFormikValues>>;
   createPasswordFormik: ReturnType<typeof useFormik<CreatePasswordFormikValues>>;
   inputPasswordFormik: ReturnType<typeof useFormik<InputPasswordFormikValues>>;
+  transferFormik: ReturnType<typeof useFormik<TransferFormikValues>>;
 }
 
 export const FormikContext = createContext<FormikContextType | undefined>(
@@ -28,12 +30,14 @@ export const FormikProvider = ({ children }: PropsWithChildren) => {
     const withdrawFormik = useWithdrawFormikCore()
     const createPasswordFormik = useCreatePasswordFormikCore()
     const inputPasswordFormik = useInputPasswordFormikCore()
+    const transferFormik = useTransferFormikCore()
     return (
         <FormikContext.Provider value={{ 
             swapFormik, 
             withdrawFormik, 
             createPasswordFormik, 
-            inputPasswordFormik 
+            inputPasswordFormik,
+            transferFormik,
         }}>
             {children}
         </FormikContext.Provider>

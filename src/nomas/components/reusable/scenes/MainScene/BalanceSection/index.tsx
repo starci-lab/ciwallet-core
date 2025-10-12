@@ -32,7 +32,7 @@ export const BalanceSection = () => {
                         {/* Notification dot */}
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-foreground-700"></div>
                     </div>
-                    <div className="text-base text-sm">{selectedAccount?.name}</div>
+                    <div className="text text-sm">{selectedAccount?.name}</div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
                     <NomasButtonIcon>

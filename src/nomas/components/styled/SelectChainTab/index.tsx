@@ -1,5 +1,5 @@
 import React from "react"
-import { NomasCard, NomasAvatar, NomasCardBody } from "../../extends"
+import { NomasCard, NomasCardBody, NomasImage, NomasCardVariant } from "../../extends"
 import type { ChainId } from "@ciwallet-sdk/types"
 import { chainManagerObj } from "@/nomas/obj"
 
@@ -10,34 +10,33 @@ export interface SelectChainTabProps {
 
 export const SelectChainTab = ({ isSelected, onSelect }: SelectChainTabProps) => {
     return (
-        <NomasCard className="bg-content3-100">
-            <NomasCardBody>
+        <NomasCard variant={NomasCardVariant.Dark} isInner>
+            <NomasCardBody className="p-0">
                 <div className="flex gap-4 items-center">
                     {chainManagerObj.toObject().map((chain) => {
                         if (isSelected(chain.id)) {
                             return (
-                                <NomasCard
+                                <div 
                                     key={chain.id}
-                                    className="px-2 py-1.5 flex-row flex items-center gap-2 bg-default"
+                                    className="px-2 py-1.5 bg-button radius-button"
                                 >
-                                    <NomasAvatar
-                                        src={chain.iconUrl}
-                                        alt={chain.name}
-                                    />
-                                    <div>{chain.name}</div>
-                                </NomasCard>
+                                    <NomasCardBody className="p-0">
+                                        <div className="flex gap-2 items-center">   
+                                            <NomasImage src={chain.iconUrl} className="w-8 h-8 rounded-full"/>
+                                            <div className="text-sm text">{chain.name}</div>
+                                        </div>
+                                    </NomasCardBody>
+                                </div>
                             )
                         }
-
                         return (
-                            <NomasAvatar
+                            <NomasImage
                                 onClick={() => {
                                     onSelect(chain.id)
                                 }}
+                                className="w-8 h-8 rounded-full cursor-pointer"
                                 key={chain.id}
-                                src={chain.iconUrl}
-                                alt={chain.name}
-                            />
+                                src={chain.iconUrl} />
                         )
                     })}
                 </div>

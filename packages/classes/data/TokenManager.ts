@@ -259,4 +259,53 @@ export class TokenManager {
             (token) => token.type === TokenType.Native,
         )
     }
+
+    public injectIconUrl(options: {
+        chainId?: ChainId
+        network?: Network
+        tokenId?: TokenId
+        iconUrl: string
+    }) {
+        const { chainId, network, tokenId, iconUrl } = options
+    
+        // If a specific tokenId is provided → find that token across all chains/networks and update its iconUrl
+        if (tokenId) {
+            for (const chain of Object.keys(this.tokens) as Array<ChainId>) {
+                for (const net of Object.keys(this.tokens[chain] ?? {}) as Array<Network>) {
+                    const tokens = this.tokens[chain]?.[net]
+                    const token = tokens?.find((t) => t.tokenId === tokenId)
+                    if (token) {
+                        token.iconUrl = iconUrl
+                        return
+                    }
+                }
+            }
+            return
+        }
+    
+        // If both chainId and network are provided → apply the new iconUrl to all tokens in that specific network
+        if (chainId && network) {
+            const tokens = this.tokens[chainId]?.[network]
+            if (!tokens) return
+            tokens.forEach((t) => (t.iconUrl = iconUrl))
+            return
+        }
+    
+        // If only chainId is provided → apply the new iconUrl to all tokens across all networks in that chain
+        if (chainId && !network) {
+            for (const net of Object.keys(this.tokens[chainId] ?? {}) as Array<Network>) {
+                const tokens = this.tokens[chainId]?.[net]
+                tokens?.forEach((t) => (t.iconUrl = iconUrl))
+            }
+            return
+        }
+    
+        // If nothing is specified → inject iconUrl for every token in all chains/networks
+        for (const chain of Object.keys(this.tokens) as Array<ChainId>) {
+            for (const net of Object.keys(this.tokens[chain] ?? {}) as Array<Network>) {
+                const tokens = this.tokens[chain]?.[net]
+                tokens?.forEach((t) => (t.iconUrl = iconUrl))
+            }
+        }
+    }
 }
