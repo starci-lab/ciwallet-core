@@ -55,88 +55,88 @@ import settingImg from "../../../public/assets/game/game-ui/setting.png"
 import shopImg from "../../../public/assets/game/game-ui/shop.png"
 import homeImg from "../../../public/assets/game/game-ui/home.png"
 export const loadChogAssets = (scene: Phaser.Scene) => {
-  scene.load.atlas("dog-sleep", dogSleepImg, dogSleepJson)
-  scene.load.atlas("dog-play", dogPlayImg, dogPlayJson)
-  scene.load.atlas("dog-chew", dogChewImg, dogChewJson)
-  scene.load.atlas("dog-walk", dogWalkImg, dogWalkJson)
+    scene.load.atlas("dog-sleep", dogSleepImg, dogSleepJson)
+    scene.load.atlas("dog-play", dogPlayImg, dogPlayJson)
+    scene.load.atlas("dog-chew", dogChewImg, dogChewJson)
+    scene.load.atlas("dog-walk", dogWalkImg, dogWalkJson)
 }
 
 export const loadZombieAssets = (scene: Phaser.Scene) => {
-  scene.load.atlas("zombie-idle", zombieIdleImg, zombieIdleJson)
-  scene.load.atlas("zombie-walk", zombieWalkImg, zombieWalkJson)
-  scene.load.atlas("zombie-idleplay", zombieIdleplayImg, zombieIdleplayJson)
-  scene.load.atlas("zombie-chew", zombieChewImg, zombieChewJson)
-  scene.load.atlas("zombie-sleep", zombieSleepImg, zombieSleepJson)
+    scene.load.atlas("zombie-idle", zombieIdleImg, zombieIdleJson)
+    scene.load.atlas("zombie-walk", zombieWalkImg, zombieWalkJson)
+    scene.load.atlas("zombie-idleplay", zombieIdleplayImg, zombieIdleplayJson)
+    scene.load.atlas("zombie-chew", zombieChewImg, zombieChewJson)
+    scene.load.atlas("zombie-sleep", zombieSleepImg, zombieSleepJson)
 }
 
 export const loadKeoneDogAssets = (scene: Phaser.Scene) => {
-  scene.load.atlas("keonedog-idle", keonedogIdleImg, keonedogIdleJson)
-  scene.load.atlas("keonedog-sleep", keonedogSleepImg, keonedogSleepJson)
-  scene.load.atlas("keonedog-play", keonedogPlayImg, keonedogPlayJson)
-  scene.load.atlas("keonedog-chew", keonedogChewImg, keonedogChewJson)
-  scene.load.atlas("keonedog-walk", keonedogWalkImg, keonedogWalkJson)
+    scene.load.atlas("keonedog-idle", keonedogIdleImg, keonedogIdleJson)
+    scene.load.atlas("keonedog-sleep", keonedogSleepImg, keonedogSleepJson)
+    scene.load.atlas("keonedog-play", keonedogPlayImg, keonedogPlayJson)
+    scene.load.atlas("keonedog-chew", keonedogChewImg, keonedogChewJson)
+    scene.load.atlas("keonedog-walk", keonedogWalkImg, keonedogWalkJson)
 }
 
 export const loadGhostAssets = (scene: Phaser.Scene) => {
-  scene.load.atlas("ghost-idle", ghostIdleImg, ghostIdleJson)
-  scene.load.atlas("ghost-sleep", ghostSleepImg, ghostSleepJson)
-  scene.load.atlas("ghost-play", ghostPlayImg, ghostPlayJson)
-  scene.load.atlas("ghost-chew", ghostChewImg, ghostChewJson)
-  scene.load.atlas("ghost-walk", ghostWalkImg, ghostWalkJson)
+    scene.load.atlas("ghost-idle", ghostIdleImg, ghostIdleJson)
+    scene.load.atlas("ghost-sleep", ghostSleepImg, ghostSleepJson)
+    scene.load.atlas("ghost-play", ghostPlayImg, ghostPlayJson)
+    scene.load.atlas("ghost-chew", ghostChewImg, ghostChewJson)
+    scene.load.atlas("ghost-walk", ghostWalkImg, ghostWalkJson)
 }
 
 // Load all pet assets
 export const loadAllPetAssets = (scene: Phaser.Scene) => {
-  loadChogAssets(scene)
-  loadKeoneDogAssets(scene)
-  loadGhostAssets(scene)
-  loadZombieAssets(scene)
+    loadChogAssets(scene)
+    loadKeoneDogAssets(scene)
+    loadGhostAssets(scene)
+    loadZombieAssets(scene)
 }
 
 // Load background assets
 export const loadBackgroundAssets = (scene: Phaser.Scene) => {
-  // Load your custom background image
-  scene.load.image("game-background", backgroundImg)
-  scene.load.image("forest-bg", forestBgImg)
+    // Load your custom background image
+    scene.load.image("game-background", backgroundImg)
+    scene.load.image("forest-bg", forestBgImg)
 }
 
 export const loadFoodAssets = (scene: Phaser.Scene) => {
-  scene.load.image("hamburger", hamburgerImg)
+    scene.load.image("hamburger", hamburgerImg)
 }
 
 export const loadPoopAssets = (scene: Phaser.Scene) => {
-  // Load animated poop atlas
-  scene.load.atlas("poop", poopImg, poopJson)
+    // Load animated poop atlas
+    scene.load.atlas("poop", poopImg, poopJson)
 }
 
 export const loadCleaningAssets = (scene: Phaser.Scene) => {
-  scene.load.image("broom", broomImg)
+    scene.load.image("broom", broomImg)
 }
 
 export const loadToyAssets = (scene: Phaser.Scene) => {
-  scene.load.image("ball", ballImg)
+    scene.load.image("ball", ballImg)
 }
 
 export const loadEffectAssets = (scene: Phaser.Scene) => {
-  scene.load.image("heart", heartImg)
-  // Use pixel-styled coin sprite instead of effects coin
-  scene.load.image("coin", coinPixelImg)
+    scene.load.image("heart", heartImg)
+    // Use pixel-styled coin sprite instead of effects coin
+    scene.load.image("coin", coinPixelImg)
 }
 
 export const loadUiAssets = (scene: Phaser.Scene) => {
-  // Generic setting icon used for both shop and settings buttons per request
-  scene.load.image("setting", settingImg)
-  scene.load.image("shop", shopImg)
-  scene.load.image("home", homeImg)
+    // Generic setting icon used for both shop and settings buttons per request
+    scene.load.image("setting", settingImg)
+    scene.load.image("shop", shopImg)
+    scene.load.image("home", homeImg)
 }
 
 export const loadAllAssets = (scene: Phaser.Scene) => {
-  loadAllPetAssets(scene)
-  loadBackgroundAssets(scene)
-  loadFoodAssets(scene)
-  loadPoopAssets(scene)
-  loadCleaningAssets(scene)
-  loadToyAssets(scene)
-  loadEffectAssets(scene)
-  loadUiAssets(scene)
+    loadAllPetAssets(scene)
+    loadBackgroundAssets(scene)
+    loadFoodAssets(scene)
+    loadPoopAssets(scene)
+    loadCleaningAssets(scene)
+    loadToyAssets(scene)
+    loadEffectAssets(scene)
+    loadUiAssets(scene)
 }
