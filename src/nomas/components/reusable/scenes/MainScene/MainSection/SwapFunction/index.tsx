@@ -1,10 +1,10 @@
 import React from "react"
-import { NomasCard, NomasCardVariant } from "../../extends"
-import { SwapPage, useAppSelector } from "../../../redux"
+import { NomasCard, NomasCardVariant } from "@/nomas/components"
+import { SwapPage, useAppSelector } from "@/nomas/redux"
 import { SelectTokenPage } from "./SelectTokenPage"
 import { NomasAggregationPage } from "./NomasAggregationPage"
 
-export const Swap = () => {
+export const SwapFunction = () => {
     const swapPage = useAppSelector((state) => state.stateless.pages.swapPage)
     const renderPage = () => {
         switch (swapPage) {
