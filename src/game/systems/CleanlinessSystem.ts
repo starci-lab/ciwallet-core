@@ -1,10 +1,8 @@
 import { Pet } from "../entities/Pet"
 import { GAME_MECHANICS } from "@/game/constants/gameConstants"
 import { gameConfigManager } from "@/game/configs/gameConfig"
-// import { useUserStore } from "@/game/store/userStore";
 import type { ColyseusClient } from "@/game/colyseus/client"
-import { spendToken, useAppSelector } from "@/nomas/redux"
-import { useDispatch } from "react-redux"
+import { spendToken, store } from "@/nomas/redux"
 
 // Cleanliness states
 export const CleanlinessState = {
@@ -233,7 +231,7 @@ export class CleanlinessSystem {
             // Send cleaned pet event to server if connected
             if (this.colyseusClient && this.colyseusClient.isConnected()) {
                 // const userStore = useUserStore.getState();
-                const userStore = useAppSelector((state) => state.stateless.user)
+                const userStore = store.getState().stateless.user
                 this.colyseusClient.cleanedPet({
                     cleanliness_level: this.cleanlinessLevel,
                     pet_id: this.petId,
@@ -259,9 +257,7 @@ export class CleanlinessSystem {
 
             // Check if player has enough tokens before sending to server
             // const currentTokens = useUserStore.getState().nomToken
-            const currentTokens = useAppSelector(
-                (state) => state.stateless.user.nomToken
-            )
+            const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < price) {
                 console.log(
                     `❌ Not enough tokens: need ${price}, have ${currentTokens}`
@@ -280,8 +276,7 @@ export class CleanlinessSystem {
             console.log("🔌 Offline mode - using local validation")
 
             // const userState = useUserStore.getState()
-            const userDispatch = useDispatch()
-            if (userDispatch(spendToken(price))) {
+            if (store.dispatch(spendToken(price))) {
                 this.cleaningInventory += 1
 
                 console.log(
@@ -291,9 +286,9 @@ export class CleanlinessSystem {
             }
 
             console.log(
-                `❌ Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${useAppSelector(
-                    (state) => state.stateless.user.nomToken
-                )}`
+                `❌ Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${
+                    store.getState().stateless.user.nomToken
+                }`
             )
             return false
         }

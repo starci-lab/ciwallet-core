@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react"
 import { GameScene } from "@/game/GameScene"
-// import { useUserStore } from "@/store/userStore"
 import { gameConfigManager } from "@/game/configs/gameConfig"
 import { getShopItemAssetPath } from "@/modules/utils/assetPath"
 import type {

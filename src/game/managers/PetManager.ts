@@ -1,5 +1,5 @@
 import { Pet } from "@/game/entities/Pet"
-// import { useUserStore } from "@/store/userStore"
+// import { useUserStore } from "@/store/userStore";
 import { FeedingSystem } from "@/game/systems/FeedingSystem"
 import { CleanlinessSystem } from "@/game/systems/CleanlinessSystem"
 import { HappinessSystem } from "@/game/systems/HappinessSystem"
@@ -11,7 +11,7 @@ import {
     GAME_MECHANICS,
     GAME_LAYOUT,
 } from "@/game/constants/gameConstants"
-import { addToken } from "@/nomas/redux"
+import { addToken, store } from "@/nomas/redux"
 
 export interface PetData {
   id: string
@@ -244,9 +244,9 @@ export class PetManager {
                             onComplete: () => {
                                 coin.destroy()
                                 // Increase user's token balance
-                                // Note: Token balance update should be handled by the parent component
-                                // Update the token UI with current balance
-                                tokenUI.update(1) // This should be the current token count
+                                store.dispatch(addToken(1))
+                                // Update the token UI
+                                tokenUI.update()
                             },
                         })
                     },

@@ -3,7 +3,7 @@ import { Pet } from "../entities/Pet"
 // import { useUserStore } from "@/store/userStore"
 import { gameConfigManager } from "@/game/configs/gameConfig"
 import { GAME_MECHANICS } from "../constants/gameConstants"
-import { spendToken, useAppSelector } from "@/nomas/redux"
+import { spendToken, store, useAppSelector } from "@/nomas/redux"
 import { useDispatch } from "react-redux"
 
 // Hunger states
@@ -100,8 +100,7 @@ export class FeedingSystem {
         } else {
             console.log("🔌 Offline mode - using local validation")
 
-            const userDispatch = useDispatch()
-            if (userDispatch(spendToken(foodPrice))) {
+            if (store.dispatch(spendToken(foodPrice))) {
                 this.foodInventory += 1
                 console.log(`✅ Purchase successful: ${foodId} for ${foodPrice} tokens`)
                 return true

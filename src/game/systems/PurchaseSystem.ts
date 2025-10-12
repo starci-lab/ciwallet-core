@@ -1,9 +1,7 @@
 import type { ColyseusClient } from "@/game/colyseus/client"
 import { gameConfigManager } from "@/game/configs/gameConfig"
-// import { useUserStore } from "@/store/userStore"
 import { eventBus } from "@/game/event-bus"
-import { setNomToken } from "@/nomas/redux"
-import { useDispatch } from "react-redux"
+import { setNomToken, store } from "@/nomas/redux"
 
 // Export eventBus for other modules
 export { eventBus }
@@ -221,9 +219,7 @@ export class PurchaseSystem {
         if (success) {
             // Update client state from server response
             if (currentTokens !== undefined) {
-                const userDispatch = useDispatch()
-                userDispatch(setNomToken(currentTokens))
-                // useUserStore.getState().setNomToken(currentTokens)
+                store.dispatch(setNomToken(currentTokens))
                 console.log(`💰 Tokens updated from server: ${currentTokens}`)
             }
 

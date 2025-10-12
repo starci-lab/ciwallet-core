@@ -1,12 +1,11 @@
 import type { GameScene } from "@/game/GameScene"
 import type { PetManager } from "../../managers/PetManager"
 import { gameConfigManager } from "../../configs/gameConfig"
-// import { useUserStore } from "../../../store/userStore"
 import { PurchaseSystem } from "@/game/systems"
 import { PurchaseUI } from "../PurchaseUI"
 import { eventBus } from "@/game/event-bus"
 import type { ColyseusClient } from "../../colyseus/client"
-import { useAppSelector } from "@/nomas/redux"
+import { store } from "@/nomas/redux"
 
 // Reuse existing styles from ShopModal.ts
 const MODAL_STYLE = `
@@ -178,7 +177,7 @@ export default class ModernShopModal {
     `
 
         const balanceValue = document.createElement("div")
-        const userState = useAppSelector((state) => state.stateless.user)
+        const userState = store.getState().stateless.user
         balanceValue.textContent = `${userState.nomToken.toLocaleString()} NOM`
         balanceValue.style.cssText = `
       font-size: 14px;
@@ -310,7 +309,7 @@ export default class ModernShopModal {
         this.currentCategory = category
         this.updateCategoryTabs()
         this.populateItems()
-        this.updateBalance(useAppSelector((state) => state.stateless.user.nomToken))
+        this.updateBalance(store.getState().stateless.user.nomToken)
         this.modal.style.display = "flex"
     }
 
@@ -370,8 +369,7 @@ export default class ModernShopModal {
         }
 
         // Check if user can afford item
-        const canAfford =
-      useAppSelector((state) => state.stateless.user.nomToken) >= item.price
+        const canAfford = store.getState().stateless.user.nomToken >= item.price
         if (!canAfford) {
             card.style.cssText += ITEM_CARD_DISABLED_STYLE
         }

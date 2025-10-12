@@ -1,10 +1,8 @@
 import { Pet } from "../entities/Pet"
 import { GAME_MECHANICS } from "../constants/gameConstants"
 import { gameConfigManager } from "@/game/configs/gameConfig"
-// import { useUserStore } from "@/store/userStore"
 import type { ColyseusClient } from "@/game/colyseus/client"
-import { spendToken, useAppSelector } from "@/nomas/redux"
-import { useDispatch } from "react-redux"
+import { spendToken, store } from "@/nomas/redux"
 
 // Happiness states
 export const HappinessState = {
@@ -83,9 +81,7 @@ export class HappinessSystem {
             )
 
             // Check if player has enough tokens before sending to server
-            const currentTokens = useAppSelector(
-                (state) => state.stateless.user.nomToken
-            )
+            const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < toyPrice) {
                 console.log(
                     `❌ Not enough tokens: need ${toyPrice}, have ${currentTokens}`
@@ -101,10 +97,9 @@ export class HappinessSystem {
 
             return true // Server will handle validation and update inventory
         } else {
-            const userStore = useAppSelector((state) => state.stateless.user)
-            const userDispatch = useDispatch()
+            const userStore = store.getState().stateless.user
             if (userStore.nomToken >= toyPrice) {
-                userDispatch(spendToken(toyPrice))
+                store.dispatch(spendToken(toyPrice))
                 this.toyInventory++
                 return true
             }
@@ -132,7 +127,7 @@ export class HappinessSystem {
 
         // Send played pet event to server if connected
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
-            const userStore = useAppSelector((state) => state.stateless.user)
+            const userStore = store.getState().stateless.user
             this.colyseusClient.playedPet({
                 happiness_level: this.happinessLevel,
                 pet_id: this.petId,

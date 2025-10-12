@@ -1,6 +1,5 @@
 import { PetManager } from "@/game/managers/PetManager"
-import { useAppSelector } from "@/nomas/redux"
-// import { useUserStore } from "@/store/userStore"
+import { store } from "@/nomas/redux"
 
 const PET_PRICE = 50 // Price to buy a new pet
 
@@ -17,9 +16,7 @@ export class PetShopModal {
     showBuyPetModal() {
         console.log("🛒 Showing DOM Buy Pet Modal...")
 
-        const currentTokens = useAppSelector(
-            (state) => state.stateless.user.nomToken
-        )
+        const currentTokens = store.getState().stateless.user.nomToken
         const canAfford = currentTokens >= PET_PRICE
 
         // Create modal window (game-style, no overlay)
@@ -251,7 +248,7 @@ export class PetShopModal {
     private processPetPurchase() {
         console.log("💰 Processing pet purchase...")
 
-        const userStore = useAppSelector((state) => state.stateless.user)
+        const userStore = store.getState().stateless.user
         const currentTokens = userStore.nomToken
 
         if (currentTokens < PET_PRICE) {
