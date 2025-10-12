@@ -1,12 +1,12 @@
-import type { GameScene } from "../../scenes/GameScene"
+import type { GameScene } from "@/game/GameScene"
 import type { PetManager } from "../../managers/PetManager"
 import { gameConfigManager } from "../../configs/gameConfig"
-// Removed unused imports
-import { useUserStore } from "../../../store/userStore"
-import { PurchaseSystem } from "../../systems/PurchaseSystem"
+// import { useUserStore } from "../../../store/userStore"
+import { PurchaseSystem } from "@/game/systems"
 import { PurchaseUI } from "../PurchaseUI"
-import { eventBus } from "@/game/tilemap"
+import { eventBus } from "@/game/event-bus"
 import type { ColyseusClient } from "../../colyseus/client"
+import { useAppSelector } from "@/nomas/redux"
 
 // Reuse existing styles from ShopModal.ts
 const MODAL_STYLE = `
@@ -178,7 +178,7 @@ export default class ModernShopModal {
     `
 
         const balanceValue = document.createElement("div")
-        const userState = useUserStore.getState()
+        const userState = useAppSelector((state) => state.stateless.user)
         balanceValue.textContent = `${userState.nomToken.toLocaleString()} NOM`
         balanceValue.style.cssText = `
       font-size: 14px;
@@ -205,7 +205,7 @@ export default class ModernShopModal {
             { key: "toy", label: "Toys" },
             { key: "clean", label: "Clean" },
             { key: "pets", label: "Pets" },
-            { key: "backgrounds", label: "Backgrounds" }
+            { key: "backgrounds", label: "Backgrounds" },
         ]
 
         categories.forEach((category) => {
@@ -310,7 +310,7 @@ export default class ModernShopModal {
         this.currentCategory = category
         this.updateCategoryTabs()
         this.populateItems()
-        this.updateBalance(useUserStore.getState().nomToken)
+        this.updateBalance(useAppSelector((state) => state.stateless.user.nomToken))
         this.modal.style.display = "flex"
     }
 
@@ -322,11 +322,11 @@ export default class ModernShopModal {
         this.itemsGrid.innerHTML = ""
 
         let items: Array<{
-      id: string;
-      name: string;
-      price: number;
-      texture: string;
-      image_url?: string;
+      id: string
+      name: string
+      price: number
+      texture: string
+      image_url?: string
     }> = []
         switch (this.currentCategory) {
         case "food":
@@ -353,11 +353,11 @@ export default class ModernShopModal {
     }
 
     private createItemCard(item: {
-    id: string;
-    name: string;
-    price: number;
-    texture: string;
-    image_url?: string;
+    id: string
+    name: string
+    price: number
+    texture: string
+    image_url?: string
   }): HTMLElement {
         const card = document.createElement("div")
         card.style.cssText = ITEM_CARD_STYLE
@@ -370,7 +370,8 @@ export default class ModernShopModal {
         }
 
         // Check if user can afford item
-        const canAfford = useUserStore.getState().nomToken >= item.price
+        const canAfford =
+      useAppSelector((state) => state.stateless.user.nomToken) >= item.price
         if (!canAfford) {
             card.style.cssText += ITEM_CARD_DISABLED_STYLE
         }
@@ -419,11 +420,11 @@ export default class ModernShopModal {
     }
 
     private async handleItemClick(item: {
-    id: string;
-    name: string;
-    price: number;
-    texture: string;
-    image_url?: string;
+    id: string
+    name: string
+    price: number
+    texture: string
+    image_url?: string
   }): Promise<void> {
         try {
             const success = await this.purchaseSystem.initiatePurchase(

@@ -1,4 +1,4 @@
-import { getAddressWalletFromLS } from "@/nomas/modules/utils/auth"
+import { getAddressWalletFromLS } from "@/modules/utils/auth"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export interface UserSlice {

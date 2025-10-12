@@ -1,5 +1,6 @@
 import { PetManager } from "@/game/managers/PetManager"
-import { useUserStore } from "@/store/userStore"
+import { useAppSelector } from "@/nomas/redux"
+// import { useUserStore } from "@/store/userStore"
 
 const PET_PRICE = 50 // Price to buy a new pet
 
@@ -16,7 +17,9 @@ export class PetShopModal {
     showBuyPetModal() {
         console.log("🛒 Showing DOM Buy Pet Modal...")
 
-        const currentTokens = useUserStore.getState().nomToken
+        const currentTokens = useAppSelector(
+            (state) => state.stateless.user.nomToken
+        )
         const canAfford = currentTokens >= PET_PRICE
 
         // Create modal window (game-style, no overlay)
@@ -248,7 +251,7 @@ export class PetShopModal {
     private processPetPurchase() {
         console.log("💰 Processing pet purchase...")
 
-        const userStore = useUserStore.getState()
+        const userStore = useAppSelector((state) => state.stateless.user)
         const currentTokens = userStore.nomToken
 
         if (currentTokens < PET_PRICE) {
@@ -257,8 +260,9 @@ export class PetShopModal {
         }
 
         // Gửi yêu cầu mua pet lên backend, không tạo pet local ở đây
+        const petTypeId = "213213123"
         const petType = "chog" // Có thể cho user chọn loại pet sau
-        this.petManager.buyPet(petType)
+        this.petManager.buyPet(petType, petTypeId)
         this.notificationUI.showNotification(
             "Buying pet... Please wait for confirmation!"
         )

@@ -1,4 +1,4 @@
-import type { GameScene } from "../../scenes/GameScene"
+import type { GameScene } from "@/game/GameScene"
 
 const NAV_BG_COLOR = 0x101010 // Inner panel color
 const NAV_BORDER_COLOR = 0x242424 // Inner border color
@@ -31,10 +31,7 @@ export class NavigationUI {
         this.createHomeButton(startX, startY)
 
         // Shop Button
-        this.createShopButton(
-            startX + NAV_BUTTON_SIZE + NAV_BUTTON_SPACING,
-            startY
-        )
+        this.createShopButton(startX + NAV_BUTTON_SIZE + NAV_BUTTON_SPACING, startY)
 
         // Settings Button
         this.createSettingsButton(

@@ -1,4 +1,4 @@
-import http from "@/nomas/modules/utils/http"
+import http from "@/modules/utils/http"
 import type {
     StoreApiResponse,
     ResponseItemDto,

@@ -1,33 +1,38 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useRef, useState, type FC } from "react"
 import { Game } from "phaser"
 import { useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { eventBus, PurchaseEvents, type PurchaseSystem } from "@/game/systems"
+import { ReactShopModal } from "@/game/ui/modal/ReactShopModal"
+import { createPortal } from "react-dom"
+// import type { GameRoomState } from "@/game/schema/ChatSchema"
+import { getConfig, CONTAINER_ID } from "@/game/configs/phaser-config"
+import { SceneName } from "packages/constants/game"
+import { GameScene as PhaserGameScene } from "@/game/GameScene"
+import http from "@/modules/utils/http"
+import { ROUTES } from "packages/constants/route"
+import { setAddressWallet } from "@/nomas/redux/slices/stateless/user"
 
-export const GameScene = () => {
+export type GameSceneProps = {
+  signMessage: (message: string) => Promise<string>
+  publicKey: string
+}
+
+export const GameScene: FC<GameSceneProps> = ({ signMessage, publicKey }) => {
     const gameRef = useRef<HTMLDivElement>(null)
     const phaserGameRef = useRef<Game | null>(null)
-    const sceneRef = useRef<GameScene | null>(null)
+    const sceneRef = useRef<PhaserGameScene | null>(null)
     const hasBootedRef = useRef(false)
 
     const [isGameInitialized, setIsGameInitialized] = useState(false)
-    const addressWallet = useAppSelector((state) => state.user.addressWallet)
-    const setAddressWallet = useAppDispatch(
-        (state) => state.user.setAddressWallet
+    const addressWallet = useAppSelector(
+        (state) => state.stateless.user.addressWallet
     )
-    const setIsAuthenticated = useAppDispatch(
-        (state) => state.user.setIsAuthenticated
-    )
+    const setAddressDispatch = useAppDispatch()
     const [isUserAuthenticated, setIsUserAuthenticated] = useState(
         !!addressWallet
     )
 
-    // Setup Colyseus context (new approach). Use provided Schema class if available.
-    const colyseusApi = useMemo(() => {
-        const env = import.meta.env as { VITE_BASE_SOCKET?: string }
-        return createColyseus<GameRoomState>(
-            env.VITE_BASE_SOCKET || "ws://localhost:3002"
-        )
-    }, [])
-    const hookRoom = colyseusApi.useColyseusRoom()
+    // Colyseus connection will be handled by the Phaser scene directly
 
     useEffect(() => {
         console.log("🔍 Game initialization check:", {
@@ -62,13 +67,11 @@ export const GameScene = () => {
                 sceneRef.current =
           (phaserGameRef.current?.scene.getScene(
               SceneName.Gameplay
-          ) as GameScene) || null
+          ) as PhaserGameScene) || null
                 if (sceneRef.current) {
                     console.log("✅ GameScene loaded successfully")
                     setIsGameInitialized(true)
-                    if (hookRoom) {
-                        sceneRef.current.attachColyseusRoom(hookRoom as unknown)
-                    }
+                    // Colyseus connection will be handled by the scene itself
                     return
                 }
                 if (attempts < 30) {
@@ -101,53 +104,11 @@ export const GameScene = () => {
                 hasBootedRef.current = false
             }
         }
-    }, [isUserAuthenticated, hookRoom, isGameInitialized])
+    }, [isUserAuthenticated, isGameInitialized])
 
-    // If the room becomes available after the scene is ready, attach it.
-    useEffect(() => {
-        if (sceneRef.current && hookRoom) {
-            sceneRef.current.attachColyseusRoom(hookRoom as unknown)
-        }
-    }, [hookRoom])
+    // Colyseus connection is handled by the Phaser scene
 
-    // Connect to room only after scene emits 'assets-ready' to ensure assets/state are ready
-    useEffect(() => {
-        if (!isUserAuthenticated) return
-        const scene = sceneRef.current
-        if (!scene) return
-        if (hookRoom) return
-
-        const connect = () => {
-            colyseusApi
-                .connectToColyseus("single_player", {
-                    name: "Pet Game",
-                    addressWallet: addressWallet || undefined,
-                })
-                .catch(() => {
-                    // ignore
-                })
-        }
-
-        if (isGameInitialized) {
-            connect()
-            return
-        }
-
-        scene.events.once("assets-ready", connect)
-        return () => {
-            // phaser's event emitter typings are broad; cast to unknown first
-            scene.events.off(
-                "assets-ready",
-        connect as unknown as (...args: unknown[]) => void
-            )
-        }
-    }, [
-        isUserAuthenticated,
-        isGameInitialized,
-        hookRoom,
-        addressWallet,
-        colyseusApi,
-    ])
+    // Colyseus connection is handled by the Phaser scene itself
 
     useEffect(() => {
         if (addressWallet) {
@@ -179,7 +140,7 @@ export const GameScene = () => {
                     signature: signedMessage,
                 })
 
-                setAddressWallet(verifyResponse.data.wallet_address)
+                setAddressDispatch(setAddressWallet(verifyResponse.data.wallet_address))
             } catch {
                 // ignore
             }
@@ -230,5 +191,92 @@ export const GameScene = () => {
             )}
             {/* React tilemap input overlay disabled in favor of Phaser-native input */}
         </div>
+    )
+}
+
+const ShopPortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
+    const [container, setContainer] = useState<HTMLElement | null>(null)
+    const [isOpen, setIsOpen] = useState(false)
+    const [purchaseSystem, setPurchaseSystem] = useState<
+    PurchaseSystem | undefined
+  >(undefined)
+
+    useEffect(() => {
+        setPurchaseSystem(scene.getPurchaseSystem())
+        const el = document.createElement("div")
+        el.style.position = "fixed"
+        el.style.top = "50%"
+        el.style.right = "8%"
+        el.style.transform = "translateY(-50%)"
+        el.style.zIndex = "1001"
+        document.body.appendChild(el)
+        setContainer(el)
+
+        const openHandler = () => {
+            setIsOpen(true)
+            scene.registry.set("reactShopOpen", true)
+        }
+        const closeHandler = () => {
+            setIsOpen(false)
+            scene.registry.set("reactShopOpen", false)
+        }
+        // Mark React shop as available as soon as portal mounts
+        scene.registry.set("reactShopReady", true)
+        scene.events.on("open-react-shop", openHandler)
+        scene.events.on("close-react-shop", closeHandler)
+        const onPurchaseSuccess = (data: {
+      itemType: string
+      itemId: string
+      itemData?: { texture?: string }
+    }) => {
+            if (
+                data.itemType === "background" &&
+        data.itemData &&
+        data.itemData.texture
+            ) {
+                try {
+                    scene.createBackground(data.itemData.texture)
+                } catch {
+                    // ignore
+                }
+            }
+        }
+        eventBus.on(
+            PurchaseEvents.PurchaseSuccess,
+      onPurchaseSuccess as unknown as (...args: unknown[]) => void
+        )
+        return () => {
+            scene.events.off("open-react-shop", openHandler)
+            scene.events.off("close-react-shop", closeHandler)
+            eventBus.off(
+                PurchaseEvents.PurchaseSuccess,
+        onPurchaseSuccess as unknown as (...args: unknown[]) => void
+            )
+            scene.registry.set("reactShopReady", false)
+            scene.registry.set("reactShopOpen", false)
+            el.remove()
+        }
+    }, [scene])
+
+    // Keep PurchaseSystem reference in sync when it appears later
+    useEffect(() => {
+        const id = setInterval(() => {
+            const ps = scene.getPurchaseSystem()
+            if (ps) {
+                setPurchaseSystem(ps)
+            }
+        }, 250)
+        return () => clearInterval(id)
+    }, [scene])
+
+    if (!container) return null
+    return createPortal(
+        <ReactShopModal
+            isOpen={isOpen}
+            onClose={() => scene.events.emit("close-react-shop")}
+            scene={scene}
+            purchaseSystem={purchaseSystem}
+        />,
+        container
     )
 }
