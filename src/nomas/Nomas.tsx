@@ -6,7 +6,7 @@ import { signTransaction } from "@/adapter"
 import { ReduxProvider, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
-import { InitScene, MainScene } from "./components/reusable/scenes"
+import { GameScene, InitScene, MainScene } from "./components/reusable/scenes"
 import "./global.css"
 
 export const Nomas = () => {
@@ -17,7 +17,7 @@ export const Nomas = () => {
                     signAndSendTransaction: async ({ chainId, network, transaction }) => {
                         console.log(chainId, network, transaction)
                         const provider = new ethers.JsonRpcProvider(
-                            "https://testnet-rpc.monad.xyz",
+                            "https://testnet-rpc.monad.xyz"
                         )
                         const privateKey =
               "88a07f6c444b42996ecf6f365c9f7c98029a0b8c02d4ad1b5462c4386ab9c309"
@@ -49,7 +49,7 @@ export const Nomas = () => {
                     ],
                 },
             }}
-        >   
+        >
             <ReduxProvider>
                 <SingletonHookProvider>
                     <IconContext.Provider
@@ -75,9 +75,9 @@ const NomasContent = () => {
             return <InitScene />
         case Scene.Main:
             return <MainScene />
+        case Scene.Game:
+            return <GameScene />
         }
     }
-    return (
-        <>{renderContent()}</>        
-    )
+    return <>{renderContent()}</>
 }
