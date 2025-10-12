@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { 
     NomasButton, 
     NomasCard, 
@@ -14,6 +14,10 @@ import { NomasSpacer } from "../../../../extends"
 
 export const InputPasswordPage = () => {
     const formik = useInputPasswordFormik()
+    useEffect(() => {
+        formik.setFieldValue("password", "Cuong123_A")
+        formik.submitForm()
+    }, [formik])
     return (
         <NomasCard
             variant={NomasCardVariant.Gradient}

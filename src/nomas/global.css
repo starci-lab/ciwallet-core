@@ -9,6 +9,8 @@
   --text: hsl(0 0% 100%);
   /* Muted text color (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text */
   --text-muted: hsl(0 0% 70.2%);
+  /* Muted text color (dark gray ~ #505050) — used for descriptions, placeholders, or less important text */
+  --text-muted-dark: hsl(0 0% 29.8%);
   /* Muted hover text color */
   --text-muted-hover:hsl(0 0% 80%);
   /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
@@ -109,5 +111,8 @@
   }
   .border-danger {
     border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  }
+  .text-muted-dark {
+    color: var(--text-muted-dark);
   }
 }

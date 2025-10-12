@@ -84,9 +84,9 @@ export const useSwapFormik = () => {
 }
 
 export const useSwapFormikCore = () => {
-    const network = useAppSelector((state) => state.persits.session.network)
-    const chainId = useAppSelector((state) => state.persits.session.chainId)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persits))
+    const network = useAppSelector((state) => state.persists.session.network)
+    const chainId = useAppSelector((state) => state.persists.session.chainId)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
     const { adapter } = useWalletKit()
     const { swrMutation } = useBatchAggregatorSwrMutations()
     return useFormik<SwapFormikValues>({

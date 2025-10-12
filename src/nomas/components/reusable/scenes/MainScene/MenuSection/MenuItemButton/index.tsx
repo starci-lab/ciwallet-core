@@ -1,37 +1,30 @@
 import React from "react"
-import { twMerge } from "tailwind-merge"
-import { NomasButtonTextWithIcon } from "../../../../../extends/NomasButton"
 import type { MenuItem } from "../index"
+import { twMerge } from "tailwind-merge"
 
 export interface MenuItemButtonProps {
     item: MenuItem
     active: boolean
-    onPress: () => void
+    onClick: () => void
+    isSelected: boolean
 }
 
-export const MenuItemButton = ({ item, active, onPress }: MenuItemButtonProps) => {
+export const MenuItemButton = ({ item, isSelected, onClick }: MenuItemButtonProps) => {
     return (
-        <div className="flex flex-col items-center gap-1">
-            <NomasButtonTextWithIcon
-                icon={item.icon}
-                iconPosition="start"
-                isDisabled={item.disabled}
-                onPress={onPress}
-                className={twMerge(
-                    "flex-col rounded-full gap-1 p-2 min-w-0 w-16 h-16 transition-all duration-200",
-                    "justify-center items-center",
-                    active 
-                        ? "bg-foreground-700 opacity-70 scale-105" 
-                        : "bg-foreground-800 opacity-20 hover:bg-foreground-600"
-                )}
-            >
-                <div className={twMerge(
-                    "text-xs font-medium transition-colors duration-200 mt-1",
-                    active ? "text-white" : "text-foreground-100"
-                )}>
-                    {item.label}
-                </div>
-            </NomasButtonTextWithIcon>
+        <div onClick={onClick} 
+            className={
+                twMerge(
+                    "aspect-square w-20 rounded-full grid place-items-center cursor-pointer transition-colors duration-200", 
+                    isSelected && "bg-card-gradient border-card"
+                )
+            }>
+            <div className="flex flex-col p-2 items-center gap-1 justify-center">
+                {item.icon}
+                <div className={
+                    twMerge("text-sm text-muted-dark", 
+                        isSelected && "text-muted"
+                    )}>{item.label}</div>
+            </div>
         </div>
     )
 }

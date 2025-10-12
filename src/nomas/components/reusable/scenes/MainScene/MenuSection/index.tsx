@@ -1,41 +1,70 @@
 import { ArrowsLeftRightIcon, BankIcon, ImagesSquareIcon, TrendUpIcon, WalletIcon } from "@phosphor-icons/react"
 import React from "react"
-import { NomasCard } from "../../../../extends/NomasCard"
+import { NomasCard, NomasCardVariant } from "../../../../extends/NomasCard"
 import { MenuItemButton } from "./MenuItemButton"
-
-type MenuKey = "trade" | "perp" | "home" | "nfts" | "defi"
+import { useAppSelector, HomeTab, setHomeTab, useAppDispatch } from "@/nomas/redux"
+import { twMerge } from "tailwind-merge"
 
 export interface MenuItem {
-    key: MenuKey
+    key: HomeTab
     label: string
     icon: React.ReactNode
     disabled?: boolean
+    isSelected?: boolean
 }
 
-const items: MenuItem[] = [
-    { key: "trade", label: "Trade", icon: <ArrowsLeftRightIcon size={18} />, disabled: true },
-    { key: "perp", label: "Perp", icon: <TrendUpIcon size={18} />, disabled: true },
-    { key: "home", label: "Home", icon: <WalletIcon size={18} /> },
-    { key: "nfts", label: "NFTs", icon: <ImagesSquareIcon size={18} />, disabled: true },
-    { key: "defi", label: "Defi", icon: <BankIcon size={18} />, disabled: true },
-]
-
 export const MenuSection = () => {
-    const [active, setActive] = React.useState<MenuKey>("home")
-
+    const homeTab = useAppSelector((state) => state.stateless.tabs.homeTab)
+    const dispatch = useAppDispatch()
+    const items: Array<MenuItem> = [
+        { 
+            key: HomeTab.Trade,
+            label: "Trade",
+            icon: <ArrowsLeftRightIcon weight={homeTab === HomeTab.Trade ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Trade && "text-muted")} />,
+            disabled: true,
+            isSelected: homeTab === HomeTab.Trade,
+        },
+        { 
+            key: HomeTab.Perp,
+            label: "Perp",
+            icon: <TrendUpIcon weight={homeTab === HomeTab.Perp ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Perp && "text-muted")} />,
+            disabled: true,
+            isSelected: homeTab === HomeTab.Perp,
+        },
+        { 
+            key: HomeTab.Home,
+            label: "Home",
+            icon: <WalletIcon weight={homeTab === HomeTab.Home ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Home && "text-muted")} />,
+            isSelected: homeTab === HomeTab.Home,
+        },
+        { 
+            key: HomeTab.Nfts,
+            label: "NFTs",
+            icon: <ImagesSquareIcon weight={homeTab === HomeTab.Nfts ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Nfts && "text-muted")} />,
+            disabled: true,
+            isSelected: homeTab === HomeTab.Nfts,
+        },
+        { 
+            key: HomeTab.Defi,
+            label: "Defi",
+            icon: <BankIcon weight={homeTab === HomeTab.Defi ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Defi && "text-muted")} />,
+            disabled: true,
+            isSelected: homeTab === HomeTab.Defi,
+        },
+    ]
     return (
         <NomasCard
-            asCore
-            radius="lg"
+            variant={NomasCardVariant.Gradient}
             //TODO: delete the mt-4 later
-            className="mt-4 mx-6 p-2 flex flex-row items-center justify-center gap-2"
+            className="flex flex-row items-center justify-center gap-2 p-4"
         >
             {items.map((item) => (
                 <MenuItemButton
                     key={item.key}
                     item={item}
-                    active={active === item.key}
-                    onPress={() => setActive(item.key)}
+                    active={item.isSelected ?? false}
+                    isSelected={item.isSelected ?? false}
+                    onClick={() => dispatch(setHomeTab(item.key))}
                 />
             ))}
 

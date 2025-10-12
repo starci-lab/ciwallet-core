@@ -8,7 +8,6 @@ import {
     InitPage,
     addAccount,
     setEncryptedMnemonic,
-    setInitialized,
     setInitPage,
     useAppDispatch,
     setPassword,
@@ -16,16 +15,7 @@ import {
 import { encryptionObj, walletGeneratorObj } from "@/nomas/obj"
 import { v4 as uuidv4 } from "uuid"
 import zxcvbn from "zxcvbn"
-
-// -------------------------------------
-// Password Strength Enum
-// -------------------------------------
-export enum PasswordStrength {
-    Weak = "Weak",
-    Medium = "Medium",
-    Strong = "Strong",
-    VeryStrong = "Very Strong",
-}
+import { PasswordStrength } from "./types"
 
 // -------------------------------------
 // Formik Values Interface

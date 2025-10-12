@@ -75,7 +75,7 @@ export const useWithdrawFormik = () => {
 }
 
 export const useWithdrawFormikCore = () => {
-    const network = useAppSelector((state) => state.persits.session.network)
+    const network = useAppSelector((state) => state.persists.session.network)
     const { adapter } = useWalletKit()
     const { handle } = useTransfer()
     const { nonceHandle } = useNonce()
