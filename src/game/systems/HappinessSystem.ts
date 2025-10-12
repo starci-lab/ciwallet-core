@@ -1,8 +1,10 @@
 import { Pet } from "../entities/Pet"
 import { GAME_MECHANICS } from "../constants/gameConstants"
 import { gameConfigManager } from "@/game/configs/gameConfig"
-import { useUserStore } from "@/store/userStore"
+// import { useUserStore } from "@/store/userStore"
 import type { ColyseusClient } from "@/game/colyseus/client"
+import { spendToken, useAppSelector } from "@/nomas/redux"
+import { useDispatch } from "react-redux"
 
 // Happiness states
 export const HappinessState = {
@@ -13,7 +15,7 @@ export const HappinessState = {
     Depressed: "depressed",
 } as const
 export type HappinessState =
-  (typeof HappinessState)[keyof typeof HappinessState];
+  (typeof HappinessState)[keyof typeof HappinessState]
 
 export function getHappinessState(happinessLevel: number): HappinessState {
     if (happinessLevel >= 95) return HappinessState.Ecstatic
@@ -81,7 +83,9 @@ export class HappinessSystem {
             )
 
             // Check if player has enough tokens before sending to server
-            const currentTokens = useUserStore.getState().nomToken
+            const currentTokens = useAppSelector(
+                (state) => state.stateless.user.nomToken
+            )
             if (currentTokens < toyPrice) {
                 console.log(
                     `❌ Not enough tokens: need ${toyPrice}, have ${currentTokens}`
@@ -97,9 +101,10 @@ export class HappinessSystem {
 
             return true // Server will handle validation and update inventory
         } else {
-            const userStore = useUserStore.getState()
+            const userStore = useAppSelector((state) => state.stateless.user)
+            const userDispatch = useDispatch()
             if (userStore.nomToken >= toyPrice) {
-                userStore.setNomToken(userStore.nomToken - toyPrice)
+                userDispatch(spendToken(toyPrice))
                 this.toyInventory++
                 return true
             }
@@ -118,10 +123,7 @@ export class HappinessSystem {
    */
     triggerPlay(happinessIncrease: number = 25): void {
         const oldHappiness = this.happinessLevel
-        this.happinessLevel = Math.min(
-            100,
-            this.happinessLevel + happinessIncrease
-        )
+        this.happinessLevel = Math.min(100, this.happinessLevel + happinessIncrease)
         console.log(
             `📈 Pet ${this.petId} happiness: ${oldHappiness.toFixed(
                 1
@@ -130,7 +132,7 @@ export class HappinessSystem {
 
         // Send played pet event to server if connected
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
-            const userStore = useUserStore.getState()
+            const userStore = useAppSelector((state) => state.stateless.user)
             this.colyseusClient.playedPet({
                 happiness_level: this.happinessLevel,
                 pet_id: this.petId,
