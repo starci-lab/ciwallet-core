@@ -1,4 +1,4 @@
-// import { useUserStore } from "@/store/userStore"
+import { store } from "@/nomas/redux"
 
 const UI_FONT = "monospace"
 const TOKEN_BG_COLOR = 0x101010 // Inner panel color
@@ -78,14 +78,15 @@ export class TokenUI {
             .setOrigin(0, 0.5)
             .setDepth(TOKEN_UI_DEPTH + 3)
 
-        this.update(0) // Initialize with 0 tokens
+        this.update()
     }
 
     getTokenIconPosition() {
         return { x: this.tokenText.x, y: this.tokenText.y }
     }
 
-    update(nomToken: number) {
+    update() {
+        const nomToken = store.getState().stateless.user.nomToken
         this.tokenText.setText(nomToken.toLocaleString())
     }
 }

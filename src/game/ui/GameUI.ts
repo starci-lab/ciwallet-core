@@ -115,13 +115,11 @@ export class GameUI {
     }
 
     // Update all UI components
-    updateUI(tokenValue?: number) {
+    updateUI() {
         this.feedingUI.update()
         this.cleanlinessUI.update()
         this.happinessUI.update()
-        if (tokenValue !== undefined) {
-            this.tokenUI.update(tokenValue)
-        }
+        this.tokenUI.update()
         this.petDetailsModal.update()
     }
 
