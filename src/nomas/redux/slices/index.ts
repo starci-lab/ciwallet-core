@@ -1,2 +1,2 @@
 export * from "./stateless"
-export * from "./persits"
+export * from "./persists"

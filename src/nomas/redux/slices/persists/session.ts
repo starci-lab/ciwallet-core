@@ -147,7 +147,7 @@ export const sessionSlice = createSlice({
             const accounts = state.accounts[state.chainId]
             if (!accounts) return null
             const { selectedAccountId } = accounts
-            if (!selectedAccountId) return null
+            if (!selectedAccountId) return accounts.accounts[0]
             const account = state.accounts[state.chainId]!.accounts.find(
                 (account) => account.id === selectedAccountId && account.chainId === state.chainId
             )

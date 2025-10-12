@@ -3,18 +3,18 @@ import {
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
-} from "../../../extends"
+} from "@/nomas/components"
 import {
     setSwapPage,
     SwapPage,  
     useAppDispatch,
     useAppSelector
-} from "../../../../redux"
+} from "@/nomas/redux"
 import { ChainId } from "@ciwallet-sdk/types"
 import { NomasSpacer } from "@/nomas/components"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
-import { TokenCard } from "../../TokenCard"
-import { SelectChainTab } from "../../../styled"
+import { TokenCard } from "@/nomas/components"
+import { SelectChainTab } from "@/nomas/components"
 import { tokenManagerObj } from "@/nomas/obj"
 import { chainManagerObj } from "@/nomas/obj"
 
@@ -36,7 +36,6 @@ export const SelectTokenPage = () => {
                 <NomasCard>
                     <NomasCardBody>
                         <SelectChainTab
-                            chainManager={chainManagerObj}
                             isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
                             onSelect={(chainId) => {
                                 swapFormik.setFieldValue("tokenInChainId", chainId)

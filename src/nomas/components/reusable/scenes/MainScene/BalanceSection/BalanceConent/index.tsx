@@ -1,81 +1,48 @@
-import React, { useMemo, useState } from "react"
-import { Eye, EyeSlash, CaretUp } from "phosphor-react"
-
-function useMoneyParts(amount: number) {
-    return useMemo(() => {
-        const s = amount.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-            useGrouping: true,
-        })
-        const [whole, cents] = s.split(".")
-        return { whole, cents }
-    }, [amount])
-}
+import React, { useState } from "react"
+import { NomasLink } from "@/nomas/components"
+import { CaretUpIcon, EyeClosedIcon, EyeIcon } from "@phosphor-icons/react"
+import { twMerge } from "tailwind-merge"
 
 export const BalanceContent = () => {
-    const [isBalanceVisible, setIsBalanceVisible] = useState(true)
+    const [visible, setVisible] = useState(true)
 
-    const totalBalance = 686.86
-    const changeAmount = 200.666
-    const changePercentage = 10.46
-
-    const { whole, cents } = useMoneyParts(totalBalance)
+    const balance = 0
+    const changeValue = 0
+    const changePercent = 0
+    const isPositive = changeValue >= 0
 
     return (
-        <div className="flex flex-col items-center justify-center py-8 px-4">
-            {/* Header */}
-            <div className="flex items-center gap-2 mb-3">
-                <button
-                    onClick={() => setIsBalanceVisible((v) => !v)}
-                    className="p-1 rounded-full hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-white/10"
-                    aria-label={isBalanceVisible ? "Hide balance" : "Show balance"}
-                >
-                    {isBalanceVisible ? (
-                        <Eye size={18} className="text-foreground-300" />
-                    ) : (
-                        <EyeSlash size={18} className="text-foreground-300" />
-                    )}
-                </button>
-                <span className="text-foreground-300 text-[13px] tracking-wide">
-          Total Balance <span className="opacity-70">(USD)</span>
+        <div className="flex flex-col items-center justify-center py-8 px-4 gap-4">
+            <div className="flex items-center gap-2">
+                <NomasLink onClick={() => setVisible((v) => !v)}>
+                    {visible ? <EyeIcon /> : <EyeClosedIcon />}
+                </NomasLink>
+                <span className="text-sm text-muted">
+          Total Balance <span className="text-muted">(USD)</span>
                 </span>
             </div>
-
-            {/* Balance */}
-            <div className="text-center mb-3">
-                <div
-                    className={[
-                        "font-light tabular-nums",
-                        // sizes look close to the mock; bump on md+
-                        "text-[42px] md:text-[56px] leading-none",
-                        isBalanceVisible
-                            ? "text-foreground"
-                            : "text-foreground-400/70 blur-[1px]",
-                    ].join(" ")}
-                >
-                    {isBalanceVisible ? (
-                        <>
-                            <span className="align-baseline">$</span>
-                            <span>{whole}</span>
-                            <span className="text-foreground-500">.{cents}</span>
-                        </>
-                    ) : (
-                    // keep width similar when hidden (privacy blur)
-                        <>$••••••</>
-                    )}
+            <div className="text-center">
+                <div className="text-6xl font-medium tabular-nums text-muted">
+                    {visible ? <>
+                        <span>$</span>
+                        <span>{balance}</span>
+                        <span className="text-muted-dark">.00</span>
+                    </> : <span>******</span>}
                 </div>
-
-                {/* Change row */}
-                <div className="mt-3 flex items-center justify-center gap-2">
-                    <CaretUp size={16} className="text-green-400" />
-                    <span className="text-green-400 text-sm font-medium tabular-nums">
-                        {isBalanceVisible ? `$${changeAmount.toFixed(3)}` : "••••"}
-                    </span>
-                    <span className="text-green-400 text-sm font-medium tabular-nums">
-            +{changePercentage.toFixed(2)}%
-                    </span>
-                </div>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+                <CaretUpIcon className={twMerge("w-[14px] h-[14px]", isPositive ? "text-success" : "text-danger")} />
+                <span className={`text-sm font-medium tabular-nums ${isPositive ? "text-success" : "text-danger"}`}>
+                    {visible ? <>
+                        <span>$</span>
+                        <span>{changeValue.toFixed(3)}</span>
+                    </> : <span>******</span>}
+                </span>
+                <span className={`text-sm font-medium tabular-nums ${isPositive ? "text-success" : "text-danger"}`}>
+                    {visible ? <>
+                        <span>+{changePercent}%</span>
+                    </> : <span>******</span>}
+                </span>
             </div>
         </div>
     )
