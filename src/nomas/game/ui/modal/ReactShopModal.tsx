@@ -117,6 +117,7 @@ export function ReactShopModal({
     useEffect(() => {
         recalcIndicator()
         scrollActiveIntoView()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [category])
 
     useEffect(() => {
@@ -129,6 +130,7 @@ export function ReactShopModal({
             window.removeEventListener("resize", onResize)
             el?.removeEventListener("scroll", onScroll)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {

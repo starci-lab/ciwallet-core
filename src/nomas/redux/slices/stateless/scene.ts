@@ -11,8 +11,8 @@ export enum Scene {
 }
 
 const initialState: SceneSlice = {
-    scene: Scene.Init,
-    //scene: Scene.Game,
+    // scene: Scene.Init,
+    scene: Scene.Game,
 }
 
 export const sceneSlice = createSlice({
