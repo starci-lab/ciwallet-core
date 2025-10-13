@@ -1,4 +1,4 @@
-import type { GameScene } from "../scenes/GameScene"
+import type { GameScene } from "@/game/GameScene"
 import { PetManager, type PetData } from "@/game/managers/PetManager"
 import { FeedingUI } from "./components/FeedingUI"
 import { CleanlinessUI } from "./components/CleanlinessUI"
@@ -14,127 +14,127 @@ import { InputManager } from "./components/InputManager"
 const PET_PRICE = 50 // Price to buy a new pet
 
 export class GameUI {
-    private scene: GameScene
-    private petManager: PetManager
+  private scene: GameScene
+  private petManager: PetManager
 
-    // UI Components
-    private feedingUI: FeedingUI
-    private cleanlinessUI: CleanlinessUI
-    private happinessUI: HappinessUI
-    private tokenUI: TokenUI
-    private navigationUI: NavigationUI
-    private notificationUI: NotificationUI
-    private petShopModal: PetShopModal
-    private petDetailsModal: PetDetailsModal
-    private inputManager: InputManager
-    // React shop is opened via scene events; no local legacy modal instance
+  // UI Components
+  private feedingUI: FeedingUI
+  private cleanlinessUI: CleanlinessUI
+  private happinessUI: HappinessUI
+  private tokenUI: TokenUI
+  private navigationUI: NavigationUI
+  private notificationUI: NotificationUI
+  private petShopModal: PetShopModal
+  private petDetailsModal: PetDetailsModal
+  private inputManager: InputManager
+  // React shop is opened via scene events; no local legacy modal instance
 
-    // UI Elements
-    private buyPetButton!: Phaser.GameObjects.Rectangle
+  // UI Elements
+  private buyPetButton!: Phaser.GameObjects.Rectangle
 
-    constructor(scene: GameScene, petManager: PetManager) {
-        this.scene = scene
-        this.petManager = petManager
+  constructor(scene: GameScene, petManager: PetManager) {
+    this.scene = scene
+    this.petManager = petManager
 
-        // Initialize UI components
-        this.notificationUI = new NotificationUI(scene)
-        this.feedingUI = new FeedingUI(scene, petManager)
-        this.cleanlinessUI = new CleanlinessUI(scene, petManager)
-        this.happinessUI = new HappinessUI(scene, petManager)
-        this.tokenUI = new TokenUI(scene)
-        this.navigationUI = new NavigationUI(scene)
-        this.petShopModal = new PetShopModal(petManager, this.notificationUI)
-        this.petDetailsModal = new PetDetailsModal()
-        this.inputManager = new InputManager(scene, petManager, this.notificationUI)
+    // Initialize UI components
+    this.notificationUI = new NotificationUI(scene)
+    this.feedingUI = new FeedingUI(scene, petManager)
+    this.cleanlinessUI = new CleanlinessUI(scene, petManager)
+    this.happinessUI = new HappinessUI(scene, petManager)
+    this.tokenUI = new TokenUI(scene)
+    this.navigationUI = new NavigationUI(scene)
+    this.petShopModal = new PetShopModal(petManager, this.notificationUI)
+    this.petDetailsModal = new PetDetailsModal()
+    this.inputManager = new InputManager(scene, petManager, this.notificationUI)
     // Legacy ShopModal and ShopUI removed
-    }
+  }
 
-    create() {
-        console.log("🎨 Creating GameUI...")
+  create() {
+    console.log("🎨 Creating GameUI...")
 
-        // Create all UI components
-        this.feedingUI.create()
-        this.cleanlinessUI.create()
-        this.happinessUI.create()
-        this.tokenUI.create()
-        this.navigationUI.create()
-        this.createBuyPetButton()
-        this.inputManager.setupInputHandlers()
+    // Create all UI components
+    this.feedingUI.create()
+    this.cleanlinessUI.create()
+    this.happinessUI.create()
+    this.tokenUI.create()
+    this.navigationUI.create()
+    this.createBuyPetButton()
+    this.inputManager.setupInputHandlers()
 
-        console.log("✅ GameUI created successfully")
-    }
+    console.log("✅ GameUI created successfully")
+  }
 
-    // // Buy Pet Button
-    private createBuyPetButton() {
-        console.log("🏪 Creating Buy Pet Button...")
+  // // Buy Pet Button
+  private createBuyPetButton() {
+    console.log("🏪 Creating Buy Pet Button...")
 
-        // Position button below the navigation buttons
-        const buttonX = this.scene.cameras.main.width - 100
-        const buttonY = 140 // Below the navigation UI
-        const buttonWidth = 80
-        const buttonHeight = 30
+    // Position button below the navigation buttons
+    const buttonX = this.scene.cameras.main.width - 100
+    const buttonY = 140 // Below the navigation UI
+    const buttonWidth = 80
+    const buttonHeight = 30
 
-        // Button background
-        this.buyPetButton = this.scene.add
-            .rectangle(buttonX, buttonY, buttonWidth, buttonHeight, 0x4caf50, 0.9)
-            .setStrokeStyle(2, 0x388e3c)
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true })
+    // Button background
+    this.buyPetButton = this.scene.add
+      .rectangle(buttonX, buttonY, buttonWidth, buttonHeight, 0x4caf50, 0.9)
+      .setStrokeStyle(2, 0x388e3c)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
 
-        // Button text
-        this.scene.add
-            .text(buttonX, buttonY, `Buy Pet\n🪙${PET_PRICE}`, {
-                fontSize: "12px",
-                color: "#ffffff",
-                fontStyle: "bold",
-                fontFamily: "monospace",
-                align: "center",
-            })
-            .setOrigin(0.5)
+    // Button text
+    this.scene.add
+      .text(buttonX, buttonY, `Buy Pet\n🪙${PET_PRICE}`, {
+        fontSize: "12px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        fontFamily: "monospace",
+        align: "center",
+      })
+      .setOrigin(0.5)
 
-        // Button click handler
-        this.buyPetButton.on("pointerdown", () => {
-            this.petShopModal.showBuyPetModal()
-        })
+    // Button click handler
+    this.buyPetButton.on("pointerdown", () => {
+      this.petShopModal.showBuyPetModal()
+    })
 
-        // Hover effects
-        this.buyPetButton.on("pointerover", () => {
-            this.buyPetButton.setFillStyle(0x66bb6a)
-        })
+    // Hover effects
+    this.buyPetButton.on("pointerover", () => {
+      this.buyPetButton.setFillStyle(0x66bb6a)
+    })
 
-        this.buyPetButton.on("pointerout", () => {
-            this.buyPetButton.setFillStyle(0x4caf50)
-        })
+    this.buyPetButton.on("pointerout", () => {
+      this.buyPetButton.setFillStyle(0x4caf50)
+    })
 
-        console.log("✅ Buy Pet Button created successfully")
-    }
+    console.log("✅ Buy Pet Button created successfully")
+  }
 
-    // Public method for external components (like ColyseusClient) to show notifications
-    showNotification(message: string, x?: number, y?: number) {
-        this.notificationUI.showNotification(message, x, y)
-    }
+  // Public method for external components (like ColyseusClient) to show notifications
+  showNotification(message: string, x?: number, y?: number) {
+    this.notificationUI.showNotification(message, x, y)
+  }
 
-    // Update all UI components
-    updateUI() {
-        this.feedingUI.update()
-        this.cleanlinessUI.update()
-        this.happinessUI.update()
-        this.tokenUI.update()
-        this.petDetailsModal.update()
-    }
+  // Update all UI components
+  updateUI() {
+    this.feedingUI.update()
+    this.cleanlinessUI.update()
+    this.happinessUI.update()
+    this.tokenUI.update()
+    this.petDetailsModal.update()
+  }
 
-    // Debug method to show pet stats
-    showPetStats() {
-        const stats = this.petManager.getPetStats()
-        console.log("🐕 Pet Manager Stats:", stats)
-    }
+  // Debug method to show pet stats
+  showPetStats() {
+    const stats = this.petManager.getPetStats()
+    console.log("🐕 Pet Manager Stats:", stats)
+  }
 
-    // Show pet details modal
-    showPetDetailsModal(petData: PetData) {
-        this.petDetailsModal.show(petData)
-    }
+  // Show pet details modal
+  showPetDetailsModal(petData: PetData) {
+    this.petDetailsModal.show(petData)
+  }
 
-    getTokenUI(): TokenUI {
-        return this.tokenUI
-    }
+  getTokenUI(): TokenUI {
+    return this.tokenUI
+  }
 }
