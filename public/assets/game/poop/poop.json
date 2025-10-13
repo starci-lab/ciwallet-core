@@ -1,0 +1,54 @@
+{ "frames": {
+   "broom #Shit 0.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 74, "h": 67 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 74, "h": 67 },
+    "sourceSize": { "w": 74, "h": 67 },
+    "duration": 100
+   },
+   "broom #Shit 1.aseprite": {
+    "frame": { "x": 74, "y": 0, "w": 74, "h": 67 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 74, "h": 67 },
+    "sourceSize": { "w": 74, "h": 67 },
+    "duration": 100
+   },
+   "broom #Shit 2.aseprite": {
+    "frame": { "x": 148, "y": 0, "w": 74, "h": 67 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 74, "h": 67 },
+    "sourceSize": { "w": 74, "h": 67 },
+    "duration": 100
+   },
+   "broom #Shit 3.aseprite": {
+    "frame": { "x": 222, "y": 0, "w": 74, "h": 67 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 74, "h": 67 },
+    "sourceSize": { "w": 74, "h": 67 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.15.4-x64",
+  "image": "shit.png",
+  "format": "RGBA8888",
+  "size": { "w": 296, "h": 67 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "Broom", "from": 0, "to": 5, "direction": "forward", "color": "#f3ce52ff" },
+   { "name": "Shit", "from": 0, "to": 3, "direction": "forward", "color": "#000000ff" }
+  ],
+  "layers": [
+   { "name": "Layer 3", "opacity": 255, "blendMode": "normal" },
+   { "name": "Layer 4", "opacity": 255, "blendMode": "normal" },
+   { "name": "Layer 5", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

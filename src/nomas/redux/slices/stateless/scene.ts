@@ -1,16 +1,18 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export interface SceneSlice {
-    scene: Scene;
+  scene: Scene
 }
 
 export enum Scene {
-    Init = "init",
-    Main = "main",
+  Init = "init",
+  Main = "main",
+  Game = "game",
 }
 
 const initialState: SceneSlice = {
     scene: Scene.Init,
+    //scene: Scene.Game,
 }
 
 export const sceneSlice = createSlice({
@@ -23,8 +25,6 @@ export const sceneSlice = createSlice({
     },
 })
 
-export const {
-    setScene,
-} = sceneSlice.actions
+export const { setScene } = sceneSlice.actions
 
 export const sceneReducer = sceneSlice.reducer

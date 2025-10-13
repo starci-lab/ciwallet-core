@@ -1,14 +1,15 @@
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
 import { SingletonHookProvider } from "./hooks"
-import { ethers } from "ethers"
 import { ChainId } from "@ciwallet-sdk/types"
 import { signTransaction } from "@/adapter"
-import { ReduxProvider, useAppSelector } from "./redux"
+import { ReduxProvider, selectSelectedAccount, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
-import { InitScene, MainScene } from "./components/reusable/scenes"
 import "./global.css"
-
+import { InitScene, MainScene } from "@/nomas/components"
+import { GameComponent } from "@/nomas/game/GameScene/index"
+import { encryptionObj } from "./obj"
+import { Wallet, ethers } from "ethers"
 export const Nomas = () => {
     return (
         <WalletKitProvider
@@ -17,7 +18,7 @@ export const Nomas = () => {
                     signAndSendTransaction: async ({ chainId, network, transaction }) => {
                         console.log(chainId, network, transaction)
                         const provider = new ethers.JsonRpcProvider(
-                            "https://testnet-rpc.monad.xyz",
+                            "https://testnet-rpc.monad.xyz"
                         )
                         const privateKey =
               "88a07f6c444b42996ecf6f365c9f7c98029a0b8c02d4ad1b5462c4386ab9c309"
@@ -49,7 +50,7 @@ export const Nomas = () => {
                     ],
                 },
             }}
-        >   
+        >
             <ReduxProvider>
                 <SingletonHookProvider>
                     <IconContext.Provider
@@ -68,6 +69,9 @@ export const Nomas = () => {
 }
 
 const NomasContent = () => {
+    const chainId = useAppSelector((state) => state.persists.session.chainId)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
+    const password = useAppSelector((state) => state.persists.session.password)
     const scene = useAppSelector((state) => state.stateless.scene.scene)
     const renderContent = () => {
         switch (scene) {
@@ -77,7 +81,23 @@ const NomasContent = () => {
             return <MainScene />
         }
     }
-    return (
-        <>{renderContent()}</>        
-    )
+    return <>
+        {renderContent()}
+        {
+            chainId === ChainId.Monad && (
+                <GameComponent
+                    signMessage={
+                        async (message) => {
+                            const privateKey = await encryptionObj.decrypt(
+                                selectedAccount?.encryptedPrivateKey || "",
+                                password
+                            )
+                            const wallet = new Wallet(privateKey)
+                            return await wallet.signMessage(message)
+                        }}
+                    publicKey={selectedAccount?.accountAddress || ""}
+                />
+            )
+        }    
+    </>
 }
