@@ -3,6 +3,7 @@
 const path = require("path")
 const CopyPlugin = require("copy-webpack-plugin")
 const webpack = require("webpack")
+const Dotenv = require("dotenv-webpack")
 
 module.exports = {
     mode: "production",
@@ -19,15 +20,27 @@ module.exports = {
         extensions: [".tsx", ".ts", ".js"],
         alias: {
             "@ciwallet-sdk/types": path.resolve(__dirname, "./packages/types"),
-            "@ciwallet-sdk/components": path.resolve(__dirname, "./packages/components"),
-            "@ciwallet-sdk/providers": path.resolve(__dirname, "./packages/providers"),
+            "@ciwallet-sdk/components": path.resolve(
+                __dirname,
+                "./packages/components"
+            ),
+            "@ciwallet-sdk/providers": path.resolve(
+                __dirname,
+                "./packages/providers"
+            ),
             "@ciwallet-sdk/utils": path.resolve(__dirname, "./packages/utils"),
             "@ciwallet-sdk/classes": path.resolve(__dirname, "./packages/classes"),
             "@ciwallet-sdk/hooks": path.resolve(__dirname, "./packages/hooks"),
             "@ciwallet-sdk/misc": path.resolve(__dirname, "./packages/misc"),
-            "@ciwallet-sdk/constants": path.resolve(__dirname, "./packages/constants"),
+            "@ciwallet-sdk/constants": path.resolve(
+                __dirname,
+                "./packages/constants"
+            ),
             "@ciwallet-sdk/abi": path.resolve(__dirname, "./packages/abi"),
-            "@ciwallet-sdk/contracts": path.resolve(__dirname, "./packages/contracts"),
+            "@ciwallet-sdk/contracts": path.resolve(
+                __dirname,
+                "./packages/contracts"
+            ),
             "@": path.resolve(__dirname, "./src"),
         },
         fallback: {
@@ -69,15 +82,14 @@ module.exports = {
             {
                 test: /\.css$/,
                 exclude: /global\.css$/,
-                use: [
-                    "style-loader",
-                    "css-loader",
-                    "postcss-loader",
-                ],
+                use: ["style-loader", "css-loader", "postcss-loader"],
             },
         ],
     },
     plugins: [
+        new Dotenv({
+            path: "./.env", // hoặc .env.development, .env.production
+        }),
         // Copy manifest và static files
         new webpack.ProvidePlugin({
             Buffer: ["buffer", "Buffer"],
