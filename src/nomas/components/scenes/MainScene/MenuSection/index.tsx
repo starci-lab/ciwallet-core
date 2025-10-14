@@ -1,4 +1,4 @@
-import { ArrowsLeftRightIcon, BankIcon, ImagesSquareIcon, TrendUpIcon, WalletIcon } from "@phosphor-icons/react"
+import { ArrowsLeftRightIcon, BankIcon, GameControllerIcon, TrendUpIcon, WalletIcon } from "@phosphor-icons/react"
 import React from "react"
 import { NomasCard, NomasCardVariant } from "../../../extends/NomasCard"
 import { MenuItemButton } from "./MenuItemButton"
@@ -38,11 +38,10 @@ export const MenuSection = () => {
             isSelected: homeTab === HomeTab.Home,
         },
         { 
-            key: HomeTab.Nfts,
-            label: "NFTs",
-            icon: <ImagesSquareIcon weight={homeTab === HomeTab.Nfts ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Nfts && "text-muted")} />,
-            disabled: true,
-            isSelected: homeTab === HomeTab.Nfts,
+            key: HomeTab.Game,
+            label: "Game",
+            icon: <GameControllerIcon weight={homeTab === HomeTab.Game ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Game && "text-muted")} />,
+            isSelected: homeTab === HomeTab.Game,
         },
         { 
             key: HomeTab.Defi,

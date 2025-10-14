@@ -4,6 +4,7 @@ export enum HomeTab {
     Home = "home",
     Trade = "trade",
     Perp = "perp",
+    Game = "game",
     Nfts = "nfts",
     Defi = "defi",
 }

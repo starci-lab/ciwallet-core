@@ -76,7 +76,7 @@ export const NomasCardHeader = React.forwardRef<
     return (
         <CardHeader
             ref={ref}
-            className={twMerge("flex items-center justify-between p-6 pb-3", className)}
+            className={twMerge("flex items-center justify-between p-6 pb-0", className)}
             {...props}
         >
             {/* Left: back button or spacer */}

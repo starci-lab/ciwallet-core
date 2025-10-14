@@ -19,7 +19,7 @@ export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>
                 ref={ref}
                 className={
                     twMerge(
-                        "shadow-button bg-button h-12 bg-button:hover radius-button text-muted cursor-pointer",
+                        "shadow-button bg-button-dark h-12 bg-button-dark:hover radius-button text-muted cursor-pointer",
                         xlSize && "h-14 text",
                         className
                     )}

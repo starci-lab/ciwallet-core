@@ -1,27 +1,29 @@
 import React from "react"
-import { selectSelectedAccount, setHomeFunction, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { NomasButton, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant } from "../../../../../extends"
-import { HomeFunction } from "@/nomas/redux"
-import { NomasImage, NomasSpacer, QRCode } from "@/nomas/components"
+import { DepositFunctionPage, selectSelectedAccountByChainId, setDepositFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { NomasButton, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant } from "../../../../../../extends"
+import { NomasImage, NomasSpacer, QRCode, SelectChainTab } from "@/nomas/components"
 import { chainManagerObj } from "@/nomas/obj"
 import { CopyIcon } from "@phosphor-icons/react"
 
-export const ReceiveFunction = () => {
+export const DepositPage = () => {
     const dispatch = useAppDispatch()
-    const account = useAppSelector((state) => selectSelectedAccount(state.persists))
-    const chainId = useAppSelector((state) => state.persists.session.chainId)
-    const chain = chainManagerObj.getChainById(chainId)
+    const depositSelectedChainId = useAppSelector((state) => state.stateless.sections.home.depositSelectedChainId)
+    const account = useAppSelector((state) => selectSelectedAccountByChainId(state.persists, depositSelectedChainId))
+    const chain = chainManagerObj.getChainById(depositSelectedChainId)
     if (!account) throw new Error("Account not found")
     return (
         <>
             <NomasCardHeader
-                title="Receive"
-                showBackButton
-                onBackButtonPress={() => {
-                    dispatch(setHomeFunction(HomeFunction.Token))
-                }}
+                title="Deposit"
             />
             <NomasCardBody>
+                <SelectChainTab
+                    isSelected={(chainId) => depositSelectedChainId === chainId}
+                    onClick={() => {
+                        dispatch(setDepositFunctionPage(DepositFunctionPage.ChooseNetwork))
+                    }}
+                />
+                <NomasSpacer y={4} />
                 <NomasCard variant={NomasCardVariant.Dark} isInner >
                     <NomasCardBody className="grid place-items-center p-6">
                         <div className="flex items-center gap-2">
@@ -50,4 +52,5 @@ export const ReceiveFunction = () => {
             </NomasCardBody>
         </>
     )
+
 }

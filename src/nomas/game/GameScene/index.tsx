@@ -69,7 +69,7 @@ export const GameComponent: FC<GameComponentProps> = ({ signMessage, publicKey }
         console.log("🎮 Starting Phaser game initialization...")
 
         try {
-            phaserGameRef.current = new Phaser.Game(getConfig())
+            phaserGameRef.current = new Phaser.Game(getConfig(gameRef.current))
             hasBootedRef.current = true
             console.log("✅ Phaser Game created successfully")
 

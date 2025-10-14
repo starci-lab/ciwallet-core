@@ -9,6 +9,8 @@
     "declarationDir": "dist",
     "emitDeclarationOnly": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "useDefineForClassFields": false,
     "outDir": "dist",
     "baseUrl": ".",

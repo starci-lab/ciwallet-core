@@ -4,8 +4,8 @@ import { DepositInfo } from "./DepositInfo"
 import { setDepositSelectedChainId, useAppDispatch, useAppSelector } from "@/nomas/redux"
 
 export const DepositFunction = () => {
-    const selectedChainId = useAppSelector((state) => state.stateless.sections.deposit.selectedChainId)
     const dispatch = useAppDispatch()
+    const depositSelectedChainId = useAppSelector((state) => state.stateless.sections.home.depositSelectedChainId)
     //TODO: Remove the mt-4 later
     return (
         <NomasCard variant={NomasCardVariant.Gradient} className="max-w-md mx-auto mt-4">
@@ -16,14 +16,14 @@ export const DepositFunction = () => {
             />
             <NomasCardBody>
                 <SelectChainTab
-                    isSelected={(chainId) => selectedChainId === chainId}
+                    isSelected={(chainId) => depositSelectedChainId === chainId}
                     onSelect={(chainId) => {
                         dispatch(setDepositSelectedChainId(chainId))
                     }}
                 />
             </NomasCardBody>
             <NomasCardBody>
-                <DepositInfo selectedChainId={selectedChainId} />
+                <DepositInfo selectedChainId={depositSelectedChainId} />
             </NomasCardBody>
         </NomasCard>
     )

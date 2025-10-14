@@ -1,24 +1,25 @@
 import React from "react"
-import { NomasCard, NomasCardVariant } from "@/nomas/components"
-import { HomeFunction, useAppSelector } from "@/nomas/redux"
+import { NomasCard, NomasCardVariant, NomasSpacer } from "@/nomas/components"
+import { HomeSelectorTab as HomeSelectorTabEnum, useAppSelector } from "@/nomas/redux"
 import { PortfolioFunction } from "./PortfolioFunction"
-import { TokenFunction } from "./TokenFunction"
-import { SendFunction } from "./SendFunction"
-import { ReceiveFunction } from "./ReceiveFunction"
+import { HomeSelectorTab } from "./HomeSelectorTab"
+import { DepositFunction } from "./DepositFunction"
 
 export const HomeSection = () => {
-    const homeSection = useAppSelector((state) => state.stateless.sections.home.function)
+    const homeSection = useAppSelector((state) => state.stateless.sections.home.homeSelectorTab)
     const renderPage = () => {
         switch (homeSection) {
-        case HomeFunction.Portfolio:
+        case HomeSelectorTabEnum.Portfolio:
             return <PortfolioFunction />
-        case HomeFunction.Token:
-            return <TokenFunction />
-        case HomeFunction.Send:
-            return <SendFunction />
-        case HomeFunction.Receive:
-            return <ReceiveFunction />
+        case HomeSelectorTabEnum.Deposit:
+            return <DepositFunction />
         }
     }
-    return <NomasCard variant={NomasCardVariant.Gradient}>{renderPage()}</NomasCard>
+    return (  
+        <>
+            <HomeSelectorTab />
+            <NomasSpacer y={4} />
+            <NomasCard variant={NomasCardVariant.Gradient}>{renderPage()}</NomasCard>
+        </>
+    )
 }

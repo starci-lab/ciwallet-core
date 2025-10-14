@@ -80,7 +80,7 @@ export const useWithdrawFormikCore = () => {
     const { handle } = useTransfer()
     const { nonceHandle } = useNonce()
     const dispatch = useAppDispatch()
-
+    const { rpcs } = useAppSelector((state) => state.persists.session)
     return useFormik<WithdrawFormikValues>({
         initialValues: {
             balance: 0,
@@ -152,6 +152,8 @@ export const useWithdrawFormikCore = () => {
                             transaction,
                             chainId: values.chainId,
                             network,
+                            rpcs: rpcs[values.chainId][network],
+                            privateKey: "",
                         })
 
                         console.log("response::", response)
@@ -248,6 +250,8 @@ export const useWithdrawFormikCore = () => {
                         toAddress: values.toAddress,
                         tokenAddress: "native",
                         amount: Number(values.amount),
+                        rpcs: rpcs[values.chainId][network],
+                        privateKey: privateKey,
                     })
                     console.log("response::", response)
                     // result.data = response;

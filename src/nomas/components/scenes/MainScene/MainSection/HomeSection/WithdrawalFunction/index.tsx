@@ -1,6 +1,5 @@
-import { selectSelectedAccount, selectTokenById, setHomeFunction, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { HomeSelectorTab, selectSelectedAccountByChainId, selectTokenById, setHomeSelectorTab, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasCardVariant, NomasImage, NomasInput, NomasSpacer } from "../../../../../extends"
-import { HomeFunction } from "@/nomas/redux"
 import { TooltipTitle } from "@/nomas/components"
 import { generateAvatarURL } from "@cfx-kit/wallet-avatar"
 import { shortenAddress } from "@ciwallet-sdk/utils"
@@ -10,12 +9,11 @@ import { useBalance } from "@ciwallet-sdk/hooks"
 import { useEffect } from "react"
 import { useTransferFormik } from "@/nomas/hooks"
 
-export const SendFunction = () => {
-    const dispatch = useAppDispatch()
+export const WithdrawalFunction = () => {
     const accountsMap = useAppSelector((state) => state.persists.session.accounts)
     const chainId = useAppSelector((state) => state.persists.session.chainId)
     const selectedFromAccountId = useAppSelector((state) => state.stateless.sections.home.selectedFromAccountId)
-    const selectedFromAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
+    const selectedFromAccount = useAppSelector((state) => selectSelectedAccountByChainId(state.persists, chainId))
     const accounts = accountsMap[chainId]?.accounts || []
     const fromAccount = accounts.find((account) => account.id === selectedFromAccountId) || selectedFromAccount
     const network = useAppSelector((state) => state.persists.session.network)
@@ -60,11 +58,7 @@ export const SendFunction = () => {
     return (
         <>
             <NomasCardHeader
-                title="Send"
-                showBackButton
-                onBackButtonPress={() => {
-                    dispatch(setHomeFunction(HomeFunction.Token))
-                }}
+                title="Withdrawal"
             />
             <NomasCardBody>
                 <div>

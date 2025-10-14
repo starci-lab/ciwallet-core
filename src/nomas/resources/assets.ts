@@ -21,6 +21,9 @@ export const assetsConfig = () => {
             create: getUrl("/assets/app/create.svg"),
             encrypt: getUrl("/assets/app/encrypt.svg"),
             done: getUrl("/assets/app/done.svg"),
+            petRisingGameButton: getUrl("/assets/app/pet-rising-game-button.png"),
+            petRisingGameLogo: getUrl("/assets/app/pet-rising-game-logo.png"),
+            petRisingGameBackground: getUrl("/assets/app/pet-rising-game-bg.png"),
         },
         tokens: {
             aptos: getUrl("/assets/tokens/aptos.svg"),

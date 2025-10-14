@@ -7,12 +7,11 @@ export interface SceneSlice {
 export enum Scene {
   Init = "init",
   Main = "main",
-  Game = "game",
 }
 
 const initialState: SceneSlice = {
     // scene: Scene.Init,
-    scene: Scene.Game,
+    scene: Scene.Init,
 }
 
 export const sceneSlice = createSlice({
