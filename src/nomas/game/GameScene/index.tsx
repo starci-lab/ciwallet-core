@@ -47,13 +47,13 @@ export const GameComponent: FC<GameComponentProps> = ({
         !!addressWallet
     )
     const colyseusApi = useMemo(() => {
-    // const env = import.meta.env as { VITE_BASE_SOCKET?: string }
-    // return createColyseus<GameRoomState>(
-    //     env.VITE_BASE_SOCKET || "ws://localhost:2567"
-    // )
+        const env = import.meta.env as { VITE_BASE_SOCKET?: string }
         return createColyseus<GameRoomState>(
-            "https://minute-lifetime-retrieved-referred.trycloudflare.com"
+            env.VITE_BASE_SOCKET || "ws://localhost:2567"
         )
+    // return createColyseus<GameRoomState>(
+    //     "https://minute-lifetime-retrieved-referred.trycloudflare.com"
+    // )
     }, [])
     const hookRoom = colyseusApi.useColyseusRoom()
 

@@ -16,8 +16,8 @@ export class Http {
         this.accessToken = ""
         this.refreshToken = ""
         this.instance = axios.create({
-            // baseURL: import.meta.env.VITE_BASE_URL,
-            baseURL: " https://mate-desert-previous-rick.trycloudflare.com",
+            baseURL: import.meta.env.VITE_BASE_URL,
+            // baseURL: " https://mate-desert-previous-rick.trycloudflare.com",
             timeout: 10000,
             headers: {
                 "Content-Type": "application/json",

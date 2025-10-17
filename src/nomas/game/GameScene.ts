@@ -12,9 +12,8 @@ import { TilemapInputSystem } from "@/nomas/game/tilemap/TileMapInputSystem"
 import { PurchaseUI } from "@/nomas/game/ui/PurchaseUI"
 import { PurchaseSystem } from "@/nomas/game/systems"
 import { SceneName } from "@/nomas/game/configs/phaser-config"
-// const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
-const BACKEND_URL =
-  " https://minute-lifetime-retrieved-referred.trycloudflare.com    "
+const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
+// const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
     rexUI!: RexUIPlugin
