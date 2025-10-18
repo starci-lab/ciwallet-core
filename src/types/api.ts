@@ -20,6 +20,7 @@ export type ResponsePetTypeDto = {
   name: string
   description?: string
   image_url?: string
+  cost_nom?: number
   default_stats: {
     happiness: number
     last_update_happiness: string

@@ -132,7 +132,7 @@ export function ReactShopModal({
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
+    console.log("items in react", items)
     useEffect(() => {
         switch (category) {
         case "food":
@@ -430,7 +430,7 @@ export function ReactShopModal({
                                 {item.name}
                             </div>
                             <div style={{ fontSize: 12, color: "#B3B3B3" }}>
-                                {item.price} NOM
+                                {Number(item.cost_nom ?? 0).toLocaleString()} NOM
                             </div>
                         </div>
                     ))
