@@ -11,6 +11,7 @@ import {
   GAME_LAYOUT,
 } from "@/nomas/game/constants/gameConstants"
 import { addToken, store } from "@/nomas/redux"
+import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 
 export interface PetData {
   id: string
@@ -466,7 +467,7 @@ export class PetManager {
     // Check if we already have food in inventory
     if (activePet.feedingSystem.foodInventory > 0) {
       console.log("🍔 Using existing food from inventory")
-      this.dropFood(x, y)
+      this.dropFood(x, y, foodId)
       return true
     } // Try to buy food first
     const purchased = this.buyFood(foodId)
@@ -479,10 +480,10 @@ export class PetManager {
         // Online mode: temporarily increase inventory to allow drop
         // Server will sync the correct state later
         activePet.feedingSystem.foodInventory += 1
-        this.dropFood(x, y)
+        this.dropFood(x, y, foodId)
       } else {
         // Offline mode: inventory is already updated by buyFood
-        this.dropFood(x, y)
+        this.dropFood(x, y, foodId)
       }
       return true
     }
@@ -491,19 +492,23 @@ export class PetManager {
     return false
   }
 
-  dropFood(x: number, y?: number): void {
+  dropFood(x: number, y?: number, foodId: string = "hamburger"): void {
     const activePet = this.getActivePet()
     if (activePet && activePet.feedingSystem.foodInventory > 0) {
       // Deduct from active pet's inventory
       activePet.feedingSystem.foodInventory -= 1
 
       // Drop food to shared pool instead of individual pet
-      this.dropSharedFood(x, y)
+      this.dropSharedFood(x, y, foodId)
     }
   }
 
   // Drop food to shared pool that all pets can eat
-  private dropSharedFood(x: number, _y?: number): void {
+  private dropSharedFood(
+    x: number,
+    _y?: number,
+    foodId: string = "hamburger"
+  ): void {
     // Food drops onto the same ground line pets stand on, to ensure reachability
     const cameraHeight = this.scene.cameras.main.height
     const cameraWidth = this.scene.cameras.main.width
@@ -515,12 +520,16 @@ export class PetManager {
     const petBounds = GamePositioning.getPetBoundaries(cameraWidth)
     const clampedX = Phaser.Math.Clamp(x, petBounds.minX, petBounds.maxX)
 
+    // Get the correct texture key from food item
+    const foodItem = gameConfigManager.getFoodItem(foodId)
+    const textureKey = foodItem?.texture || foodId
+
     console.log(
-      `🍔 Dropping food: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${foodFinalY}`
+      `🍔 Dropping food: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${foodFinalY}, foodId=${foodId}, textureKey=${textureKey}`
     )
 
     const foodDropStartY = GamePositioning.getFoodDropY(cameraHeight)
-    const food = this.scene.add.image(clampedX, foodDropStartY, "hamburger")
+    const food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
     food.setScale(GAME_LAYOUT.FOOD_SCALE)
     food.setAlpha(0.9)
 
