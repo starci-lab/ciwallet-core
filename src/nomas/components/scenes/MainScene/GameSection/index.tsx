@@ -1,5 +1,9 @@
-import React from "react"
-import { NomasCard, NomasCardBody, NomasCardVariant, NomasImage } from "../../../extends"
+import {
+    NomasCard,
+    NomasCardBody,
+    NomasCardVariant,
+    NomasImage,
+} from "../../../extends"
 import { assetsConfig } from "@/nomas/resources"
 import { motion } from "framer-motion"
 
