@@ -16,9 +16,8 @@ import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { TokenCard } from "@/nomas/components"
 import { SelectChainTab } from "@/nomas/components"
 import { tokenManagerObj } from "@/nomas/obj"
-import { chainManagerObj } from "@/nomas/obj"
 
-export const SelectTokenPage = () => {
+export const SelectTokenFunction = () => {
     const dispatch = useAppDispatch()
     const swapFormik = useSwapFormik()
     const tokenManager = tokenManagerObj
@@ -37,8 +36,8 @@ export const SelectTokenPage = () => {
                     <NomasCardBody>
                         <SelectChainTab
                             isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
-                            onSelect={(chainId) => {
-                                swapFormik.setFieldValue("tokenInChainId", chainId)
+                            onClick={() => {
+                                dispatch(setSwapPage(SwapPage.SelectToken))
                             }}
                         />
                     </NomasCardBody>

@@ -30,7 +30,7 @@ export const Nomas = () => {
                             className: "h-5 w-5",
                         }}
                     >
-                        <div className="font-sans w-full h-full relative">
+                        <div className="font-sans w-full h-full relative text">
                             <NomasContent />
                         </div>
                     </IconContext.Provider>
@@ -58,7 +58,7 @@ const NomasContent = () => {
         <motion.div
             drag
             dragMomentum={false}
-            className="absolute top-10 max-w-[400px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[800px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+            className="absolute top-10 max-w-[500px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[500px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
         >
             {renderContent()}
         </motion.div>

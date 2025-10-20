@@ -13,6 +13,9 @@
   --border: hsl(0 0% 29.8%);
   /* Muted text color (dark gray ~ #505050) — used for descriptions, placeholders, or less important text */
   --text-muted-dark: hsl(0 0% 29.8%);
+  /* Bg card gradient color */
+  --bg-card-1: hsl(0 0% 6.3%);
+  --bg-card-2: hsl(0 0% 2.7%);
   /* Muted hover text color */
   --text-muted-hover:hsl(0 0% 80%);
   /* Card dark color */
@@ -101,13 +104,15 @@
   }
   .bg-button {
     background-color: var(--button-background);
-    transition: background-color 0.2s ease;
   }
   .bg-button:hover {
     background-color: var(--button-hover-background);
   }
-  .bg-button-nohover:hover {
+  .bg-button-nohover {
     background-color: var(--button-background) !important;
+  }
+  .bg-button-hover {
+    background-color: var(--button-hover-background) !important;
   }
   .bg-button-dark {
     background-color: var(--button-dark-background);
@@ -150,5 +155,11 @@
   }
   .radius-card-inner {
     border-radius: var(--card-radius-inner);
+  }
+  .bg-card-1 {
+    background-color: var(--bg-card-1);
+  }
+  .bg-card-2 {
+    background-color: var(--bg-card-2);
   }
 }

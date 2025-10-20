@@ -19,7 +19,7 @@ export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>
                 ref={ref}
                 className={
                     twMerge(
-                        "shadow-button bg-button-dark h-12 bg-button-dark:hover radius-button text-muted cursor-pointer",
+                        "shadow-button bg-button-dark h-10 bg-button-dark:hover radius-button text-muted cursor-pointer",
                         xlSize && "h-14 text",
                         className
                     )}
@@ -41,10 +41,9 @@ export const NomasButtonIcon = React.forwardRef<HTMLButtonElement, NomasButtonPr
         return (
             <Button
                 ref={ref}
-                size="icon-sm"
                 className={
                     twMerge(
-                        "shadow-button bg-button bg-button:hover rounded-full text cursor-pointer",
+                        "shadow-button bg-button rounded-full w-10 h-10 text cursor-pointer",
                         className
                     )}
                 {...props}
@@ -79,31 +78,43 @@ export const NomasButtonTextWithIcon: React.FC<NomasButtonTextWithIconProps> = (
 
 const NomasButtonTextWithIconCore: React.FC<NomasButtonTextWithIconProps> = (props) => {
     const { icon, iconPosition = "end", useGradient, children, ...rest } = props
-
+  
     const iconElement = (
-        <div className="rounded-md grid place-items-center bg-foreground text-background">
+        <div
+            className={twMerge(
+                "grid place-items-center h-full px-3 bg-button-nohover transition-colors duration-200 group-hover:bg-button-hover"
+            )}
+        >
             {icon}
         </div>
     )
-
+  
     return (
         <NomasButton
-            className={twMerge("pr-0 w-fit shadow-button bg-button bg-button:hover rounded-full text-muted cursor-pointer", props.className)}
+            className={twMerge(
+                // Base styles
+                "group relative p-0 w-fit bg-button-dark text rounded-full text-muted cursor-pointer",
+                props.className
+            )}
             {...rest}
         >
+            <div className="absolute w-full h-full shadow-button radius-button"/>
             {iconPosition === "start" && iconElement}
-            {useGradient ? (
-                <span
-                    className="bg-clip-text text-transparent"
-                    style={{
-                        backgroundImage: "linear-gradient(to right, #9ee3b0, #e6b8e0)",
-                    }}
-                >
-                    {children}
-                </span>
-            ) : (
-                children
-            )}
+            <div className="pl-3">
+                {useGradient ? (
+                    <span
+                        className="bg-clip-text text-transparent"
+                        style={{
+                            backgroundImage: "linear-gradient(to right, #9ee3b0, #e6b8e0)",
+                        }}
+                    >
+                        {children}
+
+                    </span>
+                ) : (
+                    children
+                )}
+            </div>
             {iconPosition === "end" && iconElement}
         </NomasButton>
     )

@@ -136,6 +136,7 @@
     "superjson": "^2.2.2",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss-pseudo-elements": "^2.0.0",
     "tweetnacl": "^1.0.3",
     "uuid": "^13.0.0",
     "uuidv4": "^6.2.13",

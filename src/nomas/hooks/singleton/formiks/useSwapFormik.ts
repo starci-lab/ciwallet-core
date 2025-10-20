@@ -85,7 +85,7 @@ export const useSwapFormik = () => {
 
 export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
-    const chainId = useAppSelector((state) => state.persists.session.chainId)
+    const rpcs = useAppSelector((state) => state.persists.session.rpcs)
     const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
     const { adapter } = useWalletKit()
     const { swrMutation } = useBatchAggregatorSwrMutations()
@@ -110,72 +110,76 @@ export const useSwapFormikCore = () => {
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
-            console.log(values)
-            if (!adapter) {
-                throw new Error("Kimochi")
-            }
-            const senderAddress = selectedAccount?.accountAddress ?? ""
-            const rpcProvider = new ethers.JsonRpcProvider(
-                "https://testnet-rpc.monad.xyz"
-            )
-            const erc20Contract = ERC20Contract({
-                chainId: values.tokenInChainId,
-                network,
-                tokenAddress: selectedAccount?.accountAddress ?? "",
-            })
-            const nonce = await rpcProvider.getTransactionCount(senderAddress)
-            const { to, data, value } = SuperJSON.parse<EvmSerializedTx>(
-                swrMutation.data?.madhouse.serializedTx || ""
-            )
-            if (!to || !data || !value) {
-                throw new Error("Kimochi")
-            }
-            // approve the erc20 contract
-            const approveTx = await erc20Contract
-                .getFunction("approve")
-                .populateTransaction(
-                    to,
-                    toRaw(
-                        Number(values.amountIn),
-                        18
-                    ).toString()
+            try {
+                const senderAddress = selectedAccount?.accountAddress ?? ""
+                const rpcProvider = new ethers.JsonRpcProvider(
+                    "https://testnet-rpc.monad.xyz"
                 )
-            approveTx.chainId = BigInt(10143)
-            approveTx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei") // ví dụ 2 gwei
-            approveTx.maxFeePerGas = ethers.parseUnits("50", "gwei") // ví dụ 100 gwei
-            approveTx.gasLimit = BigInt(100000)
-            approveTx.nonce = nonce
-            const transaction = ethers.Transaction.from(approveTx).unsignedSerialized
-            const response = await adapter.signAndSendTransaction?.({
-                transaction,
-                chainId: values.tokenInChainId,
-                network,
-            })
-            if (!response) {
-                throw new Error("Kimochi")
-            }
-            alert(response.signature)
+                const erc20Contract = ERC20Contract({
+                    chainId: values.tokenInChainId,
+                    network,
+                    tokenAddress: selectedAccount?.accountAddress ?? "",
+                })
+                const nonce = await rpcProvider.getTransactionCount(senderAddress)
+                const { to, data, value } = SuperJSON.parse<EvmSerializedTx>(
+                    swrMutation.data?.madhouse.serializedTx || ""
+                )
+                if (!to || !data || !value) {
+                    throw new Error("Invalid transaction data")
+                }
+                // approve the erc20 contract
+                const approveTx = await erc20Contract
+                    .getFunction("approve")
+                    .populateTransaction(
+                        to,
+                        toRaw(
+                            Number(values.amountIn),
+                            18
+                        ).toString()
+                    )
+                approveTx.chainId = BigInt(10143)
+                approveTx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei") // ví dụ 2 gwei
+                approveTx.maxFeePerGas = ethers.parseUnits("50", "gwei") // ví dụ 100 gwei
+                approveTx.gasLimit = BigInt(100000)
+                approveTx.nonce = nonce
+                const transaction = ethers.Transaction.from(approveTx).unsignedSerialized
+                const response = await adapter.signAndSendTransaction?.({
+                    transaction,
+                    privateKey: selectedAccount?.encryptedPrivateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    chainId: values.tokenInChainId,
+                    network,
+                })
+                if (!response) {
+                    throw new Error("Kimochi")
+                }
+                alert(response.signature)
 
-            const tx = new ethers.Transaction()
-            tx.to = to
-            tx.data = data
-            tx.value = value
-            tx.chainId = BigInt(10143)
-            tx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei") // ví dụ 2 gwei
-            tx.maxFeePerGas = ethers.parseUnits("67.5", "gwei") // ví dụ 100 gwei
-            tx.gasLimit = BigInt(1000000)
-            tx.nonce = nonce + 1
+                const tx = new ethers.Transaction()
+                tx.to = to
+                tx.data = data
+                tx.value = value
+                tx.chainId = BigInt(10143)
+                tx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei") // ví dụ 2 gwei
+                tx.maxFeePerGas = ethers.parseUnits("67.5", "gwei") // ví dụ 100 gwei
+                tx.gasLimit = BigInt(1000000)
+                tx.nonce = nonce + 1
 
-            const transaction2 = ethers.Transaction.from(tx).unsignedSerialized
-            const response2 = await adapter.signAndSendTransaction?.({
-                transaction: transaction2,
-                chainId: values.tokenInChainId,
-                network,
-            })
-            if (!response2) {
-                throw new Error("Kimochi")
+                const transaction2 = ethers.Transaction.from(tx).unsignedSerialized
+                const response2 = await adapter.signAndSendTransaction?.({
+                    transaction: transaction2,
+                    privateKey: selectedAccount?.encryptedPrivateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    chainId: values.tokenInChainId,
+                    network,
+                })
+                if (!response2) {
+                    throw new Error("Kimochi")
+                }
+                alert(response2.signature)
+            } catch (error) {
+                console.error(error)
             }
-            alert(response2.signature)
         },
     })
 }
