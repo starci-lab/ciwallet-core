@@ -422,7 +422,12 @@ export class PetManager {
         petData.pet.sprite.y
       )
 
-      // Do not trigger ball interactions here; current focus is food only
+      // Check ball interactions for pets that are chasing balls
+      this.checkSharedBallPlaying(
+        petData,
+        petData.pet.sprite.x,
+        petData.pet.sprite.y
+      )
 
       // Update activity and feeding
       petData.activitySystem.update()
@@ -490,6 +495,54 @@ export class PetManager {
 
     console.log("❌ Failed to buy food for dropping")
     return false
+  }
+
+  // Combined buy and drop toy operation - similar to buyAndDropFood
+  buyAndDropToy(x: number, y?: number, toyId: string = "ball"): boolean {
+    const activePet = this.getActivePet()
+    if (!activePet) {
+      console.log("❌ No active pet for buyAndDropToy")
+      return false
+    }
+
+    // Check if we already have toy in inventory
+    if (activePet.happinessSystem.toyInventory > 0) {
+      console.log("🎾 Using existing toy from inventory")
+      this.dropToy(x, y, toyId)
+      return true
+    }
+
+    // Try to buy toy first
+    const purchased = this.buyToy(toyId)
+    if (purchased) {
+      console.log("🛒 Toy purchased successfully, now dropping")
+
+      // For both online and offline mode, ensure we can drop the toy
+      if (this.colyseusClient?.isConnected()) {
+        // Online mode: temporarily increase inventory to allow drop
+        // Server will sync the correct state later
+        activePet.happinessSystem.toyInventory += 1
+        this.dropToy(x, y, toyId)
+      } else {
+        // Offline mode: inventory is already updated by buyToy
+        this.dropToy(x, y, toyId)
+      }
+      return true
+    }
+
+    console.log("❌ Failed to buy toy for dropping")
+    return false
+  }
+
+  dropToy(x: number, y?: number, toyId: string = "ball"): void {
+    const activePet = this.getActivePet()
+    if (activePet && activePet.happinessSystem.toyInventory > 0) {
+      // Deduct from active pet's inventory
+      activePet.happinessSystem.toyInventory -= 1
+
+      // Drop toy to shared pool instead of individual pet
+      this.dropSharedToy(x, y, toyId)
+    }
   }
 
   dropFood(x: number, y?: number, foodId: string = "hamburger"): void {
@@ -726,6 +779,157 @@ export class PetManager {
     }
 
     console.log("Shared ball removed at index:", index)
+  }
+
+  // Drop shared toy for all pets to chase
+  private dropSharedToy(x: number, _y?: number, toyId: string = "ball"): void {
+    // Check if scene is ready and assets are loaded
+    if (!this.scene.textures || this.scene.textures.list.length === 0) {
+      console.error("❌ Scene textures not ready yet!")
+      return
+    }
+    const cameraHeight = this.scene.cameras.main.height
+    const cameraWidth = this.scene.cameras.main.width
+    const toyFinalY = GamePositioning.getFoodFinalY(cameraHeight) // Use same Y as food
+
+    // Clamp toy position to pet boundaries
+    const petBounds = GamePositioning.getPetBoundaries(cameraWidth)
+    const clampedX = Phaser.Math.Clamp(x, petBounds.minX, petBounds.maxX)
+
+    // Get the correct texture key from toy item
+    const toyItem = gameConfigManager.getToyItem(toyId)
+
+    // If we have a toy item from config, use its texture
+    let textureKey = toyId // fallback to toyId
+    if (toyItem && toyItem.texture) {
+      textureKey = toyItem.texture
+    } else {
+      // Hardcode texture mapping for known toys (fallback)
+      const textureMap: { [key: string]: string } = {
+        ball: "ball",
+        daruma: "daruma",
+        teddy: "tedy",
+        tedy: "tedy",
+        football: "football",
+        game: "game",
+      }
+      textureKey = textureMap[toyId] || toyId
+    }
+
+    console.log(
+      `🎾 Dropping toy: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${toyFinalY}, toyId=${toyId}, textureKey=${textureKey}`
+    )
+    console.log(`🔍 Debug: toyId from shop=`, toyId)
+    console.log(`🔍 Debug: toyItem=`, toyItem)
+    console.log(`🔍 Debug: toyItem.texture=`, toyItem?.texture)
+    console.log(`🔍 Debug: final textureKey=`, textureKey)
+    console.log(
+      `🔍 Debug: Available textures:`,
+      Object.keys(this.scene.textures.list)
+    )
+    console.log(`🔍 Debug: Looking for texture: '${textureKey}'`)
+    console.log(
+      `🔍 Debug: Texture exists:`,
+      this.scene.textures.exists(textureKey)
+    )
+
+    // Check if texture exists before creating sprite
+    if (!this.scene.textures.exists(textureKey)) {
+      console.error(
+        `❌ Texture '${textureKey}' not found! Available textures:`,
+        Object.keys(this.scene.textures.list)
+      )
+      // Fallback to ball texture if available
+      const fallbackKey = this.scene.textures.exists("ball") ? "ball" : "coin"
+      console.log(`🔄 Using fallback texture: ${fallbackKey}`)
+      const toy = this.scene.add.sprite(
+        clampedX,
+        GamePositioning.getFoodDropY(cameraHeight),
+        fallbackKey
+      )
+      toy.setScale(0.3)
+      toy.setAlpha(0.9)
+      this.sharedDroppedBalls.push(toy)
+      this.sharedBallShadows.push(
+        this.scene.add.ellipse(clampedX, toyFinalY + 15, 20, 8, 0x000000, 0.3)
+      )
+      return
+    }
+
+    const toy = this.scene.add.sprite(
+      clampedX,
+      GamePositioning.getFoodDropY(cameraHeight),
+      textureKey
+    )
+    toy.setScale(0.3) // Use larger scale for visibility
+    toy.setAlpha(0.9)
+
+    console.log(`🎾 Sprite created:`, toy)
+    console.log(`🎾 Sprite visible:`, toy.visible)
+    console.log(`🎾 Sprite texture:`, toy.texture?.key)
+    console.log(`🎾 Sprite position:`, { x: toy.x, y: toy.y })
+    console.log(`🎾 Sprite scale:`, { scaleX: toy.scaleX, scaleY: toy.scaleY })
+
+    // Add drop animation effect
+    this.scene.tweens.add({
+      targets: toy,
+      y: toyFinalY,
+      duration: 500,
+      ease: "Bounce.easeOut",
+      onComplete: () => {
+        this.scene.tweens.add({
+          targets: toy,
+          scaleX: 0.3 * 1.13,
+          scaleY: 0.3 * 0.8,
+          duration: 100,
+          yoyo: true,
+        })
+      },
+    })
+
+    // Add shadow effect
+    const shadow = this.scene.add.ellipse(
+      clampedX,
+      toyFinalY + 15,
+      20,
+      8,
+      0x000000,
+      0.3
+    )
+    this.scene.tweens.add({
+      targets: shadow,
+      scaleX: { from: 0.5, to: 1 },
+      scaleY: { from: 0.5, to: 1 },
+      duration: 500,
+      ease: "Power2",
+    })
+
+    this.sharedDroppedBalls.push(toy)
+    this.sharedBallShadows.push(shadow)
+
+    console.log(
+      `🎾 Added to sharedDroppedBalls. Total balls:`,
+      this.sharedDroppedBalls.length
+    )
+    console.log(`🎾 sharedDroppedBalls array:`, this.sharedDroppedBalls)
+
+    // Create timer to auto-despawn toy after 30s
+    const despawnTimer = this.scene.time.delayedCall(
+      GAME_MECHANICS.BALL_LIFETIME,
+      () => {
+        const currentBallIndex = this.sharedDroppedBalls.indexOf(toy)
+        if (currentBallIndex !== -1) {
+          this.removeSharedBallAtIndex(currentBallIndex)
+          console.log("Shared toy auto-despawned after 30 seconds")
+        }
+      }
+    )
+    this.sharedBallTimers.push(despawnTimer)
+
+    // Notify all pets about new toy
+    this.notifyPetsAboutBalls()
+
+    console.log(`Dropped shared toy at (${clampedX}, ${toyFinalY})`)
   }
 
   // Drop shared ball for all pets to chase
@@ -1146,13 +1350,13 @@ export class PetManager {
     const activePet = this.getActivePet()
     if (activePet && activePet.happinessSystem.toyInventory > 0) {
       activePet.happinessSystem.toyInventory--
-      this.dropSharedBall(x, y)
+      this.dropSharedToy(x, y, "ball")
       return true
     } else {
       // TODO: Implement buying logic to buy without ID?
       const success = this.buyToy("ball")
       if (success) {
-        this.dropSharedBall(x, y)
+        this.dropSharedToy(x, y, "ball")
         return true
       }
     }
@@ -1454,9 +1658,22 @@ export class PetManager {
     console.log(
       `⚽ Pet ${petData.id} finished playing, will check for next action in 2 seconds`
     )
+    console.log(`🔍 Debug: Pet state before post-playing:`, {
+      isUserControlled: petData.pet.isUserControlled,
+      isChasing: petData.pet.isChasing,
+      currentActivity: petData.pet.currentActivity,
+      chaseTarget: petData.pet.chaseTarget,
+    })
 
     // Use a fixed timer for reliability, similar to post-eating logic
     this.scene.time.delayedCall(2000, () => {
+      console.log(`🔍 Debug: Pet state after 2s delay:`, {
+        isUserControlled: petData.pet.isUserControlled,
+        isChasing: petData.pet.isChasing,
+        currentActivity: petData.pet.currentActivity,
+        sharedBallsCount: this.sharedDroppedBalls.length,
+      })
+
       // Check if the pet should continue chasing more balls or return to auto walk
       if (this.sharedDroppedBalls.length > 0) {
         // Reset state before checking for more balls, mirroring the post-eating flow

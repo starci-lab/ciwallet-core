@@ -163,7 +163,7 @@ export const loadCleaningAssets = (scene: Phaser.Scene) => {
 export const loadToyAssets = (scene: Phaser.Scene) => {
   scene.load.image("ball", getUrl("ball/ball.png"))
   scene.load.image("daruma", getUrl("toy/daruma.png"))
-  scene.load.image("teddy", getUrl("toy/teddy.png"))
+  scene.load.image("tedy", getUrl("toy/tedy.png")) // Fixed: was "teddy" but actual file is "tedy.png"
   scene.load.image("football", getUrl("toy/football.png"))
   scene.load.image("game", getUrl("toy/game.png"))
 }

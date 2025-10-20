@@ -228,6 +228,33 @@ export function ReactShopModal({
       }
       return
     }
+
+    // For toy: defer purchase until user drops in scene (same UX as food)
+    if (mappedCategory === "toy") {
+      try {
+        const cursorUrl = getItemImageSrc("toy", item)
+        // Store placing state on scene registry for InputManager to consume
+        scene.registry.set("placingItem", {
+          type: "toy",
+          itemId: String((item as ToyItem).id),
+          itemName: item.name,
+          cursorUrl,
+        })
+        // Switch cursor to selected toy image for placement mode
+        if (cursorUrl) {
+          try {
+            scene.input.setDefaultCursor(`url(${cursorUrl}), pointer`)
+          } catch {
+            // ignore cursor errors
+          }
+        }
+        // Close modal so user can click to place
+        onClose()
+      } catch (e) {
+        console.error("Failed to start placing toy", e)
+      }
+      return
+    }
     // Other categories keep legacy immediate purchase
     scene.sendBuyFoodLegacy({
       itemType: mappedCategory,
