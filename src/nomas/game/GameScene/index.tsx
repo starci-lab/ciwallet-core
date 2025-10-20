@@ -22,6 +22,8 @@ import { ROUTES } from "@/nomas/constants/route"
 import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import { createColyseus } from "@/nomas/hooks/singleton/colyseus/createColyseus"
 
+const LOG_I = 0
+
 export type GameComponentProps = {
   signMessage: (message: string) => Promise<string>
   publicKey: string
