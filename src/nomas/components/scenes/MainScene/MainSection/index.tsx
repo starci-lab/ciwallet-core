@@ -1,6 +1,6 @@
 import React from "react"
 import { useAppSelector } from "@/nomas/redux"
-import { SwapFunction } from "./SwapFunction"
+import { SwapSection } from "./SwapSection"
 import { HomeSection } from "./HomeSection"
 import { HomeTab } from "@/nomas/redux"
 import { GameSection } from "../GameSection"
@@ -13,7 +13,10 @@ export const MainSection = () => {
             return <HomeSection />
         }
         case HomeTab.Trade: {
-            return <SwapFunction />
+            return <SwapSection />
+        }
+        case HomeTab.Perp: {
+            return <SwapSection />
         }
         case HomeTab.Game: {
             return <GameSection />

@@ -1,5 +1,4 @@
 import React from "react"
-import { Input } from "../../shadcn"
 import { sanitizeNumericInput } from "@ciwallet-sdk/utils"
 import { twMerge } from "tailwind-merge"
 import type { NomasInputProps } from "../../extends"
@@ -13,12 +12,12 @@ export const NomasNumberTransparentInput = (props: NomasInputProps) => {
     }
 
     return (
-        <Input  
-            className={twMerge("!bg-transparent px-0 text-xl text-right", props.className)}
-            {...props}
+        <input  
             onChange={
                 (event) => onValueChange(event.target.value)
             }
+            className={twMerge("!bg-transparent text px-0 text-xl text-right focus:outline-none focus:ring-0 border-none", props.className)}
+            {...props}
         />
     )
 }

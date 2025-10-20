@@ -1,18 +1,21 @@
 import React from "react"
 import { NomasButtonTextWithIcon } from "@/nomas/components"
-import { setSwapPage, SwapPageState, useAppDispatch } from "@/nomas/redux"
+import { useAppDispatch } from "@/nomas/redux"
 import { CaretRightIcon } from "@phosphor-icons/react"
+import { SwapFunctionPage, setSwapFunctionPage } from "@/nomas/redux"
 
 export const NomasAggregation = () => {
     const dispatch = useAppDispatch()
     return (
-        <NomasButtonTextWithIcon 
-            onPress={
+        <NomasButtonTextWithIcon
+            onClick={
                 () => {
-                    dispatch(setSwapPage(SwapPageState.NomasAggregation))
+                    dispatch(setSwapFunctionPage(SwapFunctionPage.NomasAggregation))
                 }
             }
-            icon={<CaretRightIcon /> } useGradient>
+            icon={<CaretRightIcon /> } 
+            useGradient
+        >
             Nomas Aggregation
         </NomasButtonTextWithIcon>
     )

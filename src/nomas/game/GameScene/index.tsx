@@ -22,7 +22,7 @@ import { ROUTES } from "@/nomas/constants/route"
 import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import { createColyseus } from "@/nomas/hooks/singleton/colyseus/createColyseus"
 
-let LOG_I = 0
+const LOG_I = 0
 
 export type GameComponentProps = {
   signMessage: (message: string) => Promise<string>
@@ -60,19 +60,14 @@ export const GameComponent: FC<GameComponentProps> = ({
     // Colyseus connection will be handled by the Phaser scene directly
 
     useEffect(() => {
-        console.log(
-            `[#${++LOG_I} ${new Date().toISOString()}] 🔍 Game initialization check:`,
-            {
-                gameRef: !!gameRef.current,
-                isUserAuthenticated,
-                isGameInitialized,
-            }
-        )
+        console.log("🔍 Game initialization check:", {
+            gameRef: !!gameRef.current,
+            isUserAuthenticated,
+            isGameInitialized,
+        })
 
         if (!gameRef.current || !isUserAuthenticated || isGameInitialized) {
-            console.log(
-                `[#${++LOG_I} ${new Date().toISOString()}] ❌ Skipping game initialization`
-            )
+            console.log("❌ Skipping game initialization")
             return
         }
         // Ensure the container has the expected id for Phaser parent binding
@@ -80,21 +75,15 @@ export const GameComponent: FC<GameComponentProps> = ({
             gameRef.current.id = CONTAINER_ID
         }
         if (hasBootedRef.current || phaserGameRef.current) {
-            console.log(
-                `[#${++LOG_I} ${new Date().toISOString()}] ❌ Game already booted, skipping new Phaser.Game()`
-            )
+            console.log("❌ Game already booted, skipping new Phaser.Game()")
             return
         }
-        console.log(
-            `[#${++LOG_I} ${new Date().toISOString()}] 🎮 Starting Phaser game initialization...`
-        )
+        console.log("🎮 Starting Phaser game initialization...")
 
         try {
             phaserGameRef.current = new Phaser.Game(getConfig(gameRef.current))
             hasBootedRef.current = true
-            console.log(
-                `[#${++LOG_I} ${new Date().toISOString()}] ✅ Phaser Game created successfully`
-            )
+            console.log("✅ Phaser Game created successfully")
 
             // Poll for scene registration to be robust under Strict Mode double-mount
             let attempts = 0
@@ -105,9 +94,7 @@ export const GameComponent: FC<GameComponentProps> = ({
               SceneName.Gameplay
           ) as PhaserGameScene) || null
                 if (sceneRef.current) {
-                    console.log(
-                        `[#${++LOG_I} ${new Date().toISOString()}] ✅ GameScene loaded successfully`
-                    )
+                    console.log("✅ GameScene loaded successfully")
                     setIsGameInitialized(true)
                     // Colyseus connection will be handled by the scene itself
                     return
@@ -115,17 +102,12 @@ export const GameComponent: FC<GameComponentProps> = ({
                 if (attempts < 30) {
                     setTimeout(pollScene, 200)
                 } else {
-                    console.error(
-                        `[#${++LOG_I} ${new Date().toISOString()}] ❌ GameScene still not available after polling`
-                    )
+                    console.error("❌ GameScene still not available after polling")
                 }
             }
             setTimeout(pollScene, 200)
         } catch (error) {
-            console.error(
-                `[#${++LOG_I} ${new Date().toISOString()}] ❌ Failed to create Phaser Game:`,
-                error
-            )
+            console.error("❌ Failed to create Phaser Game:", error)
         }
 
         const handleResize = () => {
@@ -138,12 +120,8 @@ export const GameComponent: FC<GameComponentProps> = ({
 
         return () => {
             window.removeEventListener("resize", handleResize)
-        }
-    }, [isUserAuthenticated, isGameInitialized])
-
-    // Destroy Phaser instance only on component unmount (avoid destroying on every rerender in production)
-    useEffect(() => {
-        return () => {
+            // In dev (React Strict Mode), avoid destroying immediately to prevent
+            // double-mount teardown from killing the Phaser instance.
             const env = import.meta.env as { DEV?: boolean }
             if (!env.DEV && phaserGameRef.current) {
                 phaserGameRef.current.destroy(true)
@@ -151,7 +129,7 @@ export const GameComponent: FC<GameComponentProps> = ({
                 hasBootedRef.current = false
             }
         }
-    }, [])
+    }, [isUserAuthenticated, isGameInitialized])
 
     // Colyseus connection is handled by the Phaser scene
 
@@ -200,13 +178,10 @@ export const GameComponent: FC<GameComponentProps> = ({
             return
         }
         setIsUserAuthenticated(false)
-        console.log(
-            `[#${++LOG_I} ${new Date().toISOString()}] 🔐 Authentication check:`,
-            {
-                signMessage: !!signMessage,
-                publicKey: !!publicKey,
-            }
-        )
+        console.log("🔐 Authentication check:", {
+            signMessage: !!signMessage,
+            publicKey: !!publicKey,
+        })
 
         if (!signMessage || !publicKey) {
             return

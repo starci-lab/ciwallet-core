@@ -37,8 +37,8 @@ export const Wallet = ({
 const BalanceWallet = ({ balance }: { balance: number }) => {
     return (
         <div className="flex items-center gap-1">
-            <WalletIcon className="w-4 h-4" />
-            <div className="text-xs">{balance}</div>
+            <WalletIcon className="w-4 h-4 text" />
+            <div className="text-xs text">{balance}</div>
         </div>
     )
 }
@@ -86,17 +86,17 @@ const WalletActions = ({
                     className="flex items-center gap-1 overflow-hidden"
                 >
                     <NomasLink
-                        asButton
-                        onPress={() => onAction?.(Action.TwentyFivePercent)}
+                        underline={false}
+                        onClick={() => onAction?.(Action.TwentyFivePercent)}
                     >
                         <div className="text-xs">25%</div>
                     </NomasLink>
-                    <NomasDivider />
-                    <NomasLink asButton onPress={() => onAction?.(Action.FiftyPercent)}>
+                    <NomasDivider orientation="vertical" />
+                    <NomasLink underline={false} onClick={() => onAction?.(Action.FiftyPercent)}>
                         <div className="text-xs">50%</div>
                     </NomasLink>
-                    <NomasDivider />
-                    <NomasLink asButton onPress={() => onAction?.(Action.Max)}>
+                    <NomasDivider orientation="vertical" />
+                    <NomasLink underline={false} onClick={() => onAction?.(Action.Max)}>
                         <div className="text-xs">Max</div>
                     </NomasLink>
                 </motion.div>
