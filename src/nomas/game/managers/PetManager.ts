@@ -847,7 +847,7 @@ export class PetManager {
         GamePositioning.getFoodDropY(cameraHeight),
         fallbackKey
       )
-      toy.setScale(0.3)
+      toy.setScale(0.5)
       toy.setAlpha(0.9)
       this.sharedDroppedBalls.push(toy)
       this.sharedBallShadows.push(
@@ -861,7 +861,7 @@ export class PetManager {
       GamePositioning.getFoodDropY(cameraHeight),
       textureKey
     )
-    toy.setScale(0.3) // Use larger scale for visibility
+    toy.setScale(0.75) // Increased scale for better visibility
     toy.setAlpha(0.9)
 
     console.log(`🎾 Sprite created:`, toy)
@@ -879,8 +879,8 @@ export class PetManager {
       onComplete: () => {
         this.scene.tweens.add({
           targets: toy,
-          scaleX: 0.3 * 1.13,
-          scaleY: 0.3 * 0.8,
+          scaleX: 0.5 * 1.13,
+          scaleY: 0.5 * 0.8,
           duration: 100,
           yoyo: true,
         })
