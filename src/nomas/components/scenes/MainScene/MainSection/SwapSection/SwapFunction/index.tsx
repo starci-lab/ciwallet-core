@@ -314,7 +314,7 @@ export const SwapFunction = () => {
                                 }}>
                                     <ArrowsLeftRightIcon className="w-4 h-4" />
                                 </NomasLink>
-                                <div className="text-xs">1 CAKE</div>
+                                <div className="text-xs">1 CAKE1</div>
                             </div>
                             <div className="text-xs">
                                 <div className="flex items-center gap-1 text-foreground-500">

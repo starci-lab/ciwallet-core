@@ -1,6 +1,6 @@
 import React from "react"
 import { type ChainMetadata, type Token } from "@ciwallet-sdk/types"
-import { NomasButton, NomasImage } from "@/nomas/components"
+import { NomasButton } from "@/nomas/components"
 export interface SelectTokenProps {
   token?: Token;
   chainMetadata?: ChainMetadata
