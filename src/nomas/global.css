@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "@fontsource-variable/plus-jakarta-sans/index.css";
-@import "tw-animate-css";
 
 :host, :root {
   /* Font */

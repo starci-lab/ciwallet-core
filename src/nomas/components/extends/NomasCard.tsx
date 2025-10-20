@@ -32,7 +32,7 @@ const cardCva = cva(
             variant: {
                 gradient: "bg-card-gradient border-card", // gradient variant
                 transparent: "bg-transparent border-none !shadow-none !border-none", // transparent variant
-                dark: "bg-card-dark !shadow-none", // dark variant
+                dark: "border-card bg-card-dark !shadow-none", // dark variant
                 button: "bg-button shadow-button radius-button cursor-pointer border-none", // button variant
             },
             isInner: {
