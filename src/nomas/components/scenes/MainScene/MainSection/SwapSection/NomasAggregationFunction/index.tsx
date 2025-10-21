@@ -1,6 +1,6 @@
 import React from "react"
-import { NomasAvatar, NomasCard, NomasCardBody, NomasCardHeader, NomasChip } from "@/nomas/components"
-import { setSwapPage, SwapPage, useAppDispatch } from "@/nomas/redux"
+import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasChip, NomasImage } from "@/nomas/components"
+import { setSwapFunctionPage, SwapFunctionPage, useAppDispatch } from "@/nomas/redux"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { NomasSpacer } from "@/nomas/components"
 import { tokenManagerObj } from "@/nomas/obj"
@@ -13,37 +13,38 @@ export const NomasAggregationPage = () => {
     const bestAggregationId = swapFormik.values.bestAggregationId
     const tokenManager = tokenManagerObj
     const tokenOut = tokenManager.getTokenById(swapFormik.values.tokenOut)
-    const aggregatorManager = aggregatorManagerObj
+    console.log(aggregations)
     return (
         <>
             <NomasCardHeader
                 title="Nomas Aggregation"
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setSwapPage(SwapPage.Swap))
+                    dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
             />
             <NomasCardBody>
-                <div className="text-sm text-foreground-500">
+                <div className="text-sm text-muted">
                 Nomas fetches quotes from multiple aggregators to automatically find the best rate.
                 </div>
                 <NomasSpacer y={4}/>
                 {
                     aggregations.map((aggregation) => {
-                        const aggregator = aggregatorManager.getAggregatorById(aggregation.aggregator)
+                        const aggregator = aggregatorManagerObj.getAggregatorById(aggregation.aggregator)
                         return (
-                            <NomasCard key={aggregator?.id} className="bg-default w-full">
-                                <NomasCardBody className="flex-row justify-between">
+                            <NomasCard key={aggregator?.id} variant={NomasCardVariant.Dark} isInner>
+                                <NomasCardBody className="flex justify-between">
                                     <div className="flex items-center gap-2">
-                                        <NomasAvatar 
-                                            avatarUrl={aggregator?.logo ?? ""}
+                                        <NomasImage 
+                                            className="rounded-full"
+                                            src={aggregator?.logo ?? ""}
                                         />
                                         <div className="text-sm">
                                             <div>{aggregator?.name}</div>
                                         </div>
                                         {
                                             aggregation.aggregator === bestAggregationId && (
-                                                <NomasChip color="primary">
+                                                <NomasChip>
                                                     Best
                                                 </NomasChip>
                                             )

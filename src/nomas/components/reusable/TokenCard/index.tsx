@@ -1,5 +1,5 @@
 import React from "react"
-import { NomasAvatar, NomasCard, NomasCardBody, NomasCardVariant, NomasImage } from "../../extends"
+import { NomasCard, NomasCardBody, NomasCardVariant, NomasImage } from "../../extends"
 import { ChainId, type Token } from "@ciwallet-sdk/types"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
@@ -13,7 +13,7 @@ export interface TokenCardProps {
     isPressable?: boolean
 }
 
-export const TokenCard = ({ token, chainId, onPress, isPressable = true }: TokenCardProps) => {
+export const TokenCard = ({ token, chainId, onPress }: TokenCardProps) => {
     const { handle } = useBalance()
     const network = useAppSelector(state => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)

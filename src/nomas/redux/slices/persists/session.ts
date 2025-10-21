@@ -190,6 +190,13 @@ export const sessionSlice = createSlice({
             )
             return tokens
         },
+        selectTokensByChainIdAndNetwork: (state, chainId: ChainId, network: Network) => {
+            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(chainId, network)
+            tokens.push(
+                ...(state.tokens?.[chainId]?.[network] || []),
+            )
+            return tokens
+        },
         selectTokenById: (state, tokenId: TokenId) => {
             const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(state.chainId, state.network)
             tokens.push(
@@ -229,4 +236,4 @@ export const {
     setInitialized,
     addRpc,
 } = sessionSlice.actions
-export const { selectSelectedAccount, selectSelectedAccountByChainId, selectTokens, selectTokenById } = sessionSlice.selectors
+export const { selectSelectedAccount, selectSelectedAccountByChainId, selectTokens, selectTokensByChainIdAndNetwork, selectTokenById } = sessionSlice.selectors

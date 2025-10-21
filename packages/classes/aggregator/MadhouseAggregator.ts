@@ -16,41 +16,36 @@ export class MadhouseAggregator implements IAggregator {
     private readonly axiosInstance: Axios
     constructor() {
         this.axiosInstance = axios.create({
-            baseURL: "https://api.madhouse.ag",
+            baseURL: "https://prod-api.madhouse.ag",
         })
     }
     async quote(params: QuoteParams): Promise<QuoteResponse> {
-        const chainId = getEvmChainId(params.chainId, params.network)
+        const chainId = getEvmChainId(params.fromChainId, params.network)
         const tokenManager = new TokenManager()
-        const tokenInEntity = tokenManager.getTokenByAddress(
-            params.query.fromToken,
-            params.chainId,
-            params.network
+        const tokenInEntity = tokenManager.getTokenById(
+            params.fromToken,
         )
-        const tokenOutEntity = tokenManager.getTokenByAddress(
-            params.query.toToken,
-            params.chainId,
-            params.network
+        const tokenOutEntity = tokenManager.getTokenById(
+            params.toToken,
         )
-        const tokenIn = !params.query.fromToken
+        const tokenIn = !tokenInEntity?.address
             ? ZERO_ADDRESS
-            : params.query.fromToken
-        const tokenOut = !params.query.toToken
+            : tokenInEntity?.address
+        const tokenOut = !tokenOutEntity?.address
             ? ZERO_ADDRESS
-            : params.query.toToken
-        
+            : tokenOutEntity?.address
         const {
             data: { routes: madhouseRoutes, amountOut, tx },
-        } = await this.axiosInstance.get<SwapResponse>("stage-b//swap/v1/quote", {
+        } = await this.axiosInstance.get<SwapResponse>("swap/v1/quote", {
             params: {
                 chain: chainId,
                 tokenIn,
                 tokenOut,
                 amountIn: toRaw(
-                    params.query.amount,
+                    params.amount,
                     tokenInEntity?.decimals
                 ).toString(),
-                slippage: params.query.slippage,
+                slippage: params.slippage,
                 includePoolInfo: true,
                 tokenInDecimals: tokenInEntity?.decimals,
                 tokenOutDecimals: tokenOutEntity?.decimals,

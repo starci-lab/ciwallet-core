@@ -14,6 +14,7 @@ import SuperJSON from "superjson"
 import { toRaw } from "@ciwallet-sdk/utils"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
+import { useAggregatorSelector } from "./useAggregatorSelector"
 
 export interface Aggregation {
     aggregator: AggregatorId;
@@ -89,7 +90,7 @@ export const useSwapFormikCore = () => {
     const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
     const { adapter } = useWalletKit()
     const { swrMutation } = useBatchAggregatorSwrMutations()
-    return useFormik<SwapFormikValues>({
+    const formik = useFormik<SwapFormikValues>({
         initialValues: {
             balanceIn: 0,
             balanceOut: 0,
@@ -182,4 +183,8 @@ export const useSwapFormikCore = () => {
             }
         },
     })
+    // aggregator selector
+    useAggregatorSelector(formik)
+
+    return formik
 }

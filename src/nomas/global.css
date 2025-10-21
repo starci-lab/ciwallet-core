@@ -8,6 +8,8 @@
   --text: hsl(0 0% 100%);
   /* Muted text color (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text */
   --text-muted: hsl(0 0% 70.2%);
+  /* Muted background color */
+  --bg-muted: hsl(0 0% 70.2%);
   /* Border color */
   --border: hsl(0 0% 29.8%);
   /* Muted text color (dark gray ~ #505050) — used for descriptions, placeholders, or less important text */
@@ -160,5 +162,11 @@
   }
   .bg-card-2 {
     background-color: var(--bg-card-2);
+  }
+  .ring-border {
+    border: 1px solid var(--border);
+  }
+  .bg-muted\/20 {
+    background-color: color-mix(in srgb, var(--bg-muted) 20%, transparent);
   }
 }

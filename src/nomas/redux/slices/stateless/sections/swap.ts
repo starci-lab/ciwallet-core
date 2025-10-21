@@ -18,7 +18,7 @@ export interface SwapSectionSlice {
 }
 
 const initialState: SwapSectionSlice = {
-    swapFunctionPage: SwapFunctionPage.ChooseNetwork,
+    swapFunctionPage: SwapFunctionPage.Swap,
     expandDetails: false,
     tokenIn: TokenId.MonadTestnetMon,
     tokenOut: TokenId.MonadTestnetMon,
