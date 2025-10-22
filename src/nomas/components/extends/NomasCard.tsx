@@ -23,6 +23,7 @@ export enum NomasCardVariant {
 export interface NomasCardProps extends React.ComponentProps<typeof Card> {
   variant?: NomasCardVariant
   isInner?: boolean
+  isContainer?: boolean
 }
 
 const cardCva = cva(
@@ -39,20 +40,25 @@ const cardCva = cva(
                 true: "radius-card-inner",
                 false: "radius-card",
             },
+            isContainer: {
+                true: "min-w-[500px] w-[500px]",
+                false: "",
+            },
         },
         defaultVariants: {
             variant: undefined,
             isInner: false,
+            isContainer: false,
         },  
     }
 )
   
 export const NomasCard = React.forwardRef<HTMLDivElement, NomasCardProps>(
-    ({ className, variant, isInner, ...props }, ref) => {
+    ({ className, variant, isInner, isContainer, ...props }, ref) => {
         return (
             <Card
                 ref={ref}
-                className={twMerge(cardCva({ variant, isInner }), className)}
+                className={twMerge(cardCva({ variant, isInner, isContainer }), className)}
                 {...props}
             />
         )

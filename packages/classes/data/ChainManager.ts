@@ -1,4 +1,5 @@
-import { ChainId, Network, type ChainMetadata } from "@ciwallet-sdk/types"
+import { ChainId, Network, type ChainMetadata, Platform } from "@ciwallet-sdk/types"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
 export class ChainManager {
     private defaultChains: Array<ChainMetadata> = [
@@ -15,7 +16,7 @@ export class ChainManager {
         {
             id: ChainId.Aptos,
             name: "Aptos",
-            iconUrl: "/icons/chains/aptos.svg",
+            iconUrl: "/icons/chains/aptos.png",
             iconInvertedUrl: "/icons/chains/aptos-inverted.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://aptos.network",
@@ -41,6 +42,69 @@ export class ChainManager {
                 [Network.Testnet]: "https://solana.network",
             },
         },
+        {
+            id: ChainId.Bsc,
+            name: "BSC",
+            iconUrl: "/icons/chains/bsc.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://bsc.network",
+                [Network.Testnet]: "https://bsc.network",
+            },
+        },
+        {
+            id: ChainId.Polygon,
+            name: "Polygon",
+            iconUrl: "/icons/chains/polygon.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://polygon.network",
+                [Network.Testnet]: "https://polygon.network",
+            },
+        },
+        {
+            id: ChainId.Ethereum,
+            name: "Ethereum",
+            iconUrl: "/icons/chains/ethereum.png",
+            explorerUrl: {
+                [Network.Mainnet]: "https://etherscan.io",
+                [Network.Testnet]: "https://etherscan.io",
+            },
+        },
+        {
+            id: ChainId.Avalanche,
+            name: "Avalanche",
+            iconUrl: "/icons/chains/avalanche.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://snowtrace.io",
+                [Network.Testnet]: "https://snowtrace.io",
+            },
+        },
+        {
+            id: ChainId.Fantom,
+            name: "Fantom",
+            iconUrl: "/icons/chains/fantom.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://ftmscan.com",
+                [Network.Testnet]: "https://ftmscan.com",
+            },
+        },
+        {
+            id: ChainId.Arbitrum,
+            name: "Arbitrum",
+            iconUrl: "/icons/chains/arbitrum.png",
+            explorerUrl: {
+                [Network.Mainnet]: "https://arbiscan.io",
+                [Network.Testnet]: "https://arbiscan.io",
+            },
+        },
+        {
+            id: ChainId.Base,
+            name: "Base",
+            iconUrl: "/icons/chains/base.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://basescan.org",
+                [Network.Testnet]: "https://basescan.org",
+            },
+        },
     ]
     private chains: Array<ChainMetadata> = []
 
@@ -54,6 +118,10 @@ export class ChainManager {
 
     public getChainById(id: ChainId): ChainMetadata | undefined {
         return this.chains.find(chain => chain.id === id)
+    }
+
+    public getChainsByPlatform(platform: Platform): Array<ChainMetadata> {
+        return this.chains.filter(chain => chainIdToPlatform(chain.id) === platform)
     }
 
     public getTransactionDetails(txHash: string, chainId: ChainId): string {

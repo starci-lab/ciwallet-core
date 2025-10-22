@@ -13,23 +13,6 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
     const tokenInChainId = formik.values.tokenInChainId
     const tokenOutChainId = formik.values.tokenOutChainId
     const network = useAppSelector(state => state.persists.session.network)
-    // check the token in/out to select the best aggregator based on the chain id
-    useEffect(() => {
-        console.log(tokenInChainId, tokenOutChainId)
-        if (tokenInChainId === tokenOutChainId) {
-            const selectedAggregators = aggregators.filter(
-                aggregator => {
-                    return (
-                        aggregator.mode === AggregationMode.SingleChain || aggregator.mode === AggregationMode.Hybrid
-                        && aggregator.chains.includes(tokenInChainId)
-                        && aggregator.networks.includes(network)
-                    )
-                }
-            )
-            formik.setFieldValue("aggregators", selectedAggregators.map(aggregator => aggregator.id))
-        }
-    }, [tokenInChainId, tokenOutChainId])
-
     useEffect(() => {
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {

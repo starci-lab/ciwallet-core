@@ -26,15 +26,43 @@ export const assetsConfig = () => {
             petRisingGameBackground: getUrl("/assets/app/pet-rising-game-bg.png"),
         },
         tokens: {
-            aptos: getUrl("/assets/tokens/aptos.svg"),
+            aptos: getUrl("/assets/tokens/aptos.png"),
             mon: getUrl("/assets/tokens/mon.png"),
             solana: getUrl("/assets/tokens/solana.png"),
             sui: getUrl("/assets/tokens/sui.jpeg"),
             usdc: getUrl("/assets/tokens/usdc.svg"),
         },
         chains: {
+            bsc: {
+                iconUrl: getUrl("/assets/chains/bsc.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/bsc.svg"),
+            },
+            polygon: {
+                iconUrl: getUrl("/assets/chains/polygon.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/polygon.svg"),
+            },
+            ethereum: {
+                iconUrl: getUrl("/assets/chains/ethereum.png"),
+                iconInvertedUrl: getUrl("/assets/chains/ethereum.png"),
+            },
+            avalanche: {
+                iconUrl: getUrl("/assets/chains/avalanche.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/avalanche.svg"),
+            },
+            fantom: {
+                iconUrl: getUrl("/assets/chains/fantom.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/fantom.svg"),
+            },
+            arbitrum: {
+                iconUrl: getUrl("/assets/chains/arbitrum.png"),
+                iconInvertedUrl: getUrl("/assets/chains/arbitrum.png"),
+            },
+            base: {
+                iconUrl: getUrl("/assets/chains/base.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/base.svg"),
+            },
             aptos: {
-                iconUrl: getUrl("/assets/chains/aptos.svg"),
+                iconUrl: getUrl("/assets/chains/aptos.png"),
                 iconInvertedUrl: getUrl("/assets/chains/aptos-inverted.svg"),
             },
             monad: {

@@ -83,6 +83,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "^5.1.1",
     "@cfx-kit/wallet-avatar": "^0.0.5",
     "@colyseus/schema": "^3.0.62",
     "@emotion/styled": "^11.14.1",
@@ -125,6 +126,7 @@
     "phosphor-react": "^1.4.1",
     "qr-code-styling": "^1.9.2",
     "qrcode.react": "^4.2.0",
+    "react-arborist": "^3.4.3",
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",

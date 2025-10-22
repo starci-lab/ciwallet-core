@@ -3,6 +3,13 @@ export enum ChainId {
     Solana = "solana",
     Sui = "sui",
     Aptos = "aptos",
+    Bsc = "bsc",
+    Polygon = "polygon",
+    Ethereum = "ethereum",
+    Avalanche = "avalanche",
+    Fantom = "fantom",
+    Arbitrum = "arbitrum",
+    Base = "base",
 }
 
 export enum Network {

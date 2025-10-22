@@ -3,19 +3,21 @@ import * as Yup from "yup"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { Mnemonic } from "@ciwallet-sdk/classes"
-import { ChainId } from "@ciwallet-sdk/types"
 import {
     InitPage,
-    addAccount,
     setEncryptedMnemonic,
     setInitPage,
     useAppDispatch,
     setPassword,
+    resolveAccountsThunk,
+    addHdWallet,
+    setScene,
+    Scene,
 } from "@/nomas/redux"
-import { encryptionObj, walletGeneratorObj } from "@/nomas/obj"
-import { v4 as uuidv4 } from "uuid"
+import { encryptionObj } from "@/nomas/obj"
 import zxcvbn from "zxcvbn"
 import { PasswordStrength } from "./types"
+import { v4 } from "uuid"
 
 // -------------------------------------
 // Formik Values Interface
@@ -86,40 +88,33 @@ export const useCreatePasswordFormikCore = () => {
         onSubmit: async (values) => {
             // 1. Generate mnemonic
             const mnemonic = new Mnemonic().generate(true)
-
-            // 2. Generate wallets
-            const wallets = await walletGeneratorObj.generateWallets({
-                mnemonic,
-                chainIds: [ChainId.Monad, ChainId.Sui, ChainId.Solana],
-                password: values.password,
-            })
-
-            // 3. Encrypt mnemonic
+            // 2. Encrypt mnemonic
             const encryptedMnemonic = await encryptionObj.encrypt(mnemonic, values.password)
-
-            // 4. Save encrypted mnemonic
+            // 3. Save encrypted mnemonic
             dispatch(setEncryptedMnemonic(encryptedMnemonic))
-
-            // 5. Save all generated accounts
-            Object.entries(wallets).forEach(([chainId, wallet]) => {
-                dispatch(
-                    addAccount({
-                        chainId: chainId as ChainId,
-                        account: {
-                            id: uuidv4(),
-                            accountAddress: wallet.accountAddress,
-                            chainId: chainId as ChainId,
-                            encryptedPrivateKey: wallet.privateKey,
-                            name: "Account 1",
-                            publicKey: wallet.publicKey,
-                            avatarUrl: "",
-                        },
-                    }),
-                )
-            })
-            // 6. Save password + init state
+            // 4. Save password + init state
             dispatch(setPassword(values.password))
             dispatch(setInitPage(InitPage.Splash))
+            // 5. Add hd wallet
+            dispatch(addHdWallet({
+                id: v4(),
+                encryptedMnemonic,
+                isDefault: true,
+                accounts: [
+                    {
+                        id: v4(),
+                        name: "Account 1",
+                        index: 0,
+                    },
+                ],
+                name: "Wallet 1",
+            }))
+            // 6. Set thunk to resolve accounts
+            const resultAction = await dispatch(resolveAccountsThunk())
+            // 7. Redirect to main scene
+            if (resultAction.meta.requestStatus === "fulfilled") {
+                dispatch(setScene(Scene.Main))
+            }
         },
         validate: (values) => {
             const errors: Partial<Record<keyof CreatePasswordFormikValues, string>> = {}

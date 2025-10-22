@@ -169,4 +169,7 @@
   .bg-muted\/20 {
     background-color: color-mix(in srgb, var(--bg-muted) 20%, transparent);
   }
+  .bg-muted {
+    background-color: var(--bg-muted);
+  }
 }

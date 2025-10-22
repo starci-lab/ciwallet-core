@@ -1,10 +1,10 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, TokenId } from "@ciwallet-sdk/types"
+import { ChainId, Platform, TokenId } from "@ciwallet-sdk/types"
 import {
     ERC20Contract,
 } from "@ciwallet-sdk/contracts"
-import { selectSelectedAccount, useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
 import { useWalletKit } from "@ciwallet-sdk/providers"
 import { ethers } from "ethers"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
@@ -87,7 +87,7 @@ export const useSwapFormik = () => {
 export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     const { adapter } = useWalletKit()
     const { swrMutation } = useBatchAggregatorSwrMutations()
     const formik = useFormik<SwapFormikValues>({
@@ -146,7 +146,7 @@ export const useSwapFormikCore = () => {
                 const transaction = ethers.Transaction.from(approveTx).unsignedSerialized
                 const response = await adapter.signAndSendTransaction?.({
                     transaction,
-                    privateKey: selectedAccount?.encryptedPrivateKey ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
                     rpcs: rpcs[values.tokenInChainId][network],
                     chainId: values.tokenInChainId,
                     network,
@@ -169,7 +169,7 @@ export const useSwapFormikCore = () => {
                 const transaction2 = ethers.Transaction.from(tx).unsignedSerialized
                 const response2 = await adapter.signAndSendTransaction?.({
                     transaction: transaction2,
-                    privateKey: selectedAccount?.encryptedPrivateKey ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
                     rpcs: rpcs[values.tokenInChainId][network],
                     chainId: values.tokenInChainId,
                     network,

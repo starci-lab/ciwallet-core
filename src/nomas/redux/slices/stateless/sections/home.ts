@@ -9,6 +9,10 @@ export enum HomeAction {
     Receive = "receive",
 }
 
+export enum HomeContent {
+    Base = "base",
+}
+
 export enum HomeSelectorTab {
     Portfolio = "portfolio",
     NFTs = "nfts",

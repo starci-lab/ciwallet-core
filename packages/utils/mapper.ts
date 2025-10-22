@@ -10,6 +10,20 @@ export const chainIdToPlatform = (chainId: ChainId): Platform => {
         return Platform.Sui
     case ChainId.Aptos:
         return Platform.Aptos
+    case ChainId.Bsc:
+        return Platform.Evm
+    case ChainId.Polygon:
+        return Platform.Evm
+    case ChainId.Ethereum:
+        return Platform.Evm
+    case ChainId.Avalanche:
+        return Platform.Evm
+    case ChainId.Fantom:
+        return Platform.Evm
+    case ChainId.Arbitrum:
+        return Platform.Evm
+    case ChainId.Base:
+        return Platform.Evm
     default:
         throw new Error(`Invalid chain id: ${chainId}`)
     }

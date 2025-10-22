@@ -8,12 +8,10 @@ import {
     NomasSpinner,
 } from "../../../extends"
 import { CaretUpDown, IconButton, NomasNumberTransparentInput, PythIcon, TooltipTitle } from "../../../styled"
-import { cn, Spacer } from "@heroui/react"
 import { SelectToken } from "./SelectToken"
 import {
     setExpandDetails,
     setSwapPage,
-    SwapPageState,
     useAppDispatch,
     useAppSelector,
 } from "../../../../redux"

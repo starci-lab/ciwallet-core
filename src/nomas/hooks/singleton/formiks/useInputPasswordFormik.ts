@@ -4,6 +4,7 @@ import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import {
     Scene,
+    resolveAccountsThunk,
     setPassword,
     setScene,
     useAppDispatch,
@@ -83,13 +84,16 @@ export const useInputPasswordFormikCore = () => {
                     setFieldError("password", "No encrypted mnemonic found")
                     return
                 }
-
-                // Try decrypt mnemonic with password
+                // 1. Try decrypt mnemonic with password
                 await encryptionObj.decrypt(encryptedMnemonic, values.password)
-
-                // Save password + redirect scene
+                // 2. Save password + redirect scene
                 dispatch(setPassword(values.password))
-                dispatch(setScene(Scene.Main))
+                // 3. Set thunk to resolve accounts
+                const resultAction = await dispatch(resolveAccountsThunk())
+                // 4. Redirect to main scene
+                if (resultAction.meta.requestStatus === "fulfilled") {
+                    dispatch(setScene(Scene.Main))
+                }
             } catch {
                 setFieldError("password", "Invalid password")
             }
