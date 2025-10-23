@@ -141,6 +141,10 @@ export const loadBackgroundAssets = (scene: Phaser.Scene) => {
   scene.load.image("forest-bg", getUrl("backgrounds/forest-bg.png"))
 }
 
+export const loadPoopAssets = (scene: Phaser.Scene) => {
+  scene.load.atlas("poop", getUrl("poop/poop.png"), getUrl("poop/poop.json"))
+}
+
 export const loadFoodAssets = (scene: Phaser.Scene) => {
   scene.load.image("hamburger", getUrl("food/hambuger.png"))
   scene.load.image("bone", getUrl("food/bone.png"))
@@ -149,11 +153,6 @@ export const loadFoodAssets = (scene: Phaser.Scene) => {
   scene.load.image("cake", getUrl("food/cake.png"))
   scene.load.image("icecream", getUrl("food/icecream.png"))
   scene.load.image("watermelon", getUrl("food/watermelon.png"))
-}
-
-export const loadPoopAssets = (scene: Phaser.Scene) => {
-  // Load animated poop atlas
-  scene.load.atlas("poop", getUrl("poop/poop.png"), getUrl("poop/poop.json"))
 }
 
 export const loadCleaningAssets = (scene: Phaser.Scene) => {
