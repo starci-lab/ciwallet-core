@@ -1,5 +1,8 @@
 import { Pet } from "../entities/Pet"
-import { GAME_MECHANICS } from "@/nomas/game/constants/gameConstants"
+import {
+  GAME_LAYOUT,
+  GAME_MECHANICS,
+} from "@/nomas/game/constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import type { ColyseusClient } from "@/nomas/game/colyseus/client"
 import { spendToken, store } from "@/nomas/redux"
@@ -136,7 +139,7 @@ export class CleanlinessSystem {
 
   private dropPoop() {
     const petX = this.pet.sprite.x
-    const petY = this.pet.sprite.y
+    const petY = GAME_LAYOUT.POOP_GROWN_OFFSET
 
     // Create animated poop sprite
     console.log(
@@ -147,13 +150,13 @@ export class CleanlinessSystem {
       this.cleanlinessLevel
     )
     // Use poop texture directly from your assets
-    const poop = this.scene.add.sprite(petX, petY - 5, "poop")
+    const poop = this.scene.add.sprite(petX, 80, "poop")
     poop.setScale(2.0) // Much larger scale for better visibility
     poop.setAlpha(1.0) // Full opacity
     poop.setDepth(2000) // Higher depth to ensure visibility
     poop.setOrigin(0.5, 0.5) // Center the sprite
 
-    console.log(`💩 Poop sprite created:`, {
+    console.log("💩 Poop sprite created:", {
       x: poop.x,
       y: poop.y,
       scale: poop.scaleX,
@@ -187,11 +190,11 @@ export class CleanlinessSystem {
     // Play poop animation
     console.log("🎬 Playing poop animation...")
     console.log(
-      `🔍 Available animations:`,
+      "🔍 Available animations:",
       Object.keys(this.scene.anims.anims.entries)
     )
     console.log(
-      `🔍 Poop animation exists:`,
+      "🔍 Poop animation exists:",
       this.scene.anims.exists("poop-animation")
     )
 
@@ -226,9 +229,9 @@ export class CleanlinessSystem {
     console.log(
       `💩 Poop added to scene. Total poops: ${this.poopObjects.length}`
     )
-    console.log(`💩 Poop position in scene:`, { x: poop.x, y: poop.y })
-    console.log(`💩 Poop visible:`, poop.visible)
-    console.log(`💩 Poop depth:`, poop.depth)
+    console.log("💩 Poop position in scene:", { x: poop.x, y: poop.y })
+    console.log("💩 Poop visible:", poop.visible)
+    console.log("💩 Poop depth:", poop.depth)
 
     // No auto-despawn - poop only disappears when cleaned up
     // Remove the timer logic since poop should persist until cleaned
