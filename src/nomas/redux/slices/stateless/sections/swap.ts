@@ -6,6 +6,7 @@ export enum SwapFunctionPage {
     SelectToken = "select-token",
     Swap = "swap",
     NomasAggregation = "nomas-aggregation",
+    SlippageConfig = "slippage-config",
 }
 
 export interface SwapSectionSlice {

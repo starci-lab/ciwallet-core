@@ -6,8 +6,8 @@ export class ChainManager {
         {
             id: ChainId.Monad,
             name: "Monad",
-            iconUrl: "/icons/chains/monad.png",
-            iconInvertedUrl: "/icons/chains/monad-inverted.png",
+            iconUrl: "/assets/chains/monad.png",
+            iconInvertedUrl: "/assets/chains/monad-inverted.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://testnet.monadexplorer.com/",
                 [Network.Testnet]: "https://testnet.monadexplorer.com/",
@@ -16,8 +16,8 @@ export class ChainManager {
         {
             id: ChainId.Aptos,
             name: "Aptos",
-            iconUrl: "/icons/chains/aptos.png",
-            iconInvertedUrl: "/icons/chains/aptos-inverted.svg",
+            iconUrl: "/assets/chains/aptos.png",
+            iconInvertedUrl: "/assets/chains/aptos-inverted.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://aptos.network",
                 [Network.Testnet]: "https://aptos.network",
@@ -26,8 +26,8 @@ export class ChainManager {
         {
             id: ChainId.Sui,
             name: "Sui",
-            iconUrl: "/icons/chains/sui.jpeg",
-            iconInvertedUrl: "/icons/chains/sui-inverted.svg",
+            iconUrl: "/assets/chains/sui.jpeg",
+            iconInvertedUrl: "/assets/chains/sui-inverted.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://sui.network",
                 [Network.Testnet]: "https://sui.network",
@@ -36,7 +36,7 @@ export class ChainManager {
         {
             id: ChainId.Solana,
             name: "Solana",
-            iconUrl: "/icons/chains/solana.png",
+            iconUrl: "/assets/chains/solana.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://solana.network",
                 [Network.Testnet]: "https://solana.network",
@@ -45,7 +45,7 @@ export class ChainManager {
         {
             id: ChainId.Bsc,
             name: "BSC",
-            iconUrl: "/icons/chains/bsc.svg",
+            iconUrl: "/assets/chains/bsc.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://bsc.network",
                 [Network.Testnet]: "https://bsc.network",
@@ -54,7 +54,7 @@ export class ChainManager {
         {
             id: ChainId.Polygon,
             name: "Polygon",
-            iconUrl: "/icons/chains/polygon.svg",
+            iconUrl: "/assets/chains/polygon.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://polygon.network",
                 [Network.Testnet]: "https://polygon.network",
@@ -63,7 +63,7 @@ export class ChainManager {
         {
             id: ChainId.Ethereum,
             name: "Ethereum",
-            iconUrl: "/icons/chains/ethereum.png",
+            iconUrl: "/assets/chains/ethereum.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://etherscan.io",
                 [Network.Testnet]: "https://etherscan.io",
@@ -72,7 +72,7 @@ export class ChainManager {
         {
             id: ChainId.Avalanche,
             name: "Avalanche",
-            iconUrl: "/icons/chains/avalanche.svg",
+            iconUrl: "/assets/chains/avalanche.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://snowtrace.io",
                 [Network.Testnet]: "https://snowtrace.io",
@@ -81,7 +81,7 @@ export class ChainManager {
         {
             id: ChainId.Fantom,
             name: "Fantom",
-            iconUrl: "/icons/chains/fantom.svg",
+            iconUrl: "/assets/chains/fantom.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://ftmscan.com",
                 [Network.Testnet]: "https://ftmscan.com",
@@ -90,7 +90,7 @@ export class ChainManager {
         {
             id: ChainId.Arbitrum,
             name: "Arbitrum",
-            iconUrl: "/icons/chains/arbitrum.png",
+            iconUrl: "/assets/chains/arbitrum.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://arbiscan.io",
                 [Network.Testnet]: "https://arbiscan.io",
@@ -99,7 +99,7 @@ export class ChainManager {
         {
             id: ChainId.Base,
             name: "Base",
-            iconUrl: "/icons/chains/base.svg",
+            iconUrl: "/assets/chains/base.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://basescan.org",
                 [Network.Testnet]: "https://basescan.org",

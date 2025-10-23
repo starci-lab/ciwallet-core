@@ -45,7 +45,7 @@ export class MadhouseAggregator implements IAggregator {
                     params.amount,
                     tokenInEntity?.decimals
                 ).toString(),
-                slippage: params.slippage,
+                slippage: params.slippage / 100,
                 includePoolInfo: true,
                 tokenInDecimals: tokenInEntity?.decimals,
                 tokenOutDecimals: tokenOutEntity?.decimals,

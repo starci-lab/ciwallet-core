@@ -13,6 +13,7 @@ import {
     addHdWallet,
     setScene,
     Scene,
+    resolveTokensThunk,
 } from "@/nomas/redux"
 import { encryptionObj } from "@/nomas/obj"
 import zxcvbn from "zxcvbn"
@@ -110,9 +111,11 @@ export const useCreatePasswordFormikCore = () => {
                 name: "Wallet 1",
             }))
             // 6. Set thunk to resolve accounts
-            const resultAction = await dispatch(resolveAccountsThunk())
-            // 7. Redirect to main scene
-            if (resultAction.meta.requestStatus === "fulfilled") {
+            const accountsResultAction = await dispatch(resolveAccountsThunk())
+            // 7. Update tokens
+            const tokensResultAction = await dispatch(resolveTokensThunk())
+            // 8. Redirect to main scene
+            if (accountsResultAction.meta.requestStatus === "fulfilled" && tokensResultAction.meta.requestStatus === "fulfilled") {
                 dispatch(setScene(Scene.Main))
             }
         },

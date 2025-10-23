@@ -16,8 +16,12 @@ export const InputPasswordPage = () => {
     const formik = useInputPasswordFormik()
     useEffect(() => {
         formik.setFieldValue("password", "Cuong123_A")
+    }, [])
+    useEffect(() => {
+        if (!formik.values.password)
+            return
         formik.submitForm()
-    }, [formik])
+    }, [formik.values.password])
     return (
         <NomasCard
             variant={NomasCardVariant.Gradient}

@@ -101,7 +101,7 @@ export const SwapFunction = () => {
                 </div>
                 <NomasSpacer y={4} />
                 <div className="items-center -space-y-2 flex flex-col">
-                    <div className="bg-card-1 radius-card-inner w-full p-4">
+                    <div className="bg-card-dark radius-card-inner w-full p-4">
                         <div className="flex items-center justify-between">
                             <div className="text-xs text">You Pay</div>
                             <Wallet
@@ -199,7 +199,7 @@ export const SwapFunction = () => {
                     >
                         <ArrowsLeftRightIcon className="w-5 h-5 min-w-5 min-h-5" />
                     </NomasButtonIcon>
-                    <div className="bg-card-1 radius-card-inner w-full p-4">
+                    <div className="bg-card-dark radius-card-inner w-full p-4">
                         <div className="flex items-center justify-between">
                             <div className="text-xs text">You Receive</div>
                             <Wallet disableFocus balance={swapFormik.values.balanceOut} />

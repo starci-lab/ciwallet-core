@@ -29,6 +29,20 @@ export const chainIdToPlatform = (chainId: ChainId): Platform => {
     }
 }
 
+export const platformToChainIds = (platform: Platform): Array<ChainId> => {
+    switch (platform) {
+    case Platform.Evm:
+        return [ChainId.Monad, ChainId.Bsc, ChainId.Polygon, ChainId.Ethereum, ChainId.Avalanche, ChainId.Fantom, ChainId.Arbitrum, ChainId.Base]
+    case Platform.Solana:
+        return [ChainId.Solana]
+    case Platform.Sui:
+        return [ChainId.Sui]
+    case Platform.Aptos:
+        return [ChainId.Aptos]
+    }
+    throw new Error(`Invalid platform: ${platform}`)
+}
+
 const emvChainIdMap: Partial<Record<ChainId, Record<Network, number>>> = {
     [ChainId.Monad]: {
         [Network.Mainnet]: 10143,

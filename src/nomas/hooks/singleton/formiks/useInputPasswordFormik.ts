@@ -5,6 +5,7 @@ import { FormikContext } from "./FormikProvider"
 import {
     Scene,
     resolveAccountsThunk,
+    resolveTokensThunk,
     setPassword,
     setScene,
     useAppDispatch,
@@ -80,6 +81,7 @@ export const useInputPasswordFormikCore = () => {
         validationSchema,
         onSubmit: async (values, { setFieldError }) => {
             try {
+                console.log("Input password formik onSubmit")
                 if (!encryptedMnemonic) {
                     setFieldError("password", "No encrypted mnemonic found")
                     return
@@ -89,9 +91,14 @@ export const useInputPasswordFormikCore = () => {
                 // 2. Save password + redirect scene
                 dispatch(setPassword(values.password))
                 // 3. Set thunk to resolve accounts
-                const resultAction = await dispatch(resolveAccountsThunk())
-                // 4. Redirect to main scene
-                if (resultAction.meta.requestStatus === "fulfilled") {
+                const accountsResultAction = await dispatch(resolveAccountsThunk())
+                // 4. Update tokens
+                const tokensResultAction = await dispatch(resolveTokensThunk())
+                // 5. Redirect to main scene
+                if (
+                    accountsResultAction.meta.requestStatus === "fulfilled"
+                    && tokensResultAction.meta.requestStatus === "fulfilled"
+                ) {
                     dispatch(setScene(Scene.Main))
                 }
             } catch {

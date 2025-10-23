@@ -6,6 +6,7 @@
   --font-sans: "Plus Jakarta Sans Variable", sans-serif;
   /* Primary text color (white) — used for titles and main content */
   --text: hsl(0 0% 100%);
+  --text-dark: hsl(0 0% 0%);
   /* Muted text color (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text */
   --text-muted: hsl(0 0% 70.2%);
   /* Muted background color */
@@ -14,19 +15,22 @@
   --border: hsl(0 0% 29.8%);
   /* Muted text color (dark gray ~ #505050) — used for descriptions, placeholders, or less important text */
   --text-muted-dark: hsl(0 0% 29.8%);
-  /* Bg card gradient color */
-  --bg-card-1: hsl(0 0% 6.3%);
-  --bg-card-2: hsl(0 0% 2.7%);
   /* Muted hover text color */
   --text-muted-hover:hsl(0 0% 80%);
   /* Card dark color */
-  --card-dark: hsl(0 0% 6%);
+  --card-dark: hsl(0 0% 6.3%);
   /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
   --card-gradient: linear-gradient(0deg, hsl(0 0% 7%) 0%, hsl(0 0% 22%) 100%);
   /* Card foreground color */
   --card-foreground: 	hsl(240, 8%, 7%);
   /* Card radius */
   --card-radius: 32px;
+  /* Switch background color */
+  --bg-switch-background: hsl(0 0% 6.3%);
+  /* Switch thumb color */
+  --bg-switch-thumb: hsl(0 0% 80%);
+  /* Switch thump active color */
+  --bg-switch-background-active: hsl(0 0% 22%);
   /* Card border color */
   --card-border: hsla(0 0% 0% / 0.55);
   /* Radius card inner */
@@ -69,6 +73,56 @@
   --success: hsl(145 100% 39.2%);
 }
 
+@theme {
+  /* Font */
+  --font-sans: var(--font-sans);
+
+  /* Colors */
+  --color-text: var(--text);
+  --color-text-dark: var(--text-dark);
+  --color-text-muted: var(--text-muted);
+  --color-text-muted-dark: var(--text-muted-dark);
+  --color-border: var(--border);
+  --color-muted: var(--bg-muted);
+  --color-card-dark: var(--card-dark);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-1: var(--bg-card-1);
+  --color-card-2: var(--bg-card-2);
+
+  /* Switch */
+  --color-switch-background: var(--bg-switch-background);
+  --color-switch-background-active: var(--bg-switch-background-active);
+  --color-switch-thumb: var(--bg-switch-thumb);
+
+  /* Button */
+  --color-button: var(--button-background);
+  --color-button-hover: var(--button-hover-background);
+  --color-button-dark: var(--button-dark-background);
+  --color-button-dark-hover: var(--button-dark-hover-background);
+
+  /* Input */
+  --color-input: var(--input-background);
+  --color-input-border: var(--input-border);
+
+  /* Semantic */
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+
+  /* Radii */
+  --radius-card: var(--card-radius);
+  --radius-card-inner: var(--card-radius-inner);
+  --radius-button: var(--button-radius);
+  --radius-input: var(--input-radius);
+
+  /* Shadows */
+  --shadow-card: var(--card-shadow);
+  --shadow-button: var(--button-shadow);
+
+  /* Gradient */
+  --bg-card-gradient: var(--card-gradient);
+}
+
 @layer utilities {
   .bg-card-gradient {
     background-image: var(--card-gradient);
@@ -92,7 +146,10 @@
     color: var(--text-muted-hover);
   }
   .text {
-    color: var(--text);
+    color: var(--color-text);
+  }
+  .text-dark {
+    color: var(--color-text-dark);
   }
   .bg-card-foreground {
     background-color: var(--card-foreground);
@@ -166,10 +223,16 @@
   .ring-border {
     border: 1px solid var(--border);
   }
-  .bg-muted\/20 {
-    background-color: color-mix(in srgb, var(--bg-muted) 20%, transparent);
-  }
   .bg-muted {
     background-color: var(--bg-muted);
+  }
+  .bg-switch-background {
+    background-color: var(--bg-switch-background);
+  }
+  .bg-switch-background-active {
+    background-color: var(--bg-switch-background-active);
+  }
+  .bg-switch-thumb {
+    background-color: var(--bg-switch-thumb);
   }
 }

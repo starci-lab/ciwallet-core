@@ -21,6 +21,11 @@ export interface Aggregation {
     amountOut: number;
 }
 
+export enum TransactionMode {
+    Default = "default",
+    Instant = "instant",
+}
+
 export interface SwapFormikValues {
     balanceIn: number;
     balanceOut: number;
@@ -38,6 +43,8 @@ export interface SwapFormikValues {
     bestAggregationId: AggregatorId;
     refreshKey: number;
     protocols: Array<ProtocolData>;
+    mevProtection: boolean;
+    transactionMode: TransactionMode;
 }
 
 const swapValidationSchema = Yup.object({
@@ -101,13 +108,15 @@ export const useSwapFormikCore = () => {
             isInput: true,
             amountIn: "0",
             amountOut: "0",
-            slippage: 0.005,
+            slippage: 0.1,
             tokenInFocused: false,
             quoting: false,
             aggregations: [],
             protocols: [],
             bestAggregationId: AggregatorId.Madhouse,
             refreshKey: 0,
+            transactionMode: TransactionMode.Default,
+            mevProtection: false,
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {

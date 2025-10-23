@@ -2,37 +2,41 @@ import {
     createAsyncThunk,
     createSlice,
     type PayloadAction,
+    createListenerMiddleware,
+    isAnyOf
 } from "@reduxjs/toolkit"
-import { ChainId, Network, type Token, Platform, TokenId } from "@ciwallet-sdk/types"
+import { ChainId, Network, type Token, Platform, TokenId, UnifiedTokenId } from "@ciwallet-sdk/types"
 import { persistReducer } from "redux-persist"
 import { getStorageConfig } from "../../utils"
 import { encryptionObj, importedWalletGeneratorObj, tokenManagerObj, walletGeneratorObj } from "@/nomas/obj"
 import { v4 as uuidv4 } from "uuid"
 import type { RootState } from "@/nomas/redux"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { subscribeToPythUpdates } from "@/nomas/modules/pyth"
+import lodash from "lodash"
 /* -----------------------------
  * Types
  * ----------------------------- */
 export enum PlatformAccountType {
-  HDWallet = "hd-wallet",
-  ImportedWallet = "imported-wallet",
+    HDWallet = "hd-wallet",
+    ImportedWallet = "imported-wallet",
 }
 
 export type Account = {
-  id: string
-  accountAddress: string
-  privateKey: string
-  type: PlatformAccountType.HDWallet
-  platform: Platform
-  index: number
-  refId: string
+    id: string
+    accountAddress: string
+    privateKey: string
+    type: PlatformAccountType.HDWallet
+    platform: Platform
+    index: number
+    refId: string
 } | {
-  id: string
-  accountAddress: string
-  privateKey: string
-  type: PlatformAccountType.ImportedWallet
-  platform: Platform
-  refId: string
+    id: string
+    accountAddress: string
+    privateKey: string
+    type: PlatformAccountType.ImportedWallet
+    platform: Platform
+    refId: string
 }
 
 export interface Accounts {
@@ -60,17 +64,46 @@ export interface ImportedWallet {
     name: string
 }
 
+export enum SelectedTokenType {
+    Token = "token",
+    UnifiedToken = "unified-token",
+}
+
+export interface SetSelectedToken {
+    type: SelectedTokenType
+    id: TokenId | UnifiedTokenId
+}
+
+
+export interface TokenItem {
+    tokenId: TokenId
+    accountAddress: string
+    chainId: ChainId
+    network: Network
+}
+
+export type SelectedChainId = ChainId | "overview"
 export interface SessionSlice {
-  hdWallets: Array<HDWallet>
-  importedWallets: Array<ImportedWallet>
-  accounts: Partial<Record<Platform, Accounts>>
-  encryptedMnemonic: string
-  network: Network
-  chainId: ChainId
-  initialized: boolean
-  password: string
-  rpcs: Record<ChainId, Record<Network, Array<string>>>
-  tokens: Record<ChainId, Record<Network, Array<Token>>>
+    hdWallets: Array<HDWallet>
+    importedWallets: Array<ImportedWallet>
+    accounts: Partial<Record<Platform, Accounts>>
+    encryptedMnemonic: string
+    network: Network
+    chainId: ChainId
+    initialized: boolean
+    password: string
+    rpcs: Record<ChainId, Record<Network, Array<string>>>
+    importedTokens: Partial<Record<ChainId, Record<Network, Array<Token>>>>,
+    tokens: Record<ChainId, Record<Network, Array<Token>>>
+    // tracking token ids and unified token ids
+    trackingTokenIds: Array<TokenId>
+    trackingUnifiedTokenIds: Array<UnifiedTokenId>
+
+    // selected token
+    selectedTokenType: SelectedTokenType
+    selectedTokenId: TokenId
+    selectedUnifiedTokenId: UnifiedTokenId
+    selectedChainId: SelectedChainId
 }
 
 /* -----------------------------
@@ -124,11 +157,12 @@ const resolveAccountsFromImportedWallet = async (
 }
 
 export const resolveAccountsThunk = createAsyncThunk<
-  Array<Account>
+    Array<Account>
 >(
     "accounts/resolveAll",
     async (_, thunkApi): Promise<Array<Account>> => {
         try {
+            console.log("Resolve accounts")
             const state = thunkApi.getState() as RootState
             // Resolve HD wallet accounts
             const hdAccounts = await Promise.all(
@@ -139,6 +173,39 @@ export const resolveAccountsThunk = createAsyncThunk<
             return [...hdAccounts.flat(), ...importedAccounts.flat()]
         } catch (err: unknown) {
             throw new Error(err instanceof Error ? err.message : "Failed to resolve accounts")
+        }
+    }
+)
+
+export const resolveTokensThunk = createAsyncThunk<
+    Record<ChainId, Record<Network, Array<Token>>>
+>(
+    "tokens/resolveAll",
+    async (_, thunkApi): Promise<Record<ChainId, Record<Network, Array<Token>>>> => {
+        try {
+            const state = thunkApi.getState() as RootState
+            const results: Partial<Record<ChainId, Partial<Record<Network, Array<Token>>>>> = {}
+            const _importedTokens = lodash.cloneDeep(state.persists.session.importedTokens)
+            for (const chainId of Object.values(ChainId)) {
+                for (const network of Object.values(Network)) {
+                    // default tokens
+                    const defaultTokens = tokenManagerObj.getTokensByChainIdAndNetwork(chainId, network)
+                    const extraTokens = _importedTokens?.[chainId]?.[network] ?? []
+                    // combine tokens
+                    if (!results[chainId]) {
+                        results[chainId] = {
+                            [Network.Mainnet]: [],
+                            [Network.Testnet]: [],
+                        }
+                    }
+                    results[chainId]![network] = [...defaultTokens, ...extraTokens]
+                }
+            }
+            return results as Record<ChainId, Record<Network, Array<Token>>>
+        }
+        catch (err: unknown) {
+            console.log(err)
+            throw new Error(err instanceof Error ? err.message : "Failed to resolve tokens")
         }
     }
 )
@@ -155,6 +222,26 @@ const initialState: SessionSlice = {
     chainId: ChainId.Monad,
     initialized: false,
     password: "",
+    importedTokens: {},
+    selectedTokenType: SelectedTokenType.Token,
+    selectedTokenId: TokenId.MonadTestnetMon,
+    selectedUnifiedTokenId: UnifiedTokenId.Usdc,
+    selectedChainId: "overview",
+    trackingTokenIds: [
+        TokenId.MonadTestnetMon,
+        TokenId.MonadTestnetWmon,
+        TokenId.MonadTestnetUsdc,
+        TokenId.SolanaMainnetSol,
+        TokenId.SolanaMainnetUsdc,
+        TokenId.SolanaTestnetSol,
+        TokenId.SolanaTestnetUsdc,
+        TokenId.SuiMainnetSui,
+        TokenId.SuiMainnetUsdc,
+    ],
+    trackingUnifiedTokenIds: [
+        UnifiedTokenId.Usdc,
+        UnifiedTokenId.Usdt,
+    ],
     rpcs: {
         [ChainId.Monad]: {
             [Network.Mainnet]: ["https://testnet-rpc.monad.xyz"],
@@ -200,7 +287,7 @@ const initialState: SessionSlice = {
             [Network.Mainnet]: ["https://base-mainnet.g.alchemy.com/v2/demo"],
             [Network.Testnet]: ["https://base-testnet.g.alchemy.com/v2/demo"],
         },
-    },  
+    },
     tokens: {
         [ChainId.Monad]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
         [ChainId.Solana]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
@@ -215,7 +302,6 @@ const initialState: SessionSlice = {
         [ChainId.Base]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
     },
 }
-
 /* -----------------------------
  * Slice
  * ----------------------------- */
@@ -238,7 +324,10 @@ export const sessionSlice = createSlice({
             if (!state.accounts[platform]) {
                 state.accounts[platform] = { accounts: [] }
             }
-      state.accounts[platform]!.selectedAccountId = account.id
+            state.accounts[platform]!.selectedAccountId = account.id
+        },
+        setSelectedChainId: (state, action: PayloadAction<SelectedChainId>) => {
+            state.selectedChainId = action.payload
         },
         setNetwork: (state, action: PayloadAction<Network>) => {
             state.network = action.payload
@@ -255,6 +344,15 @@ export const sessionSlice = createSlice({
         addImportedWallet: (state, action: PayloadAction<ImportedWallet>) => {
             state.importedWallets.push(action.payload)
         },
+        setSelectedTokenType: (state, action: PayloadAction<SelectedTokenType>) => {
+            state.selectedTokenType = action.payload
+        },
+        setSelectedTokenId: (state, action: PayloadAction<TokenId>) => {
+            state.selectedTokenId = action.payload
+        },
+        setSelectedUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
+            state.selectedUnifiedTokenId = action.payload
+        },
         addRpc: (state, action: PayloadAction<AddRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
                 state.rpcs[action.payload.chainId] = {
@@ -262,10 +360,22 @@ export const sessionSlice = createSlice({
                     [Network.Testnet]: [],
                 }
             }
-      state.rpcs[action.payload.chainId]![action.payload.network]!.push(
-          action.payload.rpc
-      )
+            state.rpcs[action.payload.chainId]![action.payload.network]!.push(
+                action.payload.rpc
+            )
         },
+        setSelectedToken: 
+            (
+                state, 
+                action: PayloadAction<SetSelectedToken>
+            ) => {
+                state.selectedTokenType = action.payload.type
+                if (action.payload.type === SelectedTokenType.Token) {
+                    state.selectedTokenId = action.payload.id as TokenId
+                } else {
+                    state.selectedUnifiedTokenId = action.payload.id as UnifiedTokenId
+                }
+            },
     },
     extraReducers: (builder) => {
         builder.addCase(
@@ -278,6 +388,12 @@ export const sessionSlice = createSlice({
                     }
                     state.accounts[account.platform]!.accounts.push(account)
                 })
+            }
+        )
+        builder.addCase(
+            resolveTokensThunk.fulfilled,
+            (state, action: PayloadAction<Record<ChainId, Record<Network, Array<Token>>>>) => {
+                state.tokens = action.payload
             }
         )
     },
@@ -326,6 +442,20 @@ export const sessionSlice = createSlice({
             tokens.push(...(state.tokens?.[state.chainId]?.[state.network] || []))
             return tokens
         },
+        selectSelectedAccounts: (state): Partial<Record<Platform, Account>> => {
+            if (!state.accounts) return {}
+            const selected: Partial<Record<Platform, Account>> = {}
+            for (const [platform, { accounts, selectedAccountId }] of Object.entries(state.accounts) as Array<[Platform, { accounts: Array<Account>, selectedAccountId?: string }]>) {
+                const acc = accounts.find((account, index) => selectedAccountId ? account.id === selectedAccountId : index === 0)
+                if (acc) selected[platform] = acc
+            }
+            return selected
+        },
+        selectTokensByUnifiedTokenId: (state, unifiedTokenId: UnifiedTokenId) => {
+            const tokens = Object.values(state.tokens).flat().flatMap((record) => Object.values(record).flat())
+            const tokensSameUnifiedTokenId = tokens.filter((token) => token.unifiedTokenId === unifiedTokenId)
+            return tokensSameUnifiedTokenId
+        },
     },
 })
 
@@ -333,22 +463,34 @@ export const sessionSlice = createSlice({
  * Types and Exports
  * ----------------------------- */
 export interface AddRpcParams {
-  chainId: ChainId
-  network: Network
-  rpc: string
+    chainId: ChainId
+    network: Network
+    rpc: string
 }
 
 export interface SetSelectedAccountIdParams {
-  platform: Platform
-  account: Account
+    platform: Platform
+    account: Account
 }
 
 export const sessionReducer = persistReducer(
     getStorageConfig({
-        blacklist: ["password", "accounts"],
+        blacklist: ["password", "accounts", "tokens"],
     }),
     sessionSlice.reducer
 )
+
+export const listenerMiddleware = createListenerMiddleware()
+listenerMiddleware.startListening({
+    matcher: isAnyOf(resolveTokensThunk.fulfilled),
+    effect: async (_, listenerApi) => {
+        console.log("Subscribe to pyth updates")
+        const state = listenerApi.getState() as RootState
+        console.log(state.persists.session.tokens)
+        const tokens = tokenManagerObj.getTokens(state.persists.session.tokens)
+        await subscribeToPythUpdates(tokens)
+    },
+})
 
 export const {
     setPassword,
@@ -360,6 +502,9 @@ export const {
     addHdWallet,
     addImportedWallet,
     addRpc,
+    setSelectedToken,
+    setSelectedTokenType,
+    setSelectedChainId,
 } = sessionSlice.actions
 
 export const {
@@ -369,4 +514,6 @@ export const {
     selectTokensByChainIdAndNetwork,
     selectTokens,
     selectTokenById,
+    selectSelectedAccounts,
+    selectTokensByUnifiedTokenId,
 } = sessionSlice.selectors

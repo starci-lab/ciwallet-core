@@ -5,6 +5,7 @@ import { NomasAggregationPage } from "./NomasAggregationFunction"
 import { SwapFunction } from "./SwapFunction"
 import { useSwapFormik } from "@/nomas/hooks"
 import { SelectTokenFunction } from "./SelectTokenFunction"
+import { SlippageConfigFunction } from "./SlippageConfigFunction"
 export const SwapSection = () => {
     const swapPage = useAppSelector((state) => state.stateless.sections.swap.swapFunctionPage)
     const dispatch = useAppDispatch()
@@ -17,6 +18,8 @@ export const SwapSection = () => {
             return <SelectTokenFunction />
         case SwapFunctionPage.NomasAggregation:
             return <NomasAggregationPage />
+        case SwapFunctionPage.SlippageConfig:
+            return <SlippageConfigFunction />
         case SwapFunctionPage.ChooseNetwork:
             return <ChooseNetworkPage
                 isSelected={(chainId) => formik.values.tokenInChainId === chainId} 
