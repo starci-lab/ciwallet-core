@@ -261,10 +261,11 @@ export const GameComponent: FC<GameComponentProps> = ({
         <div
           style={{
             position: "fixed",
-            top: "20px",
-            right: "20px",
+            bottom: isMinimized ? "20px" : "130px",
+            left: "20px",
             zIndex: 10000,
             pointerEvents: "auto",
+            transition: "all 0.3s ease",
           }}
         >
           <button
