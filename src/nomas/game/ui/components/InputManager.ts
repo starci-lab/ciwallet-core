@@ -81,12 +81,66 @@ export class InputManager {
                 return // consume click regardless
             }
 
+            if (placing && placing.type === "clean") {
+                if (isDoubleClick) {
+                    // Cancel placing on double tap: restore default cursor and clear state
+                    this.scene.input.setDefaultCursor(
+                        "url(./src/assets/images/cursor/navigation_nw.png), pointer"
+                    )
+                    this.scene.registry.set("placingItem", undefined)
+                    this.notificationUI.showNotification(
+                        "Canceled placement",
+                        pointer.x,
+                        pointer.y
+                    )
+                    return // consume click
+                }
+                // Single tap: buy and clean poop, similar to buyAndDropFood
+                const purchased = this.petManager.buyAndCleanPoop(
+                    pointer.x,
+                    pointer.y,
+                    placing.itemId
+                )
+                if (!purchased) {
+                    // Only show error notification if purchase failed immediately (e.g., no poop found)
+                    // Server will handle success/failure notifications for actual purchase
+                    this.notificationUI.showNotification(
+                        "No poop found at this location",
+                        pointer.x,
+                        pointer.y
+                    )
+                }
+                // Keep placing mode active for multi-clean
+                return // consume click regardless
+            }
+
             if (isDoubleClick) {
                 // Double click - pet interaction
                 this.handlePetInteraction(pointer.x, pointer.y)
             } else {
                 // Single click - basic interaction
                 this.handleSingleClick(pointer.x, pointer.y)
+            }
+        })
+
+        // Force cursor to stay during placement mode when hovering over interactive objects
+        this.scene.input.on("pointermove", () => {
+            const placing = this.scene.registry.get("placingItem") as
+        | {
+            type: string
+            itemId: string
+            itemName?: string
+            cursorUrl?: string
+          }
+        | undefined
+
+            if (placing && placing.cursorUrl) {
+                // Force cursor to stay as placement cursor even when hovering over interactive objects
+                this.scene.input.setDefaultCursor(
+                    `url(${placing.cursorUrl}) 32 32, pointer`
+                )
+            } else if (placing && !placing.cursorUrl) {
+                console.warn("Placing item exists but no cursorUrl:", placing)
             }
         })
 

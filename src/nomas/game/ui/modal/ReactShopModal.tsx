@@ -12,6 +12,7 @@ import type {
 import { setNomToken, useAppSelector } from "@/nomas/redux"
 import { useDispatch } from "react-redux"
 import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
+import createResizedCursor from "@/nomas/utils/resizeImage"
 
 type ShopItem =
   | FoodItem
@@ -37,7 +38,6 @@ export function ReactShopModal({
     const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
         const effectiveCategory =
       cat === "items" ? detectItemType(shopItem) : (cat as string)
-
         return getShopItemAssetPath(effectiveCategory, shopItem)
     }
 
@@ -206,6 +206,7 @@ export function ReactShopModal({
         if (mappedCategory === "food") {
             try {
                 const cursorUrl = getItemImageSrc("food", item)
+                console.log("cursorUrl", cursorUrl)
                 // Store placing state on scene registry for InputManager to consume
                 scene.registry.set("placingItem", {
                     type: "food",
@@ -252,6 +253,44 @@ export function ReactShopModal({
                 onClose()
             } catch (e) {
                 console.error("Failed to start placing toy", e)
+            }
+            return
+        }
+        if (mappedCategory === "clean") {
+            try {
+                const cursorUrl = getItemImageSrc("clean", item)
+                console.log("cursorUrl", cursorUrl)
+
+                // Resize and set cursor - extract first frame from sprite sheet
+                // Broom sprite sheet has 6 frames, each 74px wide
+                createResizedCursor(
+                    cursorUrl,
+                    64,
+                    (resizedUrl) => {
+                        console.log(
+                            "Resized broom cursor URL:",
+                            resizedUrl.substring(0, 50)
+                        )
+
+                        scene.registry.set("placingItem", {
+                            type: "clean",
+                            itemId: String((item as CleaningItem).id),
+                            itemName: item.name,
+                            cursorUrl: resizedUrl, // Use resized single-frame cursor
+                        })
+
+                        try {
+                            scene.input.setDefaultCursor(`url(${resizedUrl}) 32 32, pointer`)
+                            console.log("Cursor set successfully for clean item")
+                        } catch (error) {
+                            console.error("Failed to set cursor", error)
+                        }
+                        onClose()
+                    },
+                    { frameWidth: 74, frameIndex: 0 }
+                )
+            } catch (error) {
+                console.error("Failed to start placing clean", error)
             }
             return
         }
@@ -435,15 +474,36 @@ export function ReactShopModal({
                                 boxShadow: "inset 0px 3px 5px 0px rgba(0,0,0,0.3)",
                             }}
                         >
-                            <img
-                                src={getItemImageSrc(category, item)}
+                            <div
                                 style={{
                                     width: 40,
                                     height: 40,
-                                    objectFit: "cover",
+                                    overflow: "hidden",
                                     borderRadius: 8,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                 }}
-                            />
+                            >
+                                <img
+                                    src={getItemImageSrc(category, item)}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        objectPosition: "0% 50%",
+                                        // For cleaning sprite sheets, show only leftmost section
+                                        maxWidth:
+                      category === "clean" || detectItemType(item) === "clean"
+                          ? "calc(100% * 6)"
+                          : "100%",
+                                        transform:
+                      category === "clean" || detectItemType(item) === "clean"
+                          ? "translateX(0)"
+                          : "none",
+                                    }}
+                                />
+                            </div>
                             <div
                                 style={{
                                     fontWeight: 600,

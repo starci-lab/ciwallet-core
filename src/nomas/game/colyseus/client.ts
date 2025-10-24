@@ -55,6 +55,14 @@ export class ColyseusClient {
             })
 
             console.log("✅ Connected to Colyseus!")
+            // ✨ THÊM ĐÂY: Log room details
+            console.log("🏠 Room details:", {
+                roomId: this.room.roomId,
+                sessionId: this.room.sessionId,
+                name: this.room.state?.roomName,
+                pets: this.room.state?.pets,
+                players: this.room.state?.players,
+            })
             statusText.setText("✅ Connected!")
             statusText.setStyle({ color: "#00ff00" })
 
@@ -155,7 +163,7 @@ export class ColyseusClient {
 
         case "feed_pet_response":
         case "play_pet_response":
-        case "clean_pet_response":
+        case "cleaned_pet_response":
             this.handlePetActionResponse(message)
             break
 
@@ -240,22 +248,44 @@ export class ColyseusClient {
     }
 
     private handlePetActionResponse(message: any) {
-        console.log("🐕 Pet action response:", message)
+        console.log("Pet action response:", message)
 
         if (message.success) {
+            console.log("Pet action response:", message.data.poopId)
             // Show success notification
             if (this.gameUI && this.gameUI.showNotification) {
-                this.gameUI.showNotification(`✅ ${message.message}`)
+                this.gameUI.showNotification(`${message.message}`)
             }
 
             // Update pet stats if provided
             if (message.petStats) {
-                console.log("📊 Pet stats updated:", message.petStats)
+                console.log("Pet stats updated:", message.petStats)
+            }
+
+            // Handle poop removal for cleaned_pet_response
+            if (message.data.poopId) {
+                console.log("Cleaning poop with ID:", message.data.poopId)
+                const petManager = this.getPetManager()
+                if (petManager) {
+                    const activePet = petManager.getActivePet()
+                    if (activePet && activePet.cleanlinessSystem) {
+                        // Play animation for user-initiated cleaning
+                        const removed = activePet.cleanlinessSystem.removePoopById(
+                            message.data.poopId,
+                            true
+                        )
+                        if (removed) {
+                            console.log("Poop removed successfully")
+                        } else {
+                            console.warn("Failed to remove poop - not found")
+                        }
+                    }
+                }
             }
         } else {
             // Show failure notification
             if (this.gameUI && this.gameUI.showNotification) {
-                this.gameUI.showNotification(`❌ ${message.message}`)
+                this.gameUI.showNotification(`${message.message || message.error}`)
             }
         }
     }
@@ -319,7 +349,6 @@ export class ColyseusClient {
             petManager.getAllPets().map((petData: any) => petData.id)
         )
         const serverPets = new Set(pets.map((pet: any) => pet.id))
-
         console.log(`🔄 Local pets: [${Array.from(localPets).join(", ")}]`)
         console.log(`🔄 Server pets: [${Array.from(serverPets).join(", ")}]`)
 
@@ -373,6 +402,29 @@ export class ColyseusClient {
                 console.log(
                     `🔄 Pet ${serverPet.id} synced: hunger=${serverPet.hunger}, happiness=${serverPet.happiness}, cleanliness=${serverPet.cleanliness}`
                 )
+                console.log(
+                    `💩 Checking poops for pet ${serverPet.id}:`,
+                    serverPet.poops
+                )
+                if (serverPet.poops && Array.isArray(serverPet.poops)) {
+                    console.log(
+                        `📊 Pet ${serverPet.id} has ${serverPet.poops.length} poops from server`
+                    )
+
+                    // Sync poops to CleanlinessSystem
+                    if (localPetData.cleanlinessSystem) {
+                        this.syncPoopsForPet(
+                            localPetData.cleanlinessSystem,
+                            serverPet.poops
+                        )
+                    } else {
+                        console.warn(`⚠️ Pet ${serverPet.id} has no CleanlinessSystem`)
+                    }
+                } else {
+                    console.log(
+                        `ℹ️ Pet ${serverPet.id} has no poops (${serverPet.poops})`
+                    )
+                }
             }
         })
 
@@ -412,6 +464,14 @@ export class ColyseusClient {
         }
     }
 
+    private syncPoopsForPet(cleanlinessSystem: any, serverPoops: any[]): void {
+        console.log(
+            `💩 [COLYSEUS] Syncing ${serverPoops.length} poops from server...`
+        )
+
+        // Gọi method common của CleanlinessSystem
+        cleanlinessSystem.syncPoops(serverPoops)
+    }
     // ===== STATE CALLBACKS SETUP =====
 
     private setupStateCallbacks(state: GameRoomState) {
@@ -560,8 +620,9 @@ export class ColyseusClient {
     }
 
     // Clean pet
-    cleanPet(petId: string) {
-        this.sendMessage("clean_pet", { petId })
+    cleanPet(petId: string, cleaningItemId: string, poopId: string) {
+        console.log("🧹 Cleaning pet:", petId, cleaningItemId, poopId)
+        this.sendMessage("cleaned_pet", { petId, cleaningItemId, poopId })
     }
 
     // Get store catalog
@@ -614,5 +675,9 @@ export class ColyseusClient {
         }, 1500)
 
         console.log("📤 Sync requests sent")
+    }
+
+    createPoop(data: { petId: string; positionX: number; positionY: number }) {
+        this.sendMessage("create_poop", data)
     }
 }
