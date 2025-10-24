@@ -140,7 +140,6 @@ export function getShopItemAssetPath(
     if (!generatedPath) {
         return getFallbackAssetPath(category, itemName)
     }
-
     return generatedPath
 }
 

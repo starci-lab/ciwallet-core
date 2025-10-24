@@ -156,7 +156,7 @@ export const loadFoodAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadCleaningAssets = (scene: Phaser.Scene) => {
-    scene.load.atlas("broom", getUrl("clean/broom.png"), getUrl("clean/broom.json"))
+    scene.load.image("broom", getUrl("clean/broom.png"))
 }
 
 export const loadToyAssets = (scene: Phaser.Scene) => {

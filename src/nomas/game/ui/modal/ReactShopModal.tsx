@@ -12,6 +12,7 @@ import type {
 import { setNomToken, useAppSelector } from "@/nomas/redux"
 import { useDispatch } from "react-redux"
 import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
+import createResizedCursor from "@/nomas/utils/resizeImage"
 
 type ShopItem =
   | FoodItem
@@ -37,7 +38,6 @@ export function ReactShopModal({
     const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
         const effectiveCategory =
       cat === "items" ? detectItemType(shopItem) : (cat as string)
-
         return getShopItemAssetPath(effectiveCategory, shopItem)
     }
 
@@ -206,6 +206,7 @@ export function ReactShopModal({
         if (mappedCategory === "food") {
             try {
                 const cursorUrl = getItemImageSrc("food", item)
+                console.log("cursorUrl", cursorUrl)
                 // Store placing state on scene registry for InputManager to consume
                 scene.registry.set("placingItem", {
                     type: "food",
@@ -252,6 +253,33 @@ export function ReactShopModal({
                 onClose()
             } catch (e) {
                 console.error("Failed to start placing toy", e)
+            }
+            return
+        }
+        if (mappedCategory === "clean") {
+            try {
+                const cursorUrl = getItemImageSrc("clean", item)
+                console.log("cursorUrl", cursorUrl)
+        
+                scene.registry.set("placingItem", {
+                    type: "clean",
+                    itemId: String((item as CleaningItem).id),
+                    itemName: item.name,
+                    cursorUrl,
+                })
+        
+                // Resize and set cursor
+                createResizedCursor(cursorUrl, 64, (resizedUrl) => {
+                    try {
+                        scene.input.setDefaultCursor(`url(${resizedUrl}), pointer`)
+                    } catch (error) {
+                        console.error("Failed to set cursor", error)
+                    }
+                    onClose()
+                })
+        
+            } catch (error) {
+                console.error("Failed to start placing clean", error)
             }
             return
         }

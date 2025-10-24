@@ -81,6 +81,46 @@ export class InputManager {
                 return // consume click regardless
             }
 
+            if (placing && placing.type === "clean") {
+                if (isDoubleClick) {
+                    // Cancel placing on double tap: restore default cursor and clear state
+                    this.scene.input.setDefaultCursor(
+                        "url(./src/assets/images/cursor/navigation_nw.png), pointer"
+                    )
+                    this.scene.registry.set("placingItem", undefined)
+                    this.notificationUI.showNotification(
+                        "Canceled placement",
+                        pointer.x,
+                        pointer.y
+                    )
+                    return // consume click
+                }
+                console.log("Clean item placed at", pointer.x, pointer.y)
+                const activePet = this.petManager.getActivePet()
+                if (activePet) {
+                    const cleaned = activePet.cleanlinessSystem.cleanPoop(
+                        pointer.x,
+                        pointer.y
+                    )
+                    if (cleaned) {
+                        this.notificationUI.showNotification(
+                            "Cleaned poop",
+                            pointer.x,
+                            pointer.y
+                        )
+                    } else {
+                        this.notificationUI.showNotification(
+                            "Failed to clean poop",
+                            pointer.x,
+                            pointer.y
+                        )
+                        console.log("❌ No poop found at", pointer.x, pointer.y)
+                    }
+                }
+
+                return
+            }
+
             if (isDoubleClick) {
                 // Double click - pet interaction
                 this.handlePetInteraction(pointer.x, pointer.y)
