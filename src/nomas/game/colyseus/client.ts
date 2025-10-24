@@ -4,6 +4,7 @@ import { Room, Client, getStateCallbacks } from "colyseus.js"
 import { setNomToken, store, type UserSlice } from "@/nomas/redux"
 import type { Dispatch } from "redux"
 import { eventBus } from "@/nomas/game/event-bus"
+import type { CleanlinessSystem } from "../systems"
 
 export class ColyseusClient {
     public room: Room<GameRoomState> | null = null
@@ -55,6 +56,14 @@ export class ColyseusClient {
             })
 
             console.log("✅ Connected to Colyseus!")
+            // ✨ THÊM ĐÂY: Log room details
+            console.log("🏠 Room details:", {
+                roomId: this.room.roomId,
+                sessionId: this.room.sessionId,
+                name: this.room.state?.roomName,
+                pets: this.room.state?.pets,
+                players: this.room.state?.players,
+            })
             statusText.setText("✅ Connected!")
             statusText.setStyle({ color: "#00ff00" })
 
@@ -319,7 +328,6 @@ export class ColyseusClient {
             petManager.getAllPets().map((petData: any) => petData.id)
         )
         const serverPets = new Set(pets.map((pet: any) => pet.id))
-
         console.log(`🔄 Local pets: [${Array.from(localPets).join(", ")}]`)
         console.log(`🔄 Server pets: [${Array.from(serverPets).join(", ")}]`)
 
@@ -373,6 +381,29 @@ export class ColyseusClient {
                 console.log(
                     `🔄 Pet ${serverPet.id} synced: hunger=${serverPet.hunger}, happiness=${serverPet.happiness}, cleanliness=${serverPet.cleanliness}`
                 )
+                console.log(
+                    `💩 Checking poops for pet ${serverPet.id}:`,
+                    serverPet.poops
+                )
+                if (serverPet.poops && Array.isArray(serverPet.poops)) {
+                    console.log(
+                        `📊 Pet ${serverPet.id} has ${serverPet.poops.length} poops from server`
+                    )
+
+                    // Sync poops to CleanlinessSystem
+                    if (localPetData.cleanlinessSystem) {
+                        this.syncPoopsForPet(
+                            localPetData.cleanlinessSystem,
+                            serverPet.poops
+                        )
+                    } else {
+                        console.warn(`⚠️ Pet ${serverPet.id} has no CleanlinessSystem`)
+                    }
+                } else {
+                    console.log(
+                        `ℹ️ Pet ${serverPet.id} has no poops (${serverPet.poops})`
+                    )
+                }
             }
         })
 
@@ -412,6 +443,14 @@ export class ColyseusClient {
         }
     }
 
+    private syncPoopsForPet(cleanlinessSystem: any, serverPoops: any[]): void {
+        console.log(
+            `💩 [COLYSEUS] Syncing ${serverPoops.length} poops from server...`
+        )
+
+        // Gọi method common của CleanlinessSystem
+        cleanlinessSystem.syncPoops(serverPoops)
+    }
     // ===== STATE CALLBACKS SETUP =====
 
     private setupStateCallbacks(state: GameRoomState) {
@@ -614,5 +653,9 @@ export class ColyseusClient {
         }, 1500)
 
         console.log("📤 Sync requests sent")
+    }
+
+    createPoop(data: { petId: string; positionX: number; positionY: number }) {
+        this.sendMessage("create_poop", data)
     }
 }
