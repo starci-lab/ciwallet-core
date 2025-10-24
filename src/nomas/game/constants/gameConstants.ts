@@ -15,7 +15,7 @@ export const GAME_LAYOUT = {
     BALL_SCALE: 0.01, // Ball sprite scale multiplier
     POOP_WIDTH: 25, // Poop sprite width (approximate)
     POOP_HEIGHT: 25, // Poop sprite height (approximate)
-    POOP_SCALE: 0.1, // Poop sprite scale multiplier
+    POOP_SCALE: 2.0, // Poop sprite scale multiplier
     POOP_GROWN_OFFSET: 80, // Poop grown offset
 } as const
 

@@ -432,6 +432,7 @@ export class PetManager {
             // Update activity and feeding
             petData.activitySystem.update()
             petData.feedingSystem.update()
+            // TODO: UPDATE CLEANLINESS SYSTEM
             petData.cleanlinessSystem.update()
             petData.happinessSystem.update()
 
