@@ -117,8 +117,8 @@ export class CleanlinessSystem {
 
     // TODO: UPDATE POOP SYSTEM
     private checkPoopOpportunity() {
-        const hasPooped = localStorage.getItem("hasPooped"+this.petId)
-            ? +localStorage.getItem("hasPooped"+this.petId)!
+        const hasPooped = localStorage.getItem("hasPooped" + this.petId)
+            ? +localStorage.getItem("hasPooped" + this.petId)!
             : 0
         if (hasPooped >= 3) return
         const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
@@ -139,13 +139,13 @@ export class CleanlinessSystem {
         (now - this.lastPoopCheck > GAME_MECHANICS.POOP_CHECK_INTERVAL &&
           timeSinceLastPoop >= 10)
             ) {
-                console.log("💩 Pet needs to poop, cleanliness:", this.cleanlinessLevel)
-                localStorage.setItem("hasPooped"+this.petId, (hasPooped + 1).toString())
+                localStorage.setItem(
+                    "hasPooped" + this.petId,
+                    (hasPooped + 1).toString()
+                )
                 this.dropPoop()
                 this.lastPoopCheck = now
-                this.lastPoopTime = now // Update last poop time
-
-                // Force exit the poop check to prevent immediate re-trigger
+                this.lastPoopTime = now 
                 return
             }
         }
@@ -328,7 +328,41 @@ export class CleanlinessSystem {
         this.poopShadows.splice(index, 1)
     }
 
+    /**
+   * Public method to remove poop by ID
+   * @param poopId - The ID of the poop to remove
+   * @returns true if poop was found and removed, false otherwise
+   */
+    public removePoopById(poopId: string): boolean {
+        const poopIndex = this.poopObjects.findIndex(
+            (poop) => (poop as unknown as { poopId: string }).poopId === poopId
+        )
+
+        if (poopIndex !== -1) {
+            console.log(`Removing poop with ID: ${poopId}`)
+            this.removePoopAtIndex(poopIndex)
+
+            // Increase cleanliness when cleaning poop
+            this.cleanlinessLevel = Math.min(100, this.cleanlinessLevel + 10)
+
+            return true
+        }
+
+        console.log(`Poop with ID ${poopId} not found`)
+        return false
+    }
+
     // ===== PUBLIC METHODS =====
+
+    findPoop(x: number, y: number): Phaser.GameObjects.Sprite | null {
+        const poopIndex = this.poopObjects.findIndex(
+            (poop) => Phaser.Math.Distance.Between(poop.x, poop.y, x, y) < 40
+        )
+        if (poopIndex !== -1) {
+            return this.poopObjects[poopIndex]
+        }
+        return null
+    }
 
     cleanPoop(x: number, y: number): boolean {
         const poopIndex = this.poopObjects.findIndex(
@@ -359,13 +393,12 @@ export class CleanlinessSystem {
 
     // ===== CLEANING MANAGEMENT =====
 
-    buyCleaning(cleaningId: string): boolean {
-        console.log(`🛒 Buying cleaning item: ${cleaningId}`)
+    buyAndCleaning(cleaningId: string, poopId: string): boolean {
+        console.log(`Buying cleaning item: ${cleaningId}`)
         const price = gameConfigManager.getCleaningPrice(cleaningId)
-
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
             console.log(
-                "🌐 Checking tokens before sending purchase request to server"
+                "Checking tokens before sending purchase request to server"
             )
 
             // Check if player has enough tokens before sending to server
@@ -373,33 +406,31 @@ export class CleanlinessSystem {
             const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < price) {
                 console.log(
-                    `❌ Not enough tokens: need ${price}, have ${currentTokens}`
+                    `Not enough tokens: need ${price}, have ${currentTokens}`
                 )
                 return false
             }
 
             // Get cleaning item to retrieve both id and name
             const cleaningItem = gameConfigManager.getCleaningItem(cleaningId)
-            const itemName = cleaningItem?.name || cleaningId // Fallback to cleaningId if name not found
-
-            this.colyseusClient.purchaseItem("cleaning", itemName, 1, cleaningId)
+            this.colyseusClient.cleanPet(this.petId, cleaningItem?.id || "", poopId)
 
             return true // Server will handle validation and update inventory
         } else {
-            console.log("🔌 Offline mode - using local validation")
+            console.log("Offline mode - using local validation")
 
             // const userState = useUserStore.getState()
             if (store.dispatch(spendToken(price))) {
                 this.cleaningInventory += 1
 
                 console.log(
-                    `✅ Purchase successful: ${cleaningId} for ${price} tokens. Inventory: ${this.cleaningInventory}`
+                    `Purchase successful: ${cleaningId} for ${price} tokens. Inventory: ${this.cleaningInventory}`
                 )
                 return true
             }
 
             console.log(
-                `❌ Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${
+                `Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${
                     store.getState().stateless.user.nomToken
                 }`
             )
@@ -418,12 +449,12 @@ export class CleanlinessSystem {
             this.cleanAllPoop()
 
             console.log(
-                `🧹 Used cleaning item! Cleanliness: ${this.cleanlinessLevel}%, Inventory: ${this.cleaningInventory}`
+                `Used cleaning item! Cleanliness: ${this.cleanlinessLevel}%, Inventory: ${this.cleaningInventory}`
             )
             return true
         }
 
-        console.log("❌ No cleaning items in inventory")
+        console.log("No cleaning items in inventory")
         return false
     }
 

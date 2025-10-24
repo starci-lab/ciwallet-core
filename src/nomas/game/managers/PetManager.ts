@@ -13,6 +13,7 @@ import {
 import { addToken, store } from "@/nomas/redux"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 
+
 export interface PetData {
   id: string
   pet: Pet
@@ -532,6 +533,42 @@ export class PetManager {
         }
 
         console.log("❌ Failed to buy toy for dropping")
+        return false
+    }
+
+    // Combined buy and clean poop operation - similar to buyAndDropFood/Toy
+    buyAndCleanPoop(x: number, y: number, cleaningId: string = "broom"): boolean {
+        const activePet = this.getActivePet()
+        if (!activePet) {
+            console.log("No active pet for buyAndCleanPoop")
+            return false
+        }
+
+        // First, try to clean the poop at the position
+        const poopFound = activePet.cleanlinessSystem.findPoop(x, y)
+        const poopId = (poopFound as unknown as { poopId: string }).poopId
+        if (!poopFound) {
+            console.log("No poop found at clicked position")
+            return false
+        }
+
+        // Check if we already have cleaning item in inventory
+        if (activePet.cleanlinessSystem.cleaningInventory > 0) {
+            activePet.cleanlinessSystem.cleaningInventory -= 1
+            return true
+        }
+
+        // Try to buy cleaning item
+        const purchased = activePet.cleanlinessSystem.buyAndCleaning(
+            cleaningId,
+            poopId
+        )
+        if (purchased) {
+            console.log("Cleaning request sent to server, waiting for response...")
+            return true // Server will handle cleaning and notify via cleaned_pet_response
+        }
+
+        console.log("Failed to buy cleaning item (not enough tokens)")
         return false
     }
 
@@ -1317,13 +1354,13 @@ export class PetManager {
     }
 
     // Cleaning management methods
-    buyCleaning(cleaningId: string): boolean {
-        const activePet = this.getActivePet()
-        if (activePet) {
-            return activePet.cleanlinessSystem.buyCleaning(cleaningId)
-        }
-        return false
-    }
+    // buyCleaning(cleaningId: string): boolean {
+    //     const activePet = this.getActivePet()
+    //     if (activePet) {
+    //         return activePet.cleanlinessSystem.buyCleaning(cleaningId)
+    //     }
+    //     return false
+    // }
 
     useCleaning(): boolean {
         const activePet = this.getActivePet()

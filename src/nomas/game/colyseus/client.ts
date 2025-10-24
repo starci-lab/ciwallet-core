@@ -4,7 +4,6 @@ import { Room, Client, getStateCallbacks } from "colyseus.js"
 import { setNomToken, store, type UserSlice } from "@/nomas/redux"
 import type { Dispatch } from "redux"
 import { eventBus } from "@/nomas/game/event-bus"
-import type { CleanlinessSystem } from "../systems"
 
 export class ColyseusClient {
     public room: Room<GameRoomState> | null = null
@@ -164,7 +163,7 @@ export class ColyseusClient {
 
         case "feed_pet_response":
         case "play_pet_response":
-        case "clean_pet_response":
+        case "cleaned_pet_response":
             this.handlePetActionResponse(message)
             break
 
@@ -249,22 +248,41 @@ export class ColyseusClient {
     }
 
     private handlePetActionResponse(message: any) {
-        console.log("🐕 Pet action response:", message)
+        console.log("Pet action response:", message)
 
         if (message.success) {
             // Show success notification
             if (this.gameUI && this.gameUI.showNotification) {
-                this.gameUI.showNotification(`✅ ${message.message}`)
+                this.gameUI.showNotification(`${message.message}`)
             }
 
             // Update pet stats if provided
             if (message.petStats) {
-                console.log("📊 Pet stats updated:", message.petStats)
+                console.log("Pet stats updated:", message.petStats)
+            }
+
+            // Handle poop removal for cleaned_pet_response
+            if (message.poopId) {
+                console.log("Cleaning poop with ID:", message.poopId)
+                const petManager = this.getPetManager()
+                if (petManager) {
+                    const activePet = petManager.getActivePet()
+                    if (activePet && activePet.cleanlinessSystem) {
+                        const removed = activePet.cleanlinessSystem.removePoopById(
+                            message.poopId
+                        )
+                        if (removed) {
+                            console.log("Poop removed successfully")
+                        } else {
+                            console.warn("Failed to remove poop - not found")
+                        }
+                    }
+                }
             }
         } else {
             // Show failure notification
             if (this.gameUI && this.gameUI.showNotification) {
-                this.gameUI.showNotification(`❌ ${message.message}`)
+                this.gameUI.showNotification(`${message.message || message.error}`)
             }
         }
     }
@@ -599,8 +617,9 @@ export class ColyseusClient {
     }
 
     // Clean pet
-    cleanPet(petId: string) {
-        this.sendMessage("clean_pet", { petId })
+    cleanPet(petId: string, cleaningItemId: string, poopId: string) {
+        console.log("🧹 Cleaning pet:", petId, cleaningItemId, poopId)
+        this.sendMessage("cleaned_pet", { petId, cleaningItemId, poopId })
     }
 
     // Get store catalog

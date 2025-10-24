@@ -95,30 +95,23 @@ export class InputManager {
                     )
                     return // consume click
                 }
-                console.log("Clean item placed at", pointer.x, pointer.y)
-                const activePet = this.petManager.getActivePet()
-                if (activePet) {
-                    const cleaned = activePet.cleanlinessSystem.cleanPoop(
+                // Single tap: buy and clean poop, similar to buyAndDropFood
+                const purchased = this.petManager.buyAndCleanPoop(
+                    pointer.x,
+                    pointer.y,
+                    placing.itemId
+                )
+                if (!purchased) {
+                    // Only show error notification if purchase failed immediately (e.g., no poop found)
+                    // Server will handle success/failure notifications for actual purchase
+                    this.notificationUI.showNotification(
+                        "No poop found at this location",
                         pointer.x,
                         pointer.y
                     )
-                    if (cleaned) {
-                        this.notificationUI.showNotification(
-                            "Cleaned poop",
-                            pointer.x,
-                            pointer.y
-                        )
-                    } else {
-                        this.notificationUI.showNotification(
-                            "Failed to clean poop",
-                            pointer.x,
-                            pointer.y
-                        )
-                        console.log("❌ No poop found at", pointer.x, pointer.y)
-                    }
                 }
-
-                return
+                // Keep placing mode active for multi-clean
+                return // consume click regardless
             }
 
             if (isDoubleClick) {
@@ -127,6 +120,25 @@ export class InputManager {
             } else {
                 // Single click - basic interaction
                 this.handleSingleClick(pointer.x, pointer.y)
+            }
+        })
+
+        // Force cursor to stay during placement mode when hovering over interactive objects
+        this.scene.input.on("pointermove", () => {
+            const placing = this.scene.registry.get("placingItem") as
+        | {
+            type: string
+            itemId: string
+            itemName?: string
+            cursorUrl?: string
+          }
+        | undefined
+
+            if (placing && placing.cursorUrl) {
+                // Force cursor to stay as placement cursor even when hovering over interactive objects
+                this.scene.input.setDefaultCursor(
+                    `url(${placing.cursorUrl}) 32 32, pointer`
+                )
             }
         })
 
