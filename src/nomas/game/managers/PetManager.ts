@@ -433,7 +433,6 @@ export class PetManager {
             // Update activity and feeding
             petData.activitySystem.update()
             petData.feedingSystem.update()
-            // TODO: UPDATE CLEANLINESS SYSTEM
             petData.cleanlinessSystem.update()
             petData.happinessSystem.update()
 
@@ -1352,15 +1351,6 @@ export class PetManager {
         const activePet = this.getActivePet()
         return activePet?.feedingSystem.foodInventory || 0
     }
-
-    // Cleaning management methods
-    // buyCleaning(cleaningId: string): boolean {
-    //     const activePet = this.getActivePet()
-    //     if (activePet) {
-    //         return activePet.cleanlinessSystem.buyCleaning(cleaningId)
-    //     }
-    //     return false
-    // }
 
     useCleaning(): boolean {
         const activePet = this.getActivePet()
