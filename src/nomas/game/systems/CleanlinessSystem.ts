@@ -88,6 +88,25 @@ export class CleanlinessSystem {
         } catch (error) {
             console.error("❌ Failed to create poop animation:", error)
         }
+
+        // Create broom animation from atlas frames
+        console.log("Creating broom animation...")
+        try {
+            this.scene.anims.create({
+                key: "broom-animation",
+                frames: this.scene.anims.generateFrameNames("broom", {
+                    prefix: "broom #Broom ",
+                    suffix: ".aseprite",
+                    start: 0,
+                    end: 5,
+                }),
+                frameRate: 10,
+                repeat: 0, // Play once
+            })
+            console.log("Broom animation created successfully")
+        } catch (error) {
+            console.error(" Failed to create broom animation:", error)
+        }
     }
 
     // ===== UPDATE LOOP =====
@@ -145,7 +164,7 @@ export class CleanlinessSystem {
                 )
                 this.dropPoop()
                 this.lastPoopCheck = now
-                this.lastPoopTime = now 
+                this.lastPoopTime = now
                 return
             }
         }
@@ -397,17 +416,13 @@ export class CleanlinessSystem {
         console.log(`Buying cleaning item: ${cleaningId}`)
         const price = gameConfigManager.getCleaningPrice(cleaningId)
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
-            console.log(
-                "Checking tokens before sending purchase request to server"
-            )
+            console.log("Checking tokens before sending purchase request to server")
 
             // Check if player has enough tokens before sending to server
             // const currentTokens = useUserStore.getState().nomToken
             const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < price) {
-                console.log(
-                    `Not enough tokens: need ${price}, have ${currentTokens}`
-                )
+                console.log(`Not enough tokens: need ${price}, have ${currentTokens}`)
                 return false
             }
 

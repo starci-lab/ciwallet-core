@@ -1,7 +1,8 @@
 const createResizedCursor = (
     imageUrl: string,
     size: number = 32,
-    callback: (dataUrl: string) => void
+    callback: (dataUrl: string) => void,
+    extractFrame?: { frameWidth: number; frameIndex: number } // Extract single frame from sprite sheet
 ) => {
     const img = new Image()
     img.crossOrigin = "anonymous"
@@ -13,7 +14,30 @@ const createResizedCursor = (
         canvas.height = size
 
         if (ctx) {
-            ctx.drawImage(img, 0, 0, size, size)
+            if (extractFrame) {
+                // Extract a single frame from sprite sheet
+                const { frameWidth, frameIndex } = extractFrame
+                const sourceX = frameWidth * frameIndex
+                const sourceY = 0
+                const sourceWidth = frameWidth
+                const sourceHeight = img.height
+
+                // Draw only the specified frame
+                ctx.drawImage(
+                    img,
+                    sourceX,
+                    sourceY,
+                    sourceWidth,
+                    sourceHeight, // Source rectangle
+                    0,
+                    0,
+                    size,
+                    size // Destination rectangle
+                )
+            } else {
+                // Resize entire image
+                ctx.drawImage(img, 0, 0, size, size)
+            }
             const dataUrl = canvas.toDataURL("image/png")
             callback(dataUrl)
         }

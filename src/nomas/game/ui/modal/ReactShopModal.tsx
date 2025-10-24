@@ -261,23 +261,28 @@ export function ReactShopModal({
                 const cursorUrl = getItemImageSrc("clean", item)
                 console.log("cursorUrl", cursorUrl)
         
-                scene.registry.set("placingItem", {
-                    type: "clean",
-                    itemId: String((item as CleaningItem).id),
-                    itemName: item.name,
+                // Resize and set cursor - extract first frame from sprite sheet
+                // Broom sprite sheet has 6 frames, each 74px wide
+                createResizedCursor(
                     cursorUrl,
-                })
-        
-                // Resize and set cursor
-                createResizedCursor(cursorUrl, 64, (resizedUrl) => {
-                    try {
-                        scene.input.setDefaultCursor(`url(${resizedUrl}), pointer`)
-                    } catch (error) {
-                        console.error("Failed to set cursor", error)
-                    }
-                    onClose()
-                })
-        
+                    64,
+                    (resizedUrl) => {
+                        scene.registry.set("placingItem", {
+                            type: "clean",
+                            itemId: String((item as CleaningItem).id),
+                            itemName: item.name,
+                            cursorUrl: resizedUrl, // Use resized single-frame cursor
+                        })
+                        
+                        try {
+                            scene.input.setDefaultCursor(`url(${resizedUrl}) 32 32, pointer`)
+                        } catch (error) {
+                            console.error("Failed to set cursor", error)
+                        }
+                        onClose()
+                    },
+                    { frameWidth: 74, frameIndex: 0 }
+                )
             } catch (error) {
                 console.error("Failed to start placing clean", error)
             }
@@ -463,15 +468,36 @@ export function ReactShopModal({
                                 boxShadow: "inset 0px 3px 5px 0px rgba(0,0,0,0.3)",
                             }}
                         >
-                            <img
-                                src={getItemImageSrc(category, item)}
+                            <div
                                 style={{
                                     width: 40,
                                     height: 40,
-                                    objectFit: "cover",
+                                    overflow: "hidden",
                                     borderRadius: 8,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                 }}
-                            />
+                            >
+                                <img
+                                    src={getItemImageSrc(category, item)}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        objectPosition: "0% 50%",
+                                        // For cleaning sprite sheets, show only leftmost section
+                                        maxWidth:
+                      category === "clean" || detectItemType(item) === "clean"
+                          ? "calc(100% * 6)"
+                          : "100%",
+                                        transform:
+                      category === "clean" || detectItemType(item) === "clean"
+                          ? "translateX(0)"
+                          : "none",
+                                    }}
+                                />
+                            </div>
                             <div
                                 style={{
                                     fontWeight: 600,

@@ -52,7 +52,7 @@ export function generateAssetPath(config: AssetPathConfig): string {
 
     case "clean":
     case "cleaning":
-        return `${basePath}cleaning/${itemName}.${extension}`
+        return `${basePath}clean/${itemName}.${extension}`
 
     case "pets":
     case "pet":
@@ -167,7 +167,7 @@ export const ASSET_PATHS = {
     BASE: "assets/images/",
     FOOD: "assets/images/food/",
     TOYS: "assets/images/toys/",
-    CLEANING: "assets/images/cleaning/",
+    CLEANING: "assets/images/clean/",
     PETS: "assets/images/pets/",
     BACKGROUNDS: "assets/images/backgrounds/",
     EFFECTS: "assets/images/effects/",
