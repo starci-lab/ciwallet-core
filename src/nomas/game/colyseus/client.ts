@@ -4,6 +4,7 @@ import { Room, Client, getStateCallbacks } from "colyseus.js"
 import { setNomToken, store, type UserSlice } from "@/nomas/redux"
 import type { Dispatch } from "redux"
 import { eventBus } from "@/nomas/game/event-bus"
+import { PetsDB } from "@/nomas/utils/idb"
 
 export class ColyseusClient {
     public room: Room<GameRoomState> | null = null
@@ -274,6 +275,9 @@ export class ColyseusClient {
                             message.data.poopId,
                             true
                         )
+                        // xoá xong thì set để nó có thể tạo đc thêm trong tương lai, 
+                        // ko để nó chết mãi, m ặc định là 0
+                        PetsDB.setPoopCount(activePet.id, 0)
                     }
                 }
             }

@@ -6,6 +6,7 @@ import {
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import type { ColyseusClient } from "@/nomas/game/colyseus/client"
 import { spendToken, store } from "@/nomas/redux"
+import { PetsDB } from "@/nomas/utils/idb"
 
 // Cleanliness states
 export const CleanlinessState = {
@@ -32,7 +33,6 @@ export class CleanlinessSystem {
     public cleanlinessLevel: number = 100 // Cleanliness level similar to hungerLevel in FeedingSystem
     public poopObjects: Phaser.GameObjects.Sprite[] = []
     public poopShadows: Phaser.GameObjects.Ellipse[] = []
-    private hasPooped = false
 
     // Private properties
     private lastCleanlinessUpdate: number = 0
@@ -113,7 +113,7 @@ export class CleanlinessSystem {
 
     update() {
         this.updateCleanliness()
-        this.checkPoopOpportunity()
+        this.checkPoopOpportunity().catch(console.error)
     }
 
     private updateCleanliness() {
@@ -135,11 +135,9 @@ export class CleanlinessSystem {
     }
 
     // TODO: UPDATE POOP SYSTEM
-    private checkPoopOpportunity() {
-        const hasPooped = localStorage.getItem("hasPooped" + this.petId)
-            ? +localStorage.getItem("hasPooped" + this.petId)!
-            : 0
-        if (hasPooped >= 3) return
+    private async checkPoopOpportunity() {
+        const poopCount = await PetsDB.getPoopCount(this.petId)
+        if (poopCount >= 3) return
         const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
         const shouldPoop =
       !this.pet.isChasing &&
@@ -158,10 +156,7 @@ export class CleanlinessSystem {
         (now - this.lastPoopCheck > GAME_MECHANICS.POOP_CHECK_INTERVAL &&
           timeSinceLastPoop >= 10)
             ) {
-                localStorage.setItem(
-                    "hasPooped" + this.petId,
-                    (hasPooped + 1).toString()
-                )
+                await PetsDB.setPoopCount(this.petId, poopCount + 1)
                 this.dropPoop()
                 this.lastPoopCheck = now
                 this.lastPoopTime = now

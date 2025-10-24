@@ -119,6 +119,7 @@
     "ethers": "^6.15.0",
     "formik": "^2.4.6",
     "framer-motion": "^12.23.22",
+    "idb": "^8.0.3",
     "lucide-react": "^0.545.0",
     "phaser": "^3.90.0",
     "phaser3-rex-plugins": "^1.80.16",

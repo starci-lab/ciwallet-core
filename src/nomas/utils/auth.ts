@@ -1,28 +1,29 @@
-export const setAccessTokenToLS = (access_token: string) => {
-    localStorage.setItem("access_token", access_token)
-}
+// import { AuthDB } from "./idb"
 
-export const setRefreshTokenToLS = (refresh_token: string) => {
-    localStorage.setItem("refresh_token", refresh_token)
-}
+// export const setAccessTokenToLS = async (access_token: string) => {
+//     return await AuthDB.setAccessToken(access_token)
+// }
 
-export const getAddressWalletFromLS = () => {
-    return localStorage.getItem("address_wallet") || ""
-}
+// export const setRefreshTokenToLS = async (refresh_token: string) => {
+//     return await AuthDB.setRefreshToken(refresh_token)
+// }
 
-export const setAddressWalletToLS = (address_wallet: string) => {
-    localStorage.setItem("address_wallet", address_wallet)
-}
+// export const getAddressWalletFromLS = async () => {
+//     return await AuthDB.getAddressWallet()
+// }
 
-export const clearLS = () => {
-    localStorage.removeItem("access_token")
-    localStorage.removeItem("refresh_token")
-    localStorage.removeItem("address_wallet")
-}
+// export const setAddressWalletToLS = async (address_wallet: string) => {
+//     return await AuthDB.setAddressWallet(address_wallet)
+// }
 
-export const getAccessTokenFromLS = () => {
-    return localStorage.getItem("access_token") || ""
-}
+// export const clearLS = async () => {
+//     return await AuthDB.clear()
+// }
 
-export const getRefreshTokenFromLS = () =>
-    localStorage.getItem("refresh_token") || ""
+// export const getAccessTokenFromLS = async () => {
+//     return await AuthDB.getAccessToken()
+// }
+
+// export const getRefreshTokenFromLS = async () => {
+//     return await AuthDB.getRefreshToken()
+// }
