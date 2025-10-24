@@ -260,22 +260,28 @@ export function ReactShopModal({
             try {
                 const cursorUrl = getItemImageSrc("clean", item)
                 console.log("cursorUrl", cursorUrl)
-        
+
                 // Resize and set cursor - extract first frame from sprite sheet
                 // Broom sprite sheet has 6 frames, each 74px wide
                 createResizedCursor(
                     cursorUrl,
                     64,
                     (resizedUrl) => {
+                        console.log(
+                            "Resized broom cursor URL:",
+                            resizedUrl.substring(0, 50)
+                        )
+
                         scene.registry.set("placingItem", {
                             type: "clean",
                             itemId: String((item as CleaningItem).id),
                             itemName: item.name,
                             cursorUrl: resizedUrl, // Use resized single-frame cursor
                         })
-                        
+
                         try {
                             scene.input.setDefaultCursor(`url(${resizedUrl}) 32 32, pointer`)
+                            console.log("Cursor set successfully for clean item")
                         } catch (error) {
                             console.error("Failed to set cursor", error)
                         }

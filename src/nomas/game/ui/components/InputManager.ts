@@ -139,6 +139,8 @@ export class InputManager {
                 this.scene.input.setDefaultCursor(
                     `url(${placing.cursorUrl}) 32 32, pointer`
                 )
+            } else if (placing && !placing.cursorUrl) {
+                console.warn("Placing item exists but no cursorUrl:", placing)
             }
         })
 

@@ -318,28 +318,60 @@ export class CleanlinessSystem {
         )
     }
 
-    private removePoopAtIndex(index: number) {
+    private removePoopAtIndex(index: number, playAnimation: boolean = false) {
         if (index < 0 || index >= this.poopObjects.length) return
 
         const poop = this.poopObjects[index]
         const shadow = this.poopShadows[index]
 
-        // Animate removal
-        this.scene.tweens.add({
-            targets: poop,
-            scaleX: 0,
-            scaleY: 0,
-            alpha: 0,
-            duration: 300,
-            ease: "Power2.easeIn",
-            onComplete: () => poop.destroy(),
-        })
+        // Only play broom animation if explicitly requested (user click)
+        if (playAnimation) {
+            try {
+                const broom = this.scene.add.sprite(poop.x, poop.y - 20, "broom")
+                broom.setScale(0.8)
+                broom.setDepth(poop.depth + 1)
 
-        this.scene.tweens.add({
-            targets: shadow,
-            alpha: 0,
-            duration: 300,
-            onComplete: () => shadow.destroy(),
+                // Set initial frame
+                broom.setFrame("broom #Broom 0.aseprite")
+
+                // Play broom animation
+                broom.play("broom-animation")
+
+                // Destroy broom after animation completes
+                broom.on("animationcomplete", () => {
+                    broom.destroy()
+                })
+
+                // Also destroy broom after 600ms as fallback
+                this.scene.time.delayedCall(600, () => {
+                    if (broom && broom.active) {
+                        broom.destroy()
+                    }
+                })
+            } catch (error) {
+                console.warn("Failed to play broom animation:", error)
+            }
+        }
+
+        // Animate poop removal with slight delay if animation is playing
+        const delay = playAnimation ? 200 : 0
+        this.scene.time.delayedCall(delay, () => {
+            this.scene.tweens.add({
+                targets: poop,
+                scaleX: 0,
+                scaleY: 0,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2.easeIn",
+                onComplete: () => poop.destroy(),
+            })
+
+            this.scene.tweens.add({
+                targets: shadow,
+                alpha: 0,
+                duration: 300,
+                onComplete: () => shadow.destroy(),
+            })
         })
 
         // Remove from arrays
@@ -350,16 +382,22 @@ export class CleanlinessSystem {
     /**
    * Public method to remove poop by ID
    * @param poopId - The ID of the poop to remove
+   * @param playAnimation - Whether to play broom cleaning animation (true for user click, false for sync)
    * @returns true if poop was found and removed, false otherwise
    */
-    public removePoopById(poopId: string): boolean {
+    public removePoopById(
+        poopId: string,
+        playAnimation: boolean = false
+    ): boolean {
         const poopIndex = this.poopObjects.findIndex(
             (poop) => (poop as unknown as { poopId: string }).poopId === poopId
         )
 
         if (poopIndex !== -1) {
-            console.log(`Removing poop with ID: ${poopId}`)
-            this.removePoopAtIndex(poopIndex)
+            console.log(
+                `Removing poop with ID: ${poopId}, animation: ${playAnimation}`
+            )
+            this.removePoopAtIndex(poopIndex, playAnimation)
 
             // Increase cleanliness when cleaning poop
             this.cleanlinessLevel = Math.min(100, this.cleanlinessLevel + 10)

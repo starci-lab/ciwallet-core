@@ -251,6 +251,7 @@ export class ColyseusClient {
         console.log("Pet action response:", message)
 
         if (message.success) {
+            console.log("Pet action response:", message.data.poopId)
             // Show success notification
             if (this.gameUI && this.gameUI.showNotification) {
                 this.gameUI.showNotification(`${message.message}`)
@@ -262,14 +263,16 @@ export class ColyseusClient {
             }
 
             // Handle poop removal for cleaned_pet_response
-            if (message.poopId) {
-                console.log("Cleaning poop with ID:", message.poopId)
+            if (message.data.poopId) {
+                console.log("Cleaning poop with ID:", message.data.poopId)
                 const petManager = this.getPetManager()
                 if (petManager) {
                     const activePet = petManager.getActivePet()
                     if (activePet && activePet.cleanlinessSystem) {
+                        // Play animation for user-initiated cleaning
                         const removed = activePet.cleanlinessSystem.removePoopById(
-                            message.poopId
+                            message.data.poopId,
+                            true
                         )
                         if (removed) {
                             console.log("Poop removed successfully")
