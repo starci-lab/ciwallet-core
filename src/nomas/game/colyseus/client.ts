@@ -270,15 +270,10 @@ export class ColyseusClient {
                     const activePet = petManager.getActivePet()
                     if (activePet && activePet.cleanlinessSystem) {
                         // Play animation for user-initiated cleaning
-                        const removed = activePet.cleanlinessSystem.removePoopById(
+                        activePet.cleanlinessSystem.removePoopById(
                             message.data.poopId,
                             true
                         )
-                        if (removed) {
-                            console.log("Poop removed successfully")
-                        } else {
-                            console.warn("Failed to remove poop - not found")
-                        }
                     }
                 }
             }
