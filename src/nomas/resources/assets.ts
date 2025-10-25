@@ -77,6 +77,11 @@ export const assetsConfig = () => {
                 iconUrl: getUrl("/assets/chains/sui.jpeg"),
                 iconInvertedUrl: getUrl("/assets/chains/sui.jpeg"),
             }
+        },
+        mixin: {
+            pyth: {
+                iconUrl: getUrl("/assets/mixin/pyth.svg"),
+            }
         }
     }
 }

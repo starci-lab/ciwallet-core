@@ -117,3 +117,7 @@ export const adjustSlippage = (
         fractionDigits,
     )
 }
+
+export const slippageAdjustment = (amount: number, slippage: number): number => {
+    return roundNumber(new Decimal(amount).mul(new Decimal(1).minus(new Decimal(slippage).div(100))).toNumber())
+}

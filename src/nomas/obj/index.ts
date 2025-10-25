@@ -4,7 +4,8 @@ import {
     WalletGenerator,
     AggregatorManager,
     ProtocolManager,
-    ImportedWalletGenerator
+    ImportedWalletGenerator,
+    ExplorerManager
 } from "@ciwallet-sdk/classes"
 export * from "./token"
 export * from "./chain"
@@ -22,3 +23,5 @@ export const aggregatorManagerObj = new AggregatorManager({
         apiKey: envConfig().lifi.apiKey,
     },
 })
+
+export const explorerManagerObj = new ExplorerManager()

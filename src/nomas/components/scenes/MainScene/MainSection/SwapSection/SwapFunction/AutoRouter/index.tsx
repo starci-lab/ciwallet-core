@@ -11,7 +11,7 @@ export const AutoRouter = () => {
                     <NomasImage 
                         key={protocol.id}
                         src={protocol.logo}
-                        className="w-8 h-8"
+                        className="w-4 h-4 rounded-full"
                     />
                 ))
             }

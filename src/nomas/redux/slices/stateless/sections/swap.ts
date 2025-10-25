@@ -1,8 +1,9 @@
+import type { AggregatorId } from "@ciwallet-sdk/classes"
 import { ChainId, TokenId } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export enum TransactionType {
-    Withdraw = "withdraw",
+    Withdrawal = "withdrawal",
     Swap = "swap",
     Bridge = "bridge",
 }
@@ -16,6 +17,8 @@ export type TransactionData =
     fromAddress: string
     toAddress: string
     amount: number
+    aggregatorId: AggregatorId
+    txHash: string
 } 
 | 
 {
@@ -24,15 +27,17 @@ export type TransactionData =
     toTokenId: TokenId
     amount: number
     toAddress: string
+    txHash: string
 } 
 | 
 {
-    type: TransactionType.Withdraw
+    type: TransactionType.Withdrawal
     chainId: ChainId
     fromAddress: string
     toAddress: string
     tokenId: TokenId
     amount: number
+    txHash: string
 }
 
 export enum SwapFunctionPage {

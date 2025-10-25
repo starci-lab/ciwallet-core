@@ -14,6 +14,7 @@ import { setPrice, type AppDispatch, type RootState, setUnifiedPrice } from "@/n
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { subscribeToPythUpdates, subscribeToUnifiedPythUpdates } from "@ciwallet-sdk/pyth"
 import lodash from "lodash"
+import { ExplorerId } from "@ciwallet-sdk/classes"
 /* -----------------------------
  * Types
  * ----------------------------- */
@@ -95,6 +96,7 @@ export interface SessionSlice {
     rpcs: Record<ChainId, Record<Network, Array<string>>>
     importedTokens: Partial<Record<ChainId, Record<Network, Array<Token>>>>,
     tokens: Record<ChainId, Record<Network, Array<Token>>>
+    explorers: Partial<Record<ChainId, ExplorerId>>
     // tracking token ids and unified token ids
     trackingTokenIds: Array<TokenId>
     trackingUnifiedTokenIds: Array<UnifiedTokenId>
@@ -301,10 +303,27 @@ const initialState: SessionSlice = {
         [ChainId.Arbitrum]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
         [ChainId.Base]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
     },
+    explorers: {
+        [ChainId.Monad]: ExplorerId.MonVision,
+        [ChainId.Solana]: ExplorerId.SolanaExplorer,
+        [ChainId.Sui]: ExplorerId.SuiExplorer,
+        [ChainId.Aptos]: ExplorerId.AptosExplorer,
+        [ChainId.Bsc]: ExplorerId.Bscscan,
+        [ChainId.Polygon]: ExplorerId.Polygonscan,
+        [ChainId.Ethereum]: ExplorerId.Etherscan,
+        [ChainId.Arbitrum]: ExplorerId.Arbiscan,
+        [ChainId.Base]: ExplorerId.Base,
+        [ChainId.Avalanche]: ExplorerId.Snowtrace,
+        [ChainId.Fantom]: ExplorerId.Ftmscan,
+    },
 }
 /* -----------------------------
  * Slice
  * ----------------------------- */
+export interface SetExplorerParams {
+    chainId: ChainId
+    explorerId: ExplorerId
+}
 export const sessionSlice = createSlice({
     name: "session",
     initialState,
@@ -363,6 +382,9 @@ export const sessionSlice = createSlice({
             state.rpcs[action.payload.chainId]![action.payload.network]!.push(
                 action.payload.rpc
             )
+        },
+        setExplorer: (state, action: PayloadAction<SetExplorerParams>) => {
+            state.explorers[action.payload.chainId] = action.payload.explorerId
         },
         setSelectedToken: 
             (
@@ -522,6 +544,7 @@ export const {
     setSelectedToken,
     setSelectedTokenType,
     setSelectedChainId,
+    setExplorer,
 } = sessionSlice.actions
 
 export const {

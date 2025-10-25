@@ -194,6 +194,5 @@ export const useSwapFormikCore = () => {
     })
     // aggregator selector
     useAggregatorSelector(formik)
-
     return formik
 }

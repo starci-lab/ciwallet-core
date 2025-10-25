@@ -1,11 +1,10 @@
 import type { FormikProps } from "formik"
 import type { SwapFormikValues } from "./useSwapFormik"
 import { aggregatorManagerObj, protocolManagerObj } from "@/nomas/obj"
-import { AggregationMode } from "@ciwallet-sdk/classes"
 import { useAppSelector } from "@/nomas/redux"
 import { useEffect } from "react"
-import BN from "bn.js"
 import { TIMEOUT_QUOTE } from "@ciwallet-sdk/constants"
+import Decimal from "decimal.js"
 
 export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => {
     const aggregators = aggregatorManagerObj.getAggregators()
@@ -17,7 +16,7 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {
             try {
-                if (new BN(formik.values.amountIn).gt(new BN(0)) && formik.values.isInput) {
+                if (new Decimal(formik.values.amountIn).gt(0) && formik.values.isInput) {
                     // optional: hiển thị trạng thái đang quote
                     formik.setFieldValue("quoting", true)
                     const results = await aggregatorManagerObj.batchQuote({
@@ -73,5 +72,6 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
         network,
         formik.values.slippage,
         formik.values.isInput,
+        formik.values.refreshKey,
     ])
 }

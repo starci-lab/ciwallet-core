@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useMemo } from "react"
 import {
     NomasButton,
     NomasButtonIcon,
@@ -8,8 +8,8 @@ import {
     NomasSpacer,
     NomasSpinner,
 } from "../../../../../extends"
-import { 
-    CaretUpDown, 
+import {
+    ExpandToggle, 
     NomasNumberTransparentInput, 
     PythIcon, 
     TooltipTitle 
@@ -18,70 +18,44 @@ import { SelectToken } from "./SelectToken"
 import { Action, Wallet } from "./Wallet"
 import { ArrowsLeftRightIcon } from "@phosphor-icons/react"
 import { SlippageConfig } from "./SlippageConfig"
-import { RefreshIcon } from "./RefreshIcon"
 import { NomasAggregation } from "./NomasAggregation"
-import { useBalance } from "@ciwallet-sdk/hooks"
-import useSWR from "swr"
-import { roundNumber } from "@ciwallet-sdk/utils"
+import { roundNumber, slippageAdjustment } from "@ciwallet-sdk/utils"
 import { useSwapFormik } from "@/nomas/hooks"
 import { AutoRouter } from "./AutoRouter"
-import { selectSelectedAccount, selectTokensByChainIdAndNetwork, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { selectTokensByChainIdAndNetwork, setExpandDetails, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
-import { setSwapFunctionPage } from "@/nomas/redux/slices/stateless/sections/swap"
-import { SwapFunctionPage } from "@/nomas/redux/slices/stateless/sections/swap"
+import { SwapFunctionPage, setSwapFunctionPage } from "@/nomas/redux"
 import { twMerge } from "tailwind-merge"
+import { AnimatePresence, motion } from "framer-motion"
+import { RefreshProgressRing } from "./RefreshProgressRing"
 
 export const SwapFunction = () => {
     const expandDetails = useAppSelector((state) => state.stateless.sections.swap.expandDetails)
     const dispatch = useAppDispatch()
     const swapFormik = useSwapFormik()
-    const { handle } = useBalance()
     const network = useAppSelector((state) => state.persists.session.network)
-    const rpcs = useAppSelector((state) => state.persists.session.rpcs)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
     const tokensIn = useAppSelector((state) => selectTokensByChainIdAndNetwork(state.persists, swapFormik.values.tokenInChainId, network))
     const tokensOut = useAppSelector((state) => selectTokensByChainIdAndNetwork(state.persists, swapFormik.values.tokenOutChainId, network))
-    useSWR(
-        [
-            "TOKEN_IN_BALANCE",
-            network,
-            swapFormik.values.tokenInChainId,
-            swapFormik.values.tokenIn,
-        ],
-        async () => {
-            const { amount } = await handle({
-                network,
-                tokenAddress: swapFormik.values.tokenIn,
-                address: selectedAccount?.accountAddress ?? "",
-                chainId: swapFormik.values.tokenInChainId,
-                decimals: 9,
-                rpcs: rpcs[swapFormik.values.tokenInChainId][network],
-            })
-            swapFormik.setFieldValue("balanceIn", amount)
-        }
-    )
-
-    useSWR(
-        [
-            "TOKEN_OUT_BALANCE",
-            network,
-            swapFormik.values.tokenOutChainId,
-            swapFormik.values.tokenOut,
-        ],
-        async () => {
-            const { amount } = await handle({
-                network,
-                tokenAddress: swapFormik.values.tokenOut,
-                address: selectedAccount?.accountAddress ?? "",
-                chainId: swapFormik.values.tokenOutChainId,
-                decimals: 9,
-                rpcs: rpcs[swapFormik.values.tokenOutChainId][network],
-            })
-            swapFormik.setFieldValue("balanceOut", amount)
-        }
-    )
-
+    const prices = useAppSelector((state) => state.stateless.dynamic.prices)
     const maxBalanceIn = swapFormik.values.balanceIn - 0.01
+    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
+    const slippage = swapFormik.values.slippage
+    useEffect(() => {
+        swapFormik.setFieldValue("balanceIn", balances[swapFormik.values.tokenIn] ?? 0)
+    }, [balances])
+
+    useEffect(() => {
+        swapFormik.setFieldValue("balanceOut", balances[swapFormik.values.tokenOut] ?? 0)
+    }, [prices])
+
+    const tokenOutPrice = useMemo(() => prices[swapFormik.values.tokenOut] ?? 0, [prices])
+    const tokenInPrice = useMemo(() => prices[swapFormik.values.tokenIn] ?? 0, [prices])
+
+    const expectedPythPrice = useMemo(() => {
+        if (tokenInPrice === 0 || tokenOutPrice === 0) return 0
+        return roundNumber(tokenOutPrice / tokenInPrice)
+    }, [tokenOutPrice, tokenInPrice])
+
     return (
         <>
             <NomasCardHeader
@@ -96,7 +70,7 @@ export const SwapFunction = () => {
                     <NomasAggregation />
                     <div className="flex items-center gap-2">
                         <SlippageConfig />
-                        <RefreshIcon />
+                        <RefreshProgressRing />
                     </div>
                 </div>
                 <NomasSpacer y={4} />
@@ -143,7 +117,7 @@ export const SwapFunction = () => {
                             />
                         </div>
                         <NomasSpacer y={1.5} />
-                        <div className="bg-card-2 radius-card-inner p-4">
+                        <div className="bg-card-dark-2 radius-card-inner p-4">
                             <div className="flex justify-between items-center">
                                 <SelectToken
                                     token={tokensIn.find((token) => token.tokenId === swapFormik.values.tokenIn)}
@@ -175,7 +149,7 @@ export const SwapFunction = () => {
                                         }
                                     />
                                     <div className="text-xs text-right text-muted text-foreground-500">
-                      $1500
+                      ${roundNumber((prices[swapFormik.values.tokenIn] ?? 0) * Number(swapFormik.values.amountIn))}
                                     </div>
                                 </div>
                             </div>
@@ -205,7 +179,7 @@ export const SwapFunction = () => {
                             <Wallet disableFocus balance={swapFormik.values.balanceOut} />
                         </div>
                         <NomasSpacer y={1.5} />
-                        <div className="bg-card-2 radius-card-inner p-4">
+                        <div className="bg-card-dark-2 radius-card-inner p-4">
                             <div className="flex justify-between items-center">
                                 <SelectToken
                                     chainMetadata={chainManagerObj.getChainById(swapFormik.values.tokenOutChainId)}
@@ -217,16 +191,16 @@ export const SwapFunction = () => {
                                 <div>
                                     {swapFormik.values.quoting ? (
                                         <div className="flex flex-col items-end">
-                                            <div className="text-xl text-foreground-500">0.0</div>
-                                            <NomasSpinner className="w-4 h-4 text-foreground-500" />
+                                            <div className="text-xl text-right">0.0</div>
+                                            <NomasSpinner className="w-4 h-4 text-muted" />
                                         </div>
                                     ) : (
                                         <div>
-                                            <div className="text-xl">
+                                            <div className="text-xl text-right">
                                                 {swapFormik.values.amountOut}
                                             </div>
-                                            <div className="text-xs text-right text-foreground-500">
-                          $1500
+                                            <div className="text-xs text-right text-muted">
+                          ${roundNumber((prices[swapFormik.values.tokenOut] ?? 0) * Number(swapFormik.values.amountOut))}
                                             </div>
                                         </div>
                                     )}
@@ -259,71 +233,77 @@ export const SwapFunction = () => {
                                 return "Swap"
                             })()}
                         </NomasButton>
-                        <NomasSpacer y={2} />
+                        <NomasSpacer y={4} />
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-1">
-                                <div className="text-xs">1 MON</div>
+                                <div className="text-xs">{swapFormik.values.amountIn} {tokenManagerObj.getTokenById(swapFormik.values.tokenIn)?.symbol ?? ""}</div>
                                 <NomasLink onClick={() => {
                                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                                 }}>
                                     <ArrowsLeftRightIcon className="w-4 h-4" />
                                 </NomasLink>
-                                <div className="text-xs">1 CAKE1</div>
+                                <div className="text-xs">{swapFormik.values.amountOut} {tokenManagerObj.getTokenById(swapFormik.values.tokenOut)?.symbol ?? ""}</div>
                             </div>
                             <div className="text-xs">
                                 <div className="flex items-center gap-1 text-foreground-500">
-                                    <div className="flex items-center gap-1">
-                                        <div>Fee</div>
-                                        <div>0.005 BNB</div>
-                                    </div>
-                                    <CaretUpDown
-                                        className="text-foreground-500"
-                                        isUp={expandDetails}
-                                        setIsUp={() => {
-                                            // TODO: Implement expand details
-                                            console.log("expand details")
+                                    <ExpandToggle 
+                                        isExpanded={expandDetails}
+                                        setIsExpanded={() => {
+                                            dispatch(setExpandDetails(!expandDetails))
                                         }}
                                     />
                                 </div>
                             </div>
                         </div>
-                        <div
-                            className={twMerge(
-                                "overflow-hidden transition-all duration-300",
-                                expandDetails ? "max-h-[500px]" : "max-h-0"
+                        <AnimatePresence initial={false}>
+                            {expandDetails && (
+                                <motion.div
+                                    key="details"
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{
+                                        duration: 0.25,
+                                        ease: [0.25, 0.1, 0.25, 1], // cubic-bezier smooth ease
+                                    }}
+                                    className={twMerge(
+                                        "overflow-hidden",
+                                    )}
+                                >
+                                    <NomasSpacer y={6} />
+                                    <div className="flex justify-between">
+                                        <TooltipTitle
+                                            title="Price Difference"
+                                            tooltip="The difference between the market price and estimated price due to trade size."
+                                            size="xs"
+                                        />
+                                        <div className="flex items-center gap-1">
+                                            <div className={twMerge("text-xs", expectedPythPrice > 1 ? "text-success" : "text-danger")}>{expectedPythPrice > 1 ? `${roundNumber((expectedPythPrice - 1) * 100)}% better than` : `${roundNumber((1 - expectedPythPrice) * 100)}% worse than`}</div>
+                                            <PythIcon className="w-4 h-4" />
+                                        </div>
+                                    </div>
+                                    <NomasSpacer y={4} />
+                                    <div className="flex justify-between">
+                                        <TooltipTitle
+                                            title="Minimum Received"
+                                            size="xs"
+                                            tooltip="The guaranteed minimum amount of tokens you will receive after the trade."
+                                        />
+                                        <div className="text-xs">{slippageAdjustment(Number(swapFormik.values.amountOut), slippage)} {tokenManagerObj.getTokenById(swapFormik.values.tokenOut)?.symbol ?? ""}</div>
+                                    </div>
+                                    <NomasSpacer y={4} />
+                                    <div className="flex justify-between">
+                                        <TooltipTitle
+                                            title="Auto Router"
+                                            size="xs"
+                                            tooltip="Auto route will automatically select the best route for the trade."
+                                        />
+                                        <AutoRouter />
+                                    </div>
+                                </motion.div>
                             )}
-                        >
-                            <NomasSpacer y={4} />
-                            <div className="flex justify-between">
-                                <TooltipTitle
-                                    title="Price Difference"
-                                    tooltip="The difference between the market price and estimated price due to trade size."
-                                    size="xs"
-                                />
-                                <div className="flex items-center gap-1">
-                                    <div className="text-success text-xs">10% better than</div>
-                                    <PythIcon className="w-4 h-4" />
-                                </div>
-                            </div>
-                            <NomasSpacer y={2} />
-                            <div className="flex justify-between">
-                                <TooltipTitle
-                                    title="Minimum Received"
-                                    size="xs"
-                                    tooltip="The guaranteed minimum amount of tokens you will receive after the trade."
-                                />
-                                <div className="text-xs">100 USDC</div>
-                            </div>
-                            <NomasSpacer y={2} />
-                            <div className="flex justify-between">
-                                <TooltipTitle
-                                    title="Auto Router"
-                                    size="xs"
-                                    tooltip="Auto route will automatically select the best route for the trade."
-                                />
-                                <AutoRouter />
-                            </div>
-                        </div>
+                        </AnimatePresence>
+
                     </div>
                 </div>
             </NomasCardBody>

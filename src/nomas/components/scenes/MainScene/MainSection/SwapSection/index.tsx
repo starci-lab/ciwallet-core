@@ -7,18 +7,28 @@ import { useSwapFormik } from "@/nomas/hooks"
 import { SelectTokenFunction } from "./SelectTokenFunction"
 import { SlippageConfigFunction } from "./SlippageConfigFunction"
 import { TransactionReceiptPage } from "@/nomas/components"
+import { AggregatorId } from "@ciwallet-sdk/classes"
 
 export const SwapSection = () => {
     const swapPage = useAppSelector((state) => state.stateless.sections.swap.swapFunctionPage)
     const dispatch = useAppDispatch()
     const formik = useSwapFormik()
-    const transactionData = useAppSelector((state) => state.stateless.sections.swap.transactionData)
     const renderPage = () => {
         switch (swapPage) {
         case SwapFunctionPage.TransactionReceipt:
             return <TransactionReceiptPage 
-                type={TransactionType.Swap}
-                transactionData={transactionData}
+                transactionData={{
+                    type: TransactionType.Swap,
+                    chainId: formik.values.tokenInChainId,
+                    fromTokenId: formik.values.tokenOut,
+                    toTokenId: formik.values.tokenIn,
+                    fromAddress: "0xa",
+                    toAddress: "0xb",
+                    amount: 100,
+                    aggregatorId: AggregatorId.Madhouse,
+                    txHash: "0x1234567890abcdef",
+                }}
+                success={false}
                 showBackButton={true}
                 onBackButtonPress={() => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
