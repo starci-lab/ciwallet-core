@@ -14,6 +14,8 @@ import { useDispatch } from "react-redux"
 import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
 import createResizedCursor from "@/nomas/utils/resizeImage"
 import { ScrollArea } from "@/nomas/components/shadcn/scroll-area"
+import { NomasButton, NomasImage, NomasInput } from "@/nomas/components"
+import { assetsConfig } from "@/nomas/resources"
 
 type ShopItem =
   | FoodItem
@@ -32,6 +34,7 @@ export function ReactShopModal({
   onClose: () => void
   scene: GameScene
 }) {
+  const assets = assetsConfig().game
   const [category, setCategory] = useState<string>("food")
   const [items, setItems] = useState<ShopItem[]>([])
   const balance = useAppSelector((state) => state.stateless.user.nomToken)
@@ -303,92 +306,147 @@ export function ReactShopModal({
   }
 
   return (
-    <>
-      <div className="flex justify-center relative mb-3">
-        <h2 className="text-sm text-muted">Store</h2>
+    <div className="w-full h-full bg-[#1a1a1a] rounded-2xl overflow-hidden">
+      {/* Header - Matching the image design */}
+      <div className="relative bg-[#2a2a2a] px-4 py-3 border-b border-[rgba(135,135,135,0.25)]">
+        {/* Back Button */}
         <button
           onClick={onClose}
-          className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#323232]
-                               border-none text-[#E95151] text-[8px] w-3 aspect-square
-                               rounded-full shadow-[inset_0px_0.84px_0.42px_0px_rgba(199,199,199,0.19)]
-                               cursor-pointer flex-shrink-0 flex-auto flex justify-center items-center"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#323232] rounded-full flex items-center justify-center border-none cursor-pointer"
         >
-          ✕
+          <svg
+            className="w-4 h-4 text-gray-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
         </button>
-      </div>
-      <ScrollArea className="w-full">
-        <div className="relative mb-2 px-3 py-2 pb-3.5 border-b border-[rgba(135,135,135,0.25)]">
-          {[
-            { k: "pets", t: "Pets" },
-            { k: "food", t: "Food" },
-            { k: "toy", t: "Toys" },
-            { k: "clean", t: "Cleaning" },
-            { k: "furniture", t: "Furniture" },
-            { k: "backgrounds", t: "Backgrounds" },
-          ].map((tab) => (
-            <button
-              key={tab.k}
-              data-key={tab.k}
-              onClick={() => setCategory(tab.k)}
-              className={`bg-transparent border-none cursor-pointer rounded-[30px]
-                                        text-sm relative px-3 py-1.5 whitespace-nowrap flex-none
-                                        ${
-                                          category === tab.k
-                                            ? "text-muted"
-                                            : "text-muted-dark"
-                                        }`}
-            >
-              {tab.t}
-            </button>
-          ))}
+
+        {/* PET RISING Logo */}
+        <div className="flex items-center justify-center">
+          <NomasImage
+            src={assets.petRisingStoreLogo}
+            alt="Pet Rising Store Logo"
+            className="h-12 w-auto object-contain"
+          />
         </div>
-      </ScrollArea>
-      <div className="flex items-center gap-3 mb-2">
-        <span>Balance</span>
-        <strong>{balance.toLocaleString()} NOM</strong>
       </div>
-      <ScrollArea className="flex-1 min-h-0 max-h-[376px]">
-        <div className="grid grid-cols-3 auto-rows-[120px] gap-2 p-2">
-          {items.length === 0 ? (
-            <div className="text-[#888]">Items coming soon!</div>
-          ) : (
-            items.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleBuy(item)}
-                className="bg-[rgba(60,60,60,0.26)] border border-[rgba(0,0,0,0.37)]
-                                       rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center
-                                       gap-1.5 cursor-pointer opacity-100
-                                       shadow-[inset_0px_3px_5px_0px_rgba(0,0,0,0.3)]"
+
+      {/* Balance Section */}
+      <div className="bg-[#2a2a2a] px-2 py-1.5 border-b border-[rgba(135,135,135,0.25)]">
+        <div className="flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="text-sm text-muted pl-1">Balance</div>
+              <NomasInput value={balance.toLocaleString()} />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="text-sm text-muted pl-1">Earnings</div>
+              <NomasInput value={"0"} />
+            </div>
+          </div>
+          <NomasButton xlSize>Claim</NomasButton>
+        </div>
+      </div>
+
+      {/* Tabs Section */}
+      <div className="bg-[#1a1a1a] px-4 py-3 border-b border-[rgba(135,135,135,0.25)]">
+        <ScrollArea className="w-full">
+          <div className="relative flex gap-2">
+            {[
+              { k: "pets", t: "Pets" },
+              { k: "food", t: "Food" },
+              { k: "toy", t: "Toys" },
+              { k: "clean", t: "Cleaning" },
+              { k: "furniture", t: "Furniture" },
+              { k: "backgrounds", t: "Backgrounds" },
+            ].map((tab) => (
+              <button
+                key={tab.k}
+                data-key={tab.k}
+                onClick={() => setCategory(tab.k)}
+                className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap
+                           transition-all duration-200 ${
+                             category === tab.k
+                               ? "bg-[#8b5cf6] text-white"
+                               : "bg-transparent text-gray-400 hover:text-white"
+                           }`}
               >
-                <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
-                  <img
-                    src={getItemImageSrc(category, item)}
-                    className="w-full h-full object-cover object-[0%_50%]"
-                    style={{
-                      // For cleaning sprite sheets, show only leftmost section
-                      maxWidth:
-                        category === "clean" || detectItemType(item) === "clean"
-                          ? "calc(100% * 6)"
-                          : "100%",
-                      transform:
-                        category === "clean" || detectItemType(item) === "clean"
-                          ? "translateX(0)"
-                          : "none",
-                    }}
-                  />
-                </div>
-                <div className="font-semibold text-[13px] text-[#B3B3B3] text-center">
-                  {item.name}
-                </div>
-                <div className="text-xs text-[#B3B3B3]">
-                  {Number(item.cost_nom ?? 0).toLocaleString()} NOM
-                </div>
+                {tab.t}
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Items Grid */}
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-4">
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-20 h-20 bg-[#2a2a2a] rounded-2xl flex items-center justify-center mb-4">
+                <span className="text-4xl">📦</span>
               </div>
-            ))
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Items Coming Soon!
+              </h3>
+              <p className="text-gray-400">New items will be added regularly</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => handleBuy(item)}
+                  className="group bg-[rgba(60,60,60,0.26)] border border-[rgba(0,0,0,0.37)]
+                             rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center
+                             gap-1.5 cursor-pointer opacity-100
+                             shadow-[inset_0px_3px_5px_0px_rgba(0,0,0,0.3)] hover:bg-[rgba(80,80,80,0.4)]
+                             transition-all duration-200"
+                >
+                  {/* Item Image */}
+                  <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
+                    <img
+                      src={getItemImageSrc(category, item)}
+                      className="w-full h-full object-cover object-[0%_50%]"
+                      style={{
+                        // For cleaning sprite sheets, show only leftmost section
+                        maxWidth:
+                          category === "clean" ||
+                          detectItemType(item) === "clean"
+                            ? "calc(100% * 6)"
+                            : "100%",
+                        transform:
+                          category === "clean" ||
+                          detectItemType(item) === "clean"
+                            ? "translateX(0)"
+                            : "none",
+                      }}
+                    />
+                  </div>
+
+                  {/* Item Info */}
+                  <div className="font-semibold text-[13px] text-[#B3B3B3] text-center">
+                    {item.name}
+                  </div>
+                  <div className="text-xs text-[#B3B3B3]">
+                    {Number(item.cost_nom ?? 0).toLocaleString()} NOM
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </ScrollArea>
-    </>
+    </div>
   )
 }
