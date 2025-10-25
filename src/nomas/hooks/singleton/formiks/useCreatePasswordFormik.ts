@@ -11,8 +11,6 @@ import {
     setPassword,
     resolveAccountsThunk,
     addHdWallet,
-    setScene,
-    Scene,
     resolveTokensThunk,
 } from "@/nomas/redux"
 import { encryptionObj } from "@/nomas/obj"
@@ -116,7 +114,7 @@ export const useCreatePasswordFormikCore = () => {
             const tokensResultAction = await dispatch(resolveTokensThunk())
             // 8. Redirect to main scene
             if (accountsResultAction.meta.requestStatus === "fulfilled" && tokensResultAction.meta.requestStatus === "fulfilled") {
-                dispatch(setScene(Scene.Main))
+                dispatch(setInitPage(InitPage.Splash))
             }
         },
         validate: (values) => {

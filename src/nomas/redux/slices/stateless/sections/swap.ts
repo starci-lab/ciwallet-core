@@ -55,7 +55,7 @@ export interface SwapSectionSlice {
 }
 
 const initialState: SwapSectionSlice = {
-    swapFunctionPage: SwapFunctionPage.Swap,
+    swapFunctionPage: SwapFunctionPage.TransactionReceipt,
     expandDetails: false,
     tokenIn: TokenId.MonadTestnetMon,
     tokenOut: TokenId.MonadTestnetMon,

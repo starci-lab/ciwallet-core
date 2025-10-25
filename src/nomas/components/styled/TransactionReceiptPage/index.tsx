@@ -13,6 +13,7 @@ export interface TransactionReceiptPageProps {
     onBackButtonPress?: () => void
     onProceedButtonClick?: () => void
     transactionData?: TransactionData
+    success?: boolean
     type: TransactionType
 }
 
@@ -21,6 +22,7 @@ export const TransactionReceiptPage = ({
     onBackButtonPress, 
     onProceedButtonClick, 
     transactionData, 
+    success,
     type
 }: TransactionReceiptPageProps) => {
     return (
