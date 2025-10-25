@@ -1,12 +1,11 @@
 import { SingletonHookProvider } from "./hooks"
-import { ChainId } from "@ciwallet-sdk/types"
-import { ReduxProvider, selectSelectedAccount, useAppSelector } from "./redux"
+import { ChainId, Platform } from "@ciwallet-sdk/types"
+import { ReduxProvider, selectSelectedAccountByPlatform, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
 import { InitScene, MainScene, MyWalletsScene, SettingsScene } from "@/nomas/components"
 import { GameComponent } from "@/nomas/game/GameScene/index"
-import { encryptionObj } from "./obj"
 import { Wallet } from "ethers"
 import { motion } from "framer-motion"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
@@ -41,9 +40,7 @@ export const Nomas = () => {
 }
 
 const NomasContent = () => {
-    const chainId = useAppSelector((state) => state.persists.session.chainId)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
-    const password = useAppSelector((state) => state.persists.session.password)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     const scene = useAppSelector((state) => state.stateless.scene.scene)
     const initialized = useAppSelector((state) => state.persists.session.initialized)
     const renderContent = () => {
@@ -66,18 +63,19 @@ const NomasContent = () => {
         >
             {renderContent()}
         </motion.div>
-        {chainId === ChainId.Monad && initialized && (
-            <div className="fixed bottom-0 left-0 w-full z-50">
-                <GameComponent
-                    signMessage={async (message) => {
-                        if (!selectedAccount?.privateKey) 
-                            throw new Error("Selected account private key not found")
-                        const wallet = new Wallet(selectedAccount?.privateKey)
-                        return await wallet.signMessage(message)
-                    }}
-                    publicKey={selectedAccount?.accountAddress || ""}
-                />
-            </div>
-        )}
+        {
+            initialized && (
+                <div className="fixed bottom-0 left-0 w-full z-50">
+                    <GameComponent
+                        signMessage={async (message) => {
+                            if (!selectedAccount?.privateKey) 
+                                throw new Error("Selected account private key not found")
+                            const wallet = new Wallet(selectedAccount?.privateKey)
+                            return await wallet.signMessage(message)
+                        }}
+                        publicKey={selectedAccount?.accountAddress || ""}
+                    />
+                </div>
+            )}
     </>
 }
