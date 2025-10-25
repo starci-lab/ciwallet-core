@@ -193,4 +193,8 @@ export class GameUI {
     getMinimizeState(): boolean {
         return this.isMinimized
     }
+
+    getInputManager(): InputManager {
+        return this.inputManager
+    }
 }

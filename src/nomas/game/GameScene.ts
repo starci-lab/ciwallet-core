@@ -360,6 +360,10 @@ export class GameScene extends Phaser.Scene {
         return this._purchaseSystem
     }
 
+    getCustomCursorManager() {
+        return this.gameUI?.getInputManager()?.getCustomCursorManager()
+    }
+
     // Temporary legacy hook: send buy_food with requested payload
     sendBuyFoodLegacy(payload: {
     itemType: string

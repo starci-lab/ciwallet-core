@@ -216,10 +216,13 @@ export function ReactShopModal({
                     itemName: item.name,
                     cursorUrl,
                 })
-                // Switch cursor to selected food image for placement mode
+                // Activate custom cursor with food image
                 if (cursorUrl) {
                     try {
-                        scene.input.setDefaultCursor(`url(${cursorUrl}), pointer`)
+                        const cursorManager = scene.getCustomCursorManager()
+                        if (cursorManager) {
+                            cursorManager.activateCustomCursor(cursorUrl)
+                        }
                     } catch {
                         // ignore cursor errors
                     }
@@ -243,10 +246,13 @@ export function ReactShopModal({
                     itemName: item.name,
                     cursorUrl,
                 })
-                // Switch cursor to selected toy image for placement mode
+                // Activate custom cursor with toy image
                 if (cursorUrl) {
                     try {
-                        scene.input.setDefaultCursor(`url(${cursorUrl}), pointer`)
+                        const cursorManager = scene.getCustomCursorManager()
+                        if (cursorManager) {
+                            cursorManager.activateCustomCursor(cursorUrl)
+                        }
                     } catch {
                         // ignore cursor errors
                     }
@@ -282,10 +288,13 @@ export function ReactShopModal({
                         })
 
                         try {
-                            scene.input.setDefaultCursor(`url(${resizedUrl}) 32 32, pointer`)
-                            console.log("Cursor set successfully for clean item")
+                            const cursorManager = scene.getCustomCursorManager()
+                            if (cursorManager) {
+                                cursorManager.activateCustomCursor(resizedUrl)
+                            }
+                            console.log("Custom cursor activated for clean item")
                         } catch (error) {
-                            console.error("Failed to set cursor", error)
+                            console.error("Failed to activate custom cursor", error)
                         }
                         onClose()
                     },
