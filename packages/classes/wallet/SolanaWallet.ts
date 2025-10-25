@@ -3,6 +3,7 @@ import type { IWallet, Wallet } from "./IWallet"
 import { Mnemonic } from "./Mnemonic"
 import base58 from "bs58"
 import { sha512 } from "@noble/hashes/sha512"
+import { Platform } from "@ciwallet-sdk/types"
 
 export class SolanaWallet implements IWallet {
     private mnemonic: Mnemonic
@@ -23,6 +24,17 @@ export class SolanaWallet implements IWallet {
             publicKey: keypair.publicKey.toBase58(),
             privateKey: base58.encode(keypair.secretKey),
             accountAddress: keypair.publicKey.toBase58(),
+            platform: Platform.Solana,
+        }
+    }
+
+    fromPrivateKey(privateKey: string): Wallet {
+        const keypair = Keypair.fromSecretKey(base58.decode(privateKey))
+        return {
+            publicKey: keypair.publicKey.toBase58(),
+            privateKey,
+            accountAddress: keypair.publicKey.toBase58(),
+            platform: Platform.Solana,
         }
     }
 

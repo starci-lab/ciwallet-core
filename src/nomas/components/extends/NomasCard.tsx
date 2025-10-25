@@ -23,6 +23,7 @@ export enum NomasCardVariant {
 export interface NomasCardProps extends React.ComponentProps<typeof Card> {
   variant?: NomasCardVariant
   isInner?: boolean
+  isContainer?: boolean
 }
 
 const cardCva = cva(
@@ -39,20 +40,25 @@ const cardCva = cva(
                 true: "radius-card-inner",
                 false: "radius-card",
             },
+            isContainer: {
+                true: "min-w-[500px] w-[500px]",
+                false: "",
+            },
         },
         defaultVariants: {
             variant: undefined,
             isInner: false,
+            isContainer: false,
         },  
     }
 )
   
 export const NomasCard = React.forwardRef<HTMLDivElement, NomasCardProps>(
-    ({ className, variant, isInner, ...props }, ref) => {
+    ({ className, variant, isInner, isContainer, ...props }, ref) => {
         return (
             <Card
                 ref={ref}
-                className={twMerge(cardCva({ variant, isInner }), className)}
+                className={twMerge(cardCva({ variant, isInner, isContainer }), className)}
                 {...props}
             />
         )
@@ -64,6 +70,7 @@ NomasCard.displayName = "NomasCard"
 export interface NomasCardHeaderProps
   extends React.ComponentProps<typeof CardHeader> {
   title?: string
+  startIcon?: React.ReactNode
   description?: string
   showBackButton?: boolean
   onBackButtonPress?: () => void
@@ -72,11 +79,11 @@ export interface NomasCardHeaderProps
 export const NomasCardHeader = React.forwardRef<
   HTMLDivElement,
   NomasCardHeaderProps
->(({ className, title, description, showBackButton, onBackButtonPress, children, ...props }, ref) => {
+>(({ className, title, description, showBackButton, onBackButtonPress, startIcon, children, ...props }, ref) => {
     return (
         <CardHeader
             ref={ref}
-            className={twMerge("flex items-center justify-between p-6 pb-0", className)}
+            className={twMerge("flex items-center p-6 pb-0", className)}
             {...props}
         >
             {/* Left: back button or spacer */}
@@ -93,7 +100,8 @@ export const NomasCardHeader = React.forwardRef<
             {/* Center: title & description */}
             <div className="flex-1 text-center">
                 {title && (
-                    <CardTitle className="text-lg font-semibold text-muted">
+                    <CardTitle className="text-lg font-semibold text-muted flex items-center gap-2 justify-center">
+                        {startIcon}
                         {title}
                     </CardTitle>
                 )}
@@ -105,7 +113,7 @@ export const NomasCardHeader = React.forwardRef<
             </div>
 
             {/* Right: spacer or custom children */}
-            {children ? children : <div className="w-9" />}
+            {children ? children : <div className="w-10" />}
         </CardHeader>
     )
 })

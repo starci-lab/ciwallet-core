@@ -9,18 +9,10 @@ import {
 } from "../../../extends"
 import { Bell, CopySimple, Gear } from "phosphor-react"
 import { BalanceContent } from "../BalanceSection/BalanceConent"
-import { useAppSelector } from "@/nomas/redux"
+import { Scene, setScene, useAppDispatch } from "@/nomas/redux"
 
 export const BalanceSection = () => {
-    const accounts = useAppSelector((state) => state.persists.session.accounts)
-    const chainId = useAppSelector((state) => state.persists.session.chainId)
-    const selectedAccountId = useAppSelector((state) => state.persists.session.accounts[chainId]?.selectedAccountId)
-    const selectedAccount = accounts[chainId]?.accounts.find((account, index) => {
-        // if no selected account id, return the first account
-        if (!selectedAccountId) return index === 0
-        // if selected account id, return the account with the selected account id
-        return account.id === selectedAccountId
-    })
+    const dispatch = useAppDispatch()
     return (
         <NomasCard variant={NomasCardVariant.Gradient}>
             <NomasCardHeader>
@@ -32,13 +24,13 @@ export const BalanceSection = () => {
                         {/* Notification dot */}
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-foreground-700"></div>
                     </div>
-                    <div className="text text-sm">{selectedAccount?.name}</div>
+                    <div className="text text-sm">Teddy</div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                    <NomasButtonIcon>
+                    <NomasButtonIcon onClick={() => dispatch(setScene(Scene.MyWallets))}>
                         <CopySimple />
                     </NomasButtonIcon>
-                    <NomasButtonIcon>
+                    <NomasButtonIcon onClick={() => dispatch(setScene(Scene.Settings))}>
                         <Gear />
                     </NomasButtonIcon>
                 </div>

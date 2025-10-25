@@ -1,7 +1,7 @@
 import { createConfig, getQuote, ChainId as LifiChainId } from "@lifi/sdk"
-import { type ICrossChainAggregator, type QuoteParams, type QuoteResponse } from "./ICrossChainAggregator"
 import { ChainId } from "@ciwallet-sdk/types"
-import BN from "bn.js"
+import type { IAggregator, QuoteParams, QuoteResponse } from "./IAggregator"
+import SuperJSON from "superjson"
 
 export interface LifiAggregatorConstructorParams {
     integrator: string;
@@ -23,7 +23,7 @@ export const chainIdToLifiChainId = (chainId: ChainId): LifiChainId => {
     }
 }
 
-export class LifiAggregator implements ICrossChainAggregator {
+export class LifiAggregator implements IAggregator {
     constructor(
         {
             integrator,
@@ -39,7 +39,6 @@ export class LifiAggregator implements ICrossChainAggregator {
     async quote(
         params: QuoteParams
     ): Promise<QuoteResponse> {
-        const { query } = params
         const { 
             fromToken, 
             toToken, 
@@ -49,7 +48,7 @@ export class LifiAggregator implements ICrossChainAggregator {
             fromAddress,
             toAddress,
             slippage,
-        } = query
+        } = params
         const quote = await getQuote({
             fromChain: chainIdToLifiChainId(fromChainId),
             toChain: chainIdToLifiChainId(toChainId),
@@ -61,7 +60,9 @@ export class LifiAggregator implements ICrossChainAggregator {
             slippage,
         })
         return {
-            amountOut: new BN(quote.estimate.toAmount),
+            amountOut: Number(quote.estimate.toAmount),
+            serializedTx: SuperJSON.stringify(quote.id ?? ""),
+            routes: [],
         }
     }
 }

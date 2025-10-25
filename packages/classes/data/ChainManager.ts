@@ -1,12 +1,13 @@
-import { ChainId, Network, type ChainMetadata } from "@ciwallet-sdk/types"
+import { ChainId, Network, type ChainMetadata, Platform } from "@ciwallet-sdk/types"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
 export class ChainManager {
     private defaultChains: Array<ChainMetadata> = [
         {
             id: ChainId.Monad,
             name: "Monad",
-            iconUrl: "/icons/chains/monad.png",
-            iconInvertedUrl: "/icons/chains/monad-inverted.png",
+            iconUrl: "/assets/chains/monad.png",
+            iconInvertedUrl: "/assets/chains/monad-inverted.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://testnet.monadexplorer.com/",
                 [Network.Testnet]: "https://testnet.monadexplorer.com/",
@@ -15,8 +16,8 @@ export class ChainManager {
         {
             id: ChainId.Aptos,
             name: "Aptos",
-            iconUrl: "/icons/chains/aptos.svg",
-            iconInvertedUrl: "/icons/chains/aptos-inverted.svg",
+            iconUrl: "/assets/chains/aptos.png",
+            iconInvertedUrl: "/assets/chains/aptos-inverted.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://aptos.network",
                 [Network.Testnet]: "https://aptos.network",
@@ -25,8 +26,8 @@ export class ChainManager {
         {
             id: ChainId.Sui,
             name: "Sui",
-            iconUrl: "/icons/chains/sui.jpeg",
-            iconInvertedUrl: "/icons/chains/sui-inverted.svg",
+            iconUrl: "/assets/chains/sui.jpeg",
+            iconInvertedUrl: "/assets/chains/sui-inverted.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://sui.network",
                 [Network.Testnet]: "https://sui.network",
@@ -35,10 +36,73 @@ export class ChainManager {
         {
             id: ChainId.Solana,
             name: "Solana",
-            iconUrl: "/icons/chains/solana.png",
+            iconUrl: "/assets/chains/solana.png",
             explorerUrl: {
                 [Network.Mainnet]: "https://solana.network",
                 [Network.Testnet]: "https://solana.network",
+            },
+        },
+        {
+            id: ChainId.Bsc,
+            name: "BSC",
+            iconUrl: "/assets/chains/bsc.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://bsc.network",
+                [Network.Testnet]: "https://bsc.network",
+            },
+        },
+        {
+            id: ChainId.Polygon,
+            name: "Polygon",
+            iconUrl: "/assets/chains/polygon.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://polygon.network",
+                [Network.Testnet]: "https://polygon.network",
+            },
+        },
+        {
+            id: ChainId.Ethereum,
+            name: "Ethereum",
+            iconUrl: "/assets/chains/ethereum.png",
+            explorerUrl: {
+                [Network.Mainnet]: "https://etherscan.io",
+                [Network.Testnet]: "https://etherscan.io",
+            },
+        },
+        {
+            id: ChainId.Avalanche,
+            name: "Avalanche",
+            iconUrl: "/assets/chains/avalanche.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://snowtrace.io",
+                [Network.Testnet]: "https://snowtrace.io",
+            },
+        },
+        {
+            id: ChainId.Fantom,
+            name: "Fantom",
+            iconUrl: "/assets/chains/fantom.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://ftmscan.com",
+                [Network.Testnet]: "https://ftmscan.com",
+            },
+        },
+        {
+            id: ChainId.Arbitrum,
+            name: "Arbitrum",
+            iconUrl: "/assets/chains/arbitrum.png",
+            explorerUrl: {
+                [Network.Mainnet]: "https://arbiscan.io",
+                [Network.Testnet]: "https://arbiscan.io",
+            },
+        },
+        {
+            id: ChainId.Base,
+            name: "Base",
+            iconUrl: "/assets/chains/base.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://basescan.org",
+                [Network.Testnet]: "https://basescan.org",
             },
         },
     ]
@@ -54,6 +118,10 @@ export class ChainManager {
 
     public getChainById(id: ChainId): ChainMetadata | undefined {
         return this.chains.find(chain => chain.id === id)
+    }
+
+    public getChainsByPlatform(platform: Platform): Array<ChainMetadata> {
+        return this.chains.filter(chain => chainIdToPlatform(chain.id) === platform)
     }
 
     public getTransactionDetails(txHash: string, chainId: ChainId): string {

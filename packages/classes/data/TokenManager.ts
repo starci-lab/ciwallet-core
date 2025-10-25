@@ -4,7 +4,10 @@ import {
     type Token,
     TokenId,
     TokenType,
+    UnifiedTokenId,
+    type UnifiedToken,
 } from "@ciwallet-sdk/types"
+import _ from "lodash"
 
 export type Tokens = Partial<
   Record<ChainId, Partial<Record<Network, Array<Token>>>>
@@ -22,6 +25,9 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/mon.png",
                     type: TokenType.Native,
                     verified: true,
+                    pythId: "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
+                    chainId: ChainId.Monad,
+                    network: Network.Mainnet,
                 },
                 {
                     tokenId: TokenId.MonadTestnetWmon,
@@ -32,6 +38,9 @@ export class TokenManager {
                     address: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701",
                     type: TokenType.Wrapped,
                     verified: true,
+                    pythId: "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
+                    chainId: ChainId.Monad,
+                    network: Network.Mainnet,
                 },
                 {
                     tokenId: TokenId.MonadTestnetUsdc,
@@ -42,6 +51,10 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    chainId: ChainId.Monad,
+                    network: Network.Testnet,
                 },
             ],
             [Network.Testnet]: [
@@ -53,6 +66,9 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/mon.png",
                     type: TokenType.Native,
                     verified: true,
+                    pythId: "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
+                    chainId: ChainId.Monad,
+                    network: Network.Testnet,
                 },
                 {
                     tokenId: TokenId.MonadTestnetWmon,
@@ -63,6 +79,9 @@ export class TokenManager {
                     address: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701",
                     type: TokenType.Wrapped,
                     verified: true,
+                    pythId: "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
+                    chainId: ChainId.Monad,
+                    network: Network.Testnet,
                 },
                 {
                     tokenId: TokenId.MonadTestnetUsdc,
@@ -73,10 +92,13 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    chainId: ChainId.Monad,
+                    network: Network.Testnet,
                 },
             ],
         },
-
         [ChainId.Solana]: {
             [Network.Mainnet]: [
                 {
@@ -87,6 +109,9 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/solana.png",
                     type: TokenType.Native,
                     verified: true,
+                    pythId: "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+                    chainId: ChainId.Solana,
+                    network: Network.Mainnet,
                 },
                 {
                     tokenId: TokenId.SolanaMainnetUsdc,
@@ -97,6 +122,10 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    chainId: ChainId.Solana,
+                    network: Network.Mainnet,
                 },
             ],
             [Network.Testnet]: [
@@ -108,6 +137,8 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/solana.png",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Solana,
+                    network: Network.Testnet,
                 },
             ],
         },
@@ -122,16 +153,21 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/sui.jpeg",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Sui,
+                    network: Network.Mainnet,
                 },
                 {
                     tokenId: TokenId.SuiMainnetUsdc,
                     decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
-                    address: "0x2::coin::USDC", // Sui Move object id
+                    address: "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC", // Sui Move object id
                     iconUrl: "/icons/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    chainId: ChainId.Sui,
+                    network: Network.Mainnet,
                 },
             ],
             [Network.Testnet]: [
@@ -143,6 +179,8 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/sui.jpeg",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Sui,
+                    network: Network.Testnet,
                 },
             ],
         },
@@ -157,6 +195,8 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/aptos.svg",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Aptos,
+                    network: Network.Mainnet,
                 },
                 {
                     tokenId: TokenId.AptosMainnetUsdc,
@@ -167,6 +207,8 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
+                    chainId: ChainId.Aptos,
+                    network: Network.Testnet,
                 },
             ],
             [Network.Testnet]: [
@@ -178,23 +220,65 @@ export class TokenManager {
                     iconUrl: "/icons/tokens/aptos.svg",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Aptos,
+                    network: Network.Mainnet,
                 },
             ],
         },
     }
+    private unifiedTokens: Array<UnifiedToken> = [
+        {
+            unifiedTokenId: UnifiedTokenId.Usdc,
+            symbol: "USDC",
+            name: "USD Coin",
+            iconUrl: "/assets/tokens/usdc.svg",
+        },
+        {
+            unifiedTokenId: UnifiedTokenId.Usdt,
+            symbol: "USDT",
+            name: "USD Tether",
+            iconUrl: "/assets/tokens/usdt.svg",
+        },
+    ]
+
     constructor() {
         this.tokens = this.defaultTokens
     }
 
+    public getUnifiedTokens(): Array<UnifiedToken> {
+        return _.cloneDeep(this.unifiedTokens)
+    }
+
+    public getUnifiedTokenById(unifiedTokenId: UnifiedTokenId): UnifiedToken {
+        const unifiedToken = _.cloneDeep(this.unifiedTokens.find((unifiedToken) => unifiedToken.unifiedTokenId === unifiedTokenId))
+        if (!unifiedToken) {
+            throw new Error(`Unified token with id ${unifiedTokenId} not found`)
+        }
+        return unifiedToken
+    }
+
+    public getTokens(tokens?: Record<ChainId, Record<Network, Array<Token>>>): Array<Token> {
+        if (tokens) {
+            this.tokens = _.cloneDeep(tokens)
+        }
+        const results: Array<Token> = []
+        Object.values(this.tokens).flatMap((chain) => Object.values(chain).flat()).forEach((token) => {
+            if (!results.some((tokenToCheck) => tokenToCheck.tokenId === token.tokenId)) {
+                results.push(token)
+            }
+        })
+        return results
+    }
+
     public toObject(): Tokens {
-        return this.tokens
+        return _.cloneDeep(this.tokens)
     }
 
     public getTokensByChainIdAndNetwork(
         chainId: ChainId,
         network: Network,
     ): Array<Token> {
-        return this.tokens[chainId]?.[network] || []
+        return _.cloneDeep(this.tokens[chainId]?.[network] || [])
     }
 
     public getChainIdByTokenId(tokenId: TokenId): ChainId | undefined {
@@ -202,9 +286,9 @@ export class TokenManager {
             for (const network of Object.keys(
                 this.tokens[chainId] ?? {},
             ) as Array<Network>) {
-                const token = this.tokens[chainId]?.[network]?.find(
+                const token = _.cloneDeep(this.tokens[chainId]?.[network]?.find(
                     (token) => token.tokenId === tokenId,
-                )
+                ))
                 if (token) {
                     return chainId
                 }

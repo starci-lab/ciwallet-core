@@ -1,154 +1,358 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { ChainId, Network, TokenId, type Token } from "@ciwallet-sdk/types"
+import {
+    createAsyncThunk,
+    createSlice,
+    type PayloadAction,
+    createListenerMiddleware,
+    isAnyOf
+} from "@reduxjs/toolkit"
+import { ChainId, Network, type Token, Platform, TokenId, UnifiedTokenId } from "@ciwallet-sdk/types"
 import { persistReducer } from "redux-persist"
 import { getStorageConfig } from "../../utils"
-import { tokenManagerObj } from "@/nomas/obj"
+import { encryptionObj, importedWalletGeneratorObj, tokenManagerObj, walletGeneratorObj } from "@/nomas/obj"
+import { v4 as uuidv4 } from "uuid"
+import type { RootState } from "@/nomas/redux"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { subscribeToPythUpdates } from "@/nomas/modules/pyth"
+import lodash from "lodash"
+/* -----------------------------
+ * Types
+ * ----------------------------- */
+export enum PlatformAccountType {
+    HDWallet = "hd-wallet",
+    ImportedWallet = "imported-wallet",
+}
 
-export interface ReduxAccount {
-    // generated id from uuid
-    id: string;
-    accountAddress: string;
-    chainId: ChainId;
-    encryptedPrivateKey: string;
-    publicKey: string;
-    name: string;
-    avatarUrl?: string;
-    privateKey?: string;
+export type Account = {
+    id: string
+    accountAddress: string
+    privateKey: string
+    type: PlatformAccountType.HDWallet
+    platform: Platform
+    index: number
+    refId: string
+} | {
+    id: string
+    accountAddress: string
+    privateKey: string
+    type: PlatformAccountType.ImportedWallet
+    platform: Platform
+    refId: string
 }
 
 export interface Accounts {
-    accounts: Array<ReduxAccount>;
-    selectedAccountId?: string;
+    accounts: Array<Account>
+    selectedAccountId?: string
 }
 
+export interface HDWalletAccount {
+    id: string
+    name: string
+    index: number
+}
+export interface HDWallet {
+    id: string
+    encryptedMnemonic: string
+    accounts: Array<HDWalletAccount>
+    isDefault: boolean
+    name: string
+}
+
+export interface ImportedWallet {
+    id: string
+    platform: Platform
+    encryptedPrivateKey: string
+    name: string
+}
+
+export enum SelectedTokenType {
+    Token = "token",
+    UnifiedToken = "unified-token",
+}
+
+export interface SetSelectedToken {
+    type: SelectedTokenType
+    id: TokenId | UnifiedTokenId
+}
+
+
+export interface TokenItem {
+    tokenId: TokenId
+    accountAddress: string
+    chainId: ChainId
+    network: Network
+}
+
+export type SelectedChainId = ChainId | "overview"
 export interface SessionSlice {
-    accounts: Partial<Record<ChainId, Accounts>>;
-    encryptedMnemonic: string;
-    network: Network;
-    chainId: ChainId;
-    initialized: boolean;
-    // use worker to remove after a period of time
-    password: string;
-    rpcs: Record<ChainId, Record<Network, Array<string>>>;
-    tokens: Record<ChainId, Record<Network, Array<Token>>>;    
+    hdWallets: Array<HDWallet>
+    importedWallets: Array<ImportedWallet>
+    accounts: Partial<Record<Platform, Accounts>>
+    encryptedMnemonic: string
+    network: Network
+    chainId: ChainId
+    initialized: boolean
+    password: string
+    rpcs: Record<ChainId, Record<Network, Array<string>>>
+    importedTokens: Partial<Record<ChainId, Record<Network, Array<Token>>>>,
+    tokens: Record<ChainId, Record<Network, Array<Token>>>
+    // tracking token ids and unified token ids
+    trackingTokenIds: Array<TokenId>
+    trackingUnifiedTokenIds: Array<UnifiedTokenId>
+
+    // selected token
+    selectedTokenType: SelectedTokenType
+    selectedTokenId: TokenId
+    selectedUnifiedTokenId: UnifiedTokenId
+    selectedChainId: SelectedChainId
 }
 
+/* -----------------------------
+ * Thunk: resolve account hd wallet and imported wallets
+ * ----------------------------- */
+const resolveAccountsFromHdWallet = async (
+    hdWallet: HDWallet,
+    password: string,
+): Promise<Array<Account>> => {
+    // 1. Derive private key from index
+    const mnemonic = await encryptionObj.decrypt(hdWallet.encryptedMnemonic, password)
+    // 2. Generate wallets
+    const wallets = (
+        await Promise.all(
+            hdWallet.accounts.map(
+                async (account) => walletGeneratorObj.generateWallets({
+                    mnemonic,
+                    password,
+                    index: account.index,
+                }).then((wallets) => Object.values(wallets).map((wallet) => ({
+                    id: `hd-wallet-${uuidv4()}`,
+                    accountAddress: wallet.accountAddress,
+                    privateKey: wallet.privateKey,
+                    type: PlatformAccountType.HDWallet,
+                    platform: wallet.platform,
+                    refId: hdWallet.id,
+                    index: account.index,
+                })))
+            ))).flat()
+    // 3. Return accounts
+    return wallets
+}
+
+const resolveAccountsFromImportedWallet = async (
+    importedWallet: ImportedWallet,
+    password: string,
+): Promise<Array<Account>> => {
+    const privateKey = await encryptionObj.decrypt(importedWallet.encryptedPrivateKey, password)
+    const wallet = await importedWalletGeneratorObj.generateWallet({
+        privateKey,
+        platform: importedWallet.platform,
+    })
+    return [{
+        id: `imported-wallet-${uuidv4()}`,
+        accountAddress: wallet.accountAddress,
+        privateKey: wallet.privateKey,
+        type: PlatformAccountType.ImportedWallet,
+        platform: importedWallet.platform,
+        refId: importedWallet.id,
+    }]
+}
+
+export const resolveAccountsThunk = createAsyncThunk<
+    Array<Account>
+>(
+    "accounts/resolveAll",
+    async (_, thunkApi): Promise<Array<Account>> => {
+        try {
+            console.log("Resolve accounts")
+            const state = thunkApi.getState() as RootState
+            // Resolve HD wallet accounts
+            const hdAccounts = await Promise.all(
+                state.persists.session.hdWallets.map((hdWallet) => resolveAccountsFromHdWallet(hdWallet, state.persists.session.password)))
+            // Resolve imported wallets in parallel
+            const importedAccounts = await Promise.all(state.persists.session.importedWallets.map((importedWallet) => resolveAccountsFromImportedWallet(importedWallet, state.persists.session.password)))
+            // Combine and return
+            return [...hdAccounts.flat(), ...importedAccounts.flat()]
+        } catch (err: unknown) {
+            throw new Error(err instanceof Error ? err.message : "Failed to resolve accounts")
+        }
+    }
+)
+
+export const resolveTokensThunk = createAsyncThunk<
+    Record<ChainId, Record<Network, Array<Token>>>
+>(
+    "tokens/resolveAll",
+    async (_, thunkApi): Promise<Record<ChainId, Record<Network, Array<Token>>>> => {
+        try {
+            const state = thunkApi.getState() as RootState
+            const results: Partial<Record<ChainId, Partial<Record<Network, Array<Token>>>>> = {}
+            const _importedTokens = lodash.cloneDeep(state.persists.session.importedTokens)
+            for (const chainId of Object.values(ChainId)) {
+                for (const network of Object.values(Network)) {
+                    // default tokens
+                    const defaultTokens = tokenManagerObj.getTokensByChainIdAndNetwork(chainId, network)
+                    const extraTokens = _importedTokens?.[chainId]?.[network] ?? []
+                    // combine tokens
+                    if (!results[chainId]) {
+                        results[chainId] = {
+                            [Network.Mainnet]: [],
+                            [Network.Testnet]: [],
+                        }
+                    }
+                    results[chainId]![network] = [...defaultTokens, ...extraTokens]
+                }
+            }
+            return results as Record<ChainId, Record<Network, Array<Token>>>
+        }
+        catch (err: unknown) {
+            console.log(err)
+            throw new Error(err instanceof Error ? err.message : "Failed to resolve tokens")
+        }
+    }
+)
+
+/* -----------------------------
+ * Initial state
+ * ----------------------------- */
 const initialState: SessionSlice = {
     accounts: {},
+    hdWallets: [],
+    importedWallets: [],
     encryptedMnemonic: "",
     network: Network.Mainnet,
     chainId: ChainId.Monad,
     initialized: false,
     password: "",
+    importedTokens: {},
+    selectedTokenType: SelectedTokenType.Token,
+    selectedTokenId: TokenId.MonadTestnetMon,
+    selectedUnifiedTokenId: UnifiedTokenId.Usdc,
+    selectedChainId: "overview",
+    trackingTokenIds: [
+        TokenId.MonadTestnetMon,
+        TokenId.MonadTestnetWmon,
+        TokenId.MonadTestnetUsdc,
+        TokenId.SolanaMainnetSol,
+        TokenId.SolanaMainnetUsdc,
+        TokenId.SolanaTestnetSol,
+        TokenId.SolanaTestnetUsdc,
+        TokenId.SuiMainnetSui,
+        TokenId.SuiMainnetUsdc,
+    ],
+    trackingUnifiedTokenIds: [
+        UnifiedTokenId.Usdc,
+        UnifiedTokenId.Usdt,
+    ],
     rpcs: {
         [ChainId.Monad]: {
-            [Network.Mainnet]: [
-                "https://testnet-rpc.monad.xyz",
-            ],
-            [Network.Testnet]: [
-                "https://testnet-rpc.monad.xyz",
-            ],
+            [Network.Mainnet]: ["https://testnet-rpc.monad.xyz"],
+            [Network.Testnet]: ["https://testnet-rpc.monad.xyz"],
         },
         [ChainId.Solana]: {
-            [Network.Mainnet]: [
-                "https://api.devnet.solana.com",
-            ],
-            [Network.Testnet]: [
-                "https://api.devnet.solana.com",
-            ],
+            [Network.Mainnet]: ["https://api.devnet.solana.com"],
+            [Network.Testnet]: ["https://api.devnet.solana.com"],
         },
         [ChainId.Sui]: {
-            [Network.Mainnet]: [
-                "https://fullnode.testnet.sui.io:443",
-            ],
-            [Network.Testnet]: [
-                "https://fullnode.testnet.sui.io:443",
-            ],
+            [Network.Mainnet]: ["https://fullnode.testnet.sui.io:443"],
+            [Network.Testnet]: ["https://fullnode.testnet.sui.io:443"],
         },
         [ChainId.Aptos]: {
-            [Network.Mainnet]: [
-                "https://fullnode.testnet.sui.io:443",
-            ],
-            [Network.Testnet]: [
-                "https://fullnode.testnet.sui.io:443",
-            ],
+            [Network.Mainnet]: ["https://fullnode.testnet.sui.io:443"],
+            [Network.Testnet]: ["https://fullnode.testnet.sui.io:443"],
+        },
+        [ChainId.Bsc]: {
+            [Network.Mainnet]: ["https://bsc-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://bsc-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Polygon]: {
+            [Network.Mainnet]: ["https://polygon-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://polygon-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Ethereum]: {
+            [Network.Mainnet]: ["https://eth-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://eth-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Avalanche]: {
+            [Network.Mainnet]: ["https://avalanche-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://avalanche-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Fantom]: {
+            [Network.Mainnet]: ["https://fantom-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://fantom-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Arbitrum]: {
+            [Network.Mainnet]: ["https://arbitrum-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://arbitrum-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Base]: {
+            [Network.Mainnet]: ["https://base-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://base-testnet.g.alchemy.com/v2/demo"],
         },
     },
     tokens: {
-        [ChainId.Monad]: {
-            [Network.Mainnet]: [],
-            [Network.Testnet]: [],
-        },
-        [ChainId.Solana]: {
-            [Network.Mainnet]: [],
-            [Network.Testnet]: [],
-        },
-        [ChainId.Sui]: {
-            [Network.Mainnet]: [],
-            [Network.Testnet]: [],
-        },
-        [ChainId.Aptos]: {
-            [Network.Mainnet]: [],
-            [Network.Testnet]: [],
-        },
+        [ChainId.Monad]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Solana]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Sui]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Aptos]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Bsc]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Polygon]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Ethereum]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Avalanche]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Fantom]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Arbitrum]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Base]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
     },
 }
-
+/* -----------------------------
+ * Slice
+ * ----------------------------- */
 export const sessionSlice = createSlice({
     name: "session",
     initialState,
     reducers: {
-        // set password
         setPassword: (state, action: PayloadAction<string>) => {
             state.password = action.payload
         },
-        // add account
-        addAccount: (
-            state, 
-            { payload: { chainId, account } }: PayloadAction<AddAccountParams>
-        ) => {
-            // if chain id is not in state.accounts, create it
-            if (!state.accounts[chainId]) {
-                state.accounts[chainId] = {
-                    accounts: [],
-                }
-            }
-            // push account to accounts
-            state.accounts[chainId]!.accounts.push(account)
-        },
-        // set encrypted mnemonic
         setEncryptedMnemonic: (state, action: PayloadAction<string>) => {
             state.encryptedMnemonic = action.payload
         },
-        // set selected account id
-        setSelectedAccountId: (state, { 
-            payload: 
-            { 
-                chainId, 
-                selectedAccountId 
-            } 
-        }: PayloadAction<SetSelectedAccountIdParams>) => {
-            // if chain id is not in state.accounts, create it
-            if (!state.accounts[chainId]) {
-                state.accounts[chainId] = {
-                    accounts: [],
-                }
+        setSelectedAccountId: (
+            state,
+            {
+                payload: { account, platform },
+            }: PayloadAction<SetSelectedAccountIdParams>
+        ) => {
+            if (!state.accounts[platform]) {
+                state.accounts[platform] = { accounts: [] }
             }
-            state.accounts[chainId]!.selectedAccountId = selectedAccountId
+            state.accounts[platform]!.selectedAccountId = account.id
         },
-        // set network
+        setSelectedChainId: (state, action: PayloadAction<SelectedChainId>) => {
+            state.selectedChainId = action.payload
+        },
         setNetwork: (state, action: PayloadAction<Network>) => {
             state.network = action.payload
         },
-        // set chain id
         setChainId: (state, action: PayloadAction<ChainId>) => {
             state.chainId = action.payload
         },
-        // set initialized
         setInitialized: (state, action: PayloadAction<boolean>) => {
             state.initialized = action.payload
         },
-        // add rpc
+        addHdWallet: (state, action: PayloadAction<HDWallet>) => {
+            state.hdWallets.push(action.payload)
+        },
+        addImportedWallet: (state, action: PayloadAction<ImportedWallet>) => {
+            state.importedWallets.push(action.payload)
+        },
+        setSelectedTokenType: (state, action: PayloadAction<SelectedTokenType>) => {
+            state.selectedTokenType = action.payload
+        },
+        setSelectedTokenId: (state, action: PayloadAction<TokenId>) => {
+            state.selectedTokenId = action.payload
+        },
+        setSelectedUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
+            state.selectedUnifiedTokenId = action.payload
+        },
         addRpc: (state, action: PayloadAction<AddRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
                 state.rpcs[action.payload.chainId] = {
@@ -156,77 +360,160 @@ export const sessionSlice = createSlice({
                     [Network.Testnet]: [],
                 }
             }
-            if (!state.rpcs[action.payload.chainId]![action.payload.network]) {
-                state.rpcs[action.payload.chainId]![action.payload.network] = []
-            }
-            state.rpcs[action.payload.chainId]![action.payload.network]!.push(action.payload.rpc)
+            state.rpcs[action.payload.chainId]![action.payload.network]!.push(
+                action.payload.rpc
+            )
         },
+        setSelectedToken: 
+            (
+                state, 
+                action: PayloadAction<SetSelectedToken>
+            ) => {
+                state.selectedTokenType = action.payload.type
+                if (action.payload.type === SelectedTokenType.Token) {
+                    state.selectedTokenId = action.payload.id as TokenId
+                } else {
+                    state.selectedUnifiedTokenId = action.payload.id as UnifiedTokenId
+                }
+            },
+    },
+    extraReducers: (builder) => {
+        builder.addCase(
+            resolveAccountsThunk.fulfilled,
+            (state, action: PayloadAction<Array<Account>>) => {
+                const accounts = action.payload
+                accounts.forEach((account) => {
+                    if (!state.accounts[account.platform]) {
+                        state.accounts[account.platform] = { accounts: [] }
+                    }
+                    state.accounts[account.platform]!.accounts.push(account)
+                })
+            }
+        )
+        builder.addCase(
+            resolveTokensThunk.fulfilled,
+            (state, action: PayloadAction<Record<ChainId, Record<Network, Array<Token>>>>) => {
+                state.tokens = action.payload
+            }
+        )
     },
     selectors: {
         selectSelectedAccount: (state) => {
-            const accounts = state.accounts[state.chainId]
+            const platform = chainIdToPlatform(state.chainId)
+            const accounts = state.accounts[platform]
             if (!accounts) return null
             const { selectedAccountId } = accounts
             if (!selectedAccountId) return accounts.accounts[0]
-            const account = state.accounts[state.chainId]!.accounts.find(
-                (account) => account.id === selectedAccountId && account.chainId === state.chainId
-            )
-            return account
-        },
-        selectSelectedAccountByChainId: (state, chainId: ChainId) => {
-            const accounts = state.accounts[chainId]
-            if (!accounts) return null
-            const { selectedAccountId } = accounts
-            if (!selectedAccountId) return accounts.accounts[0]
-            const account = state.accounts[chainId]!.accounts.find(
-                (account) => account.id === selectedAccountId && account.chainId === chainId
-            )
-            return account
-        },
-        selectTokens: (state) => {
-            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(state.chainId, state.network)
-            tokens.push(
-                ...(state.tokens?.[state.chainId]?.[state.network] || []),
-            )
-            return tokens
+            const account = accounts.accounts.find((a) => a.id === selectedAccountId)
+            return account || null
         },
         selectTokenById: (state, tokenId: TokenId) => {
-            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(state.chainId, state.network)
-            tokens.push(
-                ...(state.tokens?.[state.chainId]?.[state.network] || []),
-            )
+            const tokens = Object.values(state.tokens).flat().flatMap((record) => Object.values(record).flat())
             const token = tokens.find((token) => token.tokenId === tokenId)
-            if (!token) throw new Error("Token not found")
+            if (!token) throw new Error(`Token with id ${tokenId} not found`)
             return token
+        },
+        selectSelectedAccountByChainId: (state) => {
+            const chainId = state.chainId
+            const platform = chainIdToPlatform(chainId)
+            const accounts = state.accounts[platform]
+            if (!accounts) return null
+            const { selectedAccountId } = accounts
+            if (!selectedAccountId) return accounts.accounts[0]
+            const account = accounts.accounts.find((a) => a.id === selectedAccountId)
+            return account || null
+        },
+        selectSelectedAccountByPlatform: (state, platform: Platform) => {
+            const accounts = state.accounts[platform]
+            if (!accounts) return null
+            const { selectedAccountId } = accounts
+            if (!selectedAccountId) return accounts.accounts[0]
+            const account = accounts.accounts.find((a) => a.id === selectedAccountId)
+            return account || null
+        },
+        selectTokensByChainIdAndNetwork: (state, chainId: ChainId, network: Network) => {
+            return state.tokens[chainId]?.[network] || []
+        },
+        selectTokens: (state) => {
+            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(
+                state.chainId,
+                state.network
+            )
+            tokens.push(...(state.tokens?.[state.chainId]?.[state.network] || []))
+            return tokens
+        },
+        selectSelectedAccounts: (state): Partial<Record<Platform, Account>> => {
+            if (!state.accounts) return {}
+            const selected: Partial<Record<Platform, Account>> = {}
+            for (const [platform, { accounts, selectedAccountId }] of Object.entries(state.accounts) as Array<[Platform, { accounts: Array<Account>, selectedAccountId?: string }]>) {
+                const acc = accounts.find((account, index) => selectedAccountId ? account.id === selectedAccountId : index === 0)
+                if (acc) selected[platform] = acc
+            }
+            return selected
+        },
+        selectTokensByUnifiedTokenId: (state, unifiedTokenId: UnifiedTokenId) => {
+            const tokens = Object.values(state.tokens).flat().flatMap((record) => Object.values(record).flat())
+            const tokensSameUnifiedTokenId = tokens.filter((token) => token.unifiedTokenId === unifiedTokenId)
+            return tokensSameUnifiedTokenId
         },
     },
 })
 
+/* -----------------------------
+ * Types and Exports
+ * ----------------------------- */
 export interface AddRpcParams {
-    chainId: ChainId;
-    network: Network;
-    rpc: string;
-}   
-
-export interface AddAccountParams {
-    account: ReduxAccount;
-    chainId: ChainId;
+    chainId: ChainId
+    network: Network
+    rpc: string
 }
 
 export interface SetSelectedAccountIdParams {
-    chainId: ChainId;
-    selectedAccountId: string;
+    platform: Platform
+    account: Account
 }
 
-export const sessionReducer = persistReducer(getStorageConfig(), sessionSlice.reducer)
+export const sessionReducer = persistReducer(
+    getStorageConfig({
+        blacklist: ["password", "accounts", "tokens"],
+    }),
+    sessionSlice.reducer
+)
+
+export const listenerMiddleware = createListenerMiddleware()
+listenerMiddleware.startListening({
+    matcher: isAnyOf(resolveTokensThunk.fulfilled),
+    effect: async (_, listenerApi) => {
+        console.log("Subscribe to pyth updates")
+        const state = listenerApi.getState() as RootState
+        console.log(state.persists.session.tokens)
+        const tokens = tokenManagerObj.getTokens(state.persists.session.tokens)
+        await subscribeToPythUpdates(tokens)
+    },
+})
+
 export const {
     setPassword,
-    addAccount,
     setEncryptedMnemonic,
     setSelectedAccountId,
     setNetwork,
     setChainId,
     setInitialized,
+    addHdWallet,
+    addImportedWallet,
     addRpc,
+    setSelectedToken,
+    setSelectedTokenType,
+    setSelectedChainId,
 } = sessionSlice.actions
-export const { selectSelectedAccount, selectSelectedAccountByChainId, selectTokens, selectTokenById } = sessionSlice.selectors
+
+export const {
+    selectSelectedAccount,
+    selectSelectedAccountByPlatform,
+    selectSelectedAccountByChainId,
+    selectTokensByChainIdAndNetwork,
+    selectTokens,
+    selectTokenById,
+    selectSelectedAccounts,
+    selectTokensByUnifiedTokenId,
+} = sessionSlice.selectors

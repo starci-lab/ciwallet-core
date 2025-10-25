@@ -54,7 +54,7 @@ export const TokenCard2 = ({
                     </div>
                     <div className="flex flex-col">
                         <div className="text-sm text">{token.name}</div>
-                        <div className="text-xs text-foreground-500 text-muted">{token.symbol}</div>
+                        <div className="text-xs text-muted">{token.symbol}</div>
                     </div>
                 </div>
         

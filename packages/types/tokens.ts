@@ -1,3 +1,5 @@
+import type { ChainId, Network } from "./chain"
+
 export enum TokenId {
   MonadTestnetMon = "monad_testnet_mon",
   MonadTestnetWmon = "monad_testnet_wmon",
@@ -25,6 +27,11 @@ export enum TokenId {
   AptosTestnetUsdc = "aptos_testnet_usdc",
 }
 
+export enum UnifiedTokenId {
+  Usdc = "usdc",
+  Usdt = "usdt",
+}
+
 export enum TokenType {
   Native = "native",
   Stable = "stable",
@@ -33,6 +40,8 @@ export enum TokenType {
 
 export interface Token {
   tokenId: TokenId;
+  chainId: ChainId;
+  network: Network;
   address?: string;
   decimals: number;
   symbol: string;
@@ -40,4 +49,13 @@ export interface Token {
   iconUrl: string;
   type: TokenType;
   verified: boolean;
+  pythId?: string;
+  unifiedTokenId?: UnifiedTokenId;
+}
+
+export interface UnifiedToken {
+  unifiedTokenId: UnifiedTokenId;
+  symbol: string;
+  name: string;
+  iconUrl: string;
 }

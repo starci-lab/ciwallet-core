@@ -1,5 +1,6 @@
 import { ChainId, TokenId } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+import { type TokenItem } from "@/nomas/redux"
 
 export enum HomeAction {
     Buy = "buy",
@@ -7,6 +8,10 @@ export enum HomeAction {
     Swap = "swap",
     Send = "send",
     Receive = "receive",
+}
+
+export enum HomeContent {
+    Base = "base",
 }
 
 export enum HomeSelectorTab {
@@ -23,24 +28,37 @@ export enum DepositFunctionPage {
     Deposit = "deposit",
 }
 
+export enum PortfolioFunctionPage {
+    Portfolio = "portfolio",
+    TokenDetails = "token-details",
+}
+
 export interface HomeSectionSlice {
     homeSelectorTab: HomeSelectorTab;
     portfolioSelectedChainId: ChainId;
     selectedTokenId: TokenId;
+    visible: boolean;
     action: HomeAction;
     selectedFromAccountId: string;
     depositSelectedChainId: ChainId;
     depositFunctionPage: DepositFunctionPage;
+    portfolioFunctionPage: PortfolioFunctionPage;
+    expandTokenDetails: boolean;
+    tokenItems: Array<TokenItem>;
 }
 
 const initialState: HomeSectionSlice = {
     homeSelectorTab: HomeSelectorTab.Portfolio,
     portfolioSelectedChainId: ChainId.Monad,
     selectedTokenId: TokenId.MonadTestnetMon,
+    visible: false,
     action: HomeAction.Buy,
     selectedFromAccountId: "",
     depositSelectedChainId: ChainId.Monad,
     depositFunctionPage: DepositFunctionPage.ChooseNetwork,
+    portfolioFunctionPage: PortfolioFunctionPage.Portfolio,
+    expandTokenDetails: false,
+    tokenItems: [],
 }
 
 export const homeSectionSlice = createSlice({
@@ -56,6 +74,9 @@ export const homeSectionSlice = createSlice({
         setSelectedTokenId: (state, action: PayloadAction<TokenId>) => {
             state.selectedTokenId = action.payload
         },
+        setVisible: (state, action: PayloadAction<boolean>) => {
+            state.visible = action.payload
+        },
         setHomeAction: (state, action: PayloadAction<HomeAction>) => {
             state.action = action.payload
         },
@@ -68,8 +89,17 @@ export const homeSectionSlice = createSlice({
         setDepositFunctionPage: (state, action: PayloadAction<DepositFunctionPage>) => {
             state.depositFunctionPage = action.payload
         },
+        setPortfolioFunctionPage: (state, action: PayloadAction<PortfolioFunctionPage>) => {
+            state.portfolioFunctionPage = action.payload
+        },
+        setExpandTokenDetails: (state, action: PayloadAction<boolean>) => {
+            state.expandTokenDetails = action.payload
+        },
+        setTokenItems: (state, action: PayloadAction<Array<TokenItem>>) => {
+            state.tokenItems = action.payload
+        },
     },
 })
 
-export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositFunctionPage } = homeSectionSlice.actions
+export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems } = homeSectionSlice.actions
 export const homeSectionReducer = homeSectionSlice.reducer

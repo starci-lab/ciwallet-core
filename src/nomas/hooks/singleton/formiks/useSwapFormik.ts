@@ -1,10 +1,10 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, TokenId } from "@ciwallet-sdk/types"
+import { ChainId, Platform, TokenId } from "@ciwallet-sdk/types"
 import {
     ERC20Contract,
 } from "@ciwallet-sdk/contracts"
-import { selectSelectedAccount, useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
 import { useWalletKit } from "@ciwallet-sdk/providers"
 import { ethers } from "ethers"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
@@ -14,10 +14,16 @@ import SuperJSON from "superjson"
 import { toRaw } from "@ciwallet-sdk/utils"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
+import { useAggregatorSelector } from "./useAggregatorSelector"
 
 export interface Aggregation {
     aggregator: AggregatorId;
     amountOut: number;
+}
+
+export enum TransactionMode {
+    Default = "default",
+    Instant = "instant",
 }
 
 export interface SwapFormikValues {
@@ -37,6 +43,8 @@ export interface SwapFormikValues {
     bestAggregationId: AggregatorId;
     refreshKey: number;
     protocols: Array<ProtocolData>;
+    mevProtection: boolean;
+    transactionMode: TransactionMode;
 }
 
 const swapValidationSchema = Yup.object({
@@ -86,10 +94,10 @@ export const useSwapFormik = () => {
 export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     const { adapter } = useWalletKit()
     const { swrMutation } = useBatchAggregatorSwrMutations()
-    return useFormik<SwapFormikValues>({
+    const formik = useFormik<SwapFormikValues>({
         initialValues: {
             balanceIn: 0,
             balanceOut: 0,
@@ -100,13 +108,15 @@ export const useSwapFormikCore = () => {
             isInput: true,
             amountIn: "0",
             amountOut: "0",
-            slippage: 0.005,
+            slippage: 0.1,
             tokenInFocused: false,
             quoting: false,
             aggregations: [],
             protocols: [],
             bestAggregationId: AggregatorId.Madhouse,
             refreshKey: 0,
+            transactionMode: TransactionMode.Default,
+            mevProtection: false,
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
@@ -145,7 +155,7 @@ export const useSwapFormikCore = () => {
                 const transaction = ethers.Transaction.from(approveTx).unsignedSerialized
                 const response = await adapter.signAndSendTransaction?.({
                     transaction,
-                    privateKey: selectedAccount?.encryptedPrivateKey ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
                     rpcs: rpcs[values.tokenInChainId][network],
                     chainId: values.tokenInChainId,
                     network,
@@ -168,7 +178,7 @@ export const useSwapFormikCore = () => {
                 const transaction2 = ethers.Transaction.from(tx).unsignedSerialized
                 const response2 = await adapter.signAndSendTransaction?.({
                     transaction: transaction2,
-                    privateKey: selectedAccount?.encryptedPrivateKey ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
                     rpcs: rpcs[values.tokenInChainId][network],
                     chainId: values.tokenInChainId,
                     network,
@@ -182,4 +192,8 @@ export const useSwapFormikCore = () => {
             }
         },
     })
+    // aggregator selector
+    useAggregatorSelector(formik)
+
+    return formik
 }
