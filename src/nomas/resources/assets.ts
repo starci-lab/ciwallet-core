@@ -76,7 +76,11 @@ export const assetsConfig = () => {
             sui: {
                 iconUrl: getUrl("/assets/chains/sui.jpeg"),
                 iconInvertedUrl: getUrl("/assets/chains/sui.jpeg"),
-            }
-        }
+            },
+        },
+        game: {
+            petRisingStoreLogo: getUrl("/assets/game/game-ui/pet-rising.png"),
+            nomasCoin: getUrl("/assets/game/coin/nomas-token.png"),
+        },
     }
 }

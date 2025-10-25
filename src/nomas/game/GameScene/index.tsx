@@ -88,6 +88,10 @@ export const GameComponent: FC<GameComponentProps> = ({
         try {
             phaserGameRef.current = new Phaser.Game(getConfig(gameRef.current))
             hasBootedRef.current = true
+
+            // Store the game instance globally for other components to access
+            ;(window as any).phaserGame = phaserGameRef.current
+
             console.log("✅ Phaser Game created successfully")
 
             // Poll for scene registration to be robust under Strict Mode double-mount
@@ -132,6 +136,8 @@ export const GameComponent: FC<GameComponentProps> = ({
                 phaserGameRef.current.destroy(true)
                 phaserGameRef.current = null
                 hasBootedRef.current = false
+                // Clean up global reference
+                ;(window as any).phaserGame = null
             }
         }
     }, [isUserAuthenticated, isGameInitialized])
@@ -230,7 +236,7 @@ export const GameComponent: FC<GameComponentProps> = ({
 
     // Listen for minimize events from GameSection
     useEffect(() => {
-        const handleGameMinimizeToggle = (event: CustomEvent) => {
+        const handleGameMinimizeToggle = (_event: CustomEvent) => {
             handleMinimizeToggle()
         }
 
@@ -282,52 +288,20 @@ export const GameComponent: FC<GameComponentProps> = ({
         <>
             {/* Minimize/Restore Button - Viewport Level */}
             {isUserAuthenticated && sceneRef.current && (
-                <div
-                    style={{
-                        position: "fixed",
-                        top: "20px",
-                        right: "20px",
-                        zIndex: 10000,
-                        pointerEvents: "auto",
-                    }}
-                >
+                <div className="fixed top-5 right-5 z-[10000] pointer-events-auto">
                     <button
                         onClick={handleMinimizeToggle}
                         title={
                             isMinimized ? "Restore Game (Ctrl+M)" : "Minimize Game (Ctrl+M)"
                         }
-                        style={{
-                            width: "32px",
-                            height: "32px",
-                            background: "linear-gradient(180deg, #1D1D1D 0%, #141414 100%)",
-                            borderRadius: "50%",
-                            border: "3px solid rgba(135,135,135,0.7)",
-                            boxShadow:
-                "0px 6px 20px rgba(0,0,0,0.6), inset 0px 2px 4px rgba(255,255,255,0.1)",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "20px",
-                            color: "#B3B3B3",
-                            transition: "all 0.3s ease",
-                            fontFamily: "Plus Jakarta Sans, sans-serif",
-                            outline: "none",
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "scale(1.2)"
-                            e.currentTarget.style.boxShadow =
-                "0px 8px 25px rgba(0,0,0,0.8), inset 0px 2px 4px rgba(255,255,255,0.2)"
-                            e.currentTarget.style.borderColor = "rgba(135,135,135,1)"
-                            e.currentTarget.style.color = "#ffffff"
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "scale(1)"
-                            e.currentTarget.style.boxShadow =
-                "0px 6px 20px rgba(0,0,0,0.6), inset 0px 2px 4px rgba(255,255,255,0.1)"
-                            e.currentTarget.style.borderColor = "rgba(135,135,135,0.7)"
-                            e.currentTarget.style.color = "#B3B3B3"
-                        }}
+                        className="w-8 h-8 bg-gradient-to-b from-[#1D1D1D] to-[#141414] 
+                                   rounded-full border-[3px] border-[rgba(135,135,135,0.7)]
+                                   shadow-[0px_6px_20px_rgba(0,0,0,0.6),inset_0px_2px_4px_rgba(255,255,255,0.1)]
+                                   cursor-pointer flex items-center justify-center text-xl
+                                   text-[#B3B3B3] transition-all duration-300 ease-in-out
+                                   font-['Plus_Jakarta_Sans',sans-serif] outline-none
+                                   hover:scale-120 hover:shadow-[0px_8px_25px_rgba(0,0,0,0.8),inset_0px_2px_4px_rgba(255,255,255,0.2)]
+                                   hover:border-[rgba(135,135,135,1)] hover:text-white"
                     >
                         {isMinimized ? "🔺" : "🔻"}
                     </button>
@@ -335,45 +309,26 @@ export const GameComponent: FC<GameComponentProps> = ({
             )}
 
             <div
-                style={{
-                    position: "fixed",
-                    bottom: 0,
-                    left: 0,
-                    width: "100vw",
-                    height: isMinimized ? "60px" : "140px",
-                    zIndex: 1000,
-                    border: "none",
-                    background: "transparent",
-                    transform: isMinimized ? "translateY(80px)" : "translateY(0)",
-                    transition: "all 0.3s ease",
-                }}
+                className={`fixed bottom-0 left-0 w-screen z-[1000] border-none bg-transparent
+                           transition-all duration-300 ease-in-out
+                           ${
+        isMinimized
+            ? "h-[60px] translate-y-20"
+            : "h-[140px] translate-y-0"
+        }`}
             >
                 {!isUserAuthenticated && (
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            height: "100%",
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                            background: "transparent",
-                        }}
-                    >
+                    <div className="flex justify-center items-center h-full text-white text-base font-bold bg-transparent">
             Authenticating...
                     </div>
                 )}
                 <div
                     ref={gameRef}
                     id={CONTAINER_ID}
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                        display: isUserAuthenticated ? "block" : "none",
-                        background: "transparent",
-                        ...gameContainerStyle,
-                    }}
+                    className={`w-full h-full bg-transparent ${
+                        isUserAuthenticated ? "block" : "hidden"
+                    }`}
+                    style={gameContainerStyle}
                 />
                 {isUserAuthenticated && sceneRef.current && (
                     <ShopPortal scene={sceneRef.current} />
@@ -383,65 +338,22 @@ export const GameComponent: FC<GameComponentProps> = ({
                 {isMinimized && isUserAuthenticated && (
                     <div
                         onClick={handleMinimizeToggle}
-                        style={{
-                            position: "absolute",
-                            bottom: "0",
-                            left: "0",
-                            width: "100%",
-                            height: "60px",
-                            background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
-                            borderTop: "2px solid #4caf50",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            padding: "0 20px",
-                            boxShadow: "0 -4px 12px rgba(0,0,0,0.3)",
-                            zIndex: 1001,
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background =
-                "linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 100%)"
-                            e.currentTarget.style.transform = "translateY(-2px)"
-                            e.currentTarget.style.boxShadow = "0 -6px 16px rgba(0,0,0,0.4)"
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background =
-                "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)"
-                            e.currentTarget.style.transform = "translateY(0)"
-                            e.currentTarget.style.boxShadow = "0 -4px 12px rgba(0,0,0,0.3)"
-                        }}
+                        className="absolute bottom-0 left-0 w-full h-[60px] 
+                                   bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d]
+                                   border-t-2 border-[#4caf50] flex items-center justify-between
+                                   px-5 shadow-[0_-4px_12px_rgba(0,0,0,0.3)] z-[1001]
+                                   cursor-pointer transition-all duration-200 ease-in-out
+                                   hover:bg-gradient-to-br hover:from-[#2a2a2a] hover:to-[#3d3d3d]
+                                   hover:-translate-y-0.5 hover:shadow-[0_-6px_16px_rgba(0,0,0,0.4)]"
                     >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <div
-                                style={{
-                                    width: "8px",
-                                    height: "8px",
-                                    borderRadius: "50%",
-                                    backgroundColor: "#4caf50",
-                                    animation: "pulse 2s infinite",
-                                }}
-                            />
-                            <span
-                                style={{
-                                    color: "#ffffff",
-                                    fontSize: "14px",
-                                    fontWeight: "bold",
-                                    fontFamily: "monospace",
-                                }}
-                            >
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-[#4caf50] animate-pulse" />
+                            <span className="text-white text-sm font-bold font-mono">
                 🎮 Pet Game - Minimized
                             </span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <span
-                                style={{
-                                    color: "#b3b3b3",
-                                    fontSize: "12px",
-                                    fontFamily: "monospace",
-                                }}
-                            >
+                        <div className="flex items-center gap-3">
+                            <span className="text-[#b3b3b3] text-xs font-mono">
                 Click anywhere to restore • Ctrl+M
                             </span>
                             <button
@@ -449,46 +361,17 @@ export const GameComponent: FC<GameComponentProps> = ({
                                     e.stopPropagation()
                                     handleMinimizeToggle()
                                 }}
-                                style={{
-                                    padding: "6px 12px",
-                                    backgroundColor: "#4caf50",
-                                    borderRadius: "6px",
-                                    fontSize: "11px",
-                                    color: "white",
-                                    fontFamily: "monospace",
-                                    fontWeight: "bold",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease",
-                                    boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = "#45a049"
-                                    e.currentTarget.style.transform = "scale(1.05)"
-                                    e.currentTarget.style.boxShadow = "0 3px 6px rgba(0,0,0,0.4)"
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = "#4caf50"
-                                    e.currentTarget.style.transform = "scale(1)"
-                                    e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.3)"
-                                }}
+                                className="px-3 py-1.5 bg-[#4caf50] rounded-md text-[11px] text-white
+                                           font-mono font-bold border-none cursor-pointer
+                                           transition-all duration-200 ease-in-out
+                                           shadow-[0_2px_4px_rgba(0,0,0,0.3)]
+                                           hover:bg-[#45a049] hover:scale-105 hover:shadow-[0_3px_6px_rgba(0,0,0,0.4)]"
                             >
                 🔺 RESTORE
                             </button>
                         </div>
                     </div>
                 )}
-
-                {/* CSS Animation for pulse effect */}
-                <style>
-                    {`
-          @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-          }
-        `}
-                </style>
             </div>
         </>
     )
@@ -497,7 +380,7 @@ export const GameComponent: FC<GameComponentProps> = ({
 const ShopPortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
     const [container, setContainer] = useState<HTMLElement | null>(null)
     const [isOpen, setIsOpen] = useState(false)
-    const [purchaseSystem, setPurchaseSystem] = useState<
+    const [_purchaseSystem, setPurchaseSystem] = useState<
     PurchaseSystem | undefined
   >(undefined)
 
