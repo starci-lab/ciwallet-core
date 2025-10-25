@@ -1,15 +1,16 @@
 import { PetManager } from "@/nomas/game/managers/PetManager"
 import type { NotificationUI } from "./NotificationUI"
+import { GameScene } from "../../GameScene"
 
 // Removed unused UI_FONT constant
 
 export class InputManager {
-    private scene: Phaser.Scene
+    private scene: GameScene
     private petManager: PetManager
     private notificationUI: NotificationUI
 
     constructor(
-        scene: Phaser.Scene,
+        scene: GameScene,
         petManager: PetManager,
         notificationUI: NotificationUI
     ) {
@@ -44,9 +45,7 @@ export class InputManager {
             if (placing && placing.type === "food") {
                 if (isDoubleClick) {
                     // Cancel placing on double tap: restore default cursor and clear state
-                    this.scene.input.setDefaultCursor(
-                        "url(./src/assets/images/cursor/navigation_nw.png), pointer"
-                    )
+                    this.scene.input.setDefaultCursor(GameScene.DEFAULT_CURSOR)
                     this.scene.registry.set("placingItem", undefined)
                     this.notificationUI.showNotification(
                         "Canceled placement",
@@ -64,9 +63,7 @@ export class InputManager {
             if (placing && placing.type === "toy") {
                 if (isDoubleClick) {
                     // Cancel placing on double tap: restore default cursor and clear state
-                    this.scene.input.setDefaultCursor(
-                        "url(./src/assets/images/cursor/navigation_nw.png), pointer"
-                    )
+                    this.scene.input.setDefaultCursor(GameScene.DEFAULT_CURSOR)
                     this.scene.registry.set("placingItem", undefined)
                     this.notificationUI.showNotification(
                         "Canceled placement",
@@ -84,9 +81,7 @@ export class InputManager {
             if (placing && placing.type === "clean") {
                 if (isDoubleClick) {
                     // Cancel placing on double tap: restore default cursor and clear state
-                    this.scene.input.setDefaultCursor(
-                        "url(./src/assets/images/cursor/navigation_nw.png), pointer"
-                    )
+                    this.scene.input.setDefaultCursor(GameScene.DEFAULT_CURSOR)
                     this.scene.registry.set("placingItem", undefined)
                     this.notificationUI.showNotification(
                         "Canceled placement",
