@@ -200,22 +200,37 @@ export const GameComponent: FC<GameComponentProps> = ({
 
         const handleSignMessage = async () => {
             try {
+                console.log("🔐 Starting authentication process...")
+
                 const response = await http.get(ROUTES.getMessage)
                 const messageToSign = response.data.message
+                console.log("📝 Message to sign:", messageToSign)
+
                 const signedMessage = await signMessage(messageToSign)
                 if (!signedMessage || signedMessage === "") {
+                    console.log("❌ No signature received")
                     return
                 }
+                console.log("✅ Signed message:", signedMessage)
 
+                console.log("🔍 Verifying signature...")
                 const verifyResponse = await http.post(ROUTES.verify, {
                     message: messageToSign,
                     address: publicKey,
                     signature: signedMessage,
                 })
+                console.log("✅ Verify response:", verifyResponse)
 
                 setAddressDispatch(setAddressWallet(verifyResponse.data.wallet_address))
-            } catch {
-                // ignore
+                console.log("🎉 Authentication successful!")
+            } catch (error) {
+                console.error("❌ Authentication failed:", error)
+                console.error("Error details:", {
+                    message: error instanceof Error ? error.message : "Unknown error",
+                    stack: error instanceof Error ? error.stack : undefined,
+                    response: error?.response?.data || error?.response || undefined,
+                    status: error?.response?.status || undefined,
+                })
             }
         }
         handleSignMessage()
