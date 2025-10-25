@@ -55,4 +55,42 @@ export class FeedingUI {
             this.hungerBar.setSize(activePet.feedingSystem.hungerLevel, 10)
         }
     }
+
+    minimize(): void {
+        if (this.inventoryText) {
+            this.scene.tweens.add({
+                targets: this.inventoryText,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+        if (this.hungerBar) {
+            this.scene.tweens.add({
+                targets: this.hungerBar,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+    }
+
+    restore(): void {
+        if (this.inventoryText) {
+            this.scene.tweens.add({
+                targets: this.inventoryText,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+        if (this.hungerBar) {
+            this.scene.tweens.add({
+                targets: this.hungerBar,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+    }
 }

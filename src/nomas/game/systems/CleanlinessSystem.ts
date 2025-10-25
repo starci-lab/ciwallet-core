@@ -1,5 +1,8 @@
 import { Pet } from "../entities/Pet"
-import { GAME_MECHANICS } from "@/nomas/game/constants/gameConstants"
+import {
+    GAME_LAYOUT,
+    GAME_MECHANICS,
+} from "@/nomas/game/constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import type { ColyseusClient } from "@/nomas/game/colyseus/client"
 import { spendToken, store } from "@/nomas/redux"
@@ -29,6 +32,7 @@ export class CleanlinessSystem {
     public cleanlinessLevel: number = 100 // Cleanliness level similar to hungerLevel in FeedingSystem
     public poopObjects: Phaser.GameObjects.Sprite[] = []
     public poopShadows: Phaser.GameObjects.Ellipse[] = []
+    private hasPooped = false
 
     // Private properties
     private lastCleanlinessUpdate: number = 0
@@ -52,6 +56,15 @@ export class CleanlinessSystem {
 
         // Create poop animation
         this.createPoopAnimation()
+        this.setupPoopEventListeners()
+    }
+
+    private setupPoopEventListeners() {
+        if (this.colyseusClient.room) {
+            this.colyseusClient.room.onMessage("poop_created", (message) => {
+                console.log("💩 Poop created:", message)
+            })
+        }
     }
 
     // ===== ANIMATION SETUP =====
@@ -74,6 +87,25 @@ export class CleanlinessSystem {
             console.log("✅ Poop animation created successfully")
         } catch (error) {
             console.error("❌ Failed to create poop animation:", error)
+        }
+
+        // Create broom animation from atlas frames
+        console.log("Creating broom animation...")
+        try {
+            this.scene.anims.create({
+                key: "broom-animation",
+                frames: this.scene.anims.generateFrameNames("broom", {
+                    prefix: "broom #Broom ",
+                    suffix: ".aseprite",
+                    start: 0,
+                    end: 5,
+                }),
+                frameRate: 10,
+                repeat: 0, // Play once
+            })
+            console.log("Broom animation created successfully")
+        } catch (error) {
+            console.error(" Failed to create broom animation:", error)
         }
     }
 
@@ -102,7 +134,12 @@ export class CleanlinessSystem {
         }
     }
 
+    // TODO: UPDATE POOP SYSTEM
     private checkPoopOpportunity() {
+        const hasPooped = localStorage.getItem("hasPooped" + this.petId)
+            ? +localStorage.getItem("hasPooped" + this.petId)!
+            : 0
+        if (hasPooped >= 3) return
         const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
         const shouldPoop =
       !this.pet.isChasing &&
@@ -121,93 +158,220 @@ export class CleanlinessSystem {
         (now - this.lastPoopCheck > GAME_MECHANICS.POOP_CHECK_INTERVAL &&
           timeSinceLastPoop >= 10)
             ) {
-                console.log("💩 Pet needs to poop, cleanliness:", this.cleanlinessLevel)
+                localStorage.setItem(
+                    "hasPooped" + this.petId,
+                    (hasPooped + 1).toString()
+                )
                 this.dropPoop()
                 this.lastPoopCheck = now
-                this.lastPoopTime = now // Update last poop time
-
-                // Force exit the poop check to prevent immediate re-trigger
+                this.lastPoopTime = now
                 return
             }
         }
     }
 
     // ===== POOP MANAGEMENT =====
-
+    // TODO: UPDATE POOP SYSTEM
     private dropPoop() {
         const petX = this.pet.sprite.x
-        const petY = this.pet.sprite.y
+        const petY = GAME_LAYOUT.POOP_GROWN_OFFSET
 
-        // Create animated poop sprite
-        console.log(
-            "💩 Creating poop sprite at:",
-            petX,
-            petY - 5,
-            "cleanliness:",
-            this.cleanlinessLevel
-        )
-        const poop = this.scene.add.sprite(petX, petY - 5, "poop")
-        poop.setScale(0.3) // Use larger scale for visibility
-        poop.setAlpha(0.9)
-
-        // Play poop animation
-        console.log("🎬 Playing poop animation...")
-        try {
-            poop.play("poop-animation")
-        } catch (error) {
-            console.warn(
-                "⚠️ Failed to play poop animation, using first frame:",
-                error
-            )
-            // Fallback: use the first frame of the atlas
-            poop.setFrame("broom #Shit 0.aseprite")
+        if (this.colyseusClient && this.colyseusClient.isConnected()) {
+            this.colyseusClient.createPoop({
+                petId: this.petId,
+                positionX: petX,
+                positionY: petY,
+            })
         }
-
-        // Create shadow
-        const shadow = this.scene.add.ellipse(petX, petY + 5, 20, 10, 0x000000, 0.3)
-
-        // Add animation effect
-        this.scene.tweens.add({
-            targets: poop,
-            scaleX: 0.2,
-            scaleY: 0.3,
-            duration: 200,
-            yoyo: true,
-        })
-
-        this.poopObjects.push(poop)
-        this.poopShadows.push(shadow)
-
-        // No auto-despawn - poop only disappears when cleaned up
-        // Remove the timer logic since poop should persist until cleaned
-
-        // Restore some cleanliness after pooping to prevent infinite loop
-        this.cleanlinessLevel = Math.min(100, this.cleanlinessLevel + 20)
-        console.log("🧹 Cleanliness restored to:", this.cleanlinessLevel)
+        this.createPoopAt(petX, petY)
     }
 
-    private removePoopAtIndex(index: number) {
+    /**
+   * Public method để vẽ poop tại vị trí cụ thể
+   * Dùng cho sync từ server hoặc tạo poop mới
+   * @param x - Vị trí X
+   * @param y - Vị trí Y
+   * @param poopId - ID của poop (optional, cho tracking)
+   * @returns Poop sprite đã tạo
+   */
+    public createPoopAt(
+        x: number,
+        y: number,
+        poopId?: string
+    ): Phaser.GameObjects.Sprite | null {
+        console.log(
+            `💩 [CREATE] Creating poop at original position (${x}, ${y})`,
+            poopId ? `ID: ${poopId}` : ""
+        )
+
+        // ✨ THÊM: Clamp position to current scene bounds
+        const scene = this.scene
+        const width = scene.scale.width
+        const height = scene.scale.height
+        const margin = 50 // Khoảng cách tối thiểu từ mép
+
+        // Clamp X và Y trong bounds của màn hình hiện tại
+        const clampedX = Phaser.Math.Clamp(x, margin, width - margin)
+        const clampedY = Phaser.Math.Clamp(y, margin, height - margin)
+
+        // Log warning nếu vị trí bị điều chỉnh
+        if (clampedX !== x || clampedY !== y) {
+            console.warn(
+                `Position adjusted to fit screen:(${x}, ${y}) → (${clampedX}, ${clampedY})`,
+                `Screen: ${width}x${height}`
+            )
+        }
+
+        try {
+            // Create poop sprite với vị trí đã clamp
+            const poop = this.scene.add.sprite(clampedX, 95, "poop")
+            poop.setScale(GAME_LAYOUT.POOP_SCALE)
+            poop.setAlpha(1.0)
+            poop.setDepth(2000)
+            poop.setOrigin(0.5, 0.5)
+
+            // Store poop ID if provided (for server sync)
+            if (poopId) {
+                ;(poop as unknown as { poopId: string }).poopId = poopId
+            }
+
+            // Set frame
+            try {
+                poop.setFrame("broom #Shit 0.aseprite")
+            } catch (e) {
+                console.warn("Could not set poop frame:", e)
+            }
+
+            // Play animation
+            try {
+                poop.play("poop-animation")
+            } catch (error) {
+                console.warn("Failed to play poop animation:", error)
+            }
+
+            // Create shadow với vị trí đã clamp
+            const shadow = this.scene.add.ellipse(
+                clampedX,
+                clampedY + 5,
+                20,
+                10,
+                0x000000,
+                0.3
+            )
+            shadow.setDepth(1999)
+
+            // Add to arrays
+            this.poopObjects.push(poop)
+            this.poopShadows.push(shadow)
+
+            console.log(
+                `Poop created at (${clampedX}, ${clampedY}). Total: ${this.poopObjects.length}`
+            )
+
+            return poop
+        } catch (error) {
+            console.error("Failed to create poop:", error)
+            return null
+        }
+    }
+
+    /**
+   * Public method để xóa tất cả poops hiện tại
+   * Dùng trước khi sync poops từ server
+   */
+    public clearAllPoops(): void {
+        console.log(`🧹 [CLEAR] Clearing ${this.poopObjects.length} poops...`)
+
+        const count = this.poopObjects.length
+        while (this.poopObjects.length > 0) {
+            this.removePoopAtIndex(0)
+        }
+
+        console.log(`✅ Cleared ${count} poops`)
+    }
+
+    /**
+   * Public method để sync nhiều poops từ server
+   * @param poopsData - Array of poop data from server
+   */
+    public syncPoops(
+        poopsData: Array<{ id: string; positionX: number; positionY: number }>
+    ): void {
+        console.log(`[SYNC] Syncing ${poopsData.length} poops...`)
+
+        // Clear existing poops first
+        this.clearAllPoops()
+
+        // Create new poops from server data
+        let successCount = 0
+        poopsData.forEach((poopData) => {
+            const poop = this.createPoopAt(
+                poopData.positionX,
+                poopData.positionY,
+                poopData.id
+            )
+            if (poop) successCount++
+        })
+
+        console.log(
+            `[SYNC] Synced ${successCount}/${poopsData.length} poops successfully`
+        )
+    }
+
+    private removePoopAtIndex(index: number, playAnimation: boolean = false) {
         if (index < 0 || index >= this.poopObjects.length) return
 
         const poop = this.poopObjects[index]
         const shadow = this.poopShadows[index]
 
-        // Animate removal
-        this.scene.tweens.add({
-            targets: poop,
-            scaleX: 0,
-            scaleY: 0,
-            alpha: 0,
-            duration: 300,
-            ease: "Power2.easeIn",
-            onComplete: () => poop.destroy(),
-        })
+        // Only play broom animation if explicitly requested (user click)
+        if (playAnimation) {
+            try {
+                const broom = this.scene.add.sprite(poop.x, poop.y - 20, "broom")
+                broom.setScale(0.8)
+                broom.setDepth(poop.depth + 1)
 
-        this.scene.tweens.add({
-            targets: shadow,
-            alpha: 0,
-            duration: 300,
-            onComplete: () => shadow.destroy(),
+                // Set initial frame
+                broom.setFrame("broom #Broom 0.aseprite")
+
+                // Play broom animation
+                broom.play("broom-animation")
+
+                // Destroy broom after animation completes
+                broom.on("animationcomplete", () => {
+                    broom.destroy()
+                })
+
+                // Also destroy broom after 600ms as fallback
+                this.scene.time.delayedCall(600, () => {
+                    if (broom && broom.active) {
+                        broom.destroy()
+                    }
+                })
+            } catch (error) {
+                console.warn("Failed to play broom animation:", error)
+            }
+        }
+
+        // Animate poop removal with slight delay if animation is playing
+        const delay = playAnimation ? 200 : 0
+        this.scene.time.delayedCall(delay, () => {
+            this.scene.tweens.add({
+                targets: poop,
+                scaleX: 0,
+                scaleY: 0,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2.easeIn",
+                onComplete: () => poop.destroy(),
+            })
+
+            this.scene.tweens.add({
+                targets: shadow,
+                alpha: 0,
+                duration: 300,
+                onComplete: () => shadow.destroy(),
+            })
         })
 
         // Remove from arrays
@@ -215,7 +379,47 @@ export class CleanlinessSystem {
         this.poopShadows.splice(index, 1)
     }
 
+    /**
+   * Public method to remove poop by ID
+   * @param poopId - The ID of the poop to remove
+   * @param playAnimation - Whether to play broom cleaning animation (true for user click, false for sync)
+   * @returns true if poop was found and removed, false otherwise
+   */
+    public removePoopById(
+        poopId: string,
+        playAnimation: boolean = false
+    ): boolean {
+        const poopIndex = this.poopObjects.findIndex(
+            (poop) => (poop as unknown as { poopId: string }).poopId === poopId
+        )
+
+        if (poopIndex !== -1) {
+            console.log(
+                `Removing poop with ID: ${poopId}, animation: ${playAnimation}`
+            )
+            this.removePoopAtIndex(poopIndex, playAnimation)
+
+            // Increase cleanliness when cleaning poop
+            this.cleanlinessLevel = Math.min(100, this.cleanlinessLevel + 10)
+
+            return true
+        }
+
+        console.log(`Poop with ID ${poopId} not found`)
+        return false
+    }
+
     // ===== PUBLIC METHODS =====
+
+    findPoop(x: number, y: number): Phaser.GameObjects.Sprite | null {
+        const poopIndex = this.poopObjects.findIndex(
+            (poop) => Phaser.Math.Distance.Between(poop.x, poop.y, x, y) < 40
+        )
+        if (poopIndex !== -1) {
+            return this.poopObjects[poopIndex]
+        }
+        return null
+    }
 
     cleanPoop(x: number, y: number): boolean {
         const poopIndex = this.poopObjects.findIndex(
@@ -246,47 +450,40 @@ export class CleanlinessSystem {
 
     // ===== CLEANING MANAGEMENT =====
 
-    buyCleaning(cleaningId: string): boolean {
-        console.log(`🛒 Buying cleaning item: ${cleaningId}`)
+    buyAndCleaning(cleaningId: string, poopId: string): boolean {
+        console.log(`Buying cleaning item: ${cleaningId}`)
         const price = gameConfigManager.getCleaningPrice(cleaningId)
-
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
-            console.log(
-                "🌐 Checking tokens before sending purchase request to server"
-            )
+            console.log("Checking tokens before sending purchase request to server")
 
             // Check if player has enough tokens before sending to server
             // const currentTokens = useUserStore.getState().nomToken
             const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < price) {
-                console.log(
-                    `❌ Not enough tokens: need ${price}, have ${currentTokens}`
-                )
+                console.log(`Not enough tokens: need ${price}, have ${currentTokens}`)
                 return false
             }
 
             // Get cleaning item to retrieve both id and name
             const cleaningItem = gameConfigManager.getCleaningItem(cleaningId)
-            const itemName = cleaningItem?.name || cleaningId // Fallback to cleaningId if name not found
-
-            this.colyseusClient.purchaseItem("cleaning", itemName, 1, cleaningId)
+            this.colyseusClient.cleanPet(this.petId, cleaningItem?.id || "", poopId)
 
             return true // Server will handle validation and update inventory
         } else {
-            console.log("🔌 Offline mode - using local validation")
+            console.log("Offline mode - using local validation")
 
             // const userState = useUserStore.getState()
             if (store.dispatch(spendToken(price))) {
                 this.cleaningInventory += 1
 
                 console.log(
-                    `✅ Purchase successful: ${cleaningId} for ${price} tokens. Inventory: ${this.cleaningInventory}`
+                    `Purchase successful: ${cleaningId} for ${price} tokens. Inventory: ${this.cleaningInventory}`
                 )
                 return true
             }
 
             console.log(
-                `❌ Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${
+                `Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${
                     store.getState().stateless.user.nomToken
                 }`
             )
@@ -305,12 +502,12 @@ export class CleanlinessSystem {
             this.cleanAllPoop()
 
             console.log(
-                `🧹 Used cleaning item! Cleanliness: ${this.cleanlinessLevel}%, Inventory: ${this.cleaningInventory}`
+                `Used cleaning item! Cleanliness: ${this.cleanlinessLevel}%, Inventory: ${this.cleaningInventory}`
             )
             return true
         }
 
-        console.log("❌ No cleaning items in inventory")
+        console.log("No cleaning items in inventory")
         return false
     }
 

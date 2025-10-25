@@ -31,6 +31,7 @@ export class GameUI {
 
     // UI Elements
     private buyPetButton!: Phaser.GameObjects.Rectangle
+    private isMinimized = false
 
     constructor(scene: GameScene, petManager: PetManager) {
         this.scene = scene
@@ -136,5 +137,60 @@ export class GameUI {
 
     getTokenUI(): TokenUI {
         return this.tokenUI
+    }
+
+    // ===== Minimize/Restore Functionality =====
+    minimize(): void {
+        if (this.isMinimized) return
+
+        this.isMinimized = true
+
+        // Hide all UI components with smooth animation
+        this.feedingUI.minimize()
+        this.cleanlinessUI.minimize()
+        this.happinessUI.minimize()
+        this.tokenUI.minimize()
+        this.navigationUI.minimize()
+
+        // Hide buy pet button
+        if (this.buyPetButton) {
+            this.scene.tweens.add({
+                targets: this.buyPetButton,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+
+        console.log("🎨 GameUI minimized")
+    }
+
+    restore(): void {
+        if (!this.isMinimized) return
+
+        this.isMinimized = false
+
+        // Show all UI components with smooth animation
+        this.feedingUI.restore()
+        this.cleanlinessUI.restore()
+        this.happinessUI.restore()
+        this.tokenUI.restore()
+        this.navigationUI.restore()
+
+        // Show buy pet button
+        if (this.buyPetButton) {
+            this.scene.tweens.add({
+                targets: this.buyPetButton,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+
+        console.log("🎨 GameUI restored")
+    }
+
+    getMinimizeState(): boolean {
+        return this.isMinimized
     }
 }

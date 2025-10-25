@@ -12,6 +12,7 @@ const TOKEN_UI_DEPTH = 200 // Ensure above pets and world objects
 export class TokenUI {
     private scene: Phaser.Scene
     private tokenText!: Phaser.GameObjects.Text
+    private uiElements: Phaser.GameObjects.GameObject[] = []
 
     constructor(scene: Phaser.Scene) {
         this.scene = scene
@@ -60,7 +61,7 @@ export class TokenUI {
         inner.setDepth(TOKEN_UI_DEPTH + 1)
 
         // Token icon: use pixel coin sprite
-        this.scene.add
+        const tokenIcon = this.scene.add
             .image(tokenX - 70, tokenY + 20, "coin")
             .setDepth(TOKEN_UI_DEPTH + 2)
             .setOrigin(0.5)
@@ -78,6 +79,9 @@ export class TokenUI {
             .setOrigin(0, 0.5)
             .setDepth(TOKEN_UI_DEPTH + 3)
 
+        // Store UI elements for minimize/restore
+        this.uiElements.push(outer, inner, tokenIcon, this.tokenText)
+
         this.update()
     }
 
@@ -88,5 +92,27 @@ export class TokenUI {
     update() {
         const nomToken = store.getState().stateless.user.nomToken
         this.tokenText.setText(nomToken.toLocaleString())
+    }
+
+    minimize(): void {
+        this.uiElements.forEach((element) => {
+            this.scene.tweens.add({
+                targets: element,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        })
+    }
+
+    restore(): void {
+        this.uiElements.forEach((element) => {
+            this.scene.tweens.add({
+                targets: element,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        })
     }
 }

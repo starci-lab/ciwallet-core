@@ -12,9 +12,8 @@ import { TilemapInputSystem } from "@/nomas/game/tilemap/TileMapInputSystem"
 import { PurchaseUI } from "@/nomas/game/ui/PurchaseUI"
 import { PurchaseSystem } from "@/nomas/game/systems"
 import { SceneName } from "@/nomas/game/configs/phaser-config"
-// const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
-const BACKEND_URL =
-  " https://minute-lifetime-retrieved-referred.trycloudflare.com    "
+const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
+// const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
     rexUI!: RexUIPlugin
@@ -27,6 +26,7 @@ export class GameScene extends Phaser.Scene {
     private tilemapInput?: TilemapInputSystem
     private _purchaseSystem?: PurchaseSystem
     private purchaseUI?: PurchaseUI
+    private isMinimized = false // Minimize state
 
     constructor() {
         super({ key: SceneName.Gameplay })
@@ -37,7 +37,6 @@ export class GameScene extends Phaser.Scene {
     async create() {
     // Disable browser context menu on right click for the whole scene
         this.input.mouse?.disableContextMenu()
-
         // Add background image (default)
         this.createBackground()
 
@@ -164,6 +163,7 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
+    // TODO: UPDATE CLEANLINESS SYSTEM
     update() {
     // Don't update until fully initialized
         if (!this.isInitialized) {
@@ -181,6 +181,7 @@ export class GameScene extends Phaser.Scene {
 
         try {
             // Update all pets through manager
+            // auto update 60 lần 1 giây
             this.petManager.update()
 
             // Update UI
@@ -322,6 +323,35 @@ export class GameScene extends Phaser.Scene {
             // Fallback: create a gradient background
             this.createGradientBackground()
         }
+    }
+
+    // ===== Minimize/Restore Methods =====
+    minimizeUI(): void {
+        this.isMinimized = true
+        if (this.gameUI) {
+            this.gameUI.minimize()
+        }
+        console.log("🎮 Game UI minimized")
+    }
+
+    restoreUI(): void {
+        this.isMinimized = false
+        if (this.gameUI) {
+            this.gameUI.restore()
+        }
+        console.log("🎮 Game UI restored")
+    }
+
+    toggleMinimize(): void {
+        if (this.isMinimized) {
+            this.restoreUI()
+        } else {
+            this.minimizeUI()
+        }
+    }
+
+    getMinimizeState(): boolean {
+        return this.isMinimized
     }
 
     // ===== Exposed getters for React UI integration =====
