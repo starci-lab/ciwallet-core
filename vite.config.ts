@@ -27,6 +27,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
+            "@ciwallet-sdk/pyth": path.resolve(__dirname, "./packages/pyth"),
             "@ciwallet-sdk/types": path.resolve(__dirname, "./packages/types"),
             "@ciwallet-sdk/components": path.resolve(__dirname, "./packages/components"),
             "@ciwallet-sdk/providers": path.resolve(__dirname, "./packages/providers"),

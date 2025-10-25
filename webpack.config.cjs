@@ -24,6 +24,7 @@ module.exports = {
                 __dirname,
                 "./packages/components"
             ),
+            "@ciwallet-sdk/pyth": path.resolve(__dirname, "./packages/pyth"),
             "@ciwallet-sdk/providers": path.resolve(
                 __dirname,
                 "./packages/providers"

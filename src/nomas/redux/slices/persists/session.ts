@@ -10,9 +10,9 @@ import { persistReducer } from "redux-persist"
 import { getStorageConfig } from "../../utils"
 import { encryptionObj, importedWalletGeneratorObj, tokenManagerObj, walletGeneratorObj } from "@/nomas/obj"
 import { v4 as uuidv4 } from "uuid"
-import type { RootState } from "@/nomas/redux"
+import { setPrice, type AppDispatch, type RootState, setUnifiedPrice } from "@/nomas/redux"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
-import { subscribeToPythUpdates } from "@/nomas/modules/pyth"
+import { subscribeToPythUpdates, subscribeToUnifiedPythUpdates } from "@ciwallet-sdk/pyth"
 import lodash from "lodash"
 /* -----------------------------
  * Types
@@ -484,11 +484,28 @@ export const listenerMiddleware = createListenerMiddleware()
 listenerMiddleware.startListening({
     matcher: isAnyOf(resolveTokensThunk.fulfilled),
     effect: async (_, listenerApi) => {
-        console.log("Subscribe to pyth updates")
         const state = listenerApi.getState() as RootState
-        console.log(state.persists.session.tokens)
+        const dispatch = listenerApi.dispatch as AppDispatch
         const tokens = tokenManagerObj.getTokens(state.persists.session.tokens)
-        await subscribeToPythUpdates(tokens)
+        // subscribe to token prices
+        await subscribeToPythUpdates(
+            tokens, 
+            (tokenId, price) => {
+                dispatch(setPrice({
+                    tokenId,
+                    price,
+                }))
+            })
+        // subscribe to unified token prices
+        const unifiedTokens = tokenManagerObj.getUnifiedTokens()
+        await subscribeToUnifiedPythUpdates(
+            unifiedTokens, 
+            (unifiedTokenId, price) => {
+                dispatch(setUnifiedPrice({
+                    unifiedTokenId,
+                    price,
+                }))
+            })
     },
 })
 

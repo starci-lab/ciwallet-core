@@ -49,14 +49,13 @@ export const computeDenomination = (
     decimals = 8,
     fractionDigits = 5,
 ): Decimal => {
-    if (amount.isZero()) {
-        return new Decimal(0)
-    }
     // amount is a BN
     const divisor = new BN(10).pow(new BN(decimals))
-    const multiplier = new BN(10).pow(new BN(fractionDigits))
-    const result = amount.mul(multiplier).div(divisor)
-    return new Decimal(result.toString()).div(new Decimal(multiplier.toString()))
+    const quotient = amount.div(divisor)
+    const remainder = amount.mod(divisor)
+    const result =
+    quotient.toNumber() + remainder.toNumber() / divisor.toNumber()
+    return new Decimal(result.toFixed(fractionDigits))
 }
 
 export const computeRaw = (

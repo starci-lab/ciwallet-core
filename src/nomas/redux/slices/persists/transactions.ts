@@ -2,14 +2,7 @@ import type { ChainId, Network } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import { getStorageConfig } from "../../utils"
 import { persistReducer } from "redux-persist"
-
-export enum TransactionType {
-    Deposit = "deposit",
-    Withdraw = "withdraw",
-    Swap = "swap",
-    Bridge = "bridge",
-    Transfer = "transfer",
-}
+import type { TransactionType } from "../stateless"
 
 export interface ReduxTransaction {
     txHash: string;
