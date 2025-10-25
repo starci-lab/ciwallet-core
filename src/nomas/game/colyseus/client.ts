@@ -167,6 +167,10 @@ export class ColyseusClient {
         case "cleaned_pet_response":
             this.handlePetActionResponse(message)
             break
+        
+        case "create_poop_response":
+            this.handleCreatePoopResponse(message)
+            break
 
         case "player_state_sync":
             this.handlePlayerSync(message)
@@ -220,6 +224,19 @@ export class ColyseusClient {
             const y = this.lastClickPosition?.y
             if (this.gameUI && this.gameUI.showNotification) {
                 this.gameUI.showNotification(`❌ ${message.message}`, x, y)
+            }
+        }
+    }
+
+    private handleCreatePoopResponse(message: any) {
+        console.log("Create poop response:", message)
+        if (message.success) {
+            const petManager = this.getPetManager()
+            if (petManager) {
+                const activePet = petManager.getActivePet()
+                if (activePet && activePet.cleanlinessSystem) {
+                    activePet.cleanlinessSystem.createPoopAt(message.data.positionX, message.data.positionY, message.data.poopId)
+                }
             }
         }
     }

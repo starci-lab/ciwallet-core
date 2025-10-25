@@ -178,7 +178,6 @@ export class CleanlinessSystem {
                 positionY: petY,
             })
         }
-        this.createPoopAt(petX, petY)
     }
 
     /**
@@ -192,11 +191,10 @@ export class CleanlinessSystem {
     public createPoopAt(
         x: number,
         y: number,
-        poopId?: string
+        poopId: string,
     ): Phaser.GameObjects.Sprite | null {
         console.log(
-            `💩 [CREATE] Creating poop at original position (${x}, ${y})`,
-            poopId ? `ID: ${poopId}` : ""
+            `💩 [CREATE] Creating poop at original position (${x}, ${y}) ID: ${poopId}`
         )
 
         // ✨ THÊM: Clamp position to current scene bounds
