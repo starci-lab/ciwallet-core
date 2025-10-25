@@ -1,28 +1,38 @@
 import { SingletonHookProvider } from "./hooks"
-import { ChainId } from "@ciwallet-sdk/types"
-import { ReduxProvider, selectSelectedAccount, useAppSelector } from "./redux"
+import { ChainId, Platform } from "@ciwallet-sdk/types"
+import {
+    ReduxProvider,
+    selectSelectedAccountByPlatform,
+    useAppSelector,
+} from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
-import { InitScene, MainScene, MyWalletsScene, SettingsScene } from "@/nomas/components"
+import {
+    InitScene,
+    MainScene,
+    MyWalletsScene,
+    SettingsScene,
+} from "@/nomas/components"
 import { GameComponent } from "@/nomas/game/GameScene/index"
-import { encryptionObj } from "./obj"
 import { Wallet } from "ethers"
 import { motion } from "framer-motion"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
 
 export const Nomas = () => {
     return (
-        <WalletKitProvider context={{
-            adapter: {
-                chains: [
-                    {
-                        chainId: ChainId.Monad,
-                        rpcs: ["https://testnet-rpc.monad.xyz"],
-                    },
-                ],
-            }
-        }}>
+        <WalletKitProvider
+            context={{
+                adapter: {
+                    chains: [
+                        {
+                            chainId: ChainId.Monad,
+                            rpcs: ["https://testnet-rpc.monad.xyz"],
+                        },
+                    ],
+                },
+            }}
+        >
             <ReduxProvider>
                 <SingletonHookProvider>
                     <IconContext.Provider
@@ -41,11 +51,14 @@ export const Nomas = () => {
 }
 
 const NomasContent = () => {
-    const chainId = useAppSelector((state) => state.persists.session.chainId)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccount(state.persists))
-    const password = useAppSelector((state) => state.persists.session.password)
+    const selectedAccount = useAppSelector((state) =>
+        selectSelectedAccountByPlatform(state.persists, Platform.Evm)
+    )
+    console.log("selectedAccount", selectedAccount)
     const scene = useAppSelector((state) => state.stateless.scene.scene)
-    const initialized = useAppSelector((state) => state.persists.session.initialized)
+    const initialized = useAppSelector(
+        (state) => state.persists.session.initialized
+    )
     const renderContent = () => {
         switch (scene) {
         case Scene.Init:
@@ -58,26 +71,30 @@ const NomasContent = () => {
             return <MyWalletsScene />
         }
     }
-    return <>
-        <motion.div
-            drag
-            dragMomentum={false}
-            className="absolute top-10 max-w-[500px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[500px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
-        >
-            {renderContent()}
-        </motion.div>
-        {chainId === ChainId.Monad && initialized && (
-            <div className="fixed bottom-0 left-0 w-full z-50">
-                <GameComponent
-                    signMessage={async (message) => {
-                        if (!selectedAccount?.privateKey) 
-                            throw new Error("Selected account private key not found")
-                        const wallet = new Wallet(selectedAccount?.privateKey)
-                        return await wallet.signMessage(message)
-                    }}
-                    publicKey={selectedAccount?.accountAddress || ""}
-                />
-            </div>
-        )}
-    </>
+    return (
+        <>
+            <motion.div
+                drag
+                dragMomentum={false}
+                className="absolute top-10 max-w-[500px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[500px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+            >
+                {renderContent()}
+            </motion.div>
+            {initialized &&
+        selectedAccount?.privateKey &&
+        selectedAccount?.accountAddress && (
+                <div className="fixed bottom-0 left-0 w-full z-50">
+                    <GameComponent
+                        signMessage={async (message) => {
+                            console.log(selectedAccount, selectedAccount.privateKey)
+                            const wallet = new Wallet(selectedAccount.privateKey)
+                            console.log("wallet", wallet)
+                            return await wallet.signMessage(message)
+                        }}
+                        publicKey={selectedAccount.accountAddress || ""}
+                    />
+                </div>
+            )}
+        </>
+    )
 }

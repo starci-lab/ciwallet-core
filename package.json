@@ -15,6 +15,10 @@
       "import": "./dist/types/index.js",
       "types": "./dist/types/index.d.ts"
     },
+    "./pyth": {
+      "import": "./dist/pyth/index.js",
+      "types": "./dist/pyth/index.d.ts"
+    },
     "./classes": {
       "import": "./dist/classes/index.js",
       "types": "./dist/classes/index.d.ts"
@@ -87,6 +91,7 @@
     "@cfx-kit/wallet-avatar": "^0.0.5",
     "@colyseus/schema": "^3.0.62",
     "@emotion/styled": "^11.14.1",
+    "@faker-js/faker": "^10.1.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.2.6",
     "@fontsource/plus-jakarta-sans": "^5.2.6",
     "@lifi/sdk": "^3.12.11",
@@ -115,6 +120,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "colyseus.js": "^0.16.21",
+    "dayjs": "^1.11.18",
     "decimal.js": "^10.6.0",
     "dexie": "^4.2.0",
     "dotenv-webpack": "^8.1.1",
@@ -135,6 +141,7 @@
     "react-arborist": "^3.4.3",
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.2.0",
+    "recharts": "^3.3.0",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "redux-persist-indexeddb-storage": "^1.0.4",

@@ -2,6 +2,7 @@ import { ethers } from "ethers"
 import { Platform } from "@ciwallet-sdk/types"
 import { isValidSuiAddress } from "@mysten/sui/utils"
 import { PublicKey } from "@solana/web3.js"
+import { roundNumber } from "./math"
 
 export const sanitizeNumericInput = (input: string): string | null => {
     const regex = new RegExp(/^\d*[.,]?\d*$/)
@@ -10,10 +11,6 @@ export const sanitizeNumericInput = (input: string): string | null => {
     }
     const sanitizedValue = input.replace(/,/g, ".")
     return sanitizedValue
-}
-
-export const roundNumber = (number: number, fragDigits = 5): number => {
-    return Number(number.toFixed(fragDigits))
 }
 
 export const shortenAddress = (address: string, chars = 4): string => {

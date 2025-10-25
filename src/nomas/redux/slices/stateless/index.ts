@@ -5,6 +5,8 @@ import { sectionsReducer } from "./sections"
 import { tabsReducer } from "./tabs"
 import { functionReducer } from "./function"
 import { userReducer } from "./user"
+import { dynamicReducer } from "./dynamic"
+
 export const statelessReducer = combineReducers({
     pages: pagesReducer,
     scene: sceneReducer,
@@ -12,6 +14,7 @@ export const statelessReducer = combineReducers({
     tabs: tabsReducer,
     user: userReducer,
     sections: sectionsReducer,
+    dynamic: dynamicReducer,
 })
 
 export * from "./pages"
@@ -21,3 +24,4 @@ export * from "./sections"
 export * from "./tabs"
 export * from "./function"
 export * from "./user"
+export * from "./dynamic"

@@ -31,6 +31,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@ciwallet-sdk/types": ["./packages/types"],
+      "@ciwallet-sdk/pyth": ["./packages/pyth"],
       "@ciwallet-sdk/providers": ["./packages/providers"],
       "@ciwallet-sdk/utils": ["./packages/utils"],
       "@ciwallet-sdk/classes": ["./packages/classes"],
