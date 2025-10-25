@@ -115,7 +115,6 @@ export function ReactShopModal({
     useEffect(() => {
         recalcIndicator()
         scrollActiveIntoView()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [category])
 
     useEffect(() => {
@@ -128,7 +127,6 @@ export function ReactShopModal({
             window.removeEventListener("resize", onResize)
             el?.removeEventListener("scroll", onScroll)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     console.log("items in react", items)
     useEffect(() => {
@@ -305,80 +303,29 @@ export function ReactShopModal({
 
     return (
         <div
-            style={{
-                width: "calc(40vh * 0.692)",
-                minWidth: 320,
-                maxWidth: 900,
-                height: "40vh",
-                background: "linear-gradient(180deg, #1D1D1D 0%, #141414 100%)",
-                borderRadius: 21,
-                border: "0.84px solid transparent",
-                padding: 16,
-                color: "#B3B3B3",
-                fontFamily: "Plus Jakarta Sans, sans-serif",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-                boxShadow:
-          "0px 0px 1.43px 0px rgba(0,0,0,0.25), inset 0px 1.26px 1.26px 0px rgba(154,154,154,0.45)",
-            }}
+            className="w-[calc(40vh*0.692)] min-w-[320px] max-w-[900px] h-[40vh]
+                       bg-gradient-to-b from-[#1D1D1D] to-[#141414] rounded-[21px]
+                       border-[0.84px] border-transparent p-4 text-[#B3B3B3]
+                       font-['Plus_Jakarta_Sans',sans-serif] flex flex-col overflow-hidden
+                       shadow-[0px_0px_1.43px_0px_rgba(0,0,0,0.25),inset_0px_1.26px_1.26px_0px_rgba(154,154,154,0.45)]"
         >
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    position: "relative",
-                    marginBottom: 12,
-                }}
-            >
-                <h2
-                    style={{ fontSize: 12, fontWeight: 700, margin: 0, color: "#B3B3B3" }}
-                >
-          Store
-                </h2>
+            <div className="flex justify-center relative mb-3">
+                <h2 className="text-xs font-bold m-0 text-[#B3B3B3]">Store</h2>
                 <button
                     onClick={onClose}
-                    style={{
-                        position: "absolute",
-                        right: 0,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "#323232",
-                        border: "none",
-                        color: "#E95151",
-                        fontSize: 8,
-                        width: 12,
-                        aspectRatio: "1 / 1",
-                        borderRadius: "50%",
-                        boxShadow: "inset 0px 0.84px 0.42px 0px rgba(199,199,199,0.19)",
-                        cursor: "pointer",
-                        flexShrink: 0,
-                        flex: "auto",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#323232]
+                               border-none text-[#E95151] text-[8px] w-3 aspect-square
+                               rounded-full shadow-[inset_0px_0.84px_0.42px_0px_rgba(199,199,199,0.19)]
+                               cursor-pointer flex-shrink-0 flex-auto flex justify-center items-center"
                 >
           ✕
                 </button>
             </div>
-            <div
-                style={{
-                    position: "relative",
-                    marginBottom: 8,
-                    padding: "8px 12px 14px 12px",
-                    borderBottom: "1px solid rgba(135,135,135,0.25)",
-                }}
-            >
+            <div className="relative mb-2 px-3 py-2 pb-3.5 border-b border-[rgba(135,135,135,0.25)]">
                 <div
                     ref={tabsContainerRef}
-                    style={{
-                        display: "flex",
-                        gap: 12,
-                        overflowX: "auto",
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
-                    }}
+                    className="flex gap-3 overflow-x-auto scrollbar-none"
+                    style={{ msOverflowStyle: "none" }}
                 >
                     {[
                         { k: "pets", t: "Pets" },
@@ -392,28 +339,22 @@ export function ReactShopModal({
                             key={tab.k}
                             data-key={tab.k}
                             onClick={() => setCategory(tab.k)}
-                            style={{
-                                background: "transparent",
-                                color: category === tab.k ? "#878787" : "#5A5A5A",
-                                border: "none",
-                                cursor: "pointer",
-                                borderRadius: 30,
-                                fontWeight: category === tab.k ? 600 : 500,
-                                fontSize: 12,
-                                position: "relative",
-                                padding: "6px 12px",
-                                whiteSpace: "nowrap",
-                                flex: "0 0 auto",
-                            }}
+                            className={`bg-transparent border-none cursor-pointer rounded-[30px]
+                                        text-xs relative px-3 py-1.5 whitespace-nowrap flex-none
+                                        ${
+                        category === tab.k
+                            ? "text-[#878787] font-semibold"
+                            : "text-[#5A5A5A] font-medium"
+                        }`}
                         >
                             {tab.t}
                         </button>
                     ))}
                 </div>
                 <div
+                    className="absolute bottom-0 bg-[rgba(135,135,135,0.6)] rounded-[3px]
+                               transition-[left,width] duration-150 ease-in-out"
                     style={{
-                        position: "absolute",
-                        bottom: 0,
                         left:
               12 +
               indicator.left -
@@ -422,76 +363,34 @@ export function ReactShopModal({
                   : 0),
                         width: indicator.width,
                         height: 3.5,
-                        background: "rgba(135,135,135,0.6)",
-                        borderRadius: 3,
-                        transition: "left 150ms ease, width 150ms ease",
                     }}
                 />
             </div>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginBottom: 8,
-                }}
-            >
+            <div className="flex items-center gap-3 mb-2">
                 <span>Balance</span>
                 <strong>{balance.toLocaleString()} NOM</strong>
             </div>
             <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                    gridAutoRows: 120,
-                    gap: 8,
-                    overflowY: "auto",
-                    padding: 8,
-                    flex: 1,
-                    minHeight: 0,
-                    maxHeight: 376,
-                }}
+                className="grid grid-cols-3 auto-rows-[120px] gap-2 overflow-y-auto p-2
+                           flex-1 min-h-0 max-h-[376px]"
             >
                 {items.length === 0 ? (
-                    <div style={{ color: "#888" }}>Items coming soon!</div>
+                    <div className="text-[#888]">Items coming soon!</div>
                 ) : (
                     items.map((item) => (
                         <div
                             key={item.id}
                             onClick={() => handleBuy(item)}
-                            style={{
-                                background: "rgba(60,60,60,0.26)",
-                                border: "1px solid rgba(0,0,0,0.37)",
-                                borderRadius: 14,
-                                padding: "8px 6px",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 6,
-                                cursor: "pointer",
-                                opacity: 1,
-                                boxShadow: "inset 0px 3px 5px 0px rgba(0,0,0,0.3)",
-                            }}
+                            className="bg-[rgba(60,60,60,0.26)] border border-[rgba(0,0,0,0.37)]
+                                       rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center
+                                       gap-1.5 cursor-pointer opacity-100
+                                       shadow-[inset_0px_3px_5px_0px_rgba(0,0,0,0.3)]"
                         >
-                            <div
-                                style={{
-                                    width: 40,
-                                    height: 40,
-                                    overflow: "hidden",
-                                    borderRadius: 8,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
+                            <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
                                 <img
                                     src={getItemImageSrc(category, item)}
+                                    className="w-full h-full object-cover object-[0%_50%]"
                                     style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                        objectPosition: "0% 50%",
                                         // For cleaning sprite sheets, show only leftmost section
                                         maxWidth:
                       category === "clean" || detectItemType(item) === "clean"
@@ -504,17 +403,10 @@ export function ReactShopModal({
                                     }}
                                 />
                             </div>
-                            <div
-                                style={{
-                                    fontWeight: 600,
-                                    fontSize: 13,
-                                    color: "#B3B3B3",
-                                    textAlign: "center",
-                                }}
-                            >
+                            <div className="font-semibold text-[13px] text-[#B3B3B3] text-center">
                                 {item.name}
                             </div>
-                            <div style={{ fontSize: 12, color: "#B3B3B3" }}>
+                            <div className="text-xs text-[#B3B3B3]">
                                 {Number(item.cost_nom ?? 0).toLocaleString()} NOM
                             </div>
                         </div>
