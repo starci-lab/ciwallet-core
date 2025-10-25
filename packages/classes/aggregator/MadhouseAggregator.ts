@@ -1,4 +1,4 @@
-import { getEvmChainId, toDenomination, toRaw } from "@ciwallet-sdk/utils"
+import { computeDenomination, computeRaw, getEvmChainId } from "@ciwallet-sdk/utils"
 import type {
     IAggregator,
     QuoteParams,
@@ -41,7 +41,7 @@ export class MadhouseAggregator implements IAggregator {
                 chain: chainId,
                 tokenIn,
                 tokenOut,
-                amountIn: toRaw(
+                amountIn: computeRaw(
                     params.amount,
                     tokenInEntity?.decimals
                 ).toString(),
@@ -65,7 +65,7 @@ export class MadhouseAggregator implements IAggregator {
         // we build paths from routes
         const routes: Array<Route> = madhouseRoutes.map(cleanRoute)
         return {
-            amountOut: toDenomination(new BN(amountOut), tokenOutEntity?.decimals),
+            amountOut: computeDenomination(new BN(amountOut), tokenOutEntity?.decimals).toNumber(),
             routes,
             serializedTx: SuperJSON.stringify(tx),
         }

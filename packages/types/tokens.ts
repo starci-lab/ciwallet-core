@@ -58,4 +58,5 @@ export interface UnifiedToken {
   symbol: string;
   name: string;
   iconUrl: string;
+  pythId?: string;
 }

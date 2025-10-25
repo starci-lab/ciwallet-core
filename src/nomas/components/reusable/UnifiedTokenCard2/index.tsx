@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React from "react"
 import { motion } from "framer-motion"
 import {
     NomasCard,
@@ -7,9 +7,9 @@ import {
     NomasImage,
 } from "../../extends"
 import { type UnifiedToken } from "@ciwallet-sdk/types"
-import { BalanceFetcher, createBalanceFetcherKey } from "../BalanceFetcher"
-import { balanceFetcherEventBus } from "../BalanceFetcher"
-import type { TokenItem } from "@/nomas/redux"
+import { BalanceFetcher } from "../BalanceFetcher"
+import { useAppSelector, type TokenItem, selectTokens } from "@/nomas/redux"
+import { roundNumber } from "@ciwallet-sdk/utils"
 
 
 export interface UnifiedTokenCard2Props {
@@ -25,25 +25,19 @@ export const UnifiedTokenCard2 = ({
     tokens,
     isPressable = false,
 }: UnifiedTokenCard2Props) => {
-    const [balances, setBalances] = useState<Record<string, number>>({})
-
-    // subscribe to balance updates
-    useEffect(() => {
-        for (const t of tokens) {
-            const key = createBalanceFetcherKey(t.tokenId, t.accountAddress)
-            balanceFetcherEventBus.on(key, (data) => {
-                setBalances((prev) => ({
-                    ...prev,
-                    [t.tokenId]: data.amount,
-                }))
+    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
+    const tokenArray = useAppSelector((state) => selectTokens(state.persists))
+    const tokenIds = [
+        ...new Set(
+            tokenArray.filter((_token) => {
+                return _token.unifiedTokenId === token.unifiedTokenId
             })
-        }
-    }, [tokens])
-
-    const totalBalance = useMemo(() => {
-        return Object.values(balances).reduce((acc, curr) => acc + curr, 0)
-    }, [balances])
-
+                .map((token) => token.tokenId)
+        )
+    ]
+    const totalBalance = tokenIds.reduce((acc, tokenId) => acc + (balances[tokenId] ?? 0), 0)
+    const prices = useAppSelector((state) => state.stateless.dynamic.unifiedPrices)
+    const price = prices[token.unifiedTokenId]
     return (
         <>
             {/* balance listeners */}
@@ -77,9 +71,11 @@ export const UnifiedTokenCard2 = ({
                                 <div className="text-xs text-muted">{token.symbol}</div>
                             </div>
                         </div>
-
                         {/* Right: balance */}
-                        <div className="text-sm text">{totalBalance}</div>
+                        <div className="flex flex-col text-right">
+                            <div className="text-sm text">{totalBalance}</div>
+                            <div className="text-xs text-muted">${roundNumber((totalBalance) * (price ?? 0), 5)}</div>
+                        </div>
                     </NomasCardBody>
                 </NomasCard>
             </motion.div>

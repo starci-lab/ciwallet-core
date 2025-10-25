@@ -11,7 +11,7 @@ import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
 import type { EvmSerializedTx } from "@ciwallet-sdk/classes"
 import { useBatchAggregatorSwrMutations } from "../mixin"
 import SuperJSON from "superjson"
-import { toRaw } from "@ciwallet-sdk/utils"
+import { computeRaw } from "@ciwallet-sdk/utils"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
@@ -142,7 +142,7 @@ export const useSwapFormikCore = () => {
                     .getFunction("approve")
                     .populateTransaction(
                         to,
-                        toRaw(
+                        computeRaw(
                             Number(values.amountIn),
                             18
                         ).toString()

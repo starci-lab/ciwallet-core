@@ -15,7 +15,7 @@ import type {
 } from "./IQuery"
 import { erc20Abi } from "@ciwallet-sdk/misc"
 import { Contract, ethers } from "ethers"
-import { toDenomination } from "@ciwallet-sdk/utils"
+import { computeDenomination } from "@ciwallet-sdk/utils"
 import BN from "bn.js"
 
 export interface EvmProviderParams {
@@ -92,14 +92,14 @@ export class EvmProvider implements IAction, IQuery {
         if (!tokenAddress) {
             // native
             const balance = await this.provider.getBalance(accountAddress)
-            return { amount: toDenomination(new BN(balance.toString()), decimals) }
+            return { amount: computeDenomination(new BN(balance.toString()), decimals).toNumber() }
         }
 
         // ERC20
         const contract = new Contract(tokenAddress, erc20Abi, this.provider)
         try {
             const rawAmount = await contract.balanceOf(accountAddress)
-            const amount = toDenomination(new BN(rawAmount.toString()), decimals)
+            const amount = computeDenomination(new BN(rawAmount.toString()), decimals).toNumber()
             return { amount }
         } catch (error) {
             console.error("fetchBalance error:", error)
