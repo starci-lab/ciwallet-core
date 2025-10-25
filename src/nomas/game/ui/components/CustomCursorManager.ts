@@ -10,6 +10,8 @@ export class CustomCursorManager {
     private isActive = false
     private currentCursorUrl: string | null = null
     private mouseMoveHandler: ((e: MouseEvent) => void) | null = null
+    private pointerEnterHandler: (() => void) | null = null
+    private pointerLeaveHandler: (() => void) | null = null
 
     constructor(scene: GameScene) {
         this.scene = scene
@@ -64,6 +66,26 @@ export class CustomCursorManager {
 
         document.addEventListener("mousemove", this.mouseMoveHandler)
 
+        // Setup canvas enter/leave listeners to show/hide custom cursor
+        if (canvas) {
+            this.pointerEnterHandler = () => {
+                if (this.cursorElement && this.isActive) {
+                    this.cursorElement.style.display = "block"
+                    canvas.style.cursor = "none"
+                }
+            }
+
+            this.pointerLeaveHandler = () => {
+                if (this.cursorElement && this.isActive) {
+                    this.cursorElement.style.display = "none"
+                    canvas.style.cursor = ""
+                }
+            }
+
+            canvas.addEventListener("pointerenter", this.pointerEnterHandler)
+            canvas.addEventListener("pointerleave", this.pointerLeaveHandler)
+        }
+
         console.log("✅ Custom cursor activated with image:", imageUrl)
     }
 
@@ -84,6 +106,16 @@ export class CustomCursorManager {
         const canvas = this.scene.game.canvas
         if (canvas) {
             canvas.style.cursor = ""
+
+            // Remove canvas enter/leave listeners
+            if (this.pointerEnterHandler) {
+                canvas.removeEventListener("pointerenter", this.pointerEnterHandler)
+                this.pointerEnterHandler = null
+            }
+            if (this.pointerLeaveHandler) {
+                canvas.removeEventListener("pointerleave", this.pointerLeaveHandler)
+                this.pointerLeaveHandler = null
+            }
         }
 
         // Restore Phaser default cursor
