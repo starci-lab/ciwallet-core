@@ -1,12 +1,8 @@
 // import { envConfig } from "@/modules/configs/env"
 import { ROUTES } from "@/nomas/constants/route"
-import {
-    setAccessTokenToLS,
-    setAddressWalletToLS,
-    setRefreshTokenToLS,
-} from "@/nomas/utils/auth"
 import type { AxiosError, AxiosInstance } from "axios"
 import axios from "axios"
+import { AuthDB } from "./idb"
 
 export class Http {
     instance: AxiosInstance
@@ -37,15 +33,17 @@ export class Http {
 
         // Add a response interceptor
         this.instance.interceptors.response.use(
-            (response) => {
+            async (response) => {
                 const { url } = response.config
                 if (url === ROUTES.verify) {
                     const data = response.data
                     this.accessToken = data.access_token
                     this.refreshToken = data.refresh_token
-                    setAddressWalletToLS(data.wallet_address)
-                    setAccessTokenToLS(this.accessToken)
-                    setRefreshTokenToLS(this.refreshToken)
+                    await Promise.all([
+                        AuthDB.setAddressWallet(data.wallet_address),
+                        AuthDB.setAccessToken(this.accessToken),
+                        AuthDB.setRefreshToken(this.refreshToken),
+                    ])
                 }
                 return response
             },

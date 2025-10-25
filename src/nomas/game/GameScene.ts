@@ -16,6 +16,9 @@ const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
+    // Default cursor for the game
+    static readonly DEFAULT_CURSOR =
+        "url(../../../public/assets/game/cursor/navigation_nw.png), pointer"
     rexUI!: RexUIPlugin
     private petManager!: PetManager
     private gameUI!: GameUI
@@ -53,9 +56,7 @@ export class GameScene extends Phaser.Scene {
         this.initializeUI()
 
         // Setup cursor
-        this.input.setDefaultCursor(
-            "url(../../../public/assets/game/cursor/navigation_nw.png), pointer"
-        )
+        this.input.setDefaultCursor(GameScene.DEFAULT_CURSOR)
 
         // Multiplayer connection is managed externally (React via use-colyseus) or via explicit call
         console.log(
@@ -357,6 +358,10 @@ export class GameScene extends Phaser.Scene {
     // ===== Exposed getters for React UI integration =====
     getPurchaseSystem(): PurchaseSystem | undefined {
         return this._purchaseSystem
+    }
+
+    getCustomCursorManager() {
+        return this.gameUI?.getInputManager()?.getCustomCursorManager()
     }
 
     // Temporary legacy hook: send buy_food with requested payload

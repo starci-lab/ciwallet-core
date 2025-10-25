@@ -1,5 +1,9 @@
-import { getAddressWalletFromLS } from "@/nomas/utils/auth"
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+import { AuthDB } from "@/nomas/utils/idb"
+import {
+    createAsyncThunk,
+    createSlice,
+    type PayloadAction,
+} from "@reduxjs/toolkit"
 
 export interface UserSlice {
   addressWallet: string
@@ -8,10 +12,22 @@ export interface UserSlice {
 }
 
 const initialState: UserSlice = {
-    addressWallet: getAddressWalletFromLS(),
+    addressWallet: "",
     nomToken: 10000,
-    isAuthenticated: Boolean(getAddressWalletFromLS()),
+    isAuthenticated: false,
 }
+
+export const loadUserFromStorage = createAsyncThunk(
+    "user/loadFromStorage",
+    async () => {
+        const addressWallet = await AuthDB.getAddressWallet()
+        console.log("addressWallet", addressWallet)
+        return {
+            addressWallet,
+            isAuthenticated: Boolean(addressWallet),
+        }
+    }
+)
 
 export const userSlice = createSlice({
     name: "user",
@@ -35,6 +51,12 @@ export const userSlice = createSlice({
         setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
             state.isAuthenticated = action.payload
         },
+    },
+    extraReducers: (builder) => {
+        builder.addCase(loadUserFromStorage.fulfilled, (state, action) => {
+            state.addressWallet = action.payload.addressWallet
+            state.isAuthenticated = action.payload.isAuthenticated
+        })
     },
 })
 

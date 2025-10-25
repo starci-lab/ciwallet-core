@@ -1,4 +1,4 @@
-import type { GameScene } from "../scenes/GameScene"
+import type { GameScene } from "../GameScene"
 import { PetManager, type PetData } from "@/nomas/game/managers/PetManager"
 import { FeedingUI } from "./components/FeedingUI"
 import { CleanlinessUI } from "./components/CleanlinessUI"
@@ -192,5 +192,9 @@ export class GameUI {
 
     getMinimizeState(): boolean {
         return this.isMinimized
+    }
+
+    getInputManager(): InputManager {
+        return this.inputManager
     }
 }
