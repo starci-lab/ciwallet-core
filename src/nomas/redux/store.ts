@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit"
 import {
     statelessReducer,
     persistsReducer,
+    listenerMiddleware
 } from "./slices"
 import { persistStore } from "redux-persist"
 
@@ -13,7 +14,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: false,
-        }),
+        }).prepend(listenerMiddleware.middleware),
 })
 export const persistor = persistStore(store)
 

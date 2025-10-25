@@ -3,8 +3,9 @@ import { InfoIcon } from "@phosphor-icons/react"
 import { cva } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
 import { NomasTooltip } from "../../extends"
+import type { WithClassName } from "@ciwallet-sdk/types"
 
-export interface TooltipTitleProps {
+export interface TooltipTitleProps extends WithClassName {
     title: string
     tooltip?: string
     size: "xs" | "sm"
@@ -34,9 +35,9 @@ const infoCva = cva("text-foreground-500", {
     },
 })
 
-export const TooltipTitle = ({ title, tooltip, size }: TooltipTitleProps) => {
+export const TooltipTitle = ({ title, tooltip, size, className }: TooltipTitleProps) => {
     return (
-        <div className={twMerge(titleCva({ size }), "flex items-center gap-1")}>
+        <div className={twMerge(titleCva({ size }), "flex items-center gap-1 whitespace-nowrap", className)}>
             {title}
             {tooltip && (
                 <NomasTooltip content={tooltip}>

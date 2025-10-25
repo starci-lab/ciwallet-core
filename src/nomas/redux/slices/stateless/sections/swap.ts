@@ -6,6 +6,7 @@ export enum SwapFunctionPage {
     SelectToken = "select-token",
     Swap = "swap",
     NomasAggregation = "nomas-aggregation",
+    SlippageConfig = "slippage-config",
 }
 
 export interface SwapSectionSlice {
@@ -18,7 +19,7 @@ export interface SwapSectionSlice {
 }
 
 const initialState: SwapSectionSlice = {
-    swapFunctionPage: SwapFunctionPage.ChooseNetwork,
+    swapFunctionPage: SwapFunctionPage.Swap,
     expandDetails: false,
     tokenIn: TokenId.MonadTestnetMon,
     tokenOut: TokenId.MonadTestnetMon,

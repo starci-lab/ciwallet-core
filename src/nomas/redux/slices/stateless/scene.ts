@@ -7,6 +7,8 @@ export interface SceneSlice {
 export enum Scene {
   Init = "init",
   Main = "main",
+  Settings = "settings",
+  MyWallets = "my-wallets",
 }
 
 const initialState: SceneSlice = {

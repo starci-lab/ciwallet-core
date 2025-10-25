@@ -1,8 +1,8 @@
 import React from "react"
-import { NomasCard, NomasCardBody, NomasImage, NomasLink } from "../../../extends"
+import { NomasImage, NomasLink } from "../../../extends"
 import type { ChainId, ChainMetadata } from "@ciwallet-sdk/types"
-import { selectSelectedAccountByChainId, useAppSelector } from "@/nomas/redux"
-import { shortenAddress } from "@ciwallet-sdk/utils"
+import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
+import { chainIdToPlatform, shortenAddress } from "@ciwallet-sdk/utils"
 import { CopyIcon, QrCodeIcon } from "@phosphor-icons/react"
 import { twMerge } from "tailwind-merge"
 
@@ -14,7 +14,8 @@ export interface ChainCardProps {
 }
 
 export const ChainCard: React.FC<ChainCardProps> = ({ chain, isSelected = false, onQRCodeClick, onCopyClick }) => {
-    const account = useAppSelector((state) => selectSelectedAccountByChainId(state.persists, chain.id))
+    const platform = chainIdToPlatform(chain.id)    
+    const account = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, platform))
     return (
         <div
             className={

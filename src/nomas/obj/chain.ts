@@ -24,3 +24,38 @@ chainManagerObj.injectIconUrl({
     iconUrl: assetsConfig().chains.sui.iconUrl,
     iconInvertedUrl: assetsConfig().chains.sui.iconInvertedUrl,
 })
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Bsc,
+    iconUrl: assetsConfig().chains.bsc.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.bsc.iconInvertedUrl,
+})
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Polygon,
+    iconUrl: assetsConfig().chains.polygon.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.polygon.iconInvertedUrl,
+})
+chainManagerObj.injectIconUrl({ 
+    chainId: ChainId.Ethereum,
+    iconUrl: assetsConfig().chains.ethereum.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.ethereum.iconInvertedUrl,
+})
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Avalanche,
+    iconUrl: assetsConfig().chains.avalanche.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.avalanche.iconInvertedUrl,
+})
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Fantom,
+    iconUrl: assetsConfig().chains.fantom.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.fantom.iconInvertedUrl,
+})
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Arbitrum,
+    iconUrl: assetsConfig().chains.arbitrum.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.arbitrum.iconInvertedUrl,
+})
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Base,
+    iconUrl: assetsConfig().chains.base.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.base.iconInvertedUrl,
+})

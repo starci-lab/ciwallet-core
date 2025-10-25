@@ -4,7 +4,7 @@ import { ReduxProvider, selectSelectedAccount, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
-import { InitScene, MainScene } from "@/nomas/components"
+import { InitScene, MainScene, MyWalletsScene, SettingsScene } from "@/nomas/components"
 import { GameComponent } from "@/nomas/game/GameScene/index"
 import { encryptionObj } from "./obj"
 import { Wallet } from "ethers"
@@ -52,6 +52,10 @@ const NomasContent = () => {
             return <InitScene />
         case Scene.Main:
             return <MainScene />
+        case Scene.Settings:
+            return <SettingsScene />
+        case Scene.MyWallets:
+            return <MyWalletsScene />
         }
     }
     return <>
@@ -66,11 +70,9 @@ const NomasContent = () => {
             <div className="fixed bottom-0 left-0 w-full z-50">
                 <GameComponent
                     signMessage={async (message) => {
-                        const privateKey = await encryptionObj.decrypt(
-                            selectedAccount?.encryptedPrivateKey || "",
-                            password
-                        )
-                        const wallet = new Wallet(privateKey)
+                        if (!selectedAccount?.privateKey) 
+                            throw new Error("Selected account private key not found")
+                        const wallet = new Wallet(selectedAccount?.privateKey)
                         return await wallet.signMessage(message)
                     }}
                     publicKey={selectedAccount?.accountAddress || ""}

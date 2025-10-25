@@ -1,20 +1,20 @@
-import type { ChainId, Network } from "@ciwallet-sdk/types"
+import type { ChainId, Network, TokenId } from "@ciwallet-sdk/types"
 import type { ProtocolId } from "./ProtocolManager"
 
 export interface IAggregator {
     quote: (params: QuoteParams) => Promise<QuoteResponse>
 }
 
-export interface QuoteQuery {
-    fromToken: string
-    toToken: string
+export interface QuoteParams {
+    fromToken: TokenId
+    toToken: TokenId
     amount: number
     exactIn: boolean
     slippage: number
-}
-export interface QuoteParams {
-    query: QuoteQuery,
-    chainId: ChainId
+    fromChainId: ChainId
+    toChainId: ChainId
+    fromAddress: string
+    toAddress: string
     network: Network
     signal?: AbortSignal
 }
@@ -24,7 +24,7 @@ export interface Route {
     pool: string;
     fee: number
     percent: number;
-    routes: Array<Route>;
+    routes?: Array<Route>;
 }   
 
 export interface QuoteResponse {

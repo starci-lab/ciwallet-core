@@ -3,17 +3,19 @@ import {
     NomasCard,
     NomasCardBody,
     NomasCardHeader,
+    NomasCardVariant,
 } from "@/nomas/components"
 import {
-    setSwapPage,
-    SwapPage,  
+    selectSelectedAccountByChainId,
+    setSwapFunctionPage,
+    SwapFunctionPage,
     useAppDispatch,
     useAppSelector
 } from "@/nomas/redux"
 import { ChainId } from "@ciwallet-sdk/types"
 import { NomasSpacer } from "@/nomas/components"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
-import { TokenCard } from "@/nomas/components"
+import { TokenCard2 } from "@/nomas/components"
 import { SelectChainTab } from "@/nomas/components"
 import { tokenManagerObj } from "@/nomas/obj"
 
@@ -22,48 +24,46 @@ export const SelectTokenFunction = () => {
     const swapFormik = useSwapFormik()
     const tokenManager = tokenManagerObj
     const network = useAppSelector((state) => state.persists.session.network)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByChainId(state.persists, swapFormik.values.tokenInChainId ?? ChainId.Monad))
     return (
         <>
             <NomasCardHeader
                 title="Select Token"
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setSwapPage(SwapPage.Swap))
+                    dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
             />
             <NomasCardBody>
-                <NomasCard>
-                    <NomasCardBody>
-                        <SelectChainTab
-                            isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
-                            onClick={() => {
-                                dispatch(setSwapPage(SwapPage.SelectToken))
-                            }}
-                        />
-                    </NomasCardBody>
-                </NomasCard>
+                <SelectChainTab
+                    isSelected={(chainId) => swapFormik.values.isInput ? swapFormik.values.tokenInChainId === chainId : swapFormik.values.tokenOutChainId === chainId}
+                    onClick={() => {
+                        dispatch(setSwapFunctionPage(SwapFunctionPage.ChooseNetwork))
+                    }}
+                />
                 <NomasSpacer y={4}/>
-                <NomasCard>
-                    <NomasCardBody className="gap-2">
+                <NomasCard variant={NomasCardVariant.Dark} isInner>
+                    <NomasCardBody className="gap-2 p-0">
                         {tokenManager
                             .getTokensByChainIdAndNetwork(swapFormik.values.tokenInChainId ?? ChainId.Monad, network)
                             .map((token) => {
                                 return (
-                                    <TokenCard
-                                        isPressable={true}
-                                        onPress={
+                                    <TokenCard2
+                                        network={network}
+                                        accountAddress={selectedAccount?.accountAddress ?? ""}
+                                        chainId={tokenManager.getChainIdByTokenId(token.tokenId) ?? ChainId.Monad}
+                                        onClick={
                                             () => {
                                                 if (swapFormik.values.isInput) {
                                                     swapFormik.setFieldValue("tokenIn", token.tokenId)
                                                 } else {
                                                     swapFormik.setFieldValue("tokenOut", token.tokenId)
                                                 }
-                                                dispatch(setSwapPage(SwapPage.Swap))
+                                                dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                                             }
                                         }
                                         key={token.tokenId}
                                         token={token}
-                                        chainId={tokenManager.getChainIdByTokenId(token.tokenId) ?? ChainId.Monad}
                                     />
                                 )
                             })}

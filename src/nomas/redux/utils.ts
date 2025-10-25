@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { syncStorage } from "redux-persist-webextension-storage"
 // @ts-ignore
 import storage from "redux-persist-indexeddb-storage"
+import type { PersistConfig } from "redux-persist"
 
 export const syncStorageConfig = {
     key: "syncStorage",
@@ -13,16 +15,15 @@ export const indexeddbStorageConfig = {
     storage: storage("NomasDb"),
 }
 
-export const getStorageConfig = () => {
-    // Read environment variable injected by Vite
+export const getStorageConfig = <S = any>(config?: Partial<PersistConfig<S>>): PersistConfig<S> => {
     const appEnv = import.meta.env.VITE_APP_ENV
     console.log("[Env Check]", import.meta.env.MODE, import.meta.env.VITE_APP_ENV)
-    if (appEnv === "EXTENSION") {
-        // If we are building for browser extension
-        return syncStorageConfig
-        //return indexeddbStorageConfig // demo fallback
-    } else {
-        // Default: Web environment
-        return indexeddbStorageConfig
+  
+    const baseConfig = appEnv === "EXTENSION" ? syncStorageConfig : indexeddbStorageConfig
+  
+    // Merge extra config (like blacklist/whitelist)
+    return {
+        ...baseConfig,
+        ...config,
     }
 }
