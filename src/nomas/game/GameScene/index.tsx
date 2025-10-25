@@ -88,6 +88,10 @@ export const GameComponent: FC<GameComponentProps> = ({
         try {
             phaserGameRef.current = new Phaser.Game(getConfig(gameRef.current))
             hasBootedRef.current = true
+
+            // Store the game instance globally for other components to access
+            ;(window as any).phaserGame = phaserGameRef.current
+
             console.log("✅ Phaser Game created successfully")
 
             // Poll for scene registration to be robust under Strict Mode double-mount
@@ -132,6 +136,8 @@ export const GameComponent: FC<GameComponentProps> = ({
                 phaserGameRef.current.destroy(true)
                 phaserGameRef.current = null
                 hasBootedRef.current = false
+                // Clean up global reference
+                ;(window as any).phaserGame = null
             }
         }
     }, [isUserAuthenticated, isGameInitialized])
