@@ -40,12 +40,13 @@ export class CustomCursorManager {
     /**
    * Activate custom cursor with an item image
    */
-    activateCustomCursor(imageUrl: string) {
+    activateCustomCursor(imageUrl: string, size: number = 32) {
         if (!this.cursorElement) return
 
         this.isActive = true
         this.currentCursorUrl = imageUrl
-
+        this.cursorElement.style.width = `${size}px`
+        this.cursorElement.style.height = `${size}px`
         // Set background image
         this.cursorElement.style.backgroundImage = `url(${imageUrl})`
         this.cursorElement.style.display = "block"

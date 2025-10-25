@@ -290,7 +290,7 @@ export function ReactShopModal({
                         try {
                             const cursorManager = scene.getCustomCursorManager()
                             if (cursorManager) {
-                                cursorManager.activateCustomCursor(resizedUrl)
+                                cursorManager.activateCustomCursor(resizedUrl, 64)
                             }
                             console.log("Custom cursor activated for clean item")
                         } catch (error) {
