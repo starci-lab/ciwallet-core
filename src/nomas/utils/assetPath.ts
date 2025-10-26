@@ -15,18 +15,18 @@ function normalizePetName(petName: string): string {
         Chog: "Chog",
         chog: "Chog",
         Ghost: "Ghost",
-        ghost: "Ghost"
+        ghost: "Ghost",
     }
 
     return nameMappings[petName] || petName
 }
 
 export interface AssetPathConfig {
-  basePath?: string;
-  category: string;
-  itemName: string;
-  extension?: string;
-  variant?: string;
+  basePath?: string
+  category: string
+  itemName: string
+  extension?: string
+  variant?: string
 }
 
 /**
@@ -34,11 +34,11 @@ export interface AssetPathConfig {
  */
 export function generateAssetPath(config: AssetPathConfig): string {
     const {
-        basePath = "assets/images/",
+        basePath = "assets/game/",
         category,
         itemName,
         extension = "png",
-        variant
+        variant,
     } = config
 
     // Handle different category patterns
@@ -48,11 +48,11 @@ export function generateAssetPath(config: AssetPathConfig): string {
 
     case "toy":
     case "toys":
-        return `${basePath}toys/${itemName}.${extension}`
+        return `${basePath}toy/${itemName}.${extension}`
 
     case "clean":
     case "cleaning":
-        return `${basePath}cleaning/${itemName}.${extension}`
+        return `${basePath}clean/${itemName}.${extension}`
 
     case "pets":
     case "pet":
@@ -84,9 +84,9 @@ export function parseBackendImageUrl(imageUrl: string): string {
     // Remove leading slash if present
     const cleanUrl = imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
 
-    // If it's already a valid frontend path, return as is
-    if (cleanUrl.startsWith("assets/images/")) {
-        return cleanUrl
+    // If it's already a public assets path, return as absolute path
+    if (cleanUrl.startsWith("assets/")) {
+        return `/${cleanUrl}`
     }
 
     // Parse backend path structure
@@ -105,7 +105,7 @@ export function parseBackendImageUrl(imageUrl: string): string {
         category,
         itemName,
         variant,
-        extension: fileName.split(".").pop() || "png"
+        extension: fileName.split(".").pop() || "png",
     })
 }
 
@@ -115,10 +115,10 @@ export function parseBackendImageUrl(imageUrl: string): string {
 export function getShopItemAssetPath(
     category: string,
     item: {
-    texture?: string;
-    name?: string;
-    image_url?: string;
-    species?: string;
+    texture?: string
+    name?: string
+    image_url?: string
+    species?: string
   }
 ): string {
     // Priority 1: Use image_url from backend if available
@@ -133,14 +133,13 @@ export function getShopItemAssetPath(
     const generatedPath = generateAssetPath({
         category,
         itemName,
-        variant: category === "pets" ? "idle" : undefined
+        variant: category === "pets" ? "idle" : undefined,
     })
 
     // Priority 3: Fallback for missing assets
     if (!generatedPath) {
         return getFallbackAssetPath(category, itemName)
     }
-
     return generatedPath
 }
 
@@ -155,7 +154,7 @@ function getFallbackAssetPath(category: string, _itemName: string): string {
         clean: "assets/images/effects/coin.png",
         background: "assets/images/backgrounds/forest-bg.png",
         backgrounds: "assets/images/backgrounds/forest-bg.png",
-        furniture: "assets/images/effects/coin.png"
+        furniture: "assets/images/effects/coin.png",
     }
 
     return fallbackMappings[category] || "assets/images/effects/coin.png"
@@ -168,11 +167,11 @@ export const ASSET_PATHS = {
     BASE: "assets/images/",
     FOOD: "assets/images/food/",
     TOYS: "assets/images/toys/",
-    CLEANING: "assets/images/cleaning/",
+    CLEANING: "assets/images/clean/",
     PETS: "assets/images/pets/",
     BACKGROUNDS: "assets/images/backgrounds/",
     EFFECTS: "assets/images/effects/",
-    UI: "assets/images/ui/"
+    UI: "assets/images/ui/",
 } as const
 
 /**
@@ -184,5 +183,5 @@ export const PET_VARIANTS = {
     SLEEP: "sleep",
     EAT: "eat",
     CHEW: "chew",
-    IDLEPLAY: "idleplay"
+    IDLEPLAY: "idleplay",
 } as const

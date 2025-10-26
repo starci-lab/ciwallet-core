@@ -1,5 +1,17 @@
 import { Schema, type, MapSchema } from "@colyseus/schema"
 
+// Poop schema
+export class PetPoop extends Schema {
+  @type("string") id: string = ""
+  @type("string") petId: string = ""
+  @type("number") positionX: number = 0
+  @type("number") positionY: number = 0
+
+  constructor() {
+      super()
+  }
+}
+
 // Simplified Pet with essential stats only
 export class Pet extends Schema {
   @type("string") id: string = ""
@@ -16,6 +28,7 @@ export class Pet extends Schema {
   @type("number") tokenIncome: number = 0
   @type("number") totalIncome: number = 0
   @type("string") lastClaim: string = ""
+  @type({ array: PetPoop }) poops: Array<PetPoop> = []
 
   constructor() {
       super()

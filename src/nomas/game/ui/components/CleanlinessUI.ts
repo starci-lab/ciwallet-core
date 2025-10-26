@@ -66,4 +66,42 @@ export class CleanlinessUI {
         this.cleanlinessLabel?.destroy()
         this.cleanlinessBar?.destroy()
     }
+
+    minimize(): void {
+        if (this.cleanlinessLabel) {
+            this.scene.tweens.add({
+                targets: this.cleanlinessLabel,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+        if (this.cleanlinessBar) {
+            this.scene.tweens.add({
+                targets: this.cleanlinessBar,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+    }
+
+    restore(): void {
+        if (this.cleanlinessLabel) {
+            this.scene.tweens.add({
+                targets: this.cleanlinessLabel,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+        if (this.cleanlinessBar) {
+            this.scene.tweens.add({
+                targets: this.cleanlinessBar,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+    }
 }

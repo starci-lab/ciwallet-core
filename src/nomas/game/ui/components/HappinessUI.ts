@@ -1,4 +1,4 @@
-import { PetManager } from   "@/nomas/game/managers/PetManager"
+import { PetManager } from "@/nomas/game/managers/PetManager"
 
 const UI_PADDING = 8
 
@@ -65,5 +65,43 @@ export class HappinessUI {
     destroy() {
         this.happinessLabel?.destroy()
         this.happinessBar?.destroy()
+    }
+
+    minimize(): void {
+        if (this.happinessLabel) {
+            this.scene.tweens.add({
+                targets: this.happinessLabel,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+        if (this.happinessBar) {
+            this.scene.tweens.add({
+                targets: this.happinessBar,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+    }
+
+    restore(): void {
+        if (this.happinessLabel) {
+            this.scene.tweens.add({
+                targets: this.happinessLabel,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
+        if (this.happinessBar) {
+            this.scene.tweens.add({
+                targets: this.happinessBar,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        }
     }
 }

@@ -141,25 +141,30 @@ export const loadBackgroundAssets = (scene: Phaser.Scene) => {
     scene.load.image("forest-bg", getUrl("backgrounds/forest-bg.png"))
 }
 
-export const loadFoodAssets = (scene: Phaser.Scene) => {
-    scene.load.image("hamburger", getUrl("food/hambuger.png"))
+export const loadPoopAssets = (scene: Phaser.Scene) => {
+    scene.load.atlas("poop", getUrl("poop/poop.png"), getUrl("poop/poop.json"))
 }
 
-export const loadPoopAssets = (scene: Phaser.Scene) => {
-    // Load animated poop atlas
-    scene.load.atlas(
-        "poop",
-        getUrl("poop/poop.png"),
-        getUrl("poop/poop.json")
-    )
+export const loadFoodAssets = (scene: Phaser.Scene) => {
+    scene.load.image("hamburger", getUrl("food/hambuger.png"))
+    scene.load.image("bone", getUrl("food/bone.png"))
+    scene.load.image("apple", getUrl("food/apple.png"))
+    scene.load.image("coke", getUrl("food/coke.png"))
+    scene.load.image("cake", getUrl("food/cake.png"))
+    scene.load.image("icecream", getUrl("food/icecream.png"))
+    scene.load.image("watermelon", getUrl("food/watermelon.png"))
 }
 
 export const loadCleaningAssets = (scene: Phaser.Scene) => {
-    scene.load.image("broom", getUrl("broom/broom.png"))
+    scene.load.atlas("broom", getUrl("clean/broom.png"), getUrl("clean/broom.json"))
 }
 
 export const loadToyAssets = (scene: Phaser.Scene) => {
     scene.load.image("ball", getUrl("ball/ball.png"))
+    scene.load.image("daruma", getUrl("toy/daruma.png"))
+    scene.load.image("tedy", getUrl("toy/tedy.png")) // Fixed: was "teddy" but actual file is "tedy.png"
+    scene.load.image("football", getUrl("toy/football.png"))
+    scene.load.image("game", getUrl("toy/game.png"))
 }
 
 export const loadEffectAssets = (scene: Phaser.Scene) => {

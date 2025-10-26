@@ -1,52 +1,42 @@
 "use client"
 
 import React, { useEffect, useRef } from "react"
-import { motion, useAnimation } from "framer-motion"
+import { motion } from "framer-motion"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
-import { NomasButton, NomasTooltip } from "@/nomas/components"
+import { NomasButtonIcon, NomasTooltip } from "@/nomas/components"
 
 export const RefreshProgressRing = () => {
     const swapFormik = useSwapFormik()
-    const controls = useAnimation()
-    const refreshKeyRef = useRef(0)
     const radius = 8.75
     const circumference = 2 * Math.PI * radius
+    const intervalRef = useRef<NodeJS.Timeout | null>(null)
+    const animationKeyRef = useRef(0) // used to restart ring animation
 
     useEffect(() => {
-        refreshKeyRef.current = swapFormik.values.refreshKey
+        const triggerRefresh = () => {
+            swapFormik.setFieldValue("refreshKey", swapFormik.values.refreshKey + 1)
+            animationKeyRef.current += 1 // restart animation
+        }
+        // loop every 10s   
+        intervalRef.current = setInterval(triggerRefresh, 10_000)
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current)
+        }
     }, [swapFormik.values.refreshKey])
 
-    useEffect(() => {
-        let isCancelled = false
-
-        const loop = async () => {
-            while (!isCancelled) {
-                await controls.start({
-                    strokeDashoffset: circumference,
-                    transition: { duration: 0 },
-                })
-                await controls.start({
-                    strokeDashoffset: 0,
-                    transition: { duration: 10, ease: "linear" },
-                })
-
-                swapFormik.setFieldValue("refreshKey", refreshKeyRef.current + 1)
-            }
-        }
-
-        loop()
-        return () => {
-            isCancelled = true
-        }
-    }, [controls, circumference])
     return (
-        <NomasTooltip content="Auto refresh in 10 seconds, you can click to update manually.">
-            <NomasButton className="relative overflow-hidden w-10 h-10" 
-                onClick={() => {
-                    swapFormik.setFieldValue("refreshKey", refreshKeyRef.current + 1)
-                }}
+        <NomasTooltip content="Auto refresh every 10 s (click to refresh manually).">
+            <NomasButtonIcon
+                className="relative overflow-hidden w-10 h-10 radius-button"
+                onClick={
+                    () => {
+                        swapFormik.setFieldValue("refreshKey", swapFormik.values.refreshKey + 1)
+                        animationKeyRef.current += 1
+                    }
+                }
             >
                 <motion.svg
+                    key={animationKeyRef.current} // restart animation each time
                     className="absolute inset-0 m-auto size-5"
                     viewBox="0 0 20 20"
                 >
@@ -68,11 +58,13 @@ export const RefreshProgressRing = () => {
                         fill="none"
                         strokeLinecap="round"
                         strokeDasharray={circumference}
-                        animate={controls}
+                        initial={{ strokeDashoffset: circumference }}
+                        animate={{ strokeDashoffset: 0 }}
+                        transition={{ duration: 10, ease: "linear" }}
                         className="text-primary"
                     />
                 </motion.svg>
-            </NomasButton>
+            </NomasButtonIcon>
         </NomasTooltip>
     )
 }

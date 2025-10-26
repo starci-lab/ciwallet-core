@@ -105,8 +105,11 @@ export interface SignAndSendTransactionParams extends BaseParams {
   transaction: string;
   // private key
   privateKey: string;
+  // sender address
+  senderAddress: string;
   // chain id
-  chainId: ChainId;
+  fromChainId: ChainId;
+  toChainId: ChainId;
   // network
   network: Network;
   // rpcs

@@ -15,9 +15,11 @@ export class Http {
     constructor() {
         this.accessToken = ""
         this.refreshToken = ""
+        const baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:3001"
+        console.log("🌐 HTTP Client Base URL:", baseURL)
         this.instance = axios.create({
-            // baseURL: import.meta.env.VITE_BASE_URL,
-            baseURL: " https://mate-desert-previous-rick.trycloudflare.com",
+            baseURL: baseURL,
+            // baseURL: " https://mate-desert-previous-rick.trycloudflare.com",
             timeout: 10000,
             headers: {
                 "Content-Type": "application/json",
@@ -48,6 +50,7 @@ export class Http {
                 return response
             },
             (error: AxiosError) => {
+                console.error("❌ HTTP error:", error)
                 return Promise.reject(error)
             }
         )

@@ -82,6 +82,10 @@ export const assetsConfig = () => {
             pyth: {
                 iconUrl: getUrl("/assets/mixin/pyth.svg"),
             }
-        }
+        },
+        game: {
+            petRisingStoreLogo: getUrl("/assets/game/game-ui/pet-rising.png"),
+            nomasCoin: getUrl("/assets/game/coin/nomas-token.png"),
+        },
     }
 }

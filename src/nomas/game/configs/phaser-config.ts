@@ -3,7 +3,9 @@ import { GameScene } from "@/nomas/game/GameScene"
 import { AUTO } from "phaser"
 export const CONTAINER_ID = "phaser-container"
 
-export const getConfig = (parent: HTMLDivElement): Phaser.Types.Core.GameConfig => {
+export const getConfig = (
+    parent: HTMLDivElement
+): Phaser.Types.Core.GameConfig => {
     // get the mobile orientation
     return {
         type: AUTO,

@@ -3,6 +3,7 @@ import type { ProtocolId } from "./ProtocolManager"
 
 export interface IAggregator {
     quote: (params: QuoteParams) => Promise<QuoteResponse>
+    signAndSendTransaction: (params: SignAndSendTransactionParams) => Promise<SignAndSendTransactionResponse>
 }
 
 export interface QuoteParams {
@@ -37,4 +38,21 @@ export interface EvmSerializedTx {
     to: string
     data: string
     value: string
+}
+
+export interface SignAndSendTransactionParams {
+    // if the protocol return serialized tx via API response, we use this
+    serializedTx?: string
+    privateKey: string
+    rpcs: Array<string>
+    fromChainId: ChainId
+    toChainId: ChainId
+    senderAddress: string
+    recipientAddress: string
+    network: Network
+    signal?: AbortSignal
+}
+
+export interface SignAndSendTransactionResponse {
+    txHash: string
 }

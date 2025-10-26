@@ -1,10 +1,8 @@
 import type { ColyseusClient } from "@/nomas/game/colyseus/client"
 import { Pet } from "../entities/Pet"
-// import { useUserStore } from "@/store/userStore"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { GAME_MECHANICS } from "../constants/gameConstants"
-import { spendToken, store, useAppSelector } from "@/nomas/redux"
-import { useDispatch } from "react-redux"
+import { spendToken, store } from "@/nomas/redux"
 
 // Hunger states
 export const HungerState = {
@@ -72,7 +70,7 @@ export class FeedingSystem {
             return false
         }
 
-        const foodPrice = food.price
+        const foodPrice = food.cost_nom
 
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
             console.log(
@@ -80,9 +78,7 @@ export class FeedingSystem {
             )
 
             // Check if player has enough tokens before sending to server
-            const currentTokens = useAppSelector(
-                (state) => state.stateless.user.nomToken
-            )
+            const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < foodPrice) {
                 console.log(
                     `❌ Not enough tokens: need ${foodPrice}, have ${currentTokens}`
@@ -135,7 +131,7 @@ export class FeedingSystem {
 
         // Send eaten food event to server if connected
         if (this.colyseusClient && this.colyseusClient.isConnected()) {
-            const userStore = useAppSelector((state) => state.stateless.user)
+            const userStore = store.getState().stateless.user
             this.colyseusClient.eatedFood({
                 hunger_level: this.hungerLevel,
                 pet_id: this.petId,

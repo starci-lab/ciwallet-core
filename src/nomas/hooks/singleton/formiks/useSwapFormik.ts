@@ -15,6 +15,7 @@ import { computeRaw } from "@ciwallet-sdk/utils"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
+import { aggregatorManagerObj } from "@/nomas/obj"
 
 export interface Aggregation {
     aggregator: AggregatorId;
@@ -120,75 +121,24 @@ export const useSwapFormikCore = () => {
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
-            try {
-                const senderAddress = selectedAccount?.accountAddress ?? ""
-                const rpcProvider = new ethers.JsonRpcProvider(
-                    "https://testnet-rpc.monad.xyz"
-                )
-                const erc20Contract = ERC20Contract({
-                    chainId: values.tokenInChainId,
-                    network,
-                    tokenAddress: selectedAccount?.accountAddress ?? "",
-                })
-                const nonce = await rpcProvider.getTransactionCount(senderAddress)
-                const { to, data, value } = SuperJSON.parse<EvmSerializedTx>(
-                    swrMutation.data?.madhouse.serializedTx || ""
-                )
-                if (!to || !data || !value) {
-                    throw new Error("Invalid transaction data")
-                }
-                // approve the erc20 contract
-                const approveTx = await erc20Contract
-                    .getFunction("approve")
-                    .populateTransaction(
-                        to,
-                        computeRaw(
-                            Number(values.amountIn),
-                            18
-                        ).toString()
-                    )
-                approveTx.chainId = BigInt(10143)
-                approveTx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei") // ví dụ 2 gwei
-                approveTx.maxFeePerGas = ethers.parseUnits("50", "gwei") // ví dụ 100 gwei
-                approveTx.gasLimit = BigInt(100000)
-                approveTx.nonce = nonce
-                const transaction = ethers.Transaction.from(approveTx).unsignedSerialized
-                const response = await adapter.signAndSendTransaction?.({
-                    transaction,
+            switch (values.bestAggregationId) {
+            case AggregatorId.Madhouse: {
+                const response = await aggregatorManagerObj.getAggregatorById(AggregatorId.Madhouse)?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation.data?.madhouse.serializedTx,
                     privateKey: selectedAccount?.privateKey ?? "",
                     rpcs: rpcs[values.tokenInChainId][network],
-                    chainId: values.tokenInChainId,
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
                     network,
                 })
-                if (!response) {
-                    throw new Error("Kimochi")
-                }
-                alert(response.signature)
-
-                const tx = new ethers.Transaction()
-                tx.to = to
-                tx.data = data
-                tx.value = value
-                tx.chainId = BigInt(10143)
-                tx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei") // ví dụ 2 gwei
-                tx.maxFeePerGas = ethers.parseUnits("67.5", "gwei") // ví dụ 100 gwei
-                tx.gasLimit = BigInt(1000000)
-                tx.nonce = nonce + 1
-
-                const transaction2 = ethers.Transaction.from(tx).unsignedSerialized
-                const response2 = await adapter.signAndSendTransaction?.({
-                    transaction: transaction2,
-                    privateKey: selectedAccount?.privateKey ?? "",
-                    rpcs: rpcs[values.tokenInChainId][network],
-                    chainId: values.tokenInChainId,
-                    network,
-                })
-                if (!response2) {
-                    throw new Error("Kimochi")
-                }
-                alert(response2.signature)
-            } catch (error) {
-                console.error(error)
+                alert(response?.txHash)
+                break
+            }
+            default: {
+                throw new Error(`Aggregator ${values.bestAggregationId} is not supported`)
+            }
             }
         },
     })

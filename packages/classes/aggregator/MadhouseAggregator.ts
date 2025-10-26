@@ -1,15 +1,20 @@
 import { computeDenomination, computeRaw, getEvmChainId } from "@ciwallet-sdk/utils"
 import type {
+    EvmSerializedTx,
     IAggregator,
     QuoteParams,
     QuoteResponse,
     Route,
+    SignAndSendTransactionResponse,
 } from "./IAggregator"
 import axios, { Axios } from "axios"
 import { TokenManager } from "../data"
 import type { ProtocolId } from "./ProtocolManager"
 import BN from "bn.js"
 import SuperJSON from "superjson"
+import type { SignAndSendTransactionParams } from "./IAggregator"
+import { ethers } from "ethers"
+import { ChainId } from "@ciwallet-sdk/types"
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 export class MadhouseAggregator implements IAggregator {
@@ -68,6 +73,60 @@ export class MadhouseAggregator implements IAggregator {
             amountOut: computeDenomination(new BN(amountOut), tokenOutEntity?.decimals).toNumber(),
             routes,
             serializedTx: SuperJSON.stringify(tx),
+        }
+    }
+
+    async signAndSendTransaction({
+        serializedTx,
+        privateKey,
+        rpcs,
+        senderAddress,
+        recipientAddress,
+        fromChainId,
+        toChainId,
+        network,
+    }: SignAndSendTransactionParams): Promise<SignAndSendTransactionResponse> {
+        if (fromChainId !== ChainId.Monad || toChainId !== ChainId.Monad) {
+            throw new Error("MadhouseAggregator only supports Monad chain")
+        }
+        if (senderAddress !== recipientAddress) {
+            throw new Error("MadhouseAggregator only supports same address")
+        }
+        try {
+            // we use the first RPC url for the provider
+            // later we can update some feature like load balance from multiple RPC urls
+            const rpcProvider = new ethers.JsonRpcProvider(
+                rpcs[0]
+            )
+            const wallet = new ethers.Wallet(privateKey, rpcProvider)
+            const signer = wallet.connect(rpcProvider)
+            const nonce = await rpcProvider.getTransactionCount(senderAddress)
+            const { to, data, value } = SuperJSON.parse<EvmSerializedTx>(
+                serializedTx || ""
+            )
+            if (!to || !data || !value) {
+                throw new Error("Invalid transaction data")
+            }
+            const tx = new ethers.Transaction()
+            tx.to = to
+            tx.data = data
+            tx.value = value
+            tx.chainId = BigInt(getEvmChainId(fromChainId, network))
+            tx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei")
+            tx.maxFeePerGas = ethers.parseUnits("67.5", "gwei")
+            tx.gasLimit = BigInt(1000000)
+            tx.nonce = nonce + 1
+            
+            const transaction = await signer.sendTransaction(tx)
+            const receipt = await transaction.wait()
+            if (!receipt) {
+                throw new Error("Transaction failed")
+            }
+            return {
+                txHash: receipt.hash,
+            }
+        } catch (error) {
+            throw new Error(`Transaction failed: ${error}`)
         }
     }
 }

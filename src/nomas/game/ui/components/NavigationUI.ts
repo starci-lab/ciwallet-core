@@ -12,6 +12,7 @@ export class NavigationUI {
     private homeButton!: Phaser.GameObjects.Rectangle
     private shopButton!: Phaser.GameObjects.Rectangle
     private settingsButton!: Phaser.GameObjects.Rectangle
+    private uiElements: Phaser.GameObjects.GameObject[] = []
 
     constructor(scene: GameScene) {
         this.scene = scene
@@ -85,8 +86,12 @@ export class NavigationUI {
             .setDepth(NAV_UI_DEPTH + 2)
             .setInteractive({ useHandCursor: true })
 
+        // Store UI elements for minimize/restore
+        this.uiElements.push(outer, panel, this.homeButton)
+
         // Home icon (pixel art style)
-        this.createHomeIcon(x, y + 25)
+        const homeIcon = this.createHomeIcon(x, y + 25)
+        this.uiElements.push(homeIcon)
 
         // Click handler
         this.homeButton.on("pointerdown", () => {
@@ -136,8 +141,12 @@ export class NavigationUI {
             .setDepth(NAV_UI_DEPTH + 2)
             .setInteractive({ useHandCursor: true })
 
+        // Store UI elements for minimize/restore
+        this.uiElements.push(outer2, panel2, this.shopButton)
+
         // Shop icon (pixel art style)
-        this.createShopIcon(x, y + 25)
+        const shopIcon = this.createShopIcon(x, y + 25)
+        this.uiElements.push(shopIcon)
 
         // Click handler - open React shop
         this.shopButton.on("pointerdown", () => {
@@ -186,8 +195,12 @@ export class NavigationUI {
             .setDepth(NAV_UI_DEPTH + 2)
             .setInteractive({ useHandCursor: true })
 
+        // Store UI elements for minimize/restore
+        this.uiElements.push(outer3, panel3, this.settingsButton)
+
         // Settings icon (pixel art style)
-        this.createSettingsIcon(x, y + 25)
+        const settingsIcon = this.createSettingsIcon(x, y + 25)
+        this.uiElements.push(settingsIcon)
 
         // Click handler
         this.settingsButton.on("pointerdown", () => {
@@ -197,30 +210,53 @@ export class NavigationUI {
         })
     }
 
-    private createHomeIcon(x: number, y: number) {
+    private createHomeIcon(x: number, y: number): Phaser.GameObjects.Image {
     // Create a simple house icon using graphics
-        this.scene.add
+        return this.scene.add
             .image(x, y, "home")
             .setOrigin(0.5)
             .setDisplaySize(30, 30)
             .setDepth(NAV_UI_DEPTH + 3)
     }
 
-    private createShopIcon(x: number, y: number) {
+    private createShopIcon(x: number, y: number): Phaser.GameObjects.Image {
     // Use image-based icon (requested: @images/game-ui/setting.png)
-        this.scene.add
+        return this.scene.add
             .image(x, y, "shop")
             .setOrigin(0.5)
             .setDisplaySize(20, 20)
             .setDepth(NAV_UI_DEPTH + 3)
     }
 
-    private createSettingsIcon(x: number, y: number) {
+    private createSettingsIcon(x: number, y: number): Phaser.GameObjects.Image {
     // Use the same setting image for settings button
-        this.scene.add
+        return this.scene.add
             .image(x, y, "setting")
             .setOrigin(0.5)
             .setDisplaySize(20, 20)
             .setDepth(NAV_UI_DEPTH + 3)
+    }
+
+    // ===== Minimize/Restore Functionality =====
+    minimize(): void {
+        this.uiElements.forEach((element) => {
+            this.scene.tweens.add({
+                targets: element,
+                alpha: 0,
+                duration: 300,
+                ease: "Power2",
+            })
+        })
+    }
+
+    restore(): void {
+        this.uiElements.forEach((element) => {
+            this.scene.tweens.add({
+                targets: element,
+                alpha: 1,
+                duration: 300,
+                ease: "Power2",
+            })
+        })
     }
 }
