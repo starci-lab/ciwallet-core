@@ -4,6 +4,7 @@ import { Room, Client, getStateCallbacks } from "colyseus.js"
 import { setNomToken, store, type UserSlice } from "@/nomas/redux"
 import type { Dispatch } from "redux"
 import { eventBus } from "@/nomas/game/event-bus"
+import { PetsDB } from "@/nomas/utils/idb"
 
 export class ColyseusClient {
     public room: Room<GameRoomState> | null = null
@@ -166,6 +167,10 @@ export class ColyseusClient {
         case "cleaned_pet_response":
             this.handlePetActionResponse(message)
             break
+        
+        case "create_poop_response":
+            this.handleCreatePoopResponse(message)
+            break
 
         case "player_state_sync":
             this.handlePlayerSync(message)
@@ -223,6 +228,19 @@ export class ColyseusClient {
         }
     }
 
+    private handleCreatePoopResponse(message: any) {
+        console.log("Create poop response:", message)
+        if (message.success) {
+            const petManager = this.getPetManager()
+            if (petManager) {
+                const activePet = petManager.getActivePet()
+                if (activePet && activePet.cleanlinessSystem) {
+                    activePet.cleanlinessSystem.createPoopAt(message.data.positionX, message.data.positionY, message.data.poopId)
+                }
+            }
+        }
+    }
+
     private handlePurchaseResponse(message: any) {
         console.log("🛒 Purchase response:", message)
 
@@ -274,6 +292,9 @@ export class ColyseusClient {
                             message.data.poopId,
                             true
                         )
+                        // xoá xong thì set để nó có thể tạo đc thêm trong tương lai, 
+                        // ko để nó chết mãi, m ặc định là 0
+                        PetsDB.setPoopCount(activePet.id, 0)
                     }
                 }
             }
