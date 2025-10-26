@@ -1,21 +1,13 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { ChainId, Platform, TokenId } from "@ciwallet-sdk/types"
-import {
-    ERC20Contract,
-} from "@ciwallet-sdk/contracts"
 import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
-import { useWalletKit } from "@ciwallet-sdk/providers"
-import { ethers } from "ethers"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
-import type { EvmSerializedTx } from "@ciwallet-sdk/classes"
-import { useBatchAggregatorSwrMutations } from "../mixin"
-import SuperJSON from "superjson"
-import { computeRaw } from "@ciwallet-sdk/utils"
 import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
 import { aggregatorManagerObj } from "@/nomas/obj"
+import { useBatchAggregatorSwrMutation } from "../mixin"
 
 export interface Aggregation {
     aggregator: AggregatorId;
@@ -96,8 +88,7 @@ export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
     const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
-    const { adapter } = useWalletKit()
-    const { swrMutation } = useBatchAggregatorSwrMutations()
+    const swrMutation = useBatchAggregatorSwrMutation()
     const formik = useFormik<SwapFormikValues>({
         initialValues: {
             balanceIn: 0,
@@ -124,7 +115,7 @@ export const useSwapFormikCore = () => {
             switch (values.bestAggregationId) {
             case AggregatorId.Madhouse: {
                 const response = await aggregatorManagerObj.getAggregatorById(AggregatorId.Madhouse)?.instance.signAndSendTransaction({
-                    serializedTx: swrMutation.data?.madhouse.serializedTx,
+                    serializedTx: swrMutation?.data?.madhouse?.serializedTx ?? "",
                     privateKey: selectedAccount?.privateKey ?? "",
                     rpcs: rpcs[values.tokenInChainId][network],
                     fromChainId: values.tokenInChainId,

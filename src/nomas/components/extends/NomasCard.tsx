@@ -136,7 +136,7 @@ export const NomasCardFooter = React.forwardRef<
     return (
         <CardFooter
             ref={ref}
-            className={twMerge("flex items-center justify-end p-6 pt-3", className)}
+            className={twMerge("flex items-center justify-end p-6 pt-0", className)}
             {...props}
         />
     )

@@ -8,11 +8,12 @@ export interface ChooseNetworkPageProps {
     isSelected: (chainId: ChainId) => boolean
     showBackButton?: boolean
     onBackButtonPress?: () => void
-    onQRCodeClick?: (chainId: ChainId) => void
-    onCopyClick?: (chainId: ChainId) => void
+    endContent?: (chainId: ChainId) => React.ReactNode
+    isPressable?: boolean
+    onPress?: (chainId: ChainId) => void
 }
 
-export const ChooseNetworkPage = ({ isSelected, showBackButton, onBackButtonPress, onQRCodeClick, onCopyClick }: ChooseNetworkPageProps) => {  
+export const ChooseNetworkPage = ({ isSelected, showBackButton, onBackButtonPress, endContent, isPressable, onPress }: ChooseNetworkPageProps) => {  
     return (
         <>
             <NomasCardHeader
@@ -25,11 +26,12 @@ export const ChooseNetworkPage = ({ isSelected, showBackButton, onBackButtonPres
                     <NomasCardBody className="p-0 flex flex-col gap-2">
                         {chainManagerObj.toObject().map((chain) => (
                             <ChainCard
+                                isPressable={isPressable}
+                                onPress={() => onPress?.(chain.id)}
                                 key={chain.id}
                                 chain={chain}
                                 isSelected={isSelected(chain.id)}
-                                onQRCodeClick={(chainId) => onQRCodeClick?.(chainId)}
-                                onCopyClick={(chainId) => onCopyClick?.(chainId)}
+                                endContent={(chainId) => endContent?.(chainId)}
                             />
                         ))}
                     </NomasCardBody>

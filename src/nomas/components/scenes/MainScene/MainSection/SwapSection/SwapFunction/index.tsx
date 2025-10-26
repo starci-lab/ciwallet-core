@@ -9,13 +9,14 @@ import {
     NomasSpinner,
 } from "../../../../../extends"
 import {
+    Action,
     ExpandToggle, 
     NomasNumberTransparentInput, 
     PythIcon, 
-    TooltipTitle 
+    TooltipTitle, 
+    Wallet
 } from "../../../../../styled"
 import { SelectToken } from "./SelectToken"
-import { Action, Wallet } from "./Wallet"
 import { ArrowsLeftRightIcon } from "@phosphor-icons/react"
 import { SlippageConfig } from "./SlippageConfig"
 import { NomasAggregation } from "./NomasAggregation"
@@ -117,7 +118,7 @@ export const SwapFunction = () => {
                             />
                         </div>
                         <NomasSpacer y={1.5} />
-                        <div className="bg-card-dark-2 radius-card-inner p-4">
+                        <div className="bg-card-dark-2 radius-card-inner p-2">
                             <div className="flex justify-between items-center">
                                 <SelectToken
                                     token={tokensIn.find((token) => token.tokenId === swapFormik.values.tokenIn)}
@@ -179,7 +180,7 @@ export const SwapFunction = () => {
                             <Wallet disableFocus balance={swapFormik.values.balanceOut} />
                         </div>
                         <NomasSpacer y={1.5} />
-                        <div className="bg-card-dark-2 radius-card-inner p-4">
+                        <div className="bg-card-dark-2 radius-card-inner p-2">
                             <div className="flex justify-between items-center">
                                 <SelectToken
                                     chainMetadata={chainManagerObj.getChainById(swapFormik.values.tokenOutChainId)}

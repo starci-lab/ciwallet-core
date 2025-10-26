@@ -107,11 +107,10 @@ export class AggregatorManager {
             })
         }
         for (const aggregator of selectedAggregators) {
-            promises.push(
-                aggregator.instance.quote(params).then((result: QuoteResponse) => {
-                    results[aggregator.id] = result
-                })
-            )
+            promises.push((async (): Promise<void> => {
+                const result = await aggregator.instance.quote(params)
+                results[aggregator.id] = result
+            })())
         }
         await Promise.allSettled(promises)
         return results

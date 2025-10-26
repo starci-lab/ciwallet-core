@@ -1,17 +1,18 @@
 import type { FormikProps } from "formik"
 import type { SwapFormikValues } from "./useSwapFormik"
-import { aggregatorManagerObj, protocolManagerObj } from "@/nomas/obj"
+import { protocolManagerObj } from "@/nomas/obj"
 import { useAppSelector } from "@/nomas/redux"
 import { useEffect } from "react"
 import { TIMEOUT_QUOTE } from "@ciwallet-sdk/constants"
 import Decimal from "decimal.js"
+import { useBatchAggregatorSwrMutation } from "../mixin"
 
 export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => {
-    const aggregators = aggregatorManagerObj.getAggregators()
     // we try to determine the token in/out to select the best aggregator
     const tokenInChainId = formik.values.tokenInChainId
     const tokenOutChainId = formik.values.tokenOutChainId
     const network = useAppSelector(state => state.persists.session.network)
+    const swrMutation = useBatchAggregatorSwrMutation()
     useEffect(() => {
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {
@@ -19,7 +20,7 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
                 if (new Decimal(formik.values.amountIn).gt(0) && formik.values.isInput) {
                     // optional: hiển thị trạng thái đang quote
                     formik.setFieldValue("quoting", true)
-                    const results = await aggregatorManagerObj.batchQuote({
+                    const results = await swrMutation.trigger({
                         fromAddress: formik.values.tokenIn,
                         toAddress: formik.values.tokenOut,
                         amount: Number(formik.values.amountIn),
@@ -32,9 +33,6 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
                         toToken: formik.values.tokenOut,
                         signal: abortController.signal,
                     })
-      
-                    console.log(results)
-      
                     // mapping dữ liệu quote ra field cần thiết
                     formik.setFieldValue(
                         "aggregations",

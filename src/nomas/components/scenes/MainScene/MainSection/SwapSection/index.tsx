@@ -51,12 +51,6 @@ export const SwapSection = () => {
                 showBackButton={true} 
                 onBackButtonPress={() => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
-                }} 
-                onQRCodeClick={(chainId) => {
-                    console.log(chainId)
-                }}
-                onCopyClick={(chainId) => {
-                    console.log(chainId)
                 }}
             />
         }

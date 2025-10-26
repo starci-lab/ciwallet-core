@@ -1,6 +1,6 @@
 import React from "react"
 import type { ChainManager } from "@ciwallet-sdk/classes"
-import { NomasCard, NomasAvatar, NomasCardBody } from "../../extends"
+import { NomasCard, NomasCardBody, NomasImage } from "../../extends"
 import type { ChainId } from "@ciwallet-sdk/types"
 
 export interface ChooseNetworkProps {
@@ -21,8 +21,7 @@ export const ChooseNetwork = ({ chainManager, isSelected, onSelect }: ChooseNetw
                                     key={chain.id}
                                     className="px-2 py-1.5 flex-row flex items-center gap-2 bg-default"
                                 >
-                                    <NomasAvatar
-                                        dimension="origin"
+                                    <NomasImage
                                         src={chain.iconUrl}
                                         alt={chain.name}
                                     />
@@ -32,12 +31,11 @@ export const ChooseNetwork = ({ chainManager, isSelected, onSelect }: ChooseNetw
                         }
 
                         return (
-                            <NomasAvatar
+                            <NomasImage
                                 onClick={() => {
                                     onSelect(chain.id)
                                 }}
                                 key={chain.id}
-                                dimension="origin"
                                 src={chain.iconUrl}
                                 alt={chain.name}
                             />

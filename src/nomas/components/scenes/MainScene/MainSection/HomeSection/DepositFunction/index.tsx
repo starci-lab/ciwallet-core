@@ -16,13 +16,6 @@ export const DepositFunction = () => {
                 onBackButtonPress={() => {
                     dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
                 }} 
-                onQRCodeClick={(chainId) => {
-                    dispatch(setDepositSelectedChainId(chainId))
-                    dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
-                }}
-                onCopyClick={(chainId) => {
-                    dispatch(setDepositSelectedChainId(chainId))
-                }}
             />
         case DepositFunctionPage.Deposit:
             return <DepositPage />

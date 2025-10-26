@@ -100,7 +100,7 @@ export class MadhouseAggregator implements IAggregator {
             )
             const wallet = new ethers.Wallet(privateKey, rpcProvider)
             const signer = wallet.connect(rpcProvider)
-            const nonce = await rpcProvider.getTransactionCount(senderAddress)
+            const nonce = await rpcProvider.getTransactionCount(senderAddress, "pending")
             const { to, data, value } = SuperJSON.parse<EvmSerializedTx>(
                 serializedTx || ""
             )
@@ -112,13 +112,13 @@ export class MadhouseAggregator implements IAggregator {
             tx.data = data
             tx.value = value
             tx.chainId = BigInt(getEvmChainId(fromChainId, network))
-            tx.maxPriorityFeePerGas = ethers.parseUnits("2", "gwei")
-            tx.maxFeePerGas = ethers.parseUnits("67.5", "gwei")
-            tx.gasLimit = BigInt(1000000)
-            tx.nonce = nonce + 1
-            
+            const feeData = await rpcProvider.getFeeData()
+            tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas
+            tx.maxFeePerGas = feeData.maxFeePerGas
+            tx.gasLimit = new BN(1000000).toString()
+            tx.nonce = nonce
             const transaction = await signer.sendTransaction(tx)
-            const receipt = await transaction.wait()
+            const receipt = await rpcProvider.waitForTransaction(transaction.hash)
             if (!receipt) {
                 throw new Error("Transaction failed")
             }

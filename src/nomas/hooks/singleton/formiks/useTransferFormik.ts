@@ -2,10 +2,9 @@ import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
-import { useAppSelector } from "@/nomas/redux"
-import { ChainId } from "@ciwallet-sdk/types"
+import { selectTokens, useAppSelector } from "@/nomas/redux"
+import { ChainId, TokenId } from "@ciwallet-sdk/types"
 import { useTransfer } from "@ciwallet-sdk/hooks"
-import { encryptionObj } from "@/nomas/obj"
 import { chainIdToPlatform, isValidAddress } from "@ciwallet-sdk/utils"
 
 // -------------------------------------
@@ -15,10 +14,11 @@ export interface TransferFormikValues {
   chainId: ChainId
   toAddress: string
   amount: number
-  tokenAddress: string
+  tokenId: TokenId
   fromAddress: string
   balance: number
-  encryptedPrivateKey: string
+  privateKey: string
+  amountFocused: boolean
 }
 
 // -------------------------------------
@@ -45,6 +45,8 @@ const validationSchema = Yup.object({
         .test("is-valid-address", "From address is not valid", function (value) {
             return isValidAddress(value, chainIdToPlatform(this.parent.chainId))
         }),
+    amountFocused: Yup.boolean()
+        .required("Amount focused is required"),
 })
 
 // -------------------------------------
@@ -68,33 +70,30 @@ export const useTransferFormikCore = () => {
         formik.setFieldValue("chainId", chainId)
     }, [chainId])
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
-    const password = useAppSelector((state) => state.persists.session.password)
+    const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const { handle } = useTransfer()
     const formik = useFormik<TransferFormikValues>({
         initialValues: {
             chainId: ChainId.Monad,
             toAddress: "",
             amount: 0,
-            tokenAddress: "",
+            tokenId: TokenId.MonadTestnetMon,
             fromAddress: "",
             balance: 0,
-            encryptedPrivateKey: "",
+            privateKey: "",
+            amountFocused: false,
         },
         validationSchema,
         onSubmit: async (values) => {
             try {
-                const privateKey = await encryptionObj.decrypt(
-                    values.encryptedPrivateKey,
-                    password
-                )
                 const result = await handle({
                     chainId,
                     network,
                     toAddress: values.toAddress,
                     amount: values.amount,
-                    tokenAddress: values.tokenAddress,
+                    tokenAddress: tokenArray.find((token) => token.tokenId === values.tokenId)?.address ?? "",
                     rpcs: rpcs[chainId][network],
-                    privateKey: privateKey,
+                    privateKey: values.privateKey,
                 })
                 console.log("Transfer result:", result)
             } catch (error) {

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import { WalletIcon } from "@phosphor-icons/react"
 import { motion } from "framer-motion"
 import { NomasDivider, NomasLink } from "@/nomas/components"
+import type { WithClassName } from "@ciwallet-sdk/types"
+import { twMerge } from "tailwind-merge"
 
 export enum Action {
   TwentyFivePercent = "25%",
@@ -9,7 +11,7 @@ export enum Action {
   Max = "max",
 }
 
-export interface WalletProps {
+export interface WalletProps extends WithClassName {
   isFocused?: boolean;
   disableFocus?: boolean;
   balance: number;
@@ -21,9 +23,10 @@ export const Wallet = ({
     disableFocus,
     balance,
     onAction,
+    className,
 }: WalletProps) => {
     if (disableFocus) {
-        return <BalanceWallet balance={balance} />
+        return <BalanceWallet balance={balance} className={className} />
     }
     return (
         <WalletActions
@@ -31,14 +34,20 @@ export const Wallet = ({
             disableFocus={disableFocus}
             balance={balance}
             onAction={onAction}
+            className={className}
         />
     )
 }
-const BalanceWallet = ({ balance }: { balance: number }) => {
+
+export interface BalanceWalletProps extends WithClassName {
+    balance: number
+}
+
+const BalanceWallet = ({ balance, className }: BalanceWalletProps) => {
     return (
-        <div className="flex items-center gap-1">
-            <WalletIcon className="w-4 h-4 text" />
-            <div className="text-xs text">{balance}</div>
+        <div className={twMerge("flex items-center gap-1", className)}>
+            <WalletIcon className={twMerge("w-4 h-4 text", className)} />
+            <div className={twMerge("text-xs text", className)}>{balance}</div>
         </div>
     )
 }
@@ -48,6 +57,7 @@ const WalletActions = ({
     disableFocus,
     balance,
     onAction,
+    className,
 }: WalletProps) => {
     const [showCollapsed, setShowCollapsed] = useState(
         !isFocused || disableFocus
@@ -66,14 +76,14 @@ const WalletActions = ({
 
     return (
         <motion.div
-            className="flex items-center gap-1"
+            className={twMerge("flex items-center gap-1", className)}
             initial={false}
             animate={{ x: showCollapsed ? -10 : 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
         >
             {showCollapsed ? (
             // Collapsed state: show balance
-                <BalanceWallet balance={balance} />
+                <BalanceWallet balance={balance} className={className} />
             ) : (
             // Expanded state: show only action buttons
                 <motion.div

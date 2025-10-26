@@ -1,16 +1,13 @@
 import React, {
     type PropsWithChildren,
 } from "react"
-import { useBatchAggregatorSwrMutationsCore } from "./useBatchAggregatorSwrMutations"
-import { BatchAggregatorContext } from "./core"
+import { BatchAggregatorProvider } from "./BatchAggregatorProvider"
 
 export const MixinProvider = ({ children }: PropsWithChildren) => {
-    const { swrMutation } = useBatchAggregatorSwrMutationsCore()
-
     return (
-        <BatchAggregatorContext.Provider value={{ swrMutation }}>
+        <BatchAggregatorProvider>
             {children}
-        </BatchAggregatorContext.Provider>
+        </BatchAggregatorProvider>
     )
 }
 

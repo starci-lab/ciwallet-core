@@ -4,15 +4,21 @@ import { HomeSelectorTab as HomeSelectorTabEnum, useAppSelector } from "@/nomas/
 import { PortfolioFunction } from "./PortfolioFunction"
 import { HomeSelectorTab } from "./HomeSelectorTab"
 import { DepositFunction } from "./DepositFunction"
+import { WithdrawFunction } from "./WithdrawFunction"
 
 export const HomeSection = () => {
     const homeSection = useAppSelector((state) => state.stateless.sections.home.homeSelectorTab)
     const renderPage = () => {
         switch (homeSection) {
-        case HomeSelectorTabEnum.Portfolio:
+        case HomeSelectorTabEnum.Portfolio: {
             return <PortfolioFunction />
-        case HomeSelectorTabEnum.Deposit:
+        }
+        case HomeSelectorTabEnum.Deposit: {
             return <DepositFunction />
+        }
+        case HomeSelectorTabEnum.Withdraw: {
+            return <WithdrawFunction />
+        }
         }
     }
     return (  

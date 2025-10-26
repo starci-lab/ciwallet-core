@@ -33,6 +33,11 @@ export enum PortfolioFunctionPage {
     TokenDetails = "token-details",
 }
 
+export enum WithdrawFunctionPage {
+    Withdraw = "withdraw",
+    ChooseNetwork = "choose-network",
+}
+
 export interface HomeSectionSlice {
     homeSelectorTab: HomeSelectorTab;
     portfolioSelectedChainId: ChainId;
@@ -45,6 +50,7 @@ export interface HomeSectionSlice {
     portfolioFunctionPage: PortfolioFunctionPage;
     expandTokenDetails: boolean;
     tokenItems: Array<TokenItem>;
+    withdrawFunctionPage: WithdrawFunctionPage;
 }
 
 const initialState: HomeSectionSlice = {
@@ -59,6 +65,7 @@ const initialState: HomeSectionSlice = {
     portfolioFunctionPage: PortfolioFunctionPage.Portfolio,
     expandTokenDetails: false,
     tokenItems: [],
+    withdrawFunctionPage: WithdrawFunctionPage.Withdraw,
 }
 
 export const homeSectionSlice = createSlice({
@@ -98,8 +105,11 @@ export const homeSectionSlice = createSlice({
         setTokenItems: (state, action: PayloadAction<Array<TokenItem>>) => {
             state.tokenItems = action.payload
         },
+        setWithdrawFunctionPage: (state, action: PayloadAction<WithdrawFunctionPage>) => {
+            state.withdrawFunctionPage = action.payload
+        },
     },
 })
 
-export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems } = homeSectionSlice.actions
+export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage } = homeSectionSlice.actions
 export const homeSectionReducer = homeSectionSlice.reducer
