@@ -41,12 +41,13 @@ export const UnifiedTokenCard2 = ({
     return (
         <>
             {/* balance listeners */}
-            {tokens.map((t) => (
+            {tokens.map((tokenItem) => (
                 <BalanceFetcher
-                    key={t.tokenId}
-                    tokenId={t.tokenId}
-                    accountAddress={t.accountAddress}
-                    chainId={t.chainId}
+                    key={tokenItem.tokenId}
+                    tokenId={tokenItem.tokenId}
+                    accountAddress={tokenItem.accountAddress}
+                    chainId={tokenItem.chainId}
+                    isToken2022={tokenItem.isToken2022}
                 />
             ))}
 
@@ -73,7 +74,7 @@ export const UnifiedTokenCard2 = ({
                         </div>
                         {/* Right: balance */}
                         <div className="flex flex-col text-right">
-                            <div className="text-sm text">{totalBalance}</div>
+                            <div className="text-sm text">{totalBalance ?? 0}</div>
                             <div className="text-xs text-muted">${roundNumber((totalBalance) * (price ?? 0), 5)}</div>
                         </div>
                     </NomasCardBody>

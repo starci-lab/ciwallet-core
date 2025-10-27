@@ -41,7 +41,7 @@ const cardCva = cva(
                 false: "radius-card",
             },
             isContainer: {
-                true: "min-w-[500px] w-[500px]",
+                true: "min-w-[600px] w-[600px]",
                 false: "",
             },
         },

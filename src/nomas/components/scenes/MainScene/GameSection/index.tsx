@@ -13,6 +13,7 @@ import { SceneName } from "@/nomas/game/configs/phaser-config"
 
 export const GameSection = () => {
     const assets = assetsConfig().app
+    const gameRef = useRef<Phaser.Game | null>(null)
     const [isMinimized, setIsMinimized] = useState(false)
     const [showShop, setShowShop] = useState(false)
     const [gameScene, setGameScene] = useState<GameScene | null>(null)
@@ -52,7 +53,7 @@ export const GameSection = () => {
     useEffect(() => {
         const getGameScene = () => {
             // Try to get the Phaser game instance from the global window object
-            const phaserGame = (window as any).phaserGame
+            const phaserGame = gameRef.current
             if (phaserGame) {
                 const scene = phaserGame.scene.getScene(SceneName.Gameplay) as GameScene
                 if (scene) {
@@ -61,11 +62,10 @@ export const GameSection = () => {
                     return true
                 }
             }
-
             // Fallback: try to find the game container and get the scene
             const gameContainer = document.getElementById("phaser-container")
             if (gameContainer) {
-                const phaserInstance = (gameContainer as any).__phaserGame
+                const phaserInstance = gameRef.current
                 if (phaserInstance) {
                     const scene = phaserInstance.scene.getScene(
                         SceneName.Gameplay

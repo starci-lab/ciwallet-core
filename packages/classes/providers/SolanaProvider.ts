@@ -1,8 +1,5 @@
-import type { Chain, IWalletAdapter } from "@ciwallet-sdk/providers"
 import type { ChainId, Network } from "@ciwallet-sdk/types"
 import type {
-    ApproveParams,
-    ApproveResponse,
     IAction,
     TransferParams,
     TransferResponse,
@@ -18,31 +15,31 @@ import type {
 import {
     Connection,
     PublicKey,
-    SystemProgram,
-    Transaction,
-    sendAndConfirmRawTransaction,
 } from "@solana/web3.js"
 
 import {
-    getAssociatedTokenAddress,
-    createTransferInstruction,
     getAccount,
+    getAssociatedTokenAddressSync,
     TOKEN_PROGRAM_ID,
+    TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token"
+import { computeDenomination } from "@ciwallet-sdk/utils"
+import BN from "bn.js"
+
+export interface SolanaProviderParams {
+    chainId: ChainId;
+    network: Network;
+    // left this blank if you don't want to sign the transaction
+    privateKey?: string;
+    rpcs: Array<string>;
+}
 
 export class SolanaProvider implements IAction, IQuery {
     private readonly connection: Connection
-    private readonly publicKey: PublicKey
     constructor(
-    public readonly chainId: ChainId,
-    public readonly network: Network,
-    public readonly privateKey: string,
-    private readonly rpcs: Array<string>,
+    public readonly params: SolanaProviderParams,
     ) {
-        this.connection = new Connection(this.rpcs.at(0)!, "confirmed")
-        this.publicKey = new PublicKey(
-            "3xaKeNNV4gdAs6ovtjrxtfUqc5bG2q6hbokP8qM3ToQu",
-        )
+        this.connection = new Connection(this.params.rpcs.at(0)!, "confirmed")
     }
 
     /** Transfer SOL or SPL token */
@@ -67,23 +64,20 @@ export class SolanaProvider implements IAction, IQuery {
         accountAddress,
         tokenAddress,
         decimals = 9,
+        isToken2022 = false,
     }: FetchBalanceParams): Promise<FetchBalanceResponse> {
-        const pubkey = new PublicKey(accountAddress)
-
         if (!tokenAddress) {
-            const balance = await this.connection.getBalance(pubkey)
-            return { amount: balance / 10 ** decimals }
+            const balance = await this.connection.getBalance(new PublicKey(accountAddress))
+            return { amount: computeDenomination(new BN(balance.toString()), decimals).toNumber() }
         }
-
-        try {
-            const mint = new PublicKey(tokenAddress)
-            const ata = await getAssociatedTokenAddress(mint, pubkey)
-            const account = await getAccount(this.connection, ata)
-            return { amount: Number(account.amount) / 10 ** decimals }
-        } catch (err) {
-            console.error(err)
-            return { amount: 0 }
-        }
+        const ataPublicKey = getAssociatedTokenAddressSync(
+            new PublicKey(tokenAddress), 
+            new PublicKey(accountAddress), 
+            false, 
+            isToken2022 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID
+        )
+        const account = await getAccount(this.connection, ataPublicKey)
+        return { amount: computeDenomination(new BN(account.amount.toString()), decimals).toNumber() }
     }
 
     /** Metadata (not fully supported without Metaplex) */
@@ -92,18 +86,5 @@ export class SolanaProvider implements IAction, IQuery {
     ): Promise<FetchTokenMetadataResponse> {
         console.log(params)
         throw new Error("Fetch metadata not implemented (need Metaplex)")
-    }
-
-    /** Approve in Solana (not the same as ERC20!) */
-    async approve({
-        spender,
-        amount,
-        tokenAddress,
-    }: ApproveParams): Promise<ApproveResponse> {
-    // SPL tokens don’t have “approve” like ERC20.
-    // You’d need delegate authority via createApproveInstruction.
-        console.log(spender, amount, tokenAddress)
-
-        throw new Error("Approve not supported yet on Solana")
     }
 }

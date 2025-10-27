@@ -1,6 +1,6 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, Platform, TokenId } from "@ciwallet-sdk/types"
+import { ChainId, Platform, TokenId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
 import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
 import { useContext } from "react"
@@ -27,8 +27,11 @@ export interface SwapFormikValues {
     tokenInChainId: ChainId;
     tokenOutChainId: ChainId;
     isInput: boolean;
+    isTokenInClicked: boolean;
     amountIn: string;
     amountOut: string;
+    searchSelectedChainId: ChainIdWithAllNetwork;
+    searchTokenQuery: string;
     slippage: number;
     tokenInFocused: boolean;
     quoting: boolean;
@@ -91,6 +94,8 @@ export const useSwapFormikCore = () => {
     const swrMutation = useBatchAggregatorSwrMutation()
     const formik = useFormik<SwapFormikValues>({
         initialValues: {
+            searchSelectedChainId: "all-network",
+            searchTokenQuery: "",
             balanceIn: 0,
             balanceOut: 0,
             tokenIn: TokenId.MonadTestnetUsdc,
@@ -98,6 +103,7 @@ export const useSwapFormikCore = () => {
             tokenInChainId: ChainId.Monad,
             tokenOutChainId: ChainId.Monad,
             isInput: true,
+            isTokenInClicked: true,
             amountIn: "0",
             amountOut: "0",
             slippage: 0.1,

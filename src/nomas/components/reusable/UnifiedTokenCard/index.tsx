@@ -1,33 +1,31 @@
 import React from "react"
 import { NomasCard, NomasCardBody, NomasCardVariant, NomasImage } from "../../extends"
-import { ChainId, type Token } from "@ciwallet-sdk/types"
-import { chainManagerObj } from "@/nomas/obj"
+import { type UnifiedToken } from "@ciwallet-sdk/types"
 import { PressableMotion } from "../../styled"
 import { PinIcon } from "lucide-react"
 
-export interface TokenCardProps {   
-    token: Token
-    chainId: ChainId
-    isPinned?: boolean
+export interface UnifiedTokenCardProps {   
+    token: UnifiedToken
     onPin?: () => void
     onUnpin?: () => void
     isPressable?: boolean
+    isPinned?: boolean
 }
 
-export const TokenCard = ({ token, chainId, onPin, onUnpin, isPressable = false, isPinned = false }: TokenCardProps) => {
+export const UnifiedTokenCard = ({ token, onPin, onUnpin, isPressable = false, isPinned = false }: UnifiedTokenCardProps) => {
+ 
     const content = () => {
         return (
             <NomasCard
-                variant={NomasCardVariant.Transparent}
                 className="flex items-center cursor-pointer"
                 onClick={isPinned ? onUnpin : onPin}
+                variant={NomasCardVariant.Transparent}
             >
                 <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2 p-4">
                     {/* Left: token info */}
                     <div className="flex flex-row items-center gap-2">
                         <div className="relative">
                             <NomasImage src={token.iconUrl} className="w-10 h-10 rounded-full" />
-                            <NomasImage src={chainManagerObj.getChainById(chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-5 h-5 rounded-full" />
                         </div>
                         <div className="flex flex-col">
                             <div className="text-sm font-medium">{token.name}</div>

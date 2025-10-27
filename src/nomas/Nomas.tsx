@@ -14,7 +14,6 @@ import {
     MyWalletsScene,
     SettingsScene,
 } from "@/nomas/components"
-import { GameComponent } from "@/nomas/game/GameScene/index"
 import { Wallet } from "ethers"
 import { motion } from "framer-motion"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
@@ -76,11 +75,11 @@ const NomasContent = () => {
             <motion.div
                 drag
                 dragMomentum={false}
-                className="absolute top-10 max-w-[500px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[500px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                className="absolute top-10 max-w-[600px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[500px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
             >
                 {renderContent()}
             </motion.div>
-            {initialized &&
+            {/* {initialized &&
         selectedAccount?.privateKey &&
         selectedAccount?.accountAddress && (
                 <div className="fixed bottom-0 left-0 w-full z-50">
@@ -94,7 +93,7 @@ const NomasContent = () => {
                         publicKey={selectedAccount.accountAddress || ""}
                     />
                 </div>
-            )}
+            )} */}
         </>
     )
 }

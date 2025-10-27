@@ -4,6 +4,7 @@ import {
     NomasButtonIcon,
     NomasCardBody,
     NomasCardHeader,
+    NomasImage,
     NomasLink,
     NomasSpacer,
     NomasSpinner,
@@ -24,7 +25,7 @@ import { roundNumber, slippageAdjustment } from "@ciwallet-sdk/utils"
 import { useSwapFormik } from "@/nomas/hooks"
 import { AutoRouter } from "./AutoRouter"
 import { selectTokensByChainIdAndNetwork, setExpandDetails, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
+import { aggregatorManagerObj, chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 import { SwapFunctionPage, setSwapFunctionPage } from "@/nomas/redux"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
@@ -57,6 +58,9 @@ export const SwapFunction = () => {
         return roundNumber(tokenOutPrice / tokenInPrice)
     }, [tokenOutPrice, tokenInPrice])
 
+    const bestAggregation = useMemo(() => {
+        return aggregatorManagerObj.getAggregatorById(swapFormik.values.bestAggregationId)
+    }, [swapFormik.values.bestAggregationId])
     return (
         <>
             <NomasCardHeader
@@ -124,6 +128,7 @@ export const SwapFunction = () => {
                                     token={tokensIn.find((token) => token.tokenId === swapFormik.values.tokenIn)}
                                     chainMetadata={chainManagerObj.getChainById(swapFormik.values.tokenInChainId)}
                                     onSelect={() => {
+                                        swapFormik.setFieldValue("isTokenInClicked", true)
                                         dispatch(setSwapFunctionPage(SwapFunctionPage.SelectToken))
                                     }}
                                 />
@@ -186,6 +191,7 @@ export const SwapFunction = () => {
                                     chainMetadata={chainManagerObj.getChainById(swapFormik.values.tokenOutChainId)}
                                     token={tokensOut.find((token) => token.tokenId === swapFormik.values.tokenOut)}
                                     onSelect={() => {
+                                        swapFormik.setFieldValue("isTokenInClicked", false)
                                         dispatch(setSwapFunctionPage(SwapFunctionPage.SelectToken))
                                     }}
                                 />
@@ -295,9 +301,24 @@ export const SwapFunction = () => {
                                     <NomasSpacer y={4} />
                                     <div className="flex justify-between">
                                         <TooltipTitle
-                                            title="Auto Router"
+                                            title="Aggregator"
                                             size="xs"
-                                            tooltip="Auto route will automatically select the best route for the trade."
+                                            tooltip="The aggregator that will be used to swap the tokens."
+                                        />
+                                        <div className="flex items-center gap-1">
+                                            <NomasImage
+                                                src={bestAggregation?.logo ?? ""}
+                                                className="w-4 h-4 rounded-full"
+                                            />
+                                            <div className="text-xs">{bestAggregation?.name ?? ""}</div>
+                                        </div>
+                                    </div>
+                                    <NomasSpacer y={4} />
+                                    <div className="flex justify-between">
+                                        <TooltipTitle
+                                            title="Protocols"
+                                            size="xs"
+                                            tooltip="The protocols that will be used to swap the tokens."
                                         />
                                         <AutoRouter />
                                     </div>

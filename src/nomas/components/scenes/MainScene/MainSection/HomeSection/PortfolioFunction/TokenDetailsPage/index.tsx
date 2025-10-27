@@ -1,6 +1,6 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { NomasButton, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasLink, NomasSpacer } from "../../../../../../extends"
-import { PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setExpandTokenDetails, setPortfolioFunctionPage, setSelectedChainId, setVisible, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { DepositFunctionPage, HomeSelectorTab, PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setExpandTokenDetails, setHomeSelectorTab, setPortfolioFunctionPage, setSelectedChainId, setVisible, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 import { ExpandToggle, LineChart, TooltipTitle } from "@/nomas/components"
 import { ArrowsLeftRightIcon, DownloadSimpleIcon, EyeClosedIcon, EyeIcon, PaperPlaneRightIcon, ShoppingCartIcon } from "@phosphor-icons/react"
@@ -9,11 +9,12 @@ import { AnimatePresence } from "framer-motion"
 import { ChainDetails } from "./ChainDetails"
 import { ChainSlider } from "./ChainSlider"
 import { roundNumber } from "@ciwallet-sdk/utils"
+import { TokenId } from "@ciwallet-sdk/types"
 
 export const TokenDetailsPage = () => {
-    const selectedTokenType = useAppSelector((state) => state.persists.session.selectedTokenType)
-    const selectedTokenId = useAppSelector((state) => state.persists.session.selectedTokenId)
-    const selectedUnifiedTokenId = useAppSelector((state) => state.persists.session.selectedUnifiedTokenId)
+    const selectedTokenType = useAppSelector((state) => state.stateless.sections.home.selectedTokenType)
+    const selectedTokenId = useAppSelector((state) => state.stateless.sections.home.selectedTokenId)
+    const selectedUnifiedTokenId = useAppSelector((state) => state.stateless.sections.home.selectedUnifiedTokenId)
     const unifiedToken = tokenManagerObj.getUnifiedTokenById(selectedUnifiedTokenId)
     const token = useAppSelector((state) => selectTokenById(state.persists, selectedTokenId))
     const tokenItems = useAppSelector((state) => state.stateless.sections.home.tokenItems)
@@ -26,7 +27,7 @@ export const TokenDetailsPage = () => {
     const unifiedPrices = useAppSelector((state) => state.stateless.dynamic.unifiedPrices)
     const price = selectedTokenType === SelectedTokenType.Token ? prices[selectedTokenId] : unifiedPrices[selectedUnifiedTokenId]
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
-    const selectedChainId = useAppSelector((state) => state.persists.session.selectedChainId)
+    const selectedChainId = useAppSelector((state) => state.stateless.sections.home.selectedChainId)
     const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const tokenIds = [
         ...new Set(tokenArray.filter((token) => {
@@ -46,7 +47,12 @@ export const TokenDetailsPage = () => {
             .map((token) => token.tokenId))
     ]
     const totalBalance = tokenIds.reduce((acc, tokenId) => acc + (balances[tokenId] ?? 0), 0)
-    
+    const depositTokenId = useMemo(() => {
+        if (selectedTokenType === SelectedTokenType.Token) {
+            return selectedTokenId
+        }
+        return tokenItems.find((tokenItem) => tokenItem.chainId === selectedChainId)?.tokenId
+    }, [selectedTokenType, tokenItems, selectedChainId])
     const actions = [
         {
             icon: <PaperPlaneRightIcon className="w-6 h-6 min-w-6 min-h-6" />,
@@ -59,7 +65,13 @@ export const TokenDetailsPage = () => {
             icon: <DownloadSimpleIcon className="w-6 h-6 min-w-6 min-h-6" />,
             title: "Receive",
             onPress: () => {
-                console.log("receive")
+                if (selectedChainId === "overview") {
+                    throw new Error("All networks not supported")
+                }
+                dispatch(setHomeSelectorTab(HomeSelectorTab.Deposit))
+                dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
+                dispatch(setDepositTokenId(depositTokenId ?? TokenId.MonadTestnetMon))
+                dispatch(setDepositSelectedChainId(selectedChainId))
             }
         },
         {
@@ -155,18 +167,21 @@ export const TokenDetailsPage = () => {
                                                     className="overflow-hidden"
                                                 >
                                                     <NomasSpacer y={6} />
-                                                    {
-                                                        tokenItems.map((tokenItem) => {
-                                                            const token = tokens[tokenItem.chainId]?.[tokenItem.network].find((t) => t.tokenId === tokenItem.tokenId)
-                                                            if (!token) return null
-                                                            const chain = chainManagerObj.getChainById(tokenItem.chainId)
-                                                            if (!chain) return null
-                                                            return <ChainDetails key={tokenItem.tokenId} 
-                                                                chain={chain}
-                                                                tokenId={tokenItem.tokenId}
-                                                            />
-                                                        })
-                                                    }
+                                                    <div className="flex flex-col gap-4">
+                                                        {
+                                                            tokenItems.map((tokenItem) => {
+                                                                const token = tokens[tokenItem.chainId]?.[tokenItem.network].find((t) => t.tokenId === tokenItem.tokenId)
+                                                                if (!token) return null
+                                                                const chain = chainManagerObj.getChainById(tokenItem.chainId)
+                                                                if (!chain) return null
+                                                                return <ChainDetails 
+                                                                    key={tokenItem.tokenId} 
+                                                                    chain={chain}
+                                                                    tokenId={tokenItem.tokenId}
+                                                                />
+                                                            })
+                                                        }
+                                                    </div>
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
@@ -182,7 +197,7 @@ export const TokenDetailsPage = () => {
                             <div className="grid grid-cols-4 gap-4">
                                 {actions.map((action) => {
                                     return (
-                                        <NomasButton key={action.title} onClick={action.onPress} className="flex flex-col items-center justify-center h-fit !p-4">
+                                        <NomasButton noShadow key={action.title} onClick={action.onPress} className="flex flex-col items-center justify-center h-fit !p-4 shadow-none">
                                             {action.icon}
                                             <div className="text-muted text-sm">{action.title}</div>
                                         </NomasButton>

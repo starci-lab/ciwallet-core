@@ -77,7 +77,7 @@ export const TokenCardWithdraw = ({
                         <div className="flex flex-col text-right">
                             <div className="flex justify-end items-baseline gap-1">
                                 <span className="font-medium text-foreground-100">
-                                    {data ?? "--"}
+                                    {data}
                                 </span>
                                 <span className="text-sm text-foreground-500">
                                     {token.symbol}

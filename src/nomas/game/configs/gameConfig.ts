@@ -215,7 +215,7 @@ class GameConfigManager {
             const petItems: PetItem[] = pet.map((item: ResponsePetTypeDto) => ({
                 id: item._id,
                 name: item.name,
-                cost_nom: Number((item as any).cost_nom ?? 0),
+                cost_nom: Number((item as ResponsePetTypeDto).cost_nom ?? 0),
                 description: item.description ?? "",
                 texture: item.name.toLowerCase().replace(/ /g, "_"),
                 image_url: item.image_url,

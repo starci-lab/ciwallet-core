@@ -22,19 +22,16 @@ import { ROUTES } from "@/nomas/constants/route"
 import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import { createColyseus } from "@/nomas/hooks/singleton/colyseus/createColyseus"
 
-export type GameComponentProps = {
+export type ReactComponentProps = {
   signMessage: (message: string) => Promise<string>
   publicKey: string
 }
 
-export const GameComponent: FC<GameComponentProps> = ({
+export const ReactComponent: FC<ReactComponentProps> = ({
     signMessage,
     publicKey,
 }) => {
-    const gameRef = useRef<HTMLDivElement>(null)
-    const phaserGameRef = useRef<Game | null>(null)
-    const sceneRef = useRef<PhaserGameScene | null>(null)
-    const hasBootedRef = useRef(false)
+    const gameRef = useRef<Phaser.Game | null>(null)
 
     const [isGameInitialized, setIsGameInitialized] = useState(false)
     const addressWallet = useAppSelector(
@@ -70,36 +67,25 @@ export const GameComponent: FC<GameComponentProps> = ({
             isUserAuthenticated,
             isGameInitialized,
         })
-
         if (!gameRef.current || !isUserAuthenticated || isGameInitialized) {
             console.log("❌ Skipping game initialization")
             return
         }
-        // Ensure the container has the expected id for Phaser parent binding
-        if (gameRef.current && gameRef.current.id !== CONTAINER_ID) {
-            gameRef.current.id = CONTAINER_ID
-        }
-        if (hasBootedRef.current || phaserGameRef.current) {
+        if (hasBootedRef.current || gameRef.current) {
             console.log("❌ Game already booted, skipping new Phaser.Game()")
             return
         }
         console.log("🎮 Starting Phaser game initialization...")
-
         try {
-            phaserGameRef.current = new Phaser.Game(getConfig(gameRef.current))
+            gameRef.current = new Phaser.Game(getConfig(gameRef.current))
             hasBootedRef.current = true
-
-            // Store the game instance globally for other components to access
-            ;(window as any).phaserGame = phaserGameRef.current
-
             console.log("✅ Phaser Game created successfully")
-
             // Poll for scene registration to be robust under Strict Mode double-mount
             let attempts = 0
             const pollScene = () => {
                 attempts += 1
                 sceneRef.current =
-          (phaserGameRef.current?.scene.getScene(
+          (gameRef.current?.scene.getScene(
               SceneName.Gameplay
           ) as PhaserGameScene) || null
                 if (sceneRef.current) {
@@ -120,8 +106,8 @@ export const GameComponent: FC<GameComponentProps> = ({
         }
 
         const handleResize = () => {
-            if (phaserGameRef.current) {
-                phaserGameRef.current.scale.resize(window.innerWidth, 160)
+            if (gameRef.current) {
+                gameRef.current.scale.resize(window.innerWidth, 160)
             }
         }
 
@@ -132,12 +118,12 @@ export const GameComponent: FC<GameComponentProps> = ({
             // In dev (React Strict Mode), avoid destroying immediately to prevent
             // double-mount teardown from killing the Phaser instance.
             const env = import.meta.env as { DEV?: boolean }
-            if (!env.DEV && phaserGameRef.current) {
-                phaserGameRef.current.destroy(true)
-                phaserGameRef.current = null
+            if (!env.DEV && gameRef.current) {
+                gameRef.current.destroy(true)
+                gameRef.current = null
                 hasBootedRef.current = false
                 // Clean up global reference
-                ;(window as any).phaserGame = null
+                gameRef.current = null
             }
         }
     }, [isUserAuthenticated, isGameInitialized])

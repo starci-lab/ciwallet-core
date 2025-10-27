@@ -14,6 +14,8 @@ export interface FetchBalanceParams {
     tokenAddress?: string
     // decimals of the token
     decimals?: number
+    // is token 2022?
+    isToken2022?: boolean
 }
 
 export interface FetchBalanceResponse {

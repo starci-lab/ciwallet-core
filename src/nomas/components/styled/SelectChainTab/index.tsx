@@ -1,15 +1,17 @@
 import React, { useMemo } from "react"
-import { NomasCard, NomasCardBody, NomasImage, NomasCardVariant } from "../../extends"
-import type { ChainId, ChainMetadata } from "@ciwallet-sdk/types"
+import { NomasCardBody, NomasImage } from "../../extends"
 import { chainManagerObj } from "@/nomas/obj"
 import { ChevronRightIcon } from "lucide-react"
 import { PressableMotion } from "../PressableMotion"
 import { twMerge } from "tailwind-merge"
+import { GlobeIcon } from "@phosphor-icons/react"
+import type { ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
 
 export interface SelectChainTabProps {
-    isSelected: (chainId: ChainId) => boolean
+    isSelected: (chainId: ChainIdWithAllNetwork) => boolean
     onClick: () => void
     variant?: SelectChainTabVariant
+    withAllNetworks?: boolean
 }
 
 export enum SelectChainTabVariant {
@@ -17,50 +19,88 @@ export enum SelectChainTabVariant {
     Dark2 = "dark2",
 }
 
-export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVariant.Dark }: SelectChainTabProps) => {
+export interface RenderedChain {
+    id: ChainIdWithAllNetwork
+    name: string
+    icon: React.ReactNode
+}
+
+export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVariant.Dark, withAllNetworks = false }: SelectChainTabProps) => {
     // we define the chain index to show the next chain
     const chains = chainManagerObj.toObject()
+
+    const renderedChains = useMemo(() => {
+        return chains.map((chain): RenderedChain => {
+            return {
+                id: chain.id,
+                name: chain.name,
+                icon: <NomasImage src={chain.iconUrl} className="w-8 h-8 rounded-full cursor-pointer min-w-8 min-h-8" key={chain.id}/>,
+            }
+        })
+    }, [chains])
+
     const chainIndex = useMemo(() => {
-        return chains.findIndex((chain) => isSelected(chain.id))
-    }, [isSelected])
+        const foundIndex = renderedChains.findIndex((chain) => isSelected(chain.id))
+        return foundIndex !== -1 ? foundIndex : 0
+    }, [isSelected, renderedChains])
     const endChainIndex = useMemo(() => {
-        return Math.min(chainIndex + 6, chains.length)
+        return Math.min(chainIndex + (withAllNetworks ? 5 : 6), renderedChains.length)
     }, [chainIndex])
     const startChainIndex = useMemo(() => {
-        return Math.max(endChainIndex - 6, 0)
-    }, [chainIndex])
+        return Math.max(endChainIndex - (withAllNetworks ? 5 : 6), 0)
+    }, [endChainIndex])
 
-    const renderChain = (chain: ChainMetadata, isSelected: boolean) => {
+    const globeChain = useMemo(() => {
+        return {
+            id: "all-network",
+            name: "All",
+            icon: <GlobeIcon className="w-8 h-8 cursor-pointer min-w-8 min-h-8" key="all-network"/>,
+        }
+    }, [])
+
+    const renderedGlobeChain = (isSelected: boolean) => {
+        if (isSelected) {
+            return (
+                <div key={globeChain.id} className="px-4 py-1.5 bg-button-nohover radius-button">
+                    <NomasCardBody className="p-0">
+                        <div className="flex gap-2 items-center">   
+                            {globeChain.icon}
+                            <div className="text-sm text">{globeChain.name}</div>
+                        </div>
+                    </NomasCardBody>
+                </div>
+            )
+        }
+        return <div className="pl-4">{globeChain.icon}</div>
+    }
+
+    const renderChain = (chain: RenderedChain, isSelected: boolean) => {
         if (isSelected) {
             return (
                 <div key={chain.id} className="px-4 py-1.5 bg-button-nohover radius-button">
                     <NomasCardBody className="p-0">
                         <div className="flex gap-2 items-center">   
-                            <NomasImage src={chain.iconUrl} className="w-8 h-8 rounded-full"/>
+                            {chain.icon}
                             <div className="text-sm text">{chain.name}</div>
                         </div>
                     </NomasCardBody>
                 </div>
             )   
         }
-        return (
-            <NomasImage
-                className="w-8 h-8 rounded-full cursor-pointer"
-                key={chain.id}
-                src={chain.iconUrl} />
-        )
+        return chain.icon
     }
     return (
         <PressableMotion onClick={onClick}>
             <div className={twMerge("cursor-pointer radius-card-inner p-2", variant === SelectChainTabVariant.Dark2 ? "bg-card-dark-2" : "bg-card-dark border border-card")}>
                 <div className="flex justify-between items-center gap-4">
                     <div className="flex items-center justify-between flex-1">
-                        {chains.slice(startChainIndex, chainIndex).map((chain) => {
-                            return renderChain(chain, false)
+                        {withAllNetworks && renderedGlobeChain(isSelected("all-network"))}
+                        {renderedChains.slice(startChainIndex, chainIndex).map((chain) => {
+                            return renderChain(chain, isSelected(chain.id))
                         })}
-                        {renderChain(chains[chainIndex], true)}
-                        {chains.slice(chainIndex + 1, endChainIndex).map((chain) => {
-                            return renderChain(chain, false)
+                        {renderChain(renderedChains[chainIndex], isSelected(renderedChains[chainIndex]?.id ?? "all-network"))}
+                        {renderedChains.slice(chainIndex + 1, endChainIndex).map((chain) => {
+                            return renderChain(chain, isSelected(chain.id ?? "all-network"))
                         })}
                     </div>
                     <ChevronRightIcon className="w-5 h-5 text-muted " />

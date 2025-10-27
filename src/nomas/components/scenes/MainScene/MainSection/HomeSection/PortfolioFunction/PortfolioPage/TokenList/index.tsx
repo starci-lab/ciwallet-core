@@ -1,91 +1,73 @@
 import React from "react"
 import { NomasCard, NomasCardBody, NomasCardVariant, TokenCard2, UnifiedTokenCard2 } from "@/nomas/components"
-import { selectSelectedAccounts, useAppSelector, setSelectedToken, SelectedTokenType, useAppDispatch, setPortfolioFunctionPage, PortfolioFunctionPage, type TokenItem, setTokenItems, selectTokens } from "@/nomas/redux"
-import { tokenManagerObj } from "@/nomas/obj"
-import { ChainId, type Token } from "@ciwallet-sdk/types"
+import { selectSelectedAccounts, useAppSelector, setSelectedToken, SelectedTokenType, useAppDispatch, setPortfolioFunctionPage, PortfolioFunctionPage, type TokenItem, setTokenItems, selectNonUnifiedTokensTrackingOnly, selectUnifiedTokensTrackingOnly, selectTokensTracking, setSelectedChainId } from "@/nomas/redux"
+import { ChainId } from "@ciwallet-sdk/types"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
 export const TokenList = () => {
-    const trackingTokenIds = useAppSelector((state) => state.persists.session.trackingTokenIds)
-    const trackingUnifiedTokenIds = useAppSelector((state) => state.persists.session.trackingUnifiedTokenIds)
-    const unifiedTokens = tokenManagerObj.getUnifiedTokens()
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const network = useAppSelector((state) => state.persists.session.network)
-    const tokens = useAppSelector((state) => state.persists.session.tokens)
-    const trackingUnifiedTokens = unifiedTokens.filter((unifiedToken) => trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId))
     const dispatch = useAppDispatch()
     // non-unified tokens
-    const tokenArray = useAppSelector((state) => selectTokens(state.persists))
-        .filter((token) => trackingTokenIds.includes(token.tokenId))
-        .filter((token) => !token.unifiedTokenId && token.network === network)
-        .reduce((acc: Array<Token>, token) => {
-            if (!acc.find((t) => t.tokenId === token.tokenId)) {
-                acc.push(token)
-            }
-            return acc
-        }, [] as Array<Token>)
+    const trackingTokens = useAppSelector((state) => selectNonUnifiedTokensTrackingOnly(state.persists))
+    const trackingUnifiedTokens = useAppSelector((state) => selectUnifiedTokensTrackingOnly(state.persists))
     const accounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
+    const trackingTokensAll = useAppSelector((state) => selectTokensTracking(state.persists))
     return (
         <NomasCard variant={NomasCardVariant.Dark} isInner>
-            <NomasCardBody className="p-4">
+            <NomasCardBody className="p-0">
                 {
                     trackingUnifiedTokens.map((unifiedToken) => {
                         const tokenItems: Array<TokenItem> = []
-                        const _tokens = Object.values(tokens).flat().flatMap((record) => Object.values(record).flat())
-                            .reduce((acc: Array<Token>, token) => {
-                                if (!acc.find((t) => t.tokenId === token.tokenId)) {
-                                    acc.push(token)
-                                }
-                                return acc
-                            }, [] as Array<Token>)
-                        const tokensSameUnifiedTokenId = _tokens.filter((token) => token.unifiedTokenId === unifiedToken.unifiedTokenId)
-                        for (const token of tokensSameUnifiedTokenId) {
+                        const _tokens = trackingTokensAll.filter((token) => token.unifiedTokenId === unifiedToken.unifiedTokenId)
+                        for (const token of _tokens) {
                             for (const chainId of Object.values(ChainId)) {
                                 const platform = chainIdToPlatform(chainId)
                                 const account = selectedAccounts[platform]
-                                if (chainId !== token.chainId) continue
+                                if (chainId !== token.chainId || token.network !== network) continue
                                 if (!account) continue
                                 tokenItems.push({
                                     tokenId: token.tokenId,
                                     accountAddress: account.accountAddress,
                                     chainId: token.chainId,
                                     network: token.network,
+                                    isToken2022: token.isToken2022,
                                 })
                             }
-                            return (
-                                <UnifiedTokenCard2 
-                                    isPressable
-                                    onClick={() => {
-                                        dispatch(setPortfolioFunctionPage(PortfolioFunctionPage.TokenDetails))
-                                        dispatch(
-                                            setSelectedToken({
-                                                type: SelectedTokenType.UnifiedToken,
-                                                id: unifiedToken.unifiedTokenId,
-                                            }))
-                                        dispatch(setTokenItems(tokenItems))
-                                    }}
-                                    token={unifiedToken} 
-                                    tokens={tokenItems}
-                                    key={unifiedToken.unifiedTokenId}
-                                />
-                            )
                         }
-                    })
+                        return (
+                            <UnifiedTokenCard2 
+                                isPressable
+                                onClick={() => {
+                                    dispatch(setPortfolioFunctionPage(PortfolioFunctionPage.TokenDetails))
+                                    dispatch(
+                                        setSelectedToken({
+                                            type: SelectedTokenType.UnifiedToken,
+                                            id: unifiedToken.unifiedTokenId,
+                                        }))
+                                    dispatch(setTokenItems(tokenItems))
+                                }}
+                                token={unifiedToken} 
+                                tokens={tokenItems}
+                                key={unifiedToken.unifiedTokenId}
+                            />
+                        )
+                    }
+                    )
                 }
                 {
-                    trackingTokenIds.map((tokenId) => {
-                        const token = tokenArray.find((token) => token.tokenId === tokenId)
-                        if (!token) return null
+                    trackingTokens.map((token) => {
                         const platform = chainIdToPlatform(token.chainId)
                         return <TokenCard2 
-                            key={tokenId}
+                            key={token.tokenId}
                             isPressable
                             onClick={() => {
                                 dispatch(setPortfolioFunctionPage(PortfolioFunctionPage.TokenDetails))
                                 dispatch(setSelectedToken({
                                     type: SelectedTokenType.Token,
-                                    id: tokenId,
+                                    id: token.tokenId,
                                 }))
+                                dispatch(setSelectedChainId(token.chainId))
                             }}
                             token={token}
                             chainId={token.chainId}

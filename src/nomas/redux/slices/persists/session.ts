@@ -87,21 +87,13 @@ export interface ImportedWallet {
   name: string
 }
 
-export enum SelectedTokenType {
-  Token = "token",
-  UnifiedToken = "unified-token",
-}
-
-export interface SetSelectedToken {
-  type: SelectedTokenType
-  id: TokenId | UnifiedTokenId
-}
 
 export interface TokenItem {
   tokenId: TokenId
   accountAddress: string
   chainId: ChainId
   network: Network
+  isToken2022?: boolean
 }
 
 export type SelectedChainId = ChainId | "overview"
@@ -120,12 +112,6 @@ export interface SessionSlice {
   // tracking token ids and unified token ids
   trackingTokenIds: Array<TokenId>
   trackingUnifiedTokenIds: Array<UnifiedTokenId>
-
-  // selected token
-  selectedTokenType: SelectedTokenType
-  selectedTokenId: TokenId
-  selectedUnifiedTokenId: UnifiedTokenId
-  selectedChainId: SelectedChainId
 
   explorers: Partial<Record<ChainId, ExplorerId>>
 }
@@ -287,15 +273,11 @@ const initialState: SessionSlice = {
     hdWallets: [],
     importedWallets: [],
     encryptedMnemonic: "",
-    network: Network.Mainnet,
+    network: Network.Testnet,
     chainId: ChainId.Monad,
     initialized: false,
     password: "",
     importedTokens: {},
-    selectedTokenType: SelectedTokenType.Token,
-    selectedTokenId: TokenId.MonadTestnetMon,
-    selectedUnifiedTokenId: UnifiedTokenId.Usdc,
-    selectedChainId: "overview",
     trackingTokenIds: [
         TokenId.MonadTestnetMon,
         TokenId.MonadTestnetWmon,
@@ -306,6 +288,8 @@ const initialState: SessionSlice = {
         TokenId.SolanaTestnetUsdc,
         TokenId.SuiMainnetSui,
         TokenId.SuiMainnetUsdc,
+        TokenId.SuiTestnetSui,
+        TokenId.SuiTestnetUsdc,
     ],
     trackingUnifiedTokenIds: [UnifiedTokenId.Usdc, UnifiedTokenId.Usdt],
     rpcs: {
@@ -322,8 +306,8 @@ const initialState: SessionSlice = {
             [Network.Testnet]: ["https://fullnode.testnet.sui.io:443"],
         },
         [ChainId.Aptos]: {
-            [Network.Mainnet]: ["https://fullnode.testnet.sui.io:443"],
-            [Network.Testnet]: ["https://fullnode.testnet.sui.io:443"],
+            [Network.Mainnet]: ["https://fullnode.mainnet.aptoslabs.com/v1"],
+            [Network.Testnet]: ["https://fullnode.testnet.aptoslabs.com/v1"],
         },
         [ChainId.Bsc]: {
             [Network.Mainnet]: ["https://bsc-mainnet.g.alchemy.com/v2/demo"],
@@ -409,9 +393,6 @@ export const sessionSlice = createSlice({
             }
       state.accounts[platform]!.selectedAccountId = account.id
         },
-        setSelectedChainId: (state, action: PayloadAction<SelectedChainId>) => {
-            state.selectedChainId = action.payload
-        },
         setNetwork: (state, action: PayloadAction<Network>) => {
             state.network = action.payload
         },
@@ -427,17 +408,17 @@ export const sessionSlice = createSlice({
         addImportedWallet: (state, action: PayloadAction<ImportedWallet>) => {
             state.importedWallets.push(action.payload)
         },
-        setSelectedTokenType: (state, action: PayloadAction<SelectedTokenType>) => {
-            state.selectedTokenType = action.payload
+        addTrackingTokenId: (state, action: PayloadAction<TokenId>) => {
+            state.trackingTokenIds.push(action.payload)
         },
-        setSelectedTokenId: (state, action: PayloadAction<TokenId>) => {
-            state.selectedTokenId = action.payload
+        addTrackingUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
+            state.trackingUnifiedTokenIds.push(action.payload)
         },
-        setSelectedUnifiedTokenId: (
-            state,
-            action: PayloadAction<UnifiedTokenId>
-        ) => {
-            state.selectedUnifiedTokenId = action.payload
+        removeTrackingTokenId: (state, action: PayloadAction<TokenId>) => {
+            state.trackingTokenIds = state.trackingTokenIds.filter((id) => id !== action.payload)
+        },
+        removeTrackingUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
+            state.trackingUnifiedTokenIds = state.trackingUnifiedTokenIds.filter((id) => id !== action.payload)
         },
         addRpc: (state, action: PayloadAction<AddRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
@@ -449,14 +430,6 @@ export const sessionSlice = createSlice({
       state.rpcs[action.payload.chainId]![action.payload.network]!.push(
           action.payload.rpc
       )
-        },
-        setSelectedToken: (state, action: PayloadAction<SetSelectedToken>) => {
-            state.selectedTokenType = action.payload.type
-            if (action.payload.type === SelectedTokenType.Token) {
-                state.selectedTokenId = action.payload.id as TokenId
-            } else {
-                state.selectedUnifiedTokenId = action.payload.id as UnifiedTokenId
-            }
         },
         setExplorer: (state, action: PayloadAction<SetExplorerParams>) => {
             state.explorers[action.payload.chainId] = action.payload.explorerId
@@ -529,12 +502,39 @@ export const sessionSlice = createSlice({
             return state.tokens[chainId]?.[network] || []
         },
         selectTokens: (state) => {
-            const tokens = tokenManagerObj.getTokensByChainIdAndNetwork(
-                state.chainId,
-                state.network
-            )
-            tokens.push(...(state.tokens?.[state.chainId]?.[state.network] || []))
-            return tokens
+            const tokens = Object.values(state.tokens)
+                .flat()
+                .flatMap((record) => Object.values(record).flat())
+            return tokens.filter((token) => token.network === state.network)
+        },
+        selectTokensTracking: (state) => {
+            const { trackingUnifiedTokenIds, trackingTokenIds, tokens } = state
+            const allTokens = Object.values(tokens)
+                .flat()
+                .flatMap((record) => Object.values(record).flat())
+            const trackingTokens = allTokens.filter((token) => {
+                return (
+                    trackingTokenIds.includes(token.tokenId) ||
+                    (token.unifiedTokenId && trackingUnifiedTokenIds.includes(token.unifiedTokenId))
+                )
+            })
+            return trackingTokens.filter((token) => token.network === state.network)
+        },
+        selectNonUnifiedTokensTrackingOnly: (state) => {
+            const { trackingTokenIds, tokens } = state
+            const allTokens = Object.values(tokens)
+                .flat()
+                .flatMap((record) => Object.values(record).flat())
+            const trackingTokens = allTokens.filter((token) => {
+                return trackingTokenIds.includes(token.tokenId) && !token.unifiedTokenId
+            })
+            return trackingTokens.filter((token) => token.network === state.network)
+        },
+        selectUnifiedTokensTrackingOnly: (state) => {
+            const unifiedTokens = tokenManagerObj.getUnifiedTokens()
+            return unifiedTokens.filter((unifiedToken) => {
+                return unifiedToken.unifiedTokenId && state.trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId)
+            })
         },
         selectSelectedAccounts: (state): Partial<Record<Platform, Account>> => {
             if (!state.accounts) return {}
@@ -590,9 +590,19 @@ listenerMiddleware.startListening({
     effect: async (_, listenerApi) => {
         const state = listenerApi.getState() as RootState
         const dispatch = listenerApi.dispatch as AppDispatch
-        const tokens = tokenManagerObj.getTokens(state.persists.session.tokens)
+        // logic to retrieve tracking tokens
+        const { trackingUnifiedTokenIds, trackingTokenIds, tokens } = state.persists.session
+        const allTokens = Object.values(tokens)
+            .flat()
+            .flatMap((record) => Object.values(record).flat())
+        const trackingTokens = allTokens.filter((token) => {
+            return (
+                trackingTokenIds.includes(token.tokenId) ||
+                    (token.unifiedTokenId && trackingUnifiedTokenIds.includes(token.unifiedTokenId))
+            )
+        })
         // subscribe to token prices
-        await subscribeToPythUpdates(tokens, (tokenId, price) => {
+        await subscribeToPythUpdates(trackingTokens, (tokenId, price) => {
             dispatch(
                 setPrice({
                     tokenId,
@@ -626,10 +636,11 @@ export const {
     addHdWallet,
     addImportedWallet,
     addRpc,
-    setSelectedToken,
-    setSelectedTokenType,
-    setSelectedChainId,
     setExplorer,
+    addTrackingTokenId,
+    addTrackingUnifiedTokenId,
+    removeTrackingTokenId,
+    removeTrackingUnifiedTokenId,
 } = sessionSlice.actions
 
 export const {
@@ -638,6 +649,9 @@ export const {
     selectSelectedAccountByChainId,
     selectTokensByChainIdAndNetwork,
     selectTokens,
+    selectTokensTracking,
+    selectNonUnifiedTokensTrackingOnly,
+    selectUnifiedTokensTrackingOnly,
     selectTokenById,
     selectSelectedAccounts,
     selectTokensByUnifiedTokenId,
