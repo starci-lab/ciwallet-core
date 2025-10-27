@@ -7,10 +7,10 @@ import {
 import { assetsConfig } from "@/nomas/resources"
 import { motion } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
-import { ReactShopModal } from "@/nomas/game/ui/modal/ReactShopModal"
+import { ReactShopModal } from "@/nomas/game/ui/react-ui/modal/ReactShopModal"
 import type { GameScene } from "@/nomas/game/GameScene"
 import { SceneName } from "@/nomas/game/configs/phaser-config"
-import { ReactHomeModal } from "@/nomas/game/ui/modal/ReactHomeModal"
+import { ReactHomeModal } from "@/nomas/game/ui/react-ui/modal/ReactHomeModal"
 
 export const GameSection = () => {
   const assets = assetsConfig().app

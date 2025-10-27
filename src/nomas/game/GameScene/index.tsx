@@ -8,7 +8,7 @@ import {
   PurchaseEvents,
   type PurchaseSystem,
 } from "@/nomas/game/systems"
-import { ReactShopModal } from "@/nomas/game/ui/modal/ReactShopModal"
+import { ReactShopModal } from "@/nomas/game/ui/react-ui/modal/ReactShopModal"
 import { createPortal } from "react-dom"
 // import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import {
@@ -22,7 +22,7 @@ import { setAddressWallet } from "@/nomas/redux/slices/stateless/user"
 import { ROUTES } from "@/nomas/constants/route"
 import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import { createColyseus } from "@/nomas/hooks/singleton/colyseus/createColyseus"
-import { ReactHomeModal } from "../ui/modal/ReactHomeModal"
+import { ReactHomeModal } from "../ui/react-ui/modal/ReactHomeModal"
 
 export type GameComponentProps = {
   signMessage: (message: string) => Promise<string>
