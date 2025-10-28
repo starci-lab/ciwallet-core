@@ -19,7 +19,7 @@ const tasks: Task[] = [
     icon: "💬",
     completed: false,
     action: () => {
-      window.open("https://t.me/your-community", "_blank")
+      console.log("Join Our Community")
     },
   },
   {
@@ -29,7 +29,7 @@ const tasks: Task[] = [
     icon: "💬",
     completed: false,
     action: () => {
-      window.open("https://discord.gg/your-discord", "_blank")
+      console.log("Join Our Community")
     },
   },
   {
@@ -39,7 +39,155 @@ const tasks: Task[] = [
     icon: "💬",
     completed: false,
     action: () => {
-      window.open("https://twitter.com/your-twitter", "_blank")
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "channel",
+    title: "Follow Our Channel",
+    reward: 100000,
+    icon: "📢",
+    completed: true,
+  },
+  {
+    id: "community-1",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-2",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-3",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "channel",
+    title: "Follow Our Channel",
+    reward: 100000,
+    icon: "📢",
+    completed: true,
+  },
+  {
+    id: "community-1",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-2",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-3",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "channel",
+    title: "Follow Our Channel",
+    reward: 100000,
+    icon: "📢",
+    completed: true,
+  },
+  {
+    id: "community-1",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-2",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-3",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "channel",
+    title: "Follow Our Channel",
+    reward: 100000,
+    icon: "📢",
+    completed: true,
+  },
+  {
+    id: "community-1",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-2",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
+    },
+  },
+  {
+    id: "community-3",
+    title: "Join Our Community",
+    reward: 100000,
+    icon: "💬",
+    completed: false,
+    action: () => {
+      console.log("Join Our Community")
     },
   },
   {
@@ -55,39 +203,41 @@ export function TasksTab() {
   const assets = assetsConfig().game
 
   return (
-    <div className="p-4 space-y-3">
-      {tasks.map((task) => (
-        <button
-          key={task.id}
-          onClick={task.action}
-          disabled={task.completed}
-          className={`w-full bg-[#2a2a2a] rounded-2xl p-4 flex items-center justify-between transition-all ${
-            task.completed ? "opacity-60" : "hover:bg-[#333] active:scale-98"
-          }`}
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-[#1a1a1a] rounded-xl flex items-center justify-center text-2xl">
-              {task.icon}
-            </div>
-            <div className="text-left">
-              <h3 className="text-base font-semibold text-white mb-1">
-                {task.title}
-              </h3>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-white font-semibold">
-                  +{task.reward.toLocaleString()}
-                </span>
-                <NomasImage
-                  src={assets.nomasCoin}
-                  alt="NOM"
-                  className="w-4 h-4"
-                />
+    <div className="h-full overflow-y-auto">
+      <div className="p-3 space-y-2">
+        {tasks.map((task) => (
+          <button
+            key={task.id}
+            onClick={task.action}
+            disabled={task.completed}
+            className={`w-full bg-[#2a2a2a] rounded-lg p-2.5 flex items-center justify-between transition-all ${
+              task.completed ? "opacity-60" : "hover:bg-[#333] active:scale-98"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 bg-[#1a1a1a] rounded-lg flex items-center justify-center text-lg">
+                {task.icon}
+              </div>
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-white mb-0.5">
+                  {task.title}
+                </h3>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-white font-semibold">
+                    +{task.reward.toLocaleString()}
+                  </span>
+                  <NomasImage
+                    src={assets.nomasCoin}
+                    alt="NOM"
+                    className="w-3 h-3"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="text-2xl">{task.completed ? "✅" : "›"}</div>
-        </button>
-      ))}
+            <div className="text-lg">{task.completed ? "✅" : "›"}</div>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

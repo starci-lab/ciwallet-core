@@ -487,6 +487,7 @@ const ShopPortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
 const HomePortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
   const [container, setContainer] = useState<HTMLElement | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
 
   useEffect(() => {
     const el = document.createElement("div")
@@ -501,28 +502,40 @@ const HomePortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
     const openHandler = () => {
       console.log("🏠 HomePortal: Opening home modal")
       setIsOpen(true)
+      setSelectedPetId(null) // Clear selected pet
       scene.registry.set("reactHomeOpen", true)
     }
+
+    const openWithPetHandler = (petId: string) => {
+      console.log("Opening home modal pet:", petId)
+      setSelectedPetId(petId)
+      setIsOpen(true)
+      scene.registry.set("reactHomeOpen", true)
+    }
+
     const closeHandler = () => {
-      console.log("🏠 HomePortal: Closing home modal")
+      console.log("Closing home modal")
       setIsOpen(false)
+      setSelectedPetId(null)
       scene.registry.set("reactHomeOpen", false)
     }
 
     // Mark React home as available
     scene.registry.set("reactHomeReady", true)
     scene.events.on("open-react-home", openHandler)
+    scene.events.on("open-react-home-with-pet", openWithPetHandler)
     scene.events.on("close-react-home", closeHandler)
 
-    console.log("✅ HomePortal: Event listeners registered")
+    console.log("Event listeners registered")
 
     return () => {
       scene.events.off("open-react-home", openHandler)
+      scene.events.off("open-react-home-with-pet", openWithPetHandler)
       scene.events.off("close-react-home", closeHandler)
       scene.registry.set("reactHomeReady", false)
       scene.registry.set("reactHomeOpen", false)
       el.remove()
-      console.log("🧹 HomePortal: Cleaned up")
+      console.log("Cleaned up")
     }
   }, [scene])
 
@@ -532,6 +545,7 @@ const HomePortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
       isOpen={isOpen}
       onClose={() => scene.events.emit("close-react-home")}
       scene={scene}
+      initialPetId={selectedPetId}
     />,
     container
   )

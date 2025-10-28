@@ -25,16 +25,16 @@ export function ReactModalLayout({
   const balance = useAppSelector((state) => state.stateless.user.nomToken)
 
   return (
-    <div className="w-full h-full bg-[#1a1a1a] rounded-2xl overflow-hidden flex flex-col">
+    <div className="w-full max-w-md h-full max-h-[600px] bg-[#1a1a1a] rounded-2xl overflow-hidden flex flex-col mx-auto">
       {/* Header */}
-      <div className="relative bg-[#2a2a2a] px-4 py-3 border-b border-[rgba(135,135,135,0.25)]">
+      <div className="relative bg-[#2a2a2a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)]">
         {/* Back Button */}
         <button
           onClick={onClose}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#323232] rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-[#323232] rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[#3a3a3a] transition-colors"
         >
           <svg
-            className="w-4 h-4 text-gray-300"
+            className="w-3.5 h-3.5 text-gray-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -54,28 +54,28 @@ export function ReactModalLayout({
             <NomasImage
               src={assets.petRisingStoreLogo}
               alt="Pet Rising Store Logo"
-              className="h-12 w-auto object-contain"
+              className="h-9 w-auto object-contain"
             />
           ) : (
-            <h2 className="text-xl font-bold text-white">{title}</h2>
+            <h2 className="text-lg font-bold text-white">{title}</h2>
           )}
         </div>
       </div>
 
       {/* Balance Section (optional) */}
       {showBalance && (
-        <div className="bg-[#2a2a2a] px-2 py-1.5 border-b border-[rgba(135,135,135,0.25)]">
+        <div className="bg-[#2a2a2a] px-2 py-1 border-b border-[rgba(135,135,135,0.25)]">
           <div className="flex items-center justify-between gap-1.5">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div>
-                <div className="text-sm text-muted pl-1">Balance</div>
+                <div className="text-xs text-muted pl-1">Balance</div>
                 <NomasInput
                   value={balance.toLocaleString()}
                   prefixIcon={
                     <NomasImage
                       src={assets.nomasCoin}
                       alt="NOM"
-                      className="w-4 h-4"
+                      className="w-3 h-3"
                     />
                   }
                   currency="NOM"
@@ -86,16 +86,16 @@ export function ReactModalLayout({
             </div>
             {showEarnings && (
               <>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <div>
-                    <div className="text-sm text-muted pl-1">Earnings</div>
+                    <div className="text-xs text-muted pl-1">Earnings</div>
                     <NomasInput
                       value="0"
                       prefixIcon={
                         <NomasImage
                           src={assets.nomasCoin}
                           alt="NOM"
-                          className="w-4 h-4"
+                          className="w-3 h-3"
                         />
                       }
                       currency="NOM"
@@ -104,7 +104,7 @@ export function ReactModalLayout({
                     />
                   </div>
                 </div>
-                <NomasButton xlSize>Claim</NomasButton>
+                <NomasButton>Claim</NomasButton>
               </>
             )}
           </div>
@@ -112,7 +112,7 @@ export function ReactModalLayout({
       )}
 
       {/* Content */}
-      <div className="flex-1 min-h-0 overflow-hidden">{children}</div>
+      <div className="flex-1 min-h-0">{children}</div>
     </div>
   )
 }
