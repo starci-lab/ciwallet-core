@@ -2,12 +2,12 @@
 import { NomasButton } from "@/nomas/components"
 import type { PetData } from "@/nomas/game/managers/PetManager"
 import { GameScene } from "@/nomas/game/GameScene"
+import { getPetImagePath } from "@/nomas/game/utils/textureUtils"
 
 interface PetStat {
   label: string
   value: number
   max: number
-  icon: string
   color: string
 }
 
@@ -19,54 +19,27 @@ interface FarmTabProps {
   onClose: () => void
 }
 
-const getPetIcon = (pet: PetData) => {
-  const petType = pet.pet?.petType || ""
-  if (petType.includes("dog")) return "🐕"
-  if (petType.includes("cat")) return "🐱"
-  if (petType.includes("chog")) return "🦀"
-  if (petType.includes("ghost")) return "👻"
-  if (petType.includes("zombie")) return "🧟"
-  return "🐾"
-}
-
 const getPetStats = (pet: PetData | null): PetStat[] => {
   if (!pet) return []
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const feedingSystem = pet.feedingSystem as any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const happinessSystem = pet.happinessSystem as any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cleanlinessSystem = pet.cleanlinessSystem as any
 
   return [
     {
       label: "Hunger",
-      value: feedingSystem?.hunger || 0,
+      value: pet.feedingSystem.hungerLevel,
       max: 100,
-      icon: "🍖",
-      color: "#ff6b6b",
-    },
-    {
-      label: "Happiness",
-      value: happinessSystem?.happiness || 0,
-      max: 100,
-      icon: "😊",
-      color: "#ffd93d",
+      color: "#8B5CF6",
     },
     {
       label: "Cleanliness",
-      value: cleanlinessSystem?.cleanliness || 0,
+      value: pet.cleanlinessSystem.cleanlinessLevel,
       max: 100,
-      icon: "✨",
-      color: "#6bcbff",
+      color: "#06B6D4",
     },
     {
-      label: "Energy",
-      value: 100, // Energy not tracked yet
+      label: "Happiness",
+      value: pet.happinessSystem.happinessLevel,
       max: 100,
-      icon: "⚡",
-      color: "#a3ff6b",
+      color: "#F59E0B",
     },
   ]
 }
@@ -90,9 +63,15 @@ export function FarmTab({
         <div className="bg-[#2a2a2a] rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="text-4xl">{getPetIcon(selectedPet)}</div>
+              <div className="w-16 h-16 rounded-lg bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                <img
+                  src={getPetImagePath(selectedPet.pet?.petType || "chog")}
+                  alt={selectedPet.pet?.petType}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <div>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-white capitalize">
                   {selectedPet.pet?.petType || "Unnamed Pet"}
                 </h3>
                 <p className="text-sm text-gray-400 capitalize">
@@ -111,14 +90,13 @@ export function FarmTab({
           {/* Real-time Stats */}
           <div className="space-y-2">
             {getPetStats(selectedPet).map((stat) => (
-              <div key={stat.label}>
+              <div key={stat.value}>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="flex items-center gap-2 text-gray-300">
-                    <span>{stat.icon}</span>
-                    {stat.label}
-                  </span>
-                  <span className="font-semibold text-white">
-                    {Math.round(stat.value)}/{stat.max}
+                  <span className="font-semibold text-white capitalize">
+                    <span className="text-gray-400 capitalize">
+                      {stat.label}:
+                    </span>{" "}
+                    {Math.round(stat.value)}%
                   </span>
                 </div>
                 <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
@@ -133,51 +111,6 @@ export function FarmTab({
               </div>
             ))}
           </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-4 gap-2 pt-2">
-            <button
-              onClick={openShop}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg bg-[#1a1a1a] hover:bg-[#333] transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-lg">
-                🍖
-              </div>
-              <span className="text-xs text-gray-400">Feed</span>
-            </button>
-            <button
-              onClick={openShop}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg bg-[#1a1a1a] hover:bg-[#333] transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-lg">
-                🧹
-              </div>
-              <span className="text-xs text-gray-400">Clean</span>
-            </button>
-            <button
-              onClick={openShop}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg bg-[#1a1a1a] hover:bg-[#333] transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-lg">
-                🎾
-              </div>
-              <span className="text-xs text-gray-400">Play</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 p-2 rounded-lg bg-[#1a1a1a] hover:bg-[#333] transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-lg">
-                👕
-              </div>
-              <span className="text-xs text-gray-400">Wear</span>
-            </button>
-          </div>
-
-          {/* Upgrade Button */}
-          <NomasButton
-            className="w-full bg-white text-black hover:bg-gray-200"
-            xlSize
-          >
-            ⚡ Upgrade
-          </NomasButton>
         </div>
       )}
 
@@ -202,12 +135,17 @@ export function FarmTab({
                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#1a1a1a] rounded-full text-xs text-white font-semibold">
                   Lv 1
                 </div>
-                <div className="text-5xl mb-2 mt-4">{getPetIcon(pet)}</div>
+                <div className="w-full h-20 flex items-center justify-center mb-2 mt-4">
+                  <img
+                    src={getPetImagePath(pet.pet?.petType || "chog")}
+                    alt={pet.pet?.petType}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <span className="text-sm">🔥</span>
                   <span className="text-sm font-semibold text-white">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {Math.round((pet.feedingSystem as any)?.hunger || 0)}
+                    {Math.round(pet.feedingSystem.hungerLevel)}
                   </span>
                 </div>
                 <div className="text-xs text-gray-300 truncate">
@@ -238,7 +176,7 @@ export function FarmTab({
             </p>
             <NomasButton
               onClick={openShop}
-              className="bg-gradient-to-r from-purple-500 to-pink-500"
+              className="bg-linear-to-r from-purple-500 to-pink-500"
             >
               🛒 Visit Shop
             </NomasButton>
