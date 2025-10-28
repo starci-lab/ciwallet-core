@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import {
   NomasCard,
   NomasCardBody,
@@ -6,7 +7,7 @@ import {
 } from "../../../extends"
 import { assetsConfig } from "@/nomas/resources"
 import { motion } from "framer-motion"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { ReactShopModal } from "@/nomas/game/ui/react-ui/modal/ReactShopModal"
 import type { GameScene } from "@/nomas/game/GameScene"
 import { SceneName } from "@/nomas/game/configs/phaser-config"
@@ -16,6 +17,7 @@ export const GameSection = () => {
   const assets = assetsConfig().app
   const [isMinimized, setIsMinimized] = useState(false)
   const [showShop, setShowShop] = useState(false)
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
   const [showHome, setShowHome] = useState(false)
   const [gameScene, setGameScene] = useState<GameScene | null>(null)
 
@@ -54,13 +56,22 @@ export const GameSection = () => {
     if (!gameScene) return
 
     const handleOpenHome = () => {
+      console.log("Opening home modal")
+      setSelectedPetId(null)
+      setShowHome(true)
+    }
+
+    const handleOpenHomeWithPet = (petId: string) => {
+      console.log(" Opening home modal with pet:", petId)
+      setSelectedPetId(petId)
       setShowHome(true)
     }
 
     gameScene.events.on("open-react-home", handleOpenHome)
-
+    gameScene.events.on("open-react-home-with-pet", handleOpenHomeWithPet)
     return () => {
       gameScene.events.off("open-react-home", handleOpenHome)
+      gameScene.events.off("open-react-home-with-pet", handleOpenHomeWithPet)
     }
   }, [gameScene])
 
@@ -154,15 +165,18 @@ export const GameSection = () => {
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex gap-4">
               {/* Farm Icon */}
               <button
-                onClick={() => setShowShop(true)}
+                onClick={() => {
+                  setSelectedPetId(null) // ← Clear selected pet
+                  setShowHome(true) // ← Open HOME not shop!
+                }}
                 className="w-16 h-16 bg-gradient-to-b from-[#1D1D1D] to-[#141414] 
-                                           rounded-full border-[3px] border-[rgba(135,135,135,0.7)]
-                                           shadow-[0px_6px_20px_rgba(0,0,0,0.6),inset_0px_2px_4px_rgba(255,255,255,0.1)]
-                                           cursor-pointer flex items-center justify-center text-2xl
-                                           text-[#B3B3B3] transition-all duration-300 ease-in-out
-                                           hover:scale-110 hover:shadow-[0px_8px_25px_rgba(0,0,0,0.8),inset_0px_2px_4px_rgba(255,255,255,0.2)]
-                                           hover:border-[rgba(135,135,135,1)] hover:text-white"
-                title="Open Shop"
+                             rounded-full border-[3px] border-[rgba(135,135,135,0.7)]
+                             shadow-[0px_6px_20px_rgba(0,0,0,0.6),inset_0px_2px_4px_rgba(255,255,255,0.1)]
+                             cursor-pointer flex items-center justify-center text-2xl
+                             text-[#B3B3B3] transition-all duration-300 ease-in-out
+                             hover:scale-110 hover:shadow-[0px_8px_25px_rgba(0,0,0,0.8),inset_0px_2px_4px_rgba(255,255,255,0.2)]
+                             hover:border-[rgba(135,135,135,1)] hover:text-white"
+                title="Open Home"
               >
                 🏘
               </button>
@@ -217,8 +231,12 @@ export const GameSection = () => {
         ) : gameScene && showHome ? (
           <div className="w-full h-full bg-[#1a1a1a] rounded-2xl overflow-hidden">
             <ReactHomeModal
+              initialPetId={selectedPetId}
               isOpen={showHome}
-              onClose={() => setShowHome(false)}
+              onClose={() => {
+                setShowHome(false)
+                setSelectedPetId(null)
+              }}
               scene={gameScene}
             />
           </div>
