@@ -7,6 +7,7 @@ export interface UseTransferParams extends BaseParams {
   toAddress: string;
   amount: number;
   tokenAddress: string;
+  decimals?: number;
   rpcs: Array<string>;
   privateKey: string;
 }
@@ -17,6 +18,7 @@ export const useTransfer = () => {
         toAddress,
         amount,
         tokenAddress,
+        decimals = 18,
         privateKey,
         rpcs,
     }: UseTransferParams) => {
@@ -26,12 +28,14 @@ export const useTransfer = () => {
                 tokenAddress,
                 toAddress,
                 amount,
+                decimals,
             })
         case Platform.Solana:
-            return new SolanaProvider(chainId, network, privateKey, rpcs).transfer({
+            return new SolanaProvider({ chainId, network, privateKey, rpcs }).transfer({
                 tokenAddress,
                 toAddress,
                 amount,
+                decimals,
             })
         default:
             throw new Error(`Chain ${chainId} is not supported`)

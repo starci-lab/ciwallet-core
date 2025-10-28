@@ -42,6 +42,8 @@ export enum PortfolioFunctionPage {
 export enum WithdrawFunctionPage {
     Withdraw = "withdraw",
     ChooseNetwork = "choose-network",
+    SelectToken = "select-token",
+    TransactionReceipt = "transaction-receipt",
 }
 
 export interface HomeSectionSlice {
@@ -83,7 +85,7 @@ const initialState: HomeSectionSlice = {
     portfolioFunctionPage: PortfolioFunctionPage.Portfolio,
     expandTokenDetails: false,
     tokenItems: [],
-    withdrawFunctionPage: WithdrawFunctionPage.Withdraw,
+    withdrawFunctionPage: WithdrawFunctionPage.TransactionReceipt,
     searchTokenQuery: "",
     searchSelectedChainId: "all-network",
     selectedTokenType: SelectedTokenType.Token,

@@ -5,6 +5,7 @@ import { chainManagerObj } from "@/nomas/obj"
 import { selectSelectedAccounts, useAppSelector } from "@/nomas/redux"
 import { chainIdToPlatform, roundNumber } from "@ciwallet-sdk/utils"
 import { BalanceFetcher } from "../BalanceFetcher"
+import { PressableMotion } from "../../styled"
 
 export interface TokenCard2Props {   
     token: Token
@@ -19,6 +20,7 @@ export const TokenCard2 = ({
     token, 
     chainId, 
     onClick, 
+    isPressable = false,
 }: TokenCard2Props) => {
     const chain = chainManagerObj.getChainById(chainId)
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
@@ -26,19 +28,11 @@ export const TokenCard2 = ({
     const prices = useAppSelector((state) => state.stateless.dynamic.prices)
     const price = prices[token.tokenId]
     const accountAddress = useAppSelector((state) => selectSelectedAccounts(state.persists))[chainIdToPlatform(chainId)]?.accountAddress ?? ""
-    return (
-        <>
-            {/* balance listeners */}
-            <BalanceFetcher
-                key={token.tokenId}
-                tokenId={token.tokenId}
-                accountAddress={accountAddress}
-                chainId={chainId}
-            />
+    const content = () => {
+        return (
             <NomasCard
                 variant={NomasCardVariant.Transparent}
                 className="flex items-center cursor-pointer"
-                onClick={onClick}
             >
                 <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2 p-4">
                     {/* Left: token info */}
@@ -60,6 +54,24 @@ export const TokenCard2 = ({
                     </div>
                 </NomasCardBody>
             </NomasCard>
+        )
+    }
+    return (
+        <>
+            {/* balance listeners */}
+            <BalanceFetcher
+                key={token.tokenId}
+                tokenId={token.tokenId}
+                accountAddress={accountAddress}
+                chainId={chainId}
+            />
+            {isPressable ? (
+                <PressableMotion onClick={onClick}>
+                    {content()}
+                </PressableMotion>
+            ) : (
+                content()
+            )}
         </>
     )
 }

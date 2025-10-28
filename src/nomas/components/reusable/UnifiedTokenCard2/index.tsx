@@ -1,5 +1,4 @@
 import React from "react"
-import { motion } from "framer-motion"
 import {
     NomasCard,
     NomasCardBody,
@@ -10,7 +9,7 @@ import { type UnifiedToken } from "@ciwallet-sdk/types"
 import { BalanceFetcher } from "../BalanceFetcher"
 import { useAppSelector, type TokenItem, selectTokens } from "@/nomas/redux"
 import { roundNumber } from "@ciwallet-sdk/utils"
-
+import { PressableMotion } from "../../styled"
 
 export interface UnifiedTokenCard2Props {
   token: UnifiedToken
@@ -38,6 +37,33 @@ export const UnifiedTokenCard2 = ({
     const totalBalance = tokenIds.reduce((acc, tokenId) => acc + (balances[tokenId] ?? 0), 0)
     const prices = useAppSelector((state) => state.stateless.dynamic.unifiedPrices)
     const price = prices[token.unifiedTokenId]
+    const content = () => {
+        return (
+            <NomasCard
+                variant={NomasCardVariant.Transparent}
+                className="flex items-center cursor-pointer select-none"
+                onClick={onClick}
+            >
+                <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2 p-4">
+                    {/* Left: token info */}
+                    <div className="flex flex-row items-center gap-2">
+                        <div className="relative">
+                            <NomasImage src={token.iconUrl} className="w-10 h-10 rounded-full" />
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="text-sm text">{token.name}</div>
+                            <div className="text-xs text-muted">{token.symbol}</div>
+                        </div>
+                    </div>
+                    {/* Right: balance */}
+                    <div className="flex flex-col text-right">
+                        <div className="text-sm text">{totalBalance ?? 0}</div>
+                        <div className="text-xs text-muted">${roundNumber((totalBalance) * (price ?? 0), 5)}</div>
+                    </div>
+                </NomasCardBody>
+            </NomasCard>
+        )
+    }
     return (
         <>
             {/* balance listeners */}
@@ -52,34 +78,13 @@ export const UnifiedTokenCard2 = ({
             ))}
 
             {/* Motion wrapper */}
-            <motion.div
-                whileTap={isPressable ? { scale: 0.96 } : {}}
-                transition={{ type: "spring", stiffness: 500, damping: 20 }}
-            >
-                <NomasCard
-                    variant={NomasCardVariant.Transparent}
-                    className="flex items-center cursor-pointer select-none"
-                    onClick={onClick}
-                >
-                    <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2 p-4">
-                        {/* Left: token info */}
-                        <div className="flex flex-row items-center gap-2">
-                            <div className="relative">
-                                <NomasImage src={token.iconUrl} className="w-10 h-10 rounded-full" />
-                            </div>
-                            <div className="flex flex-col">
-                                <div className="text-sm text">{token.name}</div>
-                                <div className="text-xs text-muted">{token.symbol}</div>
-                            </div>
-                        </div>
-                        {/* Right: balance */}
-                        <div className="flex flex-col text-right">
-                            <div className="text-sm text">{totalBalance ?? 0}</div>
-                            <div className="text-xs text-muted">${roundNumber((totalBalance) * (price ?? 0), 5)}</div>
-                        </div>
-                    </NomasCardBody>
-                </NomasCard>
-            </motion.div>
+            {isPressable ? (
+                <PressableMotion onClick={onClick}>
+                    {content()}
+                </PressableMotion>
+            ) : (
+                content()
+            )}
         </>
     )
 }
