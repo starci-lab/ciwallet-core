@@ -85,6 +85,7 @@ export const TransactionReceiptPage = ({
                     <div className="flex items-center gap-2">
                         <div className="relative">
                             <NomasImage src={toToken?.iconUrl} className="w-8 h-8 rounded-full" />
+                            <NomasImage src={chainManagerObj.getChainById(toToken.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-4 h-4 rounded-full" />
                         </div>
                         <div className="text-center text-2xl font-bold">
                         +{transactionData.amount} {toToken?.symbol}
@@ -98,6 +99,7 @@ export const TransactionReceiptPage = ({
                         value: <div className="flex gap-2 items-center">
                             <div className="relative">
                                 <NomasImage src={fromToken?.iconUrl} className="w-5 h-5 rounded-full" />
+                                <NomasImage src={chainManagerObj.getChainById(fromToken.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-4 h-4 rounded-full" />
                             </div>
                             <div className="text-sm">
                                 -{transactionData.amount} {fromToken?.symbol}
@@ -167,19 +169,59 @@ export const TransactionReceiptPage = ({
             if (!token) {
                 throw new Error("Token not found")
             }
+            const explorerId = explorers[token.chainId]
+            if (!explorerId) {
+                throw new Error("Explorer not found")
+            }
+            const explorerUrl = explorerManagerObj.getTransactionUrl(
+                explorerId,
+                transactionData.txHash,
+                network
+            )
+            const explorerName = explorerManagerObj.getExplorerName(explorerId)
             return {
                 name: "Withdrawal",
                 successMessage: `Withdraw ${token?.symbol} successfully`,
                 errorMessage: `Withdraw ${token?.symbol} failed`,
                 value: <div className="flex flex-col gap-2">
-                    <div className="text-center text-2xl font-bold">
-                        +{transactionData.amount} {token?.symbol}
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <NomasImage src={token?.iconUrl} className="w-8 h-8 rounded-full" />
+                            <NomasImage src={chainManagerObj.getChainById(token.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-4 h-4 rounded-full" />
+                        </div>
+                        <div className="text-center text-2xl font-bold">
+                        -{transactionData.amount} {token?.symbol}
+                        </div>
                     </div>
-                    <div className="text-center text-muted">{(prices[token.tokenId] ?? 0) * transactionData.amount}</div>
+                    <div className="text-center text-muted text-sm">${roundNumber((prices[token.tokenId] ?? 0) *transactionData.amount)}</div>
                 </div>,
-                details: {},
-                explorerUrl: "",
-                explorerName: ""
+                details: {
+                    "sender": {
+                        title: <TooltipTitle title="Sender" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <div className="text-sm">{shortenAddress(transactionData.fromAddress)}</div>
+                            <Snippet 
+                                copyString={transactionData.fromAddress}
+                            />
+                        </div>
+                    },
+                    "recipient": {
+                        title: <TooltipTitle title="Recipient" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <div className="text-sm">{shortenAddress(transactionData.toAddress)}</div>
+                            <Snippet copyString={transactionData.toAddress} />
+                        </div>
+                    },
+                    "chain": {
+                        title: <TooltipTitle title="Chain" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <NomasImage src={chainManagerObj.getChainById(token.chainId)?.iconUrl} className="w-5 h-5 rounded-full" />
+                            <span className="text-sm">{chainManagerObj.getChainById(token.chainId)?.name}</span>
+                        </div>
+                    }
+                },
+                explorerUrl,
+                explorerName
             }
         }
         }

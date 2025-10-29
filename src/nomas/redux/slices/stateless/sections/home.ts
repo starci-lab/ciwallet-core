@@ -85,7 +85,7 @@ const initialState: HomeSectionSlice = {
     portfolioFunctionPage: PortfolioFunctionPage.Portfolio,
     expandTokenDetails: false,
     tokenItems: [],
-    withdrawFunctionPage: WithdrawFunctionPage.TransactionReceipt,
+    withdrawFunctionPage: WithdrawFunctionPage.Withdraw,
     searchTokenQuery: "",
     searchSelectedChainId: "all-network",
     selectedTokenType: SelectedTokenType.Token,

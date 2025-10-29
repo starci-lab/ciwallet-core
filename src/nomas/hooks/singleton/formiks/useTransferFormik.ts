@@ -2,7 +2,7 @@ import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useContext, useEffect, useMemo } from "react"
 import { FormikContext } from "./FormikProvider"
-import { selectSelectedAccountByPlatform, selectTokens, useAppSelector } from "@/nomas/redux"
+import { WithdrawFunctionPage, selectSelectedAccountByPlatform, selectTokens, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { ChainId, Platform, TokenId, TokenType } from "@ciwallet-sdk/types"
 import { useTransfer } from "@ciwallet-sdk/hooks"
 import { chainIdToPlatform, isValidAddress } from "@ciwallet-sdk/utils"
@@ -14,6 +14,7 @@ export interface TransferFormikValues {
   chainId: ChainId
   toAddress: string
   amount: number
+  txHash: string
   gasTokenId: TokenId
   isEnoughGasBalance: boolean
   tokenId: TokenId
@@ -95,7 +96,7 @@ export const useTransferFormikCore = () => {
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
     const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const { handle } = useTransfer()
-    
+    const dispatch = useAppDispatch()
     const formik = useFormik<TransferFormikValues>({
         initialValues: {
             isEnoughGasBalance: false,
@@ -108,6 +109,7 @@ export const useTransferFormikCore = () => {
             privateKey: "",
             amountFocused: false,
             searchTokenQuery: "",
+            txHash: "",
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -123,6 +125,8 @@ export const useTransferFormikCore = () => {
                     privateKey: values.privateKey,
                 })
                 console.log("Transfer result:", result)
+                formik.setFieldValue("txHash", result.txHash)
+                dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.TransactionReceipt))
             } catch (error) {
                 console.error(error)
             }
