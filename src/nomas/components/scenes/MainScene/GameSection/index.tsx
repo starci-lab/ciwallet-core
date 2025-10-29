@@ -9,7 +9,11 @@ import { motion } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
 import { ReactShopModal } from "@/nomas/game/ui/modal/ReactShopModal"
 import type { GameScene } from "@/nomas/game/GameScene"
-import { SceneName } from "@/nomas/game/configs/phaser-config"
+import { useColyseus, useGameAuthenticationSwrMutation } from "@/nomas/hooks"
+import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
+import { Platform } from "@ciwallet-sdk/types"
+import { usePhaser } from "@/nomas/hooks"
+import { SceneName } from "@/nomas/game/types"
 
 export const GameSection = () => {
     const assets = assetsConfig().app
@@ -17,6 +21,7 @@ export const GameSection = () => {
     const [isMinimized, setIsMinimized] = useState(false)
     const [showShop, setShowShop] = useState(false)
     const [gameScene, setGameScene] = useState<GameScene | null>(null)
+    const { createGame } = usePhaser()
 
     const handleMinimizeToggle = () => {
         const minimizeEvent = new CustomEvent("toggleGameMinimize", {
@@ -106,7 +111,10 @@ export const GameSection = () => {
     }, [])
 
     // Note: We don't need to listen for external shop events since we're using local shop UI
-
+    const { joinOrCreateRoom } = useColyseus()
+    const swrMutation = useGameAuthenticationSwrMutation()
+    const network = useAppSelector((state) => state.persists.session.network)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     return (
         <NomasCard variant={NomasCardVariant.Gradient}>
             <NomasCardBody className="relative w-full">
@@ -138,7 +146,21 @@ export const GameSection = () => {
                         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex gap-4">
                             {/* Play/Minimize Button */}
                             <button
-                                onClick={handleMinimizeToggle}
+                                onClick={
+                                    async () => {
+                                        // authenticate the user
+                                        await swrMutation.trigger()
+                                        // join or create the room
+                                        await joinOrCreateRoom(
+                                            `pet-game-monad-${selectedAccount?.accountAddress}-${network}`,
+                                            {
+                                                // todo: add token to the room
+                                            }
+                                        )
+                                        // thus, we create the game
+                                        createGame()
+                                    }
+                                }
                                 className={`w-48 h-auto cursor-pointer 
                                             transition-all duration-300 hover:scale-105 
                                             focus:outline-none active:scale-95

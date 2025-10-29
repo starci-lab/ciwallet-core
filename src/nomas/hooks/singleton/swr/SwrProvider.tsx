@@ -1,8 +1,8 @@
 import { createContext, type PropsWithChildren } from "react"
-import { useGameAuthenticationSwrCore } from "./useGameAuthenticationSwr"
+import { useGameAuthenticationSwrMutationCore } from "./useGameAuthenticationSwrMutation"
 
 export interface SwrProviderContextType {
-    gameAuthenticationSwr: ReturnType<typeof useGameAuthenticationSwrCore>
+    gameAuthenticationSwrMutation: ReturnType<typeof useGameAuthenticationSwrMutationCore>
 }
   
 export const SwrProviderContext = createContext<SwrProviderContextType | null>(
@@ -10,9 +10,9 @@ export const SwrProviderContext = createContext<SwrProviderContextType | null>(
 )
 
 export const SwrProvider = ({ children }: PropsWithChildren) => {
-    const gameAuthenticationSwr = useGameAuthenticationSwrCore()
+    const gameAuthenticationSwrMutation = useGameAuthenticationSwrMutationCore()
     return (
-        <SwrProviderContext.Provider value={{ gameAuthenticationSwr }}>
+        <SwrProviderContext.Provider value={{ gameAuthenticationSwrMutation }}>
             {children}
         </SwrProviderContext.Provider>
     )

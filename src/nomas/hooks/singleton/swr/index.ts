@@ -1,2 +1,2 @@
 export * from "./SwrProvider"
-export * from "./useGameAuthenticationSwr"
+export * from "./useGameAuthenticationSwrMutation"
