@@ -54,10 +54,9 @@ export class EvmProvider implements IAction, IQuery {
             })
             return { txHash: tx.hash }
         }
-
         // ERC20 transfer
         const contract = new Contract(tokenAddress, erc20Abi, this.signer)
-        const tx = await contract.transfer(
+        const tx = await contract.getFunction("transfer").send(
             toAddress,
             ethers.parseUnits(amount.toString(), decimals)
         )

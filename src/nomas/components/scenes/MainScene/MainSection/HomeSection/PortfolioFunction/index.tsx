@@ -2,6 +2,7 @@ import React from "react"
 import { PortfolioFunctionPage, useAppSelector } from "@/nomas/redux"
 import { PortfolioPage } from "./PortfolioPage"
 import { TokenDetailsPage } from "./TokenDetailsPage"
+import { SearchTokenPage } from "./SearchTokenPage"
 
 export const PortfolioFunction = () => {
     const portfolioFunctionPage = useAppSelector(
@@ -14,6 +15,9 @@ export const PortfolioFunction = () => {
         }
         case PortfolioFunctionPage.TokenDetails: {
             return <TokenDetailsPage />
+        }
+        case PortfolioFunctionPage.SearchToken: {
+            return <SearchTokenPage />
         }
         }
     }

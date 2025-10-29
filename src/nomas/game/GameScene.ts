@@ -11,8 +11,8 @@ import { eventBus, EventNames } from "@/nomas/game/event-bus"
 import { TilemapInputSystem } from "@/nomas/game/tilemap/TileMapInputSystem"
 import { PurchaseUI } from "@/nomas/game/ui/PurchaseUI"
 import { PurchaseSystem } from "@/nomas/game/systems"
-import { SceneName } from "@/nomas/game/configs/phaser-config"
-const BACKEND_URL = import.meta.env.VITE_BASE_SOCKET || "ws://localhost:2567"
+import { SceneName } from "@/nomas/game/types"
+import { envConfig } from "../env"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
@@ -92,12 +92,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     private initializeSystems() {
-    // Initialize multiplayer client first
+        // Initialize multiplayer client first
         this.colyseusClient = new ColyseusClient(this)
-
         // Initialize pet manager
         this.petManager = new PetManager(this, this.colyseusClient)
-
         // If a room was provided before systems were ready, attach it now
         if (this.pendingColyseusRoom) {
             this.colyseusClient.attachRoom(this.pendingColyseusRoom)
@@ -107,9 +105,9 @@ export class GameScene extends Phaser.Scene {
 
     private initializePets() {
         console.log("🐕 Pet initialization - waiting for server sync...")
-    // Don't create initial pets locally when using Colyseus
-    // The server will create and sync the starter pet automatically
-    // This prevents conflicts between local and server pet IDs
+        // Don't create initial pets locally when using Colyseus
+        // The server will create and sync the starter pet automatically
+        // This prevents conflicts between local and server pet IDs
     }
 
     private initializeUI() {
@@ -119,7 +117,6 @@ export class GameScene extends Phaser.Scene {
 
         // Set GameUI reference in ColyseusClient for notifications
         this.colyseusClient.setGameUI(this.gameUI)
-
         // Connect to Colyseus after UI is ready
         this.connectToColyseus().catch((error) => {
             console.error("❌ Failed to connect to Colyseus:", error)
@@ -269,7 +266,7 @@ export class GameScene extends Phaser.Scene {
         this.colyseusClient.attachRoom(room)
     }
 
-    async connectToColyseus(url: string = BACKEND_URL) {
+    async connectToColyseus(url: string = envConfig().colyseus.endpoint) {
         await this.colyseusClient.connect(url)
     }
 

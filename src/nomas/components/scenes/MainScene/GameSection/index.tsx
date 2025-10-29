@@ -7,19 +7,23 @@ import {
 } from "../../../extends"
 import { assetsConfig } from "@/nomas/resources"
 import { motion } from "framer-motion"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ReactShopModal } from "@/nomas/game/ui/react-ui/modal/ReactShopModal"
 import type { GameScene } from "@/nomas/game/GameScene"
-import { SceneName } from "@/nomas/game/configs/phaser-config"
+import { useColyseus, useGameAuthenticationSwrMutation } from "@/nomas/hooks"
+import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
+import { Platform } from "@ciwallet-sdk/types"
+import { usePhaser } from "@/nomas/hooks"
+import { SceneName } from "@/nomas/game/types"
 import { ReactHomeModal } from "@/nomas/game/ui/react-ui/modal/ReactHomeModal"
 
 export const GameSection = () => {
   const assets = assetsConfig().app
+  const gameRef = useRef<Phaser.Game | null>(null)
   const [isMinimized, setIsMinimized] = useState(false)
   const [showShop, setShowShop] = useState(false)
-  const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
-  const [showHome, setShowHome] = useState(false)
   const [gameScene, setGameScene] = useState<GameScene | null>(null)
+  const { createGame } = usePhaser()
 
   const handleMinimizeToggle = () => {
     const minimizeEvent = new CustomEvent("toggleGameMinimize", {
@@ -79,7 +83,7 @@ export const GameSection = () => {
   useEffect(() => {
     const getGameScene = () => {
       // Try to get the Phaser game instance from the global window object
-      const phaserGame = (window as any).phaserGame
+      const phaserGame = gameRef.current
       if (phaserGame) {
         const scene = phaserGame.scene.getScene(SceneName.Gameplay) as GameScene
         if (scene) {
@@ -88,11 +92,10 @@ export const GameSection = () => {
           return true
         }
       }
-
       // Fallback: try to find the game container and get the scene
       const gameContainer = document.getElementById("phaser-container")
       if (gameContainer) {
-        const phaserInstance = (gameContainer as any).__phaserGame
+        const phaserInstance = gameRef.current
         if (phaserInstance) {
           const scene = phaserInstance.scene.getScene(
             SceneName.Gameplay
@@ -133,11 +136,16 @@ export const GameSection = () => {
   }, [])
 
   // Note: We don't need to listen for external shop events since we're using local shop UI
-
+  const { joinOrCreateRoom } = useColyseus()
+  const swrMutation = useGameAuthenticationSwrMutation()
+  const network = useAppSelector((state) => state.persists.session.network)
+  const selectedAccount = useAppSelector((state) =>
+    selectSelectedAccountByPlatform(state.persists, Platform.Evm)
+  )
   return (
     <NomasCard variant={NomasCardVariant.Gradient}>
       <NomasCardBody className="relative w-full">
-        {!showShop && !showHome ? (
+        {!showShop ? (
           <>
             {/* Background */}
             <NomasImage
@@ -163,26 +171,21 @@ export const GameSection = () => {
             </motion.div>
             {/* Buttons (bottom) */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex gap-4">
-              {/* Farm Icon */}
-              <button
-                onClick={() => {
-                  setSelectedPetId(null) // ← Clear selected pet
-                  setShowHome(true) // ← Open HOME not shop!
-                }}
-                className="w-16 h-16 bg-gradient-to-b from-[#1D1D1D] to-[#141414] 
-                             rounded-full border-[3px] border-[rgba(135,135,135,0.7)]
-                             shadow-[0px_6px_20px_rgba(0,0,0,0.6),inset_0px_2px_4px_rgba(255,255,255,0.1)]
-                             cursor-pointer flex items-center justify-center text-2xl
-                             text-[#B3B3B3] transition-all duration-300 ease-in-out
-                             hover:scale-110 hover:shadow-[0px_8px_25px_rgba(0,0,0,0.8),inset_0px_2px_4px_rgba(255,255,255,0.2)]
-                             hover:border-[rgba(135,135,135,1)] hover:text-white"
-                title="Open Home"
-              >
-                🏘
-              </button>
               {/* Play/Minimize Button */}
               <button
-                onClick={handleMinimizeToggle}
+                onClick={async () => {
+                  // authenticate the user
+                  await swrMutation.trigger()
+                  // join or create the room
+                  await joinOrCreateRoom(
+                    `pet-game-monad-${selectedAccount?.accountAddress}-${network}`,
+                    {
+                      // todo: add token to the room
+                    }
+                  )
+                  // thus, we create the game
+                  createGame()
+                }}
                 className={`w-48 h-auto cursor-pointer 
                                             transition-all duration-300 hover:scale-105 
                                             focus:outline-none active:scale-95

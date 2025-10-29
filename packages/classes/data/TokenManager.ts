@@ -1,3 +1,4 @@
+import { APTOS_COIN } from "@aptos-labs/ts-sdk"
 import {
     ChainId,
     Network,
@@ -18,7 +19,7 @@ export class TokenManager {
         [ChainId.Monad]: {
             [Network.Mainnet]: [
                 {
-                    tokenId: TokenId.MonadTestnetMon,
+                    tokenId: TokenId.MonadMainnetMon,
                     decimals: 18,
                     symbol: "MON",
                     name: "Monad",
@@ -30,7 +31,7 @@ export class TokenManager {
                     network: Network.Mainnet,
                 },
                 {
-                    tokenId: TokenId.MonadTestnetWmon,
+                    tokenId: TokenId.MonadMainnetWmon,
                     decimals: 18,
                     symbol: "WMON",
                     name: "Wrapped MON",
@@ -43,7 +44,7 @@ export class TokenManager {
                     network: Network.Mainnet,
                 },
                 {
-                    tokenId: TokenId.MonadTestnetUsdc,
+                    tokenId: TokenId.MonadMainnetUsdc,
                     decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
@@ -54,7 +55,7 @@ export class TokenManager {
                     pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
                     unifiedTokenId: UnifiedTokenId.Usdc,
                     chainId: ChainId.Monad,
-                    network: Network.Testnet,
+                    network: Network.Mainnet,
                 },
             ],
             [Network.Testnet]: [
@@ -106,7 +107,7 @@ export class TokenManager {
                     decimals: 9,
                     symbol: "SOL",
                     name: "Solana",
-                    iconUrl: "/icons/tokens/solana.png",
+                    iconUrl: "/assets/tokens/solana.png",
                     type: TokenType.Native,
                     verified: true,
                     pythId: "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
@@ -119,7 +120,7 @@ export class TokenManager {
                     symbol: "USDC",
                     name: "USD Coin",
                     address: "So11111111111111111111111111111111111111112", // example
-                    iconUrl: "/icons/tokens/usdc.svg",
+                    iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
                     pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
@@ -134,9 +135,24 @@ export class TokenManager {
                     decimals: 9,
                     symbol: "SOL",
                     name: "Solana",
-                    iconUrl: "/icons/tokens/solana.png",
+                    iconUrl: "/assets/tokens/solana.png",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Solana,
+                    network: Network.Testnet,
+                    pythId: "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+                },
+                {
+                    tokenId: TokenId.SolanaTestnetUsdc,
+                    decimals: 6,
+                    symbol: "USDC",
+                    name: "USD Coin",
+                    iconUrl: "/assets/tokens/usdc.svg",
+                    type: TokenType.Stable,
+                    verified: true,
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    address: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
                     chainId: ChainId.Solana,
                     network: Network.Testnet,
                 },
@@ -150,11 +166,13 @@ export class TokenManager {
                     decimals: 9,
                     symbol: "SUI",
                     name: "Sui",
-                    iconUrl: "/icons/tokens/sui.jpeg",
+                    address: "0x2::sui::SUI",
+                    iconUrl: "/assets/tokens/sui.jpeg",
                     type: TokenType.Native,
                     verified: true,
                     chainId: ChainId.Sui,
                     network: Network.Mainnet,
+                    pythId: "0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744",
                 },
                 {
                     tokenId: TokenId.SuiMainnetUsdc,
@@ -162,7 +180,8 @@ export class TokenManager {
                     symbol: "USDC",
                     name: "USD Coin",
                     address: "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC", // Sui Move object id
-                    iconUrl: "/icons/tokens/usdc.svg",
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
                     unifiedTokenId: UnifiedTokenId.Usdc,
@@ -176,15 +195,30 @@ export class TokenManager {
                     decimals: 9,
                     symbol: "SUI",
                     name: "Sui",
-                    iconUrl: "/icons/tokens/sui.jpeg",
+                    address: "0x2::sui::SUI",
+                    iconUrl: "/assets/tokens/sui.jpeg",
                     type: TokenType.Native,
                     verified: true,
+                    chainId: ChainId.Sui,
+                    network: Network.Testnet,
+                    pythId: "0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744",
+                },
+                {
+                    tokenId: TokenId.SuiTestnetUsdc,
+                    decimals: 6,
+                    symbol: "USDC",
+                    name: "USD Coin",
+                    iconUrl: "/assets/tokens/usdc.svg",
+                    type: TokenType.Stable,
+                    verified: true,
+                    address: "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC",
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    unifiedTokenId: UnifiedTokenId.Usdc,
                     chainId: ChainId.Sui,
                     network: Network.Testnet,
                 },
             ],
         },
-
         [ChainId.Aptos]: {
             [Network.Mainnet]: [
                 {
@@ -192,11 +226,13 @@ export class TokenManager {
                     decimals: 8,
                     symbol: "APT",
                     name: "Aptos",
-                    iconUrl: "/icons/tokens/aptos.svg",
+                    address: APTOS_COIN, // Aptos Move resource
+                    iconUrl: "/assets/tokens/aptos.png",
                     type: TokenType.Native,
                     verified: true,
                     chainId: ChainId.Aptos,
                     network: Network.Mainnet,
+                    pythId: "0x03ae4db29ed4ae33d323568895aa00337e658e348b37509f5372ae51f0af00d5",
                 },
                 {
                     tokenId: TokenId.AptosMainnetUsdc,
@@ -204,11 +240,13 @@ export class TokenManager {
                     symbol: "USDC",
                     name: "USD Coin",
                     address: "0x1::coin::USDC", // Aptos Move resource
-                    iconUrl: "/icons/tokens/usdc.svg",
+                    iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
                     chainId: ChainId.Aptos,
                     network: Network.Testnet,
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
                 },
             ],
             [Network.Testnet]: [
@@ -217,15 +255,31 @@ export class TokenManager {
                     decimals: 8,
                     symbol: "APT",
                     name: "Aptos",
-                    iconUrl: "/icons/tokens/aptos.svg",
+                    address: APTOS_COIN, // Aptos Move resource
+                    iconUrl: "/assets/tokens/aptos.png",
                     type: TokenType.Native,
                     verified: true,
                     chainId: ChainId.Aptos,
-                    network: Network.Mainnet,
+                    network: Network.Testnet,
+                    pythId: "0x03ae4db29ed4ae33d323568895aa00337e658e348b37509f5372ae51f0af00d5",
+                },
+                {
+                    tokenId: TokenId.AptosTestnetUsdc,
+                    decimals: 8,
+                    symbol: "USDC",
+                    name: "USD Coin",
+                    address: APTOS_COIN, // Aptos Move resource
+                    iconUrl: "/assets/tokens/usdc.svg",
+                    type: TokenType.Native,
+                    verified: true,
+                    chainId: ChainId.Aptos,
+                    unifiedTokenId: UnifiedTokenId.Usdc,
+                    network: Network.Testnet,
+                    pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
                 },
             ],
         },
-    }
+    } as Tokens
     private unifiedTokens: Array<UnifiedToken> = [
         {
             unifiedTokenId: UnifiedTokenId.Usdc,

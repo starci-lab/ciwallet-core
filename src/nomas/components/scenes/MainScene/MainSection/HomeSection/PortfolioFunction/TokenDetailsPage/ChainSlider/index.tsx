@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 
 export const ChainSlider = () => {
     const chains = chainManagerObj.toObject()
-    const selectedChainId = useAppSelector((state) => state.persists.session.selectedChainId)
+    const selectedChainId = useAppSelector((state) => state.stateless.sections.home.selectedChainId)
     const map: Array<{ id: SelectedChainId, value: string }> = [
         {
             id: "overview",

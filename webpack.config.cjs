@@ -89,10 +89,11 @@ module.exports = {
     },
     plugins: [
         new Dotenv({
-            path: "./.env", // hoặc .env.development, .env.production
+            path: ".env", // hoặc .env.development, .env.production
         }),
         // Copy manifest và static files
         new webpack.ProvidePlugin({
+            Phaser: "phaser",
             Buffer: ["buffer", "Buffer"],
         }),
         new CopyPlugin({
@@ -103,8 +104,18 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             "import.meta.env": JSON.stringify({
+                // CI_AGGREGRATOR_URL=http://localhost:3000initial
+                // VITE_LIFI_INTEGRATOR=NomasWalletLifi12
+                // VITE_LIFI_API_KEY=86fb088f-5ea3-4854-85f7-8c649d40ae46.cf31cb76-8e42-4553-b956-ec1b35763077
+                // VITE_BASE_URL=https://nomas.kanibot.xyz
+                // VITE_BASE_SOCKET=https://nomas-colyseus.kanibot.xyz
                 VITE_APP_ENV: process.env.VITE_APP_ENV || "EXTENSION",
                 MODE: process.env.MODE || "production",
+                CI_AGGREGRATOR_URL: process.env.CI_AGGREGRATOR_URL,
+                VITE_LIFI_INTEGRATOR: process.env.VITE_LIFI_INTEGRATOR || "NomasWalletLifi12",
+                VITE_LIFI_API_KEY: process.env.VITE_LIFI_API_KEY  || "86fb088f-5ea3-4854-85f7-8c649d40ae46.cf31cb76-8e42-4553-b956-ec1b35763077",
+                VITE_BASE_URL: process.env.VITE_BASE_URL || "https://completed-pontiac-towers-pen.trycloudflare.com",
+                VITE_BASE_SOCKET: process.env.VITE_BASE_SOCKET || "https://appointment-rate-trademark-powerseller.trycloudflare.com",
             }),
         }),
     ],

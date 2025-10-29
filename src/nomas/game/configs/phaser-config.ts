@@ -1,19 +1,20 @@
+import Phaser from "phaser"
 import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js"
-import { GameScene } from "@/nomas/game/GameScene"
 import { AUTO } from "phaser"
-export const CONTAINER_ID = "phaser-container"
+import { GameScene } from "../GameScene"
 
-export const getConfig = (
+export const phaserConfig = (
     parent: HTMLDivElement
 ): Phaser.Types.Core.GameConfig => {
-    // get the mobile orientation
     return {
         type: AUTO,
         width: window.innerWidth,
-        height: 140,
-        parent: parent,
-        scene: GameScene,
-        transparent: true,
+        height: window.innerHeight,
+        parent,
+        transparent: false,
+        scene: [
+            GameScene,
+        ],
         plugins: {
             scene: [
                 {
@@ -25,14 +26,3 @@ export const getConfig = (
         },
     }
 }
-
-export const SceneName = {
-    Bootstrap: "bootstrap",
-    Loading: "loading",
-    Gameplay: "gameplay",
-    Data: "data",
-    UI: "ui",
-    Sound: "sound",
-} as const
-
-export type SceneName = (typeof SceneName)[keyof typeof SceneName]

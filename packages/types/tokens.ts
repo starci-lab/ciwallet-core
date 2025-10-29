@@ -1,6 +1,11 @@
 import type { ChainId, Network } from "./chain"
 
 export enum TokenId {
+  // --- Monad ---
+  MonadMainnetMon = "monad_mainnet_mon",
+  MonadMainnetWmon = "monad_mainnet_wmon",
+  MonadMainnetUsdc = "monad_mainnet_usdc",
+
   MonadTestnetMon = "monad_testnet_mon",
   MonadTestnetWmon = "monad_testnet_wmon",
   MonadTestnetUsdc = "monad_testnet_usdc",
@@ -38,6 +43,8 @@ export enum TokenType {
   Wrapped = "wrapped",
 }
 
+export type ChainIdWithAllNetwork = ChainId | "all-network"
+
 export interface Token {
   tokenId: TokenId;
   chainId: ChainId;
@@ -51,6 +58,7 @@ export interface Token {
   verified: boolean;
   pythId?: string;
   unifiedTokenId?: UnifiedTokenId;
+  isToken2022?: boolean;
 }
 
 export interface UnifiedToken {

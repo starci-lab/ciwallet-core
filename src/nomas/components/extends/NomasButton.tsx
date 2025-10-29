@@ -1,6 +1,6 @@
 // src/components/nomas/NomasButton.tsx
 import React from "react"
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "../shadcn"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../shadcn"
 import { twMerge } from "tailwind-merge"
 import { NomasSpinner } from "./NomasSpinner"
 import { motion } from "framer-motion"

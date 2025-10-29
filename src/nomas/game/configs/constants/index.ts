@@ -1,0 +1,1 @@
+export const CONTAINER_ID = "phaser-container"

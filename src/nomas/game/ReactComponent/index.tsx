@@ -24,11 +24,12 @@ import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import { createColyseus } from "@/nomas/hooks/singleton/colyseus/createColyseus"
 import { ReactHomeModal } from "../ui/react-ui/modal/ReactHomeModal"
 
-export type GameComponentProps = {
+export type ReactComponentProps = {
   signMessage: (message: string) => Promise<string>
   publicKey: string
 }
 
+<<<<<<< HEAD:src/nomas/game/GameScene/index.tsx
 export const GameComponent: FC<GameComponentProps> = ({
   signMessage,
   publicKey,
@@ -37,6 +38,13 @@ export const GameComponent: FC<GameComponentProps> = ({
   const phaserGameRef = useRef<Game | null>(null)
   const sceneRef = useRef<PhaserGameScene | null>(null)
   const hasBootedRef = useRef(false)
+=======
+export const ReactComponent: FC<ReactComponentProps> = ({
+    signMessage,
+    publicKey,
+}) => {
+    const gameRef = useRef<Phaser.Game | null>(null)
+>>>>>>> 774244d9be832193b790f54d9629df3217f5f33d:src/nomas/game/ReactComponent/index.tsx
 
   const [isGameInitialized, setIsGameInitialized] = useState(false)
   const addressWallet = useAppSelector(
@@ -66,6 +74,7 @@ export const GameComponent: FC<GameComponentProps> = ({
 
   // Colyseus connection will be handled by the Phaser scene directly
 
+<<<<<<< HEAD:src/nomas/game/GameScene/index.tsx
   useEffect(() => {
     console.log("🔍 Game initialization check:", {
       gameRef: !!gameRef.current,
@@ -104,6 +113,202 @@ export const GameComponent: FC<GameComponentProps> = ({
           (phaserGameRef.current?.scene.getScene(
             SceneName.Gameplay
           ) as PhaserGameScene) || null
+=======
+    useEffect(() => {
+        console.log("🔍 Game initialization check:", {
+            gameRef: !!gameRef.current,
+            isUserAuthenticated,
+            isGameInitialized,
+        })
+        if (!gameRef.current || !isUserAuthenticated || isGameInitialized) {
+            console.log("❌ Skipping game initialization")
+            return
+        }
+        if (hasBootedRef.current || gameRef.current) {
+            console.log("❌ Game already booted, skipping new Phaser.Game()")
+            return
+        }
+        console.log("🎮 Starting Phaser game initialization...")
+        try {
+            gameRef.current = new Phaser.Game(getConfig(gameRef.current))
+            hasBootedRef.current = true
+            console.log("✅ Phaser Game created successfully")
+            // Poll for scene registration to be robust under Strict Mode double-mount
+            let attempts = 0
+            const pollScene = () => {
+                attempts += 1
+                sceneRef.current =
+          (gameRef.current?.scene.getScene(
+              SceneName.Gameplay
+          ) as PhaserGameScene) || null
+                if (sceneRef.current) {
+                    console.log("✅ GameScene loaded successfully")
+                    setIsGameInitialized(true)
+                    // Colyseus connection will be handled by the scene itself
+                    return
+                }
+                if (attempts < 30) {
+                    setTimeout(pollScene, 200)
+                } else {
+                    console.error("❌ GameScene still not available after polling")
+                }
+            }
+            setTimeout(pollScene, 200)
+        } catch (error) {
+            console.error("❌ Failed to create Phaser Game:", error)
+        }
+
+        const handleResize = () => {
+            if (gameRef.current) {
+                gameRef.current.scale.resize(window.innerWidth, 160)
+            }
+        }
+
+        window.addEventListener("resize", handleResize)
+
+        return () => {
+            window.removeEventListener("resize", handleResize)
+            // In dev (React Strict Mode), avoid destroying immediately to prevent
+            // double-mount teardown from killing the Phaser instance.
+            const env = import.meta.env as { DEV?: boolean }
+            if (!env.DEV && gameRef.current) {
+                gameRef.current.destroy(true)
+                gameRef.current = null
+                hasBootedRef.current = false
+                // Clean up global reference
+                gameRef.current = null
+            }
+        }
+    }, [isUserAuthenticated, isGameInitialized])
+
+    // Colyseus connection is handled by the Phaser scene
+
+    useEffect(() => {
+        if (!isUserAuthenticated) return
+        const scene = sceneRef.current
+        if (!scene) return
+        if (hookRoom) return
+
+        const connect = () => {
+            colyseusApi
+                .connectToColyseus("single_player", {
+                    name: "Pet Game",
+                    addressWallet: addressWallet || undefined,
+                })
+                .catch(() => {
+                    // ignore
+                })
+        }
+
+        if (isGameInitialized) {
+            connect()
+            return
+        }
+
+        scene.events.once("assets-ready", connect)
+        return () => {
+            // phaser's event emitter typings are broad; cast to unknown first
+            scene.events.off(
+                "assets-ready",
+        connect as unknown as (...args: unknown[]) => void
+            )
+        }
+    }, [
+        isUserAuthenticated,
+        isGameInitialized,
+        hookRoom,
+        addressWallet,
+        colyseusApi,
+    ])
+    // Colyseus connection is handled by the Phaser scene itself
+
+    useEffect(() => {
+        if (addressWallet) {
+            setIsUserAuthenticated(true)
+            return
+        }
+        setIsUserAuthenticated(false)
+        console.log("🔐 Authentication check:", {
+            signMessage: !!signMessage,
+            publicKey: !!publicKey,
+        })
+
+        if (!signMessage || !publicKey) {
+            return
+        }
+
+        const handleSignMessage = async () => {
+            try {
+                console.log("🔐 Starting authentication process...")
+
+                const response = await http.get(ROUTES.getMessage)
+                const messageToSign = response.data.message
+                console.log("📝 Message to sign:", messageToSign)
+
+                const signedMessage = await signMessage(messageToSign)
+                if (!signedMessage || signedMessage === "") {
+                    console.log("❌ No signature received")
+                    return
+                }
+                console.log("✅ Signed message:", signedMessage)
+
+                console.log("🔍 Verifying signature...")
+                const verifyResponse = await http.post(ROUTES.verify, {
+                    message: messageToSign,
+                    address: publicKey,
+                    signature: signedMessage,
+                })
+                console.log("✅ Verify response:", verifyResponse)
+
+                setAddressDispatch(setAddressWallet(verifyResponse.data.wallet_address))
+                console.log("🎉 Authentication successful!")
+            } catch (error) {
+                console.error("❌ Authentication failed:", error)
+                console.error("Error details:", {
+                    message: error instanceof Error ? error.message : "Unknown error",
+                    stack: error instanceof Error ? error.stack : undefined,
+                    response: error?.response?.data || error?.response || undefined,
+                    status: error?.response?.status || undefined,
+                })
+            }
+        }
+        handleSignMessage()
+    }, [publicKey, signMessage, addressWallet, setAddressWallet])
+
+    // Keyboard shortcut for minimize/restore (Ctrl+M or Cmd+M)
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === "m") {
+                event.preventDefault()
+                handleMinimizeToggle()
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [isMinimized])
+
+    // Listen for minimize events from GameSection
+    useEffect(() => {
+        const handleGameMinimizeToggle = (_event: CustomEvent) => {
+            handleMinimizeToggle()
+        }
+
+        window.addEventListener(
+            "toggleGameMinimize",
+      handleGameMinimizeToggle as EventListener
+        )
+        return () => {
+            window.removeEventListener(
+                "toggleGameMinimize",
+        handleGameMinimizeToggle as EventListener
+            )
+        }
+    }, [isMinimized])
+
+    // Minimize/Restore handler
+    const handleMinimizeToggle = () => {
+>>>>>>> 774244d9be832193b790f54d9629df3217f5f33d:src/nomas/game/ReactComponent/index.tsx
         if (sceneRef.current) {
           console.log("✅ GameScene loaded successfully")
           setIsGameInitialized(true)

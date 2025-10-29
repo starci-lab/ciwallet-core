@@ -76,13 +76,13 @@ export class ExplorerManager {
                 name: "MonVision",
                 chainId: ChainId.Monad,
                 urls: {
-                    mainnet: "https://monadscan.io",
-                    testnet: "https://testnet.monadscan.io",
+                    mainnet: "https://testnet.monadexplorer.com/",
+                    testnet: "https://testnet.monadexplorer.com/",
                 },
                 addressUrlBuilder: (address, network) =>
-                    `${network === "testnet" ? "https://testnet.monadscan.io" : "https://monadscan.io"}/address/${address}`,
+                    `${network === "testnet" ? "https://testnet.monadexplorer.com/" : "https://testnet.monadexplorer.com/"}/address/${address}`,
                 transactionUrlBuilder: (txHash, network) =>
-                    `${network === "testnet" ? "https://testnet.monadscan.io" : "https://monadscan.io"}/tx/${txHash}`,
+                    `${network === "testnet" ? "https://testnet.monadexplorer.com/" : "https://testnet.monadexplorer.com/"}/tx/${txHash}`,
             },
 
             // Non-EVM explorers

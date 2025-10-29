@@ -1,6 +1,6 @@
 import React from "react"
 import { NomasCardBody, NomasCardHeader, NomasSpacer, NomasSpinner, NomasImage, TooltipTitle, NomasCardVariant, NomasCard } from "@/nomas/components"
-import { HomeFunction, setHomeFunction, useAppDispatch, useAppSelector, selectTokenById, HomeAction, setHomeAction, selectSelectedAccount } from "@/nomas/redux"
+import { useAppDispatch, useAppSelector, selectTokenById, HomeAction, setHomeAction, selectSelectedAccount } from "@/nomas/redux"
 import { DownloadSimpleIcon, PaperPlaneTiltIcon, ShoppingCartIcon, SwapIcon } from "@phosphor-icons/react"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
@@ -126,7 +126,7 @@ export const TokenFunction = () => {
                         <div>
                             <div className="flex flex-col text-right"></div>
                             <div className="flex flex-col text-right">
-                                <div className="text-sm text">{data ?? "--"}</div>
+                                <div className="text-sm text">{data}</div>
                                 <div className="text-xs text-muted">$0</div>
                             </div>
                         </div>

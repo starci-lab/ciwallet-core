@@ -1,7 +1,12 @@
-import { ChainId, TokenId } from "@ciwallet-sdk/types"
+import { ChainId, TokenId, type ChainIdWithAllNetwork, UnifiedTokenId } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { type TokenItem } from "@/nomas/redux"
+import { type SelectedChainId, type TokenItem } from "@/nomas/redux"
 
+export enum SelectedTokenType {
+    Token = "token",
+    UnifiedToken = "unified-token",
+}
+  
 export enum HomeAction {
     Buy = "buy",
     Sell = "sell",
@@ -31,11 +36,14 @@ export enum DepositFunctionPage {
 export enum PortfolioFunctionPage {
     Portfolio = "portfolio",
     TokenDetails = "token-details",
+    SearchToken = "search-token",
 }
 
 export enum WithdrawFunctionPage {
     Withdraw = "withdraw",
     ChooseNetwork = "choose-network",
+    SelectToken = "select-token",
+    TransactionReceipt = "transaction-receipt",
 }
 
 export interface HomeSectionSlice {
@@ -46,11 +54,23 @@ export interface HomeSectionSlice {
     action: HomeAction;
     selectedFromAccountId: string;
     depositSelectedChainId: ChainId;
+    depositTokenId?: TokenId;
     depositFunctionPage: DepositFunctionPage;
     portfolioFunctionPage: PortfolioFunctionPage;
     expandTokenDetails: boolean;
     tokenItems: Array<TokenItem>;
     withdrawFunctionPage: WithdrawFunctionPage;
+    searchTokenQuery: string;
+    searchSelectedChainId: ChainIdWithAllNetwork;
+    // selected token
+    selectedTokenType: SelectedTokenType
+    selectedUnifiedTokenId: UnifiedTokenId
+    selectedChainId: SelectedChainId
+}
+
+export interface SetSelectedToken {
+    type: SelectedTokenType
+    id: TokenId | UnifiedTokenId
 }
 
 const initialState: HomeSectionSlice = {
@@ -66,6 +86,11 @@ const initialState: HomeSectionSlice = {
     expandTokenDetails: false,
     tokenItems: [],
     withdrawFunctionPage: WithdrawFunctionPage.Withdraw,
+    searchTokenQuery: "",
+    searchSelectedChainId: "all-network",
+    selectedTokenType: SelectedTokenType.Token,
+    selectedUnifiedTokenId: UnifiedTokenId.Usdc,
+    selectedChainId: ChainId.Monad,
 }
 
 export const homeSectionSlice = createSlice({
@@ -93,6 +118,9 @@ export const homeSectionSlice = createSlice({
         setDepositSelectedChainId: (state, action: PayloadAction<ChainId>) => {
             state.depositSelectedChainId = action.payload
         },
+        setDepositTokenId: (state, action: PayloadAction<TokenId | undefined>) => {
+            state.depositTokenId = action.payload
+        },
         setDepositFunctionPage: (state, action: PayloadAction<DepositFunctionPage>) => {
             state.depositFunctionPage = action.payload
         },
@@ -108,8 +136,31 @@ export const homeSectionSlice = createSlice({
         setWithdrawFunctionPage: (state, action: PayloadAction<WithdrawFunctionPage>) => {
             state.withdrawFunctionPage = action.payload
         },
+        setSearchTokenQuery: (state, action: PayloadAction<string>) => {
+            state.searchTokenQuery = action.payload
+        },
+        setSearchSelectedChainId: (state, action: PayloadAction<ChainIdWithAllNetwork>) => {
+            state.searchSelectedChainId = action.payload
+        },
+        setSelectedTokenType: (state, action: PayloadAction<SelectedTokenType>) => {
+            state.selectedTokenType = action.payload
+        },
+        setSelectedUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
+            state.selectedUnifiedTokenId = action.payload
+        },
+        setSelectedChainId: (state, action: PayloadAction<SelectedChainId>) => {
+            state.selectedChainId = action.payload
+        },
+        setSelectedToken: (state, action: PayloadAction<SetSelectedToken>) => {
+            state.selectedTokenType = action.payload.type
+            if (action.payload.type === SelectedTokenType.Token) {
+                state.selectedTokenId = action.payload.id as TokenId
+            } else {
+                state.selectedUnifiedTokenId = action.payload.id as UnifiedTokenId
+            }
+        },
     },
 })
 
-export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage } = homeSectionSlice.actions
+export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositTokenId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage, setSearchTokenQuery, setSearchSelectedChainId, setSelectedTokenType, setSelectedUnifiedTokenId, setSelectedChainId, setSelectedToken } = homeSectionSlice.actions
 export const homeSectionReducer = homeSectionSlice.reducer

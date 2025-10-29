@@ -25,6 +25,7 @@ export default defineConfig({
             Buffer: ["buffer", "Buffer"],
         }),
     ],
+    server: { hmr: { overlay: true } },
     resolve: {
         alias: {
             "@ciwallet-sdk/pyth": path.resolve(__dirname, "./packages/pyth"),

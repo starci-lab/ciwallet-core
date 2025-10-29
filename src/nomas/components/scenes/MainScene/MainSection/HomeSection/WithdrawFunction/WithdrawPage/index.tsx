@@ -1,5 +1,5 @@
-import { WithdrawFunctionPage, selectTokenById, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { Action, NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasCardVariant, NomasInput, NomasNumberTransparentInput, NomasSpacer, SelectChainTabVariant } from "@/nomas/components"
+import { DepositFunctionPage, HomeSelectorTab, WithdrawFunctionPage, selectTokenById, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setHomeSelectorTab, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { Action, NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasCardVariant, NomasInput, NomasLink, NomasNumberTransparentInput, NomasSpacer, SelectChainTabVariant } from "@/nomas/components"
 import { SelectChainTab, TooltipTitle, Wallet } from "@/nomas/components"
 import { useEffect } from "react"
 import { useTransferFormik } from "@/nomas/hooks"
@@ -8,11 +8,10 @@ import { SelectToken } from "./SelectToken"
 import { chainManagerObj } from "@/nomas/obj"
 
 
-export const WithdrawPage = () => {
-    const selectedTokenId = useAppSelector((state) => state.stateless.sections.home.selectedTokenId)
-    const token = useAppSelector((state) => selectTokenById(state.persists, selectedTokenId))
+export const WithdrawPageComponent = () => {
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     const formik = useTransferFormik()
+    const token = useAppSelector((state) => selectTokenById(state.persists, formik.values.tokenId))
     const maxBalanceIn = formik.values.balance - 0.01
     // we need to set the from address and encrypted private key
     useEffect(() => {
@@ -23,11 +22,11 @@ export const WithdrawPage = () => {
         formik.setFieldValue("balance", balances[formik.values.tokenId] ?? 0)
     }, [balances, formik.values.tokenId])
     const dispatch = useAppDispatch()
-    // we need to set the token id
+    const gasToken = useAppSelector((state) => selectTokenById(state.persists, formik.values.gasTokenId))
     return (
         <>
             <NomasCardHeader
-                title="Withdrawal"
+                title="Withdraw"
             />
             <NomasCardBody>
                 <div className="bg-card-dark p-4 radius-card-inner">
@@ -88,7 +87,7 @@ export const WithdrawPage = () => {
                                 token={token}
                                 chainMetadata={chainManagerObj.getChainById(formik.values.chainId)}
                                 onSelect={() => {
-                                
+                                    dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.SelectToken))
                                 }}
                             />
                             <div>
@@ -138,15 +137,37 @@ export const WithdrawPage = () => {
                 </NomasCard>
             </NomasCardBody>
             <NomasCardFooter>
-                <NomasButton className="w-full"
-                    isDisabled={!formik.isValid}
-                    isLoading={formik.isSubmitting}
-                    xlSize
-                    onClick={() => {
-                        formik.submitForm()
-                    }}>
+                <div className="w-full">
+                    <NomasButton className="w-full"
+                        isDisabled={!formik.isValid}
+                        isLoading={formik.isSubmitting}
+                        xlSize
+                        onClick={() => {
+                            formik.submitForm()
+                        }}>
                     Send
-                </NomasButton>
+                    </NomasButton>
+                    {
+                        !formik.values.isEnoughGasBalance &&
+                        <>
+                            <NomasSpacer y={4}/>
+                            <div className="flex items-center gap-1">
+                                <div className="text-muted text-xs">You need to have at least 0.1 {gasToken?.symbol} to cover the gas fee.</div>
+                                <NomasLink 
+                                    onPress={() => {
+                                        dispatch(setHomeSelectorTab(HomeSelectorTab.Deposit))
+                                        dispatch(setDepositSelectedChainId(formik.values.chainId))
+                                        dispatch(setDepositTokenId(formik.values.gasTokenId))
+                                        dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
+                                    }}
+                                    className="text-xs text-primary"
+                                >
+                                    Deposit
+                                </NomasLink>
+                            </div>    
+                        </>
+                    }
+                </div>
             </NomasCardFooter>
         </>
     )
