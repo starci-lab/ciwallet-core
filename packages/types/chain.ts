@@ -41,3 +41,9 @@ export interface ChainMetadata {
         [Network.Testnet]: string;
     }
 }
+
+export interface PlatformMetadata {
+    platform: Platform
+    name: string
+    symbol: string
+}

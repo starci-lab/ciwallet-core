@@ -6,12 +6,12 @@ import { Platform } from "@ciwallet-sdk/types"
 import React, { useEffect, useState } from "react"
 import { shortenAddress } from "@ciwallet-sdk/utils"
 
-export interface HDWalletSectionProps {
+export interface HDWalletItemProps {
     hdWallet: HDWallet
     isDefaultExpanded: boolean
 }
 
-export const HDWalletSection = ({ hdWallet }: HDWalletSectionProps) => {
+export const HDWalletItem = ({ hdWallet }: HDWalletItemProps) => {
     const hdWalletsAccordionAccountId = useAppSelector(state => state.stateless.sections.myWallets.hdWalletsAccordionAccountId)
     const [isExpanded, setIsExpanded] = useState(false)
     useEffect(() => {

@@ -1,22 +1,28 @@
-import React, { useEffect } from "react"
-import { Scene, setInitialized, setScene, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant } from "../../extends"
+import React from "react"
+import { SettingsPage, useAppSelector } from "@/nomas/redux"
+import { SelectNetworkScene } from "./SelectNetworkScene"
+import { MainScene } from "./MainScene"
+import { RPCScene } from "./RPCScene"
+import { ExplorerScene } from "./ExplorerScene"
+import { RPCDetailsScene } from "./RPCDetailsScene"
 
 export const SettingsScene = () => {
-    const dispatch = useAppDispatch()
-    const initialized = useAppSelector((state) => state.persists.session.initialized)
-    useEffect(() => {
-        if (!initialized) {
-            dispatch(setInitialized(true))
+    const settingsPage = useAppSelector((state) => state.stateless.sections.settings.settingsPage)
+    const renderPage = () => {
+        switch (settingsPage) {
+        case SettingsPage.SelectNetwork:
+            return <SelectNetworkScene />
+        case SettingsPage.Main:
+            return <MainScene />
+        case SettingsPage.RPC:
+            return <RPCScene />
+        case SettingsPage.RPCDetails:
+            return <RPCDetailsScene />
+        case SettingsPage.Explorer:
+            return <ExplorerScene />
         }
-    }, [])
-
+    }
     return (
-        <NomasCard variant={NomasCardVariant.Gradient} className="w-full">
-            <NomasCardHeader title="Settings" showBackButton onBackButtonPress={() => dispatch(setScene(Scene.Main))} />
-            <NomasCardBody>
-                <div className="text text-sm">Settings</div>
-            </NomasCardBody>
-        </NomasCard>
+        <>{renderPage()}</>
     )
 }

@@ -1,4 +1,4 @@
-import { ChainId, Network, type ChainMetadata, Platform } from "@ciwallet-sdk/types"
+import { ChainId, Network, type ChainMetadata, Platform, type PlatformMetadata } from "@ciwallet-sdk/types"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
 export class ChainManager {
@@ -162,5 +162,36 @@ export class ChainManager {
             if (iconUrl) chain.iconUrl = iconUrl
             if (iconInvertedUrl) chain.iconInvertedUrl = iconInvertedUrl
         }
+    }
+
+    public getPlatformMetadatas(): Array<PlatformMetadata> {
+        return [
+            {
+                platform: Platform.Evm,
+                name: "EVM Networks",
+                symbol: "EVM",
+            },
+            {
+                platform: Platform.Solana,
+                name: "Solana Networks",
+                symbol: "Solana",
+            },
+            {
+                platform: Platform.Sui,
+                name: "Sui Networks",
+                symbol: "Sui",
+            },
+            {
+                platform: Platform.Aptos,
+                name: "Aptos Networks",
+                symbol: "Aptos",
+            },
+        ]
+    }
+
+    public getPlatformMetadata(platform: Platform): PlatformMetadata {
+        const metadata = this.getPlatformMetadatas().find(metadata => metadata.platform === platform)
+        if (!metadata) throw new Error(`Platform metadata not found for platform: ${platform}`)
+        return metadata
     }
 }

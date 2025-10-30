@@ -13,6 +13,7 @@ import _ from "lodash"
 export type Tokens = Partial<
   Record<ChainId, Partial<Record<Network, Array<Token>>>>
 >;
+
 export class TokenManager {
     private tokens: Tokens = {}
     private defaultTokens: Tokens = {
@@ -239,7 +240,7 @@ export class TokenManager {
                     decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
-                    address: "0x1::coin::USDC", // Aptos Move resource
+                    address: "0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832", // Aptos Move resource
                     iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
@@ -265,10 +266,10 @@ export class TokenManager {
                 },
                 {
                     tokenId: TokenId.AptosTestnetUsdc,
-                    decimals: 8,
+                    decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
-                    address: APTOS_COIN, // Aptos Move resource
+                    address: "0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832", // Aptos Move resource
                     iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Native,
                     verified: true,

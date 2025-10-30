@@ -39,8 +39,8 @@ import { ExplorerId } from "@ciwallet-sdk/classes"
  * Types
  * ----------------------------- */
 export enum PlatformAccountType {
-  HDWallet = "hd-wallet",
-  ImportedWallet = "imported-wallet",
+    HDWallet = "hd-wallet",
+    ImportedWallet = "imported-wallet",
 }
 
 export type Account =
@@ -265,6 +265,13 @@ export const resolveTokensThunk = createAsyncThunk<
     }
 )
 
+export interface UpdateRpcParams {
+    chainId: ChainId
+    network: Network
+    index: number
+    rpc: string
+}
+
 /* -----------------------------
  * Initial state
  * ----------------------------- */
@@ -420,6 +427,18 @@ export const sessionSlice = createSlice({
         removeTrackingUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
             state.trackingUnifiedTokenIds = state.trackingUnifiedTokenIds.filter((id) => id !== action.payload)
         },
+        updateRpc: (state, action: PayloadAction<UpdateRpcParams>) => {
+            if (!state.rpcs[action.payload.chainId]) {
+                state.rpcs[action.payload.chainId] = {
+                    [Network.Mainnet]: [],
+                    [Network.Testnet]: [],
+                }
+            }
+            if (!state.rpcs[action.payload.chainId]![action.payload.network]) {
+                state.rpcs[action.payload.chainId]![action.payload.network] = []
+            }
+            state.rpcs[action.payload.chainId]![action.payload.network]![action.payload.index] = action.payload.rpc
+        },
         addRpc: (state, action: PayloadAction<AddRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
                 state.rpcs[action.payload.chainId] = {
@@ -560,6 +579,12 @@ export const sessionSlice = createSlice({
             )
             return tokensSameUnifiedTokenId
         },
+        selectHdWalletById: (state, hdWalletId: string) => {
+            return state.hdWallets.find((hdWallet) => hdWallet.id === hdWalletId)
+        },
+        selectAccountsByHdWalletId: (state, hdWalletId: string) => {
+            return Object.values(state.accounts).flatMap((accounts) => accounts.accounts.filter((account) => account.refId === hdWalletId))
+        },
     },
 })
 
@@ -636,6 +661,7 @@ export const {
     addHdWallet,
     addImportedWallet,
     addRpc,
+    updateRpc,
     setExplorer,
     addTrackingTokenId,
     addTrackingUnifiedTokenId,
@@ -655,4 +681,6 @@ export const {
     selectTokenById,
     selectSelectedAccounts,
     selectTokensByUnifiedTokenId,
+    selectHdWalletById,
+    selectAccountsByHdWalletId,
 } = sessionSlice.selectors

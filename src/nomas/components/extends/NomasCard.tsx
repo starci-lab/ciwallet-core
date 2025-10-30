@@ -11,6 +11,7 @@ import {
 } from "../shadcn"
 import { cva } from "class-variance-authority"
 import { NomasButtonIcon } from "./NomasButton"
+import { NomasSpacer } from "."
 
 export enum NomasCardVariant {
     Gradient = "gradient",
@@ -27,7 +28,7 @@ export interface NomasCardProps extends React.ComponentProps<typeof Card> {
 }
 
 const cardCva = cva(
-    "radius-card border text-text shadow-card py-0 gap-0", // base styles
+    "radius-card border text-text shadow-card py-0 gap-0 overflow-hidden", // base styles
     {
         variants: {
             variant: {
@@ -83,37 +84,42 @@ export const NomasCardHeader = React.forwardRef<
     return (
         <CardHeader
             ref={ref}
-            className={twMerge("flex items-center p-6 pb-0", className)}
+            className={twMerge("gap-0 p-6 pb-0", className)}
             {...props}
         >
-            {/* Left: back button or spacer */}
-            {showBackButton ? (
-                <NomasButtonIcon
-                    onClick={onBackButtonPress}
-                >
-                    <ArrowLeftIcon className="w-6 h-6" weight="bold" />
-                </NomasButtonIcon>
-            ) : (
-                <div className="w-9" />
-            )}
-
-            {/* Center: title & description */}
-            <div className="flex-1 text-center">
-                {title && (
-                    <CardTitle className="text-lg font-semibold text-muted flex items-center gap-2 justify-center">
-                        {startIcon}
-                        {title}
-                    </CardTitle>
+            <div className="flex items-center pb-0">
+                {/* Left: back button or spacer */}
+                {showBackButton ? (
+                    <NomasButtonIcon
+                        onClick={onBackButtonPress}
+                    >
+                        <ArrowLeftIcon className="w-6 h-6" weight="bold" />
+                    </NomasButtonIcon>
+                ) : (
+                    <div className="w-9" />
                 )}
-                {description && (
+
+                {/* Center: title & description */}
+                <div className="flex-1 text-center">
+                    {title && (
+                        <CardTitle className="text-lg font-semibold text-muted flex items-center gap-2 justify-center">
+                            {startIcon}
+                            {title}
+                        </CardTitle>
+                    )}
+                </div>
+
+                {/* Right: spacer or custom children */}
+                {children ? children : <div className="w-10" />}
+            </div>
+            {description && (
+                <>
+                    <NomasSpacer y={4} />
                     <CardDescription className="text-sm text-muted">
                         {description}
                     </CardDescription>
-                )}
-            </div>
-
-            {/* Right: spacer or custom children */}
-            {children ? children : <div className="w-10" />}
+                </>
+            )}
         </CardHeader>
     )
 })
