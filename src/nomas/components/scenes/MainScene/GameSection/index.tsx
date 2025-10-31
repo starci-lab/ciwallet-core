@@ -215,9 +215,9 @@ export const GameSection = () => {
             top: 0 !important;
             left: 0 !important;
             width: 100% !important;
-            height: auto !important;
-            min-height: 100% !important;
-            object-fit: cover !important;
+            height: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important; /* Changed from cover to contain */
             display: block !important;
           }
         `}</style>

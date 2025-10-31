@@ -327,7 +327,10 @@ export class PetManager {
       serverFood.y,
       "hamburger"
     )
-    foodSprite.setScale(GAME_LAYOUT.FOOD_SCALE)
+    // foodSprite.setScale(GAME_LAYOUT.FOOD_SCALE)
+    const cameraWidth = this.scene.cameras.main.width
+    const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
+    foodSprite.setScale(responsiveScale)
 
     // Create shadow
     const shadow = this.scene.add.ellipse(
@@ -620,7 +623,10 @@ export class PetManager {
 
     const foodDropStartY = GamePositioning.getFoodDropY(cameraHeight)
     const food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
-    food.setScale(GAME_LAYOUT.FOOD_SCALE)
+
+    const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
+
+    food.setScale(responsiveScale)
     food.setAlpha(0.9)
 
     // Add drop animation effect
@@ -898,7 +904,8 @@ export class PetManager {
       GamePositioning.getFoodDropY(cameraHeight),
       textureKey
     )
-    toy.setScale(0.75) // Increased scale for better visibility
+    const responsiveScale = GamePositioning.getResponsiveBallScale(cameraWidth)
+    toy.setScale(responsiveScale * 50)
     toy.setAlpha(0.9)
 
     console.log("🎾 Sprite created:", toy)
