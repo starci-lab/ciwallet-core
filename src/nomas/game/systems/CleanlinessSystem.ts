@@ -2,6 +2,7 @@ import { Pet } from "../entities/Pet"
 import {
     GAME_LAYOUT,
     GAME_MECHANICS,
+    GamePositioning,
 } from "@/nomas/game/constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import type { ColyseusClient } from "@/nomas/game/colyseus/client"
@@ -216,9 +217,21 @@ export class CleanlinessSystem {
         }
 
         try {
-            // Create poop sprite với vị trí đã clamp
-            const poop = this.scene.add.sprite(clampedX, 95, "poop")
-            poop.setScale(GAME_LAYOUT.POOP_SCALE)
+            // Use responsive Y position based on camera height
+            const cameraWidth = this.scene.cameras.main.width
+            const cameraHeight = this.scene.cameras.main.height
+            const poopY = GamePositioning.getPoopY(cameraHeight)
+            
+            // Create poop sprite với vị trí đã clamp và Y responsive
+            const poop = this.scene.add.sprite(clampedX, poopY, "poop")
+            
+            // Use responsive scale
+            const responsiveScale = GamePositioning.getResponsivePoopScale(cameraWidth)
+            poop.setScale(responsiveScale)
+            
+            // Store original scale for resize
+            poop.setData("originalScale", GAME_LAYOUT.POOP_SCALE)
+            
             poop.setAlpha(1.0)
             poop.setDepth(2000)
             poop.setOrigin(0.5, 0.5)
@@ -242,10 +255,10 @@ export class CleanlinessSystem {
                 console.warn("Failed to play poop animation:", error)
             }
 
-            // Create shadow với vị trí đã clamp
+            // Create shadow with responsive Y position
             const shadow = this.scene.add.ellipse(
                 clampedX,
-                clampedY + 5,
+                poopY + 5,
                 20,
                 10,
                 0x000000,
@@ -266,6 +279,31 @@ export class CleanlinessSystem {
             console.error("Failed to create poop:", error)
             return null
         }
+    }
+
+    /**
+     * Update scales and positions of all poop objects (for responsive design)
+     */
+    public updatePoopScales(): void {
+        const cameraWidth = this.scene.cameras.main.width
+        const cameraHeight = this.scene.cameras.main.height
+        const responsiveScale = GamePositioning.getResponsivePoopScale(cameraWidth)
+        const poopY = GamePositioning.getPoopY(cameraHeight)
+        
+        this.poopObjects.forEach((poop) => {
+            if (poop && poop.active) {
+                poop.setScale(responsiveScale)
+                // Update Y position to keep poop at correct ground level
+                poop.y = poopY
+            }
+        })
+        
+        // Also update shadow positions
+        this.poopShadows.forEach((shadow, index) => {
+            if (shadow && shadow.active && this.poopObjects[index]) {
+                shadow.y = poopY + 5
+            }
+        })
     }
 
     /**

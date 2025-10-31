@@ -1767,6 +1767,11 @@ export class PetManager {
       if (petData.pet?.sprite && petData.pet.sprite.active) {
         petData.pet.sprite.setScale(responsivePetScale)
       }
+      
+      // Update poop scales for each pet's cleanliness system
+      if (petData.cleanlinessSystem) {
+        petData.cleanlinessSystem.updatePoopScales()
+      }
     })
 
     // Update food items

@@ -7,7 +7,7 @@ export const GAME_LAYOUT = {
   FOOD_DROP_HEIGHT: 25, // Height above final position for food drop animation
   PET_HEIGHT: 40, // Pet sprite height (approximate)
   PET_WIDTH: 40, // Pet sprite width (approximate)
-  PET_SCALE: 1.7, // Pet sprite scale multiplier
+  PET_SCALE: 2.5, // Pet sprite scale multiplier
   FOOD_WIDTH: 30, // Food sprite width (approximate)
   FOOD_HEIGHT: 30, // Food sprite height (approximate)
   FOOD_SCALE: 1.5, // Food sprite scale multiplier
@@ -181,22 +181,34 @@ export const GamePositioning = {
 
   // Get responsive pet scale
   getResponsivePetScale(cameraWidth: number): number {
-    return GAME_LAYOUT.PET_SCALE * this.getResponsiveScale(cameraWidth)
+    return Math.max(
+      GAME_LAYOUT.PET_SCALE * this.getResponsiveScale(cameraWidth),
+      1.2
+    )
   },
 
   // Get responsive food scale
   getResponsiveFoodScale(cameraWidth: number): number {
-    return GAME_LAYOUT.FOOD_SCALE * this.getResponsiveScale(cameraWidth)
+    return Math.max(
+      GAME_LAYOUT.FOOD_SCALE * this.getResponsiveScale(cameraWidth),
+      1.2
+    )
   },
 
   // Get responsive ball scale
   getResponsiveBallScale(cameraWidth: number): number {
-    return GAME_LAYOUT.BALL_SCALE * this.getResponsiveScale(cameraWidth)
+    return Math.max(
+      GAME_LAYOUT.BALL_SCALE * this.getResponsiveScale(cameraWidth),
+      1.2
+    )
   },
 
   // Get responsive poop scale
   getResponsivePoopScale(cameraWidth: number): number {
-    return GAME_LAYOUT.POOP_SCALE * this.getResponsiveScale(cameraWidth)
+    return Math.max(
+      GAME_LAYOUT.POOP_SCALE * this.getResponsiveScale(cameraWidth),
+      1.2
+    )
   },
 
   // Helper to get responsive Y position (height is fixed, so Y is usually absolute)

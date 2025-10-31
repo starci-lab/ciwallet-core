@@ -16,14 +16,20 @@ export class HappinessUI {
 
   create() {
     const screenWidth = this.scene.cameras.main.width
-    const rightX = screenWidth * 0.75
+    const leftPadding = screenWidth * 0.02
+    const rightX = leftPadding + 270 // Gần Cleanliness hơn, cách thêm 140px
     const topPadding = 10
+    
+    // Responsive font size and bar height
+    const fontSize = Math.max(12, Math.min(16, screenWidth / 80))
+    const barHeight = Math.max(8, Math.min(12, screenWidth / 160))
+    
     this.happinessLabel = this.scene.add.text(
       rightX,
       topPadding,
       "Happiness:",
       {
-        fontSize: "16px",
+        fontSize: fontSize + "px",
         color: "#333333",
         backgroundColor: "transparent",
         padding: { x: UI_PADDING, y: 4 },
@@ -36,7 +42,7 @@ export class HappinessUI {
         rightX,
         40, // Same Y as other bars
         activePet?.happinessSystem.happinessLevel || 100,
-        10,
+        barHeight,
         0x4a90e2 // Blue color for happiness
       )
       .setOrigin(0, 0.5)
@@ -106,6 +112,26 @@ export class HappinessUI {
         duration: 300,
         ease: "Power2",
       })
+    }
+  }
+
+  updatePosition(): void {
+    const screenWidth = this.scene.cameras.main.width
+    const leftPadding = screenWidth * 0.02
+    const rightX = leftPadding + 270 // Gần Cleanliness hơn, cách thêm 140px
+    const topPadding = 10
+    
+    // Responsive sizes
+    const fontSize = Math.max(12, Math.min(16, screenWidth / 80))
+    const barHeight = Math.max(8, Math.min(12, screenWidth / 160))
+
+    if (this.happinessLabel) {
+      this.happinessLabel.setPosition(rightX, topPadding)
+      this.happinessLabel.setFontSize(fontSize)
+    }
+    if (this.happinessBar) {
+      this.happinessBar.setPosition(rightX, 40)
+      this.happinessBar.height = barHeight
     }
   }
 }

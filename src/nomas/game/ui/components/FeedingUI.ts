@@ -24,12 +24,18 @@ export class FeedingUI {
     const leftPadding = screenWidth * 0.02
     const topPadding = 10
 
+    // Responsive font size (12-16px based on screen width)
+    const fontSize = Math.max(12, Math.min(16, screenWidth / 80))
+
+    // Responsive bar height (8-12px based on screen width)
+    const barHeight = Math.max(8, Math.min(12, screenWidth / 160))
+
     this.inventoryText = this.scene.add.text(
       leftPadding,
       topPadding,
       `Food: ${this.petManager.getFoodInventory()}`,
       {
-        fontSize: "16px",
+        fontSize: fontSize + "px",
         color: "#333333",
         backgroundColor: "transparent", // Không cần nền
         padding: { x: UI_PADDING, y: 4 },
@@ -42,7 +48,7 @@ export class FeedingUI {
         leftPadding,
         40,
         activePet?.feedingSystem.hungerLevel || 100,
-        10,
+        barHeight,
         0x00ff00
       )
       .setOrigin(0, 0.5)
@@ -97,6 +103,25 @@ export class FeedingUI {
         duration: 300,
         ease: "Power2",
       })
+    }
+  }
+
+  updatePosition(): void {
+    const screenWidth = this.scene.cameras.main.width
+    const leftPadding = screenWidth * 0.02
+    const topPadding = 10
+
+    // Responsive sizes
+    const fontSize = Math.max(12, Math.min(16, screenWidth / 80))
+    const barHeight = Math.max(8, Math.min(12, screenWidth / 160))
+
+    if (this.inventoryText) {
+      this.inventoryText.setPosition(leftPadding, topPadding)
+      this.inventoryText.setFontSize(fontSize)
+    }
+    if (this.hungerBar) {
+      this.hungerBar.setPosition(leftPadding, 40)
+      this.hungerBar.height = barHeight
     }
   }
 }

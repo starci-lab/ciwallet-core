@@ -164,6 +164,11 @@ export class GameScene extends Phaser.Scene {
       this.petManager.updateAllScales()
     }
 
+    // Update UI positions
+    if (this.gameUI) {
+      this.gameUI.resize()
+    }
+
     console.log(`📐 Game resized: ${cameraWidth}x${cameraHeight}`)
   }
 

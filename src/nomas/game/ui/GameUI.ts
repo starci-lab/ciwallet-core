@@ -198,4 +198,22 @@ export class GameUI {
   getInputManager(): InputManager {
     return this.inputManager
   }
+
+  // ===== Resize Functionality =====
+  resize(): void {
+    // Update positions of all UI components
+    this.feedingUI.updatePosition()
+    this.cleanlinessUI.updatePosition()
+    this.happinessUI.updatePosition()
+    this.tokenUI.updatePosition()
+    this.navigationUI.updatePosition()
+
+    // Update buy pet button position
+    if (this.buyPetButton) {
+      const buttonX = this.scene.cameras.main.width - 100
+      this.buyPetButton.setPosition(buttonX, 140)
+    }
+
+    console.log("🎨 GameUI resized and repositioned")
+  }
 }
