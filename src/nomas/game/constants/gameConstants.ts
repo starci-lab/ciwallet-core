@@ -123,8 +123,14 @@ export const GamePositioning = {
   },
 
   // Get poop spawn Y position (poop sits on ground)
-  getPoopY(cameraHeight: number): number {
-    return cameraHeight - GAME_LAYOUT.FOOD_GROUND_OFFSET
+  // Offset scales with poop scale for consistent positioning
+  getPoopY(cameraHeight: number, cameraWidth: number): number {
+    const responsiveScale = this.getResponsivePoopScale(cameraWidth)
+    // Base offset at max scale (POOP_SCALE = 1.5)
+    const baseOffset = GAME_LAYOUT.FOOD_GROUND_OFFSET
+    // Scale offset proportionally with poop scale
+    const scaledOffset = baseOffset * (responsiveScale / GAME_LAYOUT.POOP_SCALE)
+    return cameraHeight - scaledOffset
   },
 
   // Get pet boundary limits
