@@ -74,10 +74,14 @@ export class GameScene extends Phaser.Scene {
     // Subscribe to React UI tile events via global event bus
     this.setupTileInputListeners()
 
-    // Handle window resize - update scales of all objects
+    // Handle Phaser scale resize event
     this.scale.on(Phaser.Scale.Events.RESIZE, () => {
       this.handleResize()
     })
+
+    // Thêm ResizeObserver để detect container resize realtime
+    this.setupResizeObserver()
+
     // Initialize Phaser-native tilemap input for the bottom HUD area
     const tileWidth = this.cameras.main.width / 32
     const tileHeight = this.cameras.main.height / 5
@@ -96,6 +100,55 @@ export class GameScene extends Phaser.Scene {
     this.purchaseUI = new PurchaseUI(this)
   }
 
+  private setupResizeObserver() {
+    // Get container element
+    const containerElement = this.scale.game.canvas?.parentElement
+    if (!containerElement) {
+      console.warn("⚠️ Container element not found for ResizeObserver")
+      return
+    }
+
+    let rafId: number | null = null
+    let lastWidth = containerElement.clientWidth
+
+    const resizeObserver = new ResizeObserver(() => {
+      const currentWidth = containerElement.clientWidth
+      // Chỉ update nếu width thay đổi (height cố định)
+      if (currentWidth !== lastWidth) {
+        lastWidth = currentWidth
+
+        // Cancel pending resize để tránh duplicate
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId)
+        }
+
+        // Resize Phaser game ngay lập tức
+        if (this.scale.game.isBooted) {
+          this.scale.resize(currentWidth, 140)
+        }
+
+        // Schedule handleResize sau khi Phaser đã update
+        rafId = requestAnimationFrame(() => {
+          // Double RAF để đảm bảo Phaser đã render xong
+          requestAnimationFrame(() => {
+            this.handleResize()
+            rafId = null
+          })
+        })
+      }
+    })
+
+    resizeObserver.observe(containerElement)
+
+    // Cleanup khi scene destroy
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      resizeObserver.disconnect()
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+      }
+    })
+  }
+
   private handleResize() {
     const cameraWidth = this.cameras.main.width
     const cameraHeight = this.cameras.main.height
@@ -106,15 +159,9 @@ export class GameScene extends Phaser.Scene {
       this.createBackground(currentTextureKey)
     }
 
-    // Update all pets scale
+    // Update tất cả vật thể qua PetManager
     if (this.petManager) {
-      const responsiveScale = GamePositioning.getResponsivePetScale(cameraWidth)
-      const allPets = this.petManager.getAllPets()
-      allPets.forEach((petData) => {
-        if (petData.pet?.sprite) {
-          petData.pet.sprite.setScale(responsiveScale)
-        }
-      })
+      this.petManager.updateAllScales()
     }
 
     console.log(`📐 Game resized: ${cameraWidth}x${cameraHeight}`)
