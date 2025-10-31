@@ -1,6 +1,7 @@
 import { useCallback, useContext, useRef } from "react"
 import { PhaserContext } from "./PhaserProvider"
 import { phaserConfig, CONTAINER_ID } from "@/nomas/game"
+// import { CONTAINER_ID } from "@/nomas/content"
 
 export const usePhaserCore = () => {
     const gameRef = useRef<Phaser.Game | null>(null)
