@@ -17,7 +17,7 @@ export const GAME_LAYOUT = {
   POOP_WIDTH: 25, // Poop sprite width (approximate)
   POOP_HEIGHT: 25, // Poop sprite height (approximate)
   POOP_SCALE: 1.5, // Poop sprite scale multiplier
-  POOP_GROWN_OFFSET: 60, // Poop grown offset
+  POOP_GROWN_OFFSET: 30, // Poop grown offset
   // Base width để tính responsive scale
   BASE_WIDTH: 1920,
 } as const
