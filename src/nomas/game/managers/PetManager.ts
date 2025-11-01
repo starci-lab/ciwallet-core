@@ -327,7 +327,10 @@ export class PetManager {
       serverFood.y,
       "hamburger"
     )
-    foodSprite.setScale(GAME_LAYOUT.FOOD_SCALE)
+    // foodSprite.setScale(GAME_LAYOUT.FOOD_SCALE)
+    const cameraWidth = this.scene.cameras.main.width
+    const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
+    foodSprite.setScale(responsiveScale)
 
     // Create shadow
     const shadow = this.scene.add.ellipse(
@@ -620,7 +623,10 @@ export class PetManager {
 
     const foodDropStartY = GamePositioning.getFoodDropY(cameraHeight)
     const food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
-    food.setScale(GAME_LAYOUT.FOOD_SCALE)
+
+    const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
+
+    food.setScale(responsiveScale)
     food.setAlpha(0.9)
 
     // Add drop animation effect
@@ -898,8 +904,12 @@ export class PetManager {
       GamePositioning.getFoodDropY(cameraHeight),
       textureKey
     )
-    toy.setScale(0.75) // Increased scale for better visibility
+    const responsiveScale = GamePositioning.getResponsiveBallScale(cameraWidth)
+    const toyScale = responsiveScale * 50
+    toy.setScale(toyScale)
     toy.setAlpha(0.9)
+    // Lưu original scale để có thể resize sau này
+    toy.setData("originalScale", toyScale)
 
     console.log("🎾 Sprite created:", toy)
     console.log("🎾 Sprite visible:", toy.visible)
@@ -988,8 +998,11 @@ export class PetManager {
       GamePositioning.getFoodDropY(cameraHeight),
       "ball"
     )
-    ball.setScale(GAME_LAYOUT.BALL_SCALE)
+    const ballScale = GAME_LAYOUT.BALL_SCALE
+    ball.setScale(ballScale)
     ball.setAlpha(0.9)
+    // Lưu original scale để có thể resize sau này
+    ball.setData("originalScale", ballScale)
 
     // Add drop animation effect
     this.scene.tweens.add({
@@ -1739,5 +1752,59 @@ export class PetManager {
 
     // Emit event to open React Home Modal with selected pet
     this.scene.events.emit("open-react-home-with-pet", petId)
+  }
+
+  /**
+   * Update scales của tất cả vật thể khi resize
+   */
+  public updateAllScales(): void {
+    const cameraWidth = this.scene.cameras.main.width
+
+    // Update pets
+    const responsivePetScale =
+      GamePositioning.getResponsivePetScale(cameraWidth)
+    this.pets.forEach((petData) => {
+      if (petData.pet?.sprite && petData.pet.sprite.active) {
+        petData.pet.sprite.setScale(responsivePetScale)
+      }
+      
+      // Update poop scales for each pet's cleanliness system
+      if (petData.cleanlinessSystem) {
+        petData.cleanlinessSystem.updatePoopScales()
+      }
+    })
+
+    // Update food items
+    const responsiveFoodScale =
+      GamePositioning.getResponsiveFoodScale(cameraWidth)
+    this.sharedDroppedFood.forEach((food) => {
+      if (food && food.active) {
+        food.setScale(responsiveFoodScale)
+      }
+    })
+
+    // Update balls/toys
+    // Balls thường có scale tùy chỉnh (0.75), nên cần tính responsive riêng
+    const baseWidth = GAME_LAYOUT.BASE_WIDTH
+
+    this.sharedDroppedBalls.forEach((ball) => {
+      if (ball && ball.active) {
+        // Tính scale multiplier dựa trên width ratio
+        const scaleMultiplier = cameraWidth / baseWidth
+
+        // Lấy scale ban đầu của ball (thường là 0.75 cho toys)
+        // Nếu không có, lưu scale hiện tại làm original
+        let originalScale = ball.getData("originalScale")
+        if (!originalScale) {
+          originalScale = ball.scaleX
+          ball.setData("originalScale", originalScale)
+        }
+
+        // Apply responsive scale
+        ball.setScale(originalScale * scaleMultiplier)
+      }
+    })
+
+    console.log(`📐 Updated all game object scales (width: ${cameraWidth})`)
   }
 }
