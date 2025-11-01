@@ -9,11 +9,11 @@ const TOKEN_UI_DEPTH = 200 // Ensure above pets and world objects
 
 // Helper function to get responsive token UI sizes
 function getResponsiveTokenSizes(screenWidth: number): { width: number; height: number; fontSize: number; iconSize: number } {
-  const width = Math.max(150, Math.min(200, screenWidth / 8))
-  const height = Math.max(32, Math.min(40, screenWidth / 40))
-  const fontSize = Math.max(12, Math.min(16, screenWidth / 100))
-  const iconSize = Math.max(12, Math.min(16, screenWidth / 100))
-  return { width, height, fontSize, iconSize }
+    const width = Math.max(150, Math.min(200, screenWidth / 8))
+    const height = Math.max(32, Math.min(40, screenWidth / 40))
+    const fontSize = Math.max(12, Math.min(16, screenWidth / 100))
+    const iconSize = Math.max(12, Math.min(16, screenWidth / 100))
+    return { width, height, fontSize, iconSize }
 }
 
 export class TokenUI {
