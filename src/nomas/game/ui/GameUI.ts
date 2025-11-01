@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import type { GameScene } from "../GameScene"
 import { PetManager, type PetData } from "@/nomas/game/managers/PetManager"
 import { FeedingUI } from "./components/FeedingUI"
@@ -14,187 +15,205 @@ import { InputManager } from "./components/InputManager"
 const PET_PRICE = 50 // Price to buy a new pet
 
 export class GameUI {
-    private scene: GameScene
-    private petManager: PetManager
+  private scene: GameScene
+  private petManager: PetManager
 
-    // UI Components
-    private feedingUI: FeedingUI
-    private cleanlinessUI: CleanlinessUI
-    private happinessUI: HappinessUI
-    private tokenUI: TokenUI
-    private navigationUI: NavigationUI
-    private notificationUI: NotificationUI
-    private petShopModal: PetShopModal
-    private petDetailsModal: PetDetailsModal
-    private inputManager: InputManager
-    // React shop is opened via scene events; no local legacy modal instance
+  // UI Components
+  private feedingUI: FeedingUI
+  private cleanlinessUI: CleanlinessUI
+  private happinessUI: HappinessUI
+  private tokenUI: TokenUI
+  private navigationUI: NavigationUI
+  private notificationUI: NotificationUI
+  private petShopModal: PetShopModal
+  private petDetailsModal: PetDetailsModal
+  private inputManager: InputManager
+  // React shop is opened via scene events; no local legacy modal instance
 
-    // UI Elements
-    private buyPetButton!: Phaser.GameObjects.Rectangle
-    private isMinimized = false
+  // UI Elements
+  private buyPetButton!: Phaser.GameObjects.Rectangle
+  private isMinimized = false
 
-    constructor(scene: GameScene, petManager: PetManager) {
-        this.scene = scene
-        this.petManager = petManager
+  constructor(scene: GameScene, petManager: PetManager) {
+    this.scene = scene
+    this.petManager = petManager
 
-        // Initialize UI components
-        this.notificationUI = new NotificationUI(scene)
-        this.feedingUI = new FeedingUI(scene, petManager)
-        this.cleanlinessUI = new CleanlinessUI(scene, petManager)
-        this.happinessUI = new HappinessUI(scene, petManager)
-        this.tokenUI = new TokenUI(scene)
-        this.navigationUI = new NavigationUI(scene)
-        this.petShopModal = new PetShopModal(petManager, this.notificationUI)
-        this.petDetailsModal = new PetDetailsModal()
-        this.inputManager = new InputManager(scene, petManager, this.notificationUI)
+    // Initialize UI components
+    this.notificationUI = new NotificationUI(scene)
+    this.feedingUI = new FeedingUI(scene, petManager)
+    this.cleanlinessUI = new CleanlinessUI(scene, petManager)
+    this.happinessUI = new HappinessUI(scene, petManager)
+    this.tokenUI = new TokenUI(scene)
+    this.navigationUI = new NavigationUI(scene)
+    this.petShopModal = new PetShopModal(petManager, this.notificationUI)
+    this.petDetailsModal = new PetDetailsModal()
+    this.inputManager = new InputManager(scene, petManager, this.notificationUI)
     // Legacy ShopModal and ShopUI removed
+  }
+
+  create() {
+    console.log("🎨 Creating GameUI...")
+
+    // Create all UI components
+    this.feedingUI.create()
+    this.cleanlinessUI.create()
+    this.happinessUI.create()
+    this.tokenUI.create()
+    this.navigationUI.create()
+    this.createBuyPetButton()
+    this.inputManager.setupInputHandlers()
+
+    console.log("✅ GameUI created successfully")
+  }
+
+  // // Buy Pet Button
+  private createBuyPetButton() {
+    console.log("🏪 Creating Buy Pet Button...")
+
+    // Position button below the navigation buttons
+    const buttonX = this.scene.cameras.main.width - 100
+    const buttonY = 140 // Below the navigation UI
+    const buttonWidth = 80
+    const buttonHeight = 30
+
+    // Button background
+    this.buyPetButton = this.scene.add
+      .rectangle(buttonX, buttonY, buttonWidth, buttonHeight, 0x4caf50, 0.9)
+      .setStrokeStyle(2, 0x388e3c)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+
+    // Button text
+    this.scene.add
+      .text(buttonX, buttonY, `Buy Pet\n🪙${PET_PRICE}`, {
+        fontSize: "12px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        fontFamily: "monospace",
+        align: "center",
+      })
+      .setOrigin(0.5)
+
+    // Button click handler
+    this.buyPetButton.on("pointerdown", () => {
+      this.petShopModal.showBuyPetModal()
+    })
+
+    // Hover effects
+    this.buyPetButton.on("pointerover", () => {
+      this.buyPetButton.setFillStyle(0x66bb6a)
+    })
+
+    this.buyPetButton.on("pointerout", () => {
+      this.buyPetButton.setFillStyle(0x4caf50)
+    })
+
+    console.log("✅ Buy Pet Button created successfully")
+  }
+
+  // Public method for external components (like ColyseusClient) to show notifications
+  showNotification(message: string, x?: number, y?: number) {
+    this.notificationUI.showNotification(message, x, y)
+  }
+
+  // Update all UI components
+  updateUI() {
+    this.feedingUI.update()
+    this.cleanlinessUI.update()
+    this.happinessUI.update()
+    this.tokenUI.update()
+    this.petDetailsModal.update()
+  }
+
+  // Debug method to show pet stats
+  showPetStats() {
+    const stats = this.petManager.getPetStats()
+    console.log("🐕 Pet Manager Stats:", stats)
+  }
+
+  // Show pet details modal
+  showPetDetailsModal(petData: PetData) {
+    this.petDetailsModal.show(petData)
+  }
+
+  getTokenUI(): TokenUI {
+    return this.tokenUI
+  }
+
+  // ===== Minimize/Restore Functionality =====
+  minimize(): void {
+    if (this.isMinimized) return
+
+    this.isMinimized = true
+
+    // Hide all UI components with smooth animation
+    this.feedingUI.minimize()
+    this.cleanlinessUI.minimize()
+    this.happinessUI.minimize()
+    this.tokenUI.minimize()
+    this.navigationUI.minimize()
+
+    // Hide buy pet button
+    if (this.buyPetButton) {
+      this.scene.tweens.add({
+        targets: this.buyPetButton,
+        alpha: 0,
+        duration: 300,
+        ease: "Power2",
+      })
     }
 
-    create() {
-        console.log("🎨 Creating GameUI...")
+    console.log("🎨 GameUI minimized")
+  }
 
-        // Create all UI components
-        this.feedingUI.create()
-        this.cleanlinessUI.create()
-        this.happinessUI.create()
-        this.tokenUI.create()
-        this.navigationUI.create()
-        this.createBuyPetButton()
-        this.inputManager.setupInputHandlers()
+  restore(): void {
+    if (!this.isMinimized) return
 
-        console.log("✅ GameUI created successfully")
+    this.isMinimized = false
+
+    // Show all UI components with smooth animation
+    this.feedingUI.restore()
+    this.cleanlinessUI.restore()
+    this.happinessUI.restore()
+    this.tokenUI.restore()
+    this.navigationUI.restore()
+
+    // Show buy pet button
+    if (this.buyPetButton) {
+      this.scene.tweens.add({
+        targets: this.buyPetButton,
+        alpha: 1,
+        duration: 300,
+        ease: "Power2",
+      })
     }
 
-    // // Buy Pet Button
-    private createBuyPetButton() {
-        console.log("🏪 Creating Buy Pet Button...")
+    console.log("🎨 GameUI restored")
+  }
 
-        // Position button below the navigation buttons
-        const buttonX = this.scene.cameras.main.width - 100
-        const buttonY = 140 // Below the navigation UI
-        const buttonWidth = 80
-        const buttonHeight = 30
+  getMinimizeState(): boolean {
+    return this.isMinimized
+  }
 
-        // Button background
-        this.buyPetButton = this.scene.add
-            .rectangle(buttonX, buttonY, buttonWidth, buttonHeight, 0x4caf50, 0.9)
-            .setStrokeStyle(2, 0x388e3c)
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true })
+  getInputManager(): InputManager {
+    return this.inputManager
+  }
 
-        // Button text
-        this.scene.add
-            .text(buttonX, buttonY, `Buy Pet\n🪙${PET_PRICE}`, {
-                fontSize: "12px",
-                color: "#ffffff",
-                fontStyle: "bold",
-                fontFamily: "monospace",
-                align: "center",
-            })
-            .setOrigin(0.5)
+  // ===== Resize Functionality =====
+  resize(): void {
+    // Update positions of all UI components
+    this.feedingUI.updatePosition()
+    this.cleanlinessUI.updatePosition()
+    this.happinessUI.updatePosition()
+    this.tokenUI.updatePosition()
+    this.navigationUI.updatePosition()
 
-        // Button click handler
-        this.buyPetButton.on("pointerdown", () => {
-            this.petShopModal.showBuyPetModal()
-        })
-
-        // Hover effects
-        this.buyPetButton.on("pointerover", () => {
-            this.buyPetButton.setFillStyle(0x66bb6a)
-        })
-
-        this.buyPetButton.on("pointerout", () => {
-            this.buyPetButton.setFillStyle(0x4caf50)
-        })
-
-        console.log("✅ Buy Pet Button created successfully")
+    // Update buy pet button position
+    if (this.buyPetButton) {
+      const buttonX = this.scene.cameras.main.width - 100
+      this.buyPetButton.setPosition(buttonX, 140)
     }
 
-    // Public method for external components (like ColyseusClient) to show notifications
-    showNotification(message: string, x?: number, y?: number) {
-        this.notificationUI.showNotification(message, x, y)
-    }
-
-    // Update all UI components
-    updateUI() {
-        this.feedingUI.update()
-        this.cleanlinessUI.update()
-        this.happinessUI.update()
-        this.tokenUI.update()
-        this.petDetailsModal.update()
-    }
-
-    // Debug method to show pet stats
-    showPetStats() {
-        const stats = this.petManager.getPetStats()
-        console.log("🐕 Pet Manager Stats:", stats)
-    }
-
-    // Show pet details modal
-    showPetDetailsModal(petData: PetData) {
-        this.petDetailsModal.show(petData)
-    }
-
-    getTokenUI(): TokenUI {
-        return this.tokenUI
-    }
-
-    // ===== Minimize/Restore Functionality =====
-    minimize(): void {
-        if (this.isMinimized) return
-
-        this.isMinimized = true
-
-        // Hide all UI components with smooth animation
-        this.feedingUI.minimize()
-        this.cleanlinessUI.minimize()
-        this.happinessUI.minimize()
-        this.tokenUI.minimize()
-        this.navigationUI.minimize()
-
-        // Hide buy pet button
-        if (this.buyPetButton) {
-            this.scene.tweens.add({
-                targets: this.buyPetButton,
-                alpha: 0,
-                duration: 300,
-                ease: "Power2",
-            })
-        }
-
-        console.log("🎨 GameUI minimized")
-    }
-
-    restore(): void {
-        if (!this.isMinimized) return
-
-        this.isMinimized = false
-
-        // Show all UI components with smooth animation
-        this.feedingUI.restore()
-        this.cleanlinessUI.restore()
-        this.happinessUI.restore()
-        this.tokenUI.restore()
-        this.navigationUI.restore()
-
-        // Show buy pet button
-        if (this.buyPetButton) {
-            this.scene.tweens.add({
-                targets: this.buyPetButton,
-                alpha: 1,
-                duration: 300,
-                ease: "Power2",
-            })
-        }
-
-        console.log("🎨 GameUI restored")
-    }
-
-    getMinimizeState(): boolean {
-        return this.isMinimized
-    }
-
-    getInputManager(): InputManager {
-        return this.inputManager
-    }
+    console.log("🎨 GameUI resized and repositioned")
+  }
 }
