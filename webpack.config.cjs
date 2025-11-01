@@ -117,12 +117,9 @@ module.exports = {
         VITE_LIFI_API_KEY:
           process.env.VITE_LIFI_API_KEY ||
           "86fb088f-5ea3-4854-85f7-8c649d40ae46.cf31cb76-8e42-4553-b956-ec1b35763077",
-        VITE_BASE_URL:
-          process.env.VITE_BASE_URL ||
-          "https://completed-pontiac-towers-pen.trycloudflare.com",
+        VITE_BASE_URL: process.env.VITE_BASE_URL || "https://nomas.kanibot.xyz",
         VITE_COLYSEUS_URL:
-          process.env.VITE_COLYSEUS_URL ||
-          "https://appointment-rate-trademark-powerseller.trycloudflare.com",
+          process.env.VITE_COLYSEUS_URL || "https://nomas-colyseus.kanibot.xyz",
       }),
     }),
   ],
