@@ -3,7 +3,7 @@ import { useAppSelector } from "@/nomas/redux"
 import { SwapSection } from "./SwapSection"
 import { HomeSection } from "./HomeSection"
 import { HomeTab } from "@/nomas/redux"
-import { GameSection } from "../GameSection"
+import { GameSection } from "./GameSection"
 
 export const MainSection = () => {
     const homeTab = useAppSelector((state) => state.stateless.tabs.homeTab)

@@ -112,8 +112,9 @@ export interface SessionSlice {
   // tracking token ids and unified token ids
   trackingTokenIds: Array<TokenId>
   trackingUnifiedTokenIds: Array<UnifiedTokenId>
-
   explorers: Partial<Record<ChainId, ExplorerId>>
+  // game minimized
+  isGameMinimized: boolean
 }
 
 /* -----------------------------
@@ -371,6 +372,7 @@ const initialState: SessionSlice = {
         [ChainId.Avalanche]: ExplorerId.Snowtrace,
         [ChainId.Fantom]: ExplorerId.Ftmscan,
     },
+    isGameMinimized: false,
 }
 /* -----------------------------
  * Slice
@@ -452,6 +454,9 @@ export const sessionSlice = createSlice({
         },
         setExplorer: (state, action: PayloadAction<SetExplorerParams>) => {
             state.explorers[action.payload.chainId] = action.payload.explorerId
+        },
+        setIsGameMinimized: (state, action: PayloadAction<boolean>) => {
+            state.isGameMinimized = action.payload
         },
     },
     extraReducers: (builder) => {
@@ -667,6 +672,7 @@ export const {
     addTrackingUnifiedTokenId,
     removeTrackingTokenId,
     removeTrackingUnifiedTokenId,
+    setIsGameMinimized,
 } = sessionSlice.actions
 
 export const {

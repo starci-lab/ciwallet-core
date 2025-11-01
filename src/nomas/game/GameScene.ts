@@ -14,6 +14,8 @@ import { PurchaseUI } from "@/nomas/game/ui/PurchaseUI"
 import { PurchaseSystem } from "@/nomas/game/systems"
 import { SceneName } from "@/nomas/game/types"
 import { envConfig } from "../env"
+import { ReactEventName } from "./events/react"
+import { reactBus } from "./events/react/bus"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
@@ -191,7 +193,7 @@ export class GameScene extends Phaser.Scene {
     // This prevents conflicts between local and server pet IDs
   }
 
-  private initializeUI() {
+  private async initializeUI() {
     // Initialize UI with pet manager
     this.gameUI = new GameUI(this, this.petManager)
     this.gameUI.create()
@@ -199,9 +201,8 @@ export class GameScene extends Phaser.Scene {
     // Set GameUI reference in ColyseusClient for notifications
     this.colyseusClient.setGameUI(this.gameUI)
     // Connect to Colyseus after UI is ready
-    this.connectToColyseus().catch((error) => {
-      console.error("❌ Failed to connect to Colyseus:", error)
-    })
+    await this.connectToColyseus()
+    reactBus.emit(ReactEventName.GameLoaded)
   }
 
   private setupTileInputListeners() {

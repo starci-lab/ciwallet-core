@@ -46,6 +46,12 @@ export enum WithdrawFunctionPage {
     TransactionReceipt = "transaction-receipt",
 }
 
+export enum GameFunctionPage {
+    GameSplash = "game-splash",
+    Shop = "shop",
+    PetDetails = "pet-details",
+}
+
 export interface HomeSectionSlice {
     homeSelectorTab: HomeSelectorTab;
     portfolioSelectedChainId: ChainId;
@@ -66,6 +72,7 @@ export interface HomeSectionSlice {
     selectedTokenType: SelectedTokenType
     selectedUnifiedTokenId: UnifiedTokenId
     selectedChainId: SelectedChainId
+    gameFunctionPage: GameFunctionPage;
 }
 
 export interface SetSelectedToken {
@@ -91,6 +98,7 @@ const initialState: HomeSectionSlice = {
     selectedTokenType: SelectedTokenType.Token,
     selectedUnifiedTokenId: UnifiedTokenId.Usdc,
     selectedChainId: ChainId.Monad,
+    gameFunctionPage: GameFunctionPage.GameSplash,
 }
 
 export const homeSectionSlice = createSlice({
@@ -159,8 +167,11 @@ export const homeSectionSlice = createSlice({
                 state.selectedUnifiedTokenId = action.payload.id as UnifiedTokenId
             }
         },
+        setGameFunctionPage: (state, action: PayloadAction<GameFunctionPage>) => {
+            state.gameFunctionPage = action.payload
+        },
     },
 })
 
-export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositTokenId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage, setSearchTokenQuery, setSearchSelectedChainId, setSelectedTokenType, setSelectedUnifiedTokenId, setSelectedChainId, setSelectedToken } = homeSectionSlice.actions
+export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositTokenId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage, setSearchTokenQuery, setSearchSelectedChainId, setSelectedTokenType, setSelectedUnifiedTokenId, setSelectedChainId, setSelectedToken, setGameFunctionPage } = homeSectionSlice.actions
 export const homeSectionReducer = homeSectionSlice.reducer

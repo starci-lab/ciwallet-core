@@ -1,8 +1,7 @@
 import { SingletonHookProvider } from "./hooks"
-import { ChainId, Platform } from "@ciwallet-sdk/types"
+import { ChainId } from "@ciwallet-sdk/types"
 import {
     ReduxProvider,
-    selectSelectedAccountByPlatform,
     useAppSelector,
 } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
@@ -14,9 +13,10 @@ import {
     MyWalletsScene,
     SettingsScene,
 } from "@/nomas/components"
-import { Wallet } from "ethers"
 import { motion } from "framer-motion"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
+import { twMerge } from "tailwind-merge"
+import { CONTAINER_ID } from "@/nomas/game"
 
 export const Nomas = () => {
     return (
@@ -50,14 +50,12 @@ export const Nomas = () => {
 }
 
 const NomasContent = () => {
-    const selectedAccount = useAppSelector((state) =>
-        selectSelectedAccountByPlatform(state.persists, Platform.Evm)
-    )
-    console.log("selectedAccount", selectedAccount)
     const scene = useAppSelector((state) => state.stateless.scene.scene)
-    const initialized = useAppSelector(
-        (state) => state.persists.session.initialized
+    const isGameMinimized = useAppSelector(
+        (state) => state.persists.session.isGameMinimized
     )
+    const gameLoaded = useAppSelector((state) => state.stateless.game.gameLoaded)
+
     const renderContent = () => {
         switch (scene) {
         case Scene.Init:
@@ -79,21 +77,22 @@ const NomasContent = () => {
             >
                 {renderContent()}
             </motion.div>
-            {/* {initialized &&
-        selectedAccount?.privateKey &&
-        selectedAccount?.accountAddress && (
-                <div className="fixed bottom-0 left-0 w-full z-50">
-                    <GameComponent
-                        signMessage={async (message) => {
-                            console.log(selectedAccount, selectedAccount.privateKey)
-                            const wallet = new Wallet(selectedAccount.privateKey)
-                            console.log("wallet", wallet)
-                            return await wallet.signMessage(message)
-                        }}
-                        publicKey={selectedAccount.accountAddress || ""}
-                    />
-                </div>
-            )} */}
+            <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: isGameMinimized ? "100%" : 0 }}
+                transition={{
+                    type: "spring",
+                    stiffness: 140,
+                    damping: 20,
+                }}
+                className={twMerge(
+                    "fixed bottom-0 left-0 w-screen z-[9999] border-none bg-transparent pointer-events-auto isolate",
+                    "bg-red-500",
+                    "h-[140px]"
+                )}
+            >
+                <div id={CONTAINER_ID} className="w-full h-full bg-transparent"></div>
+            </motion.div>
         </>
     )
 }
