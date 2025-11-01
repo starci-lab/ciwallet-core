@@ -219,7 +219,24 @@ export const GameSection = () => {
                 />
               </motion.div>
               {/* Buttons (bottom) */}
-              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex gap-4">
+              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex gap-4 items-center">
+                {/* Farm Icon */}
+                <button
+                  onClick={() => {
+                    setSelectedPetId(null) // ← Clear selected pet
+                    setShowHome(true) // ← Open HOME not shop!
+                  }}
+                  className="w-16 h-16 bg-gradient-to-b from-[#1D1D1D] to-[#141414] 
+                             rounded-full border-[3px] border-[rgba(135,135,135,0.7)]
+                             shadow-[0px_6px_20px_rgba(0,0,0,0.6),inset_0px_2px_4px_rgba(255,255,255,0.1)]
+                             cursor-pointer flex items-center justify-center text-2xl
+                             text-[#B3B3B3] transition-all duration-300 ease-in-out
+                             hover:scale-110 hover:shadow-[0px_8px_25px_rgba(0,0,0,0.8),inset_0px_2px_4px_rgba(255,255,255,0.2)]
+                             hover:border-[rgba(135,135,135,1)] hover:text-white"
+                  title="Open Home"
+                >
+                  🏘
+                </button>
                 {/* Play/Minimize Button */}
                 <button
                   onClick={async () => {
