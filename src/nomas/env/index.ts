@@ -7,7 +7,7 @@ export const envConfig = () => {
     colyseus: {
       endpoint:
         import.meta.env.VITE_COLYSEUS_URL ||
-        "https://appointment-rate-trademark-powerseller.trycloudflare.com",
+        "https://nomas-colyseus.kanibot.xyz",
     },
   }
 }
