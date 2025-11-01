@@ -8,7 +8,6 @@ export const useBatchAggregatorSwrMutationCore = () => {
     const swrMutation = useSWRMutation(
         "BATCH_AGGREGATOR_SWR_MUTATION",
         async (_, { arg }: { arg: QuoteParams }) => {
-            console.log("calling batch quote")
             const results = await aggregatorManagerObj.batchQuote(arg)
             return results
         }

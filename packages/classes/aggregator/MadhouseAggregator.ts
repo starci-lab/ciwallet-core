@@ -8,7 +8,6 @@ import type {
     SignAndSendTransactionResponse,
 } from "./IAggregator"
 import axios, { Axios } from "axios"
-import { TokenManager } from "../data"
 import type { ProtocolId } from "./ProtocolManager"
 import BN from "bn.js"
 import SuperJSON from "superjson"
@@ -26,34 +25,23 @@ export class MadhouseAggregator implements IAggregator {
     }
     async quote(params: QuoteParams): Promise<QuoteResponse> {
         const chainId = getEvmChainId(params.fromChainId, params.network)
-        const tokenManager = new TokenManager()
-        const tokenInEntity = tokenManager.getTokenById(
-            params.fromToken,
-        )
-        const tokenOutEntity = tokenManager.getTokenById(
-            params.toToken,
-        )
-        const tokenIn = !tokenInEntity?.address
-            ? ZERO_ADDRESS
-            : tokenInEntity?.address
-        const tokenOut = !tokenOutEntity?.address
-            ? ZERO_ADDRESS
-            : tokenOutEntity?.address
+        const tokenIn = params.fromTokenAddress
+        const tokenOut = params.toTokenAddress
         const {
             data: { routes: madhouseRoutes, amountOut, tx },
         } = await this.axiosInstance.get<SwapResponse>("swap/v1/quote", {
             params: {
                 chain: chainId,
-                tokenIn,
-                tokenOut,
+                tokenIn: tokenIn || ZERO_ADDRESS,
+                tokenOut: tokenOut || ZERO_ADDRESS,
                 amountIn: computeRaw(
                     params.amount,
-                    tokenInEntity?.decimals
+                    params.fromTokenDecimals
                 ).toString(),
                 slippage: params.slippage / 100,
                 includePoolInfo: true,
-                tokenInDecimals: tokenInEntity?.decimals,
-                tokenOutDecimals: tokenOutEntity?.decimals,
+                tokenInDecimals: params.fromTokenDecimals,
+                tokenOutDecimals: params.toTokenDecimals,
             },
             signal: params.signal,
         })
@@ -70,7 +58,7 @@ export class MadhouseAggregator implements IAggregator {
         // we build paths from routes
         const routes: Array<Route> = madhouseRoutes.map(cleanRoute)
         return {
-            amountOut: computeDenomination(new BN(amountOut), tokenOutEntity?.decimals).toNumber(),
+            amountOut: computeDenomination(new BN(amountOut), params.toTokenDecimals).toNumber(),
             routes,
             serializedTx: SuperJSON.stringify(tx),
         }

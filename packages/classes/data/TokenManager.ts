@@ -120,7 +120,7 @@ export class TokenManager {
                     decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
-                    address: "So11111111111111111111111111111111111111112", // example
+                    address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // example
                     iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,

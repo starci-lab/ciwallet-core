@@ -1,9 +1,9 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, Platform, TokenId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
+import { ChainId, Platform, TokenId, type ChainIdWithAllNetwork, Network } from "@ciwallet-sdk/types"
 import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
 import { aggregatorManagerObj } from "@/nomas/obj"
@@ -92,6 +92,17 @@ export const useSwapFormikCore = () => {
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
     const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     const swrMutation = useBatchAggregatorSwrMutation()
+        
+    useEffect(() => {
+        if (network === Network.Mainnet) {
+            formik.setFieldValue("tokenIn", TokenId.MonadMainnetUsdc)
+            formik.setFieldValue("tokenOut", TokenId.MonadMainnetMon)
+        } else {
+            formik.setFieldValue("tokenIn", TokenId.MonadTestnetUsdc)
+            formik.setFieldValue("tokenOut", TokenId.MonadMainnetMon)
+        }
+    }, [network])
+    
     const formik = useFormik<SwapFormikValues>({
         initialValues: {
             searchSelectedChainId: "all-network",

@@ -171,8 +171,18 @@ export class ProtocolManager {
         }
     }
 
-    public getProtocols({ routes }: QuoteResponse): Array<ProtocolData> {
+    public getProtocols({ routes, rawRoutes }: QuoteResponse): Array<ProtocolData> {
         const result: Array<ProtocolData> = []
+        if (rawRoutes) {
+            for (const rawRoute of rawRoutes) {
+                result.push({
+                    id: rawRoute.id as ProtocolId,
+                    name: rawRoute.name,
+                    logo: rawRoute.imageUrl,
+                })
+            }
+            return result
+        }
         const traverse = (routeList: Route[]) => {
             for (const route of routeList) {
                 const protocol = this.protocols[route.protocol]

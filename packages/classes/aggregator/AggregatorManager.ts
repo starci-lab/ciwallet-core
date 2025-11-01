@@ -66,7 +66,7 @@ export class AggregatorManager {
                 id: AggregatorId.Lifi,
                 name: "Lifi",
                 url: "https://lifi.io/",
-                logo: "/assets/aggregators/lifi.webp",
+                logo: "/assets/aggregators/lifi.png",
                 instance: new LifiAggregator({
                     apiKey: this.params.lifi.apiKey,
                     integrator: this.params.lifi.integrator,
@@ -96,13 +96,26 @@ export class AggregatorManager {
         const results: Partial<Record<AggregatorId, QuoteResponse>> = {}
         const promises: Array<Promise<void>> = []
         let selectedAggregators: Array<AggregatorData> = []
+        // swap within the same chain
         if (params.fromChainId === params.toChainId) {
             selectedAggregators = this.getAggregators().filter(aggregator => {    
                 return (
+                    // either singlechain and hybrid
                     aggregator.mode === AggregationMode.SingleChain 
                     || aggregator.mode === AggregationMode.Hybrid
                     && aggregator.chains.includes(params.fromChainId)
                     && aggregator.networks.includes(params.network)
+                )
+            })
+        }
+        // swap between different chains
+        else {
+            selectedAggregators = this.getAggregators().filter(aggregator => {
+                return (
+                    aggregator.mode === AggregationMode.CrossChain 
+                    || aggregator.mode === AggregationMode.Hybrid
+                    && aggregator.chains.includes(params.fromChainId)
+                    && aggregator.chains.includes(params.toChainId)
                 )
             })
         }

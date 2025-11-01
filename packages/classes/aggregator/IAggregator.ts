@@ -7,8 +7,12 @@ export interface IAggregator {
 }
 
 export interface QuoteParams {
-    fromToken: TokenId
-    toToken: TokenId
+    // if not provide fromTokenAddress, we will use the default token for the chain
+    fromTokenAddress?: string
+    // if not provide toTokenAddress, we will use the default token for the chain
+    toTokenAddress?: string
+    fromTokenDecimals: number
+    toTokenDecimals: number
     amount: number
     exactIn: boolean
     slippage: number
@@ -28,9 +32,16 @@ export interface Route {
     routes?: Array<Route>;
 }   
 
+export interface RawRoute {
+    id: string
+    name: string
+    imageUrl: string
+}
+
 export interface QuoteResponse {
     amountOut: number
     routes: Array<Route>
+    rawRoutes?: Array<RawRoute>
     serializedTx: string
 }
 

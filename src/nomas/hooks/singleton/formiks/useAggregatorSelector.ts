@@ -1,11 +1,12 @@
 import type { FormikProps } from "formik"
 import type { SwapFormikValues } from "./useSwapFormik"
 import { protocolManagerObj } from "@/nomas/obj"
-import { useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccounts, selectTokens, useAppSelector } from "@/nomas/redux"
 import { useEffect } from "react"
 import { TIMEOUT_QUOTE } from "@ciwallet-sdk/constants"
 import Decimal from "decimal.js"
 import { useBatchAggregatorSwrMutation } from "../mixin"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
 export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => {
     // we try to determine the token in/out to select the best aggregator
@@ -13,27 +14,41 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
     const tokenOutChainId = formik.values.tokenOutChainId
     const network = useAppSelector(state => state.persists.session.network)
     const swrMutation = useBatchAggregatorSwrMutation()
+    const tokenArray = useAppSelector(state => selectTokens(state.persists))
+    const selectedAccounts = useAppSelector(state => selectSelectedAccounts(state.persists))
     useEffect(() => {
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {
+            const fromToken = tokenArray.find(token => token.tokenId === formik.values.tokenIn)
+            const toToken = tokenArray.find(token => token.tokenId === formik.values.tokenOut)
+            // throw if we cannot find decimals
+            if (!fromToken?.decimals || !toToken?.decimals) {
+                throw new Error("Token decimals not found")
+            }
+            const fromSelectedAccount = selectedAccounts[chainIdToPlatform(tokenInChainId)]
+            const toSelectedAccount = selectedAccounts[chainIdToPlatform(tokenOutChainId)]
+            if (!fromSelectedAccount || !toSelectedAccount) {
+                throw new Error("From or to selected account not found")
+            }
             try {
                 if (new Decimal(formik.values.amountIn).gt(0) && formik.values.isInput) {
-                    // optional: hiển thị trạng thái đang quote
+                    // display quoting
                     formik.setFieldValue("quoting", true)
                     const results = await swrMutation.trigger({
-                        fromAddress: formik.values.tokenIn,
-                        toAddress: formik.values.tokenOut,
+                        fromAddress: fromSelectedAccount?.accountAddress ?? "",
+                        toAddress: toSelectedAccount?.accountAddress ?? "",
                         amount: Number(formik.values.amountIn),
                         exactIn: true,
                         slippage: formik.values.slippage,
                         fromChainId: tokenInChainId,
                         toChainId: tokenOutChainId,
                         network,
-                        fromToken: formik.values.tokenIn,
-                        toToken: formik.values.tokenOut,
+                        fromTokenAddress: fromToken?.address,
+                        toTokenAddress: toToken?.address,
+                        fromTokenDecimals: fromToken.decimals,
+                        toTokenDecimals: toToken.decimals,
                         signal: abortController.signal,
                     })
-                    // mapping dữ liệu quote ra field cần thiết
                     formik.setFieldValue(
                         "aggregations",
                         Object.entries(results).map(([aggregator, quote]) => ({
