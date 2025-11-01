@@ -290,9 +290,12 @@ export function ReactShopModal({
       titleLogo={true}
     >
       {/* Tabs Section */}
-      <div className="bg-[#1a1a1a] px-4 py-3 border-b border-[rgba(135,135,135,0.25)]">
+      <div className="bg-[#1a1a1a] px-4 py-3 border-b border-[rgba(135,135,135,0.25)] flex-shrink-0">
         <ScrollArea className="w-full">
-          <div ref={tabsContainerRef} className="relative flex gap-2">
+          <div
+            ref={tabsContainerRef}
+            className="relative flex gap-2 overflow-x-auto"
+          >
             {[
               { k: "pets", t: "Pets" },
               { k: "food", t: "Food" },
@@ -305,7 +308,7 @@ export function ReactShopModal({
                 key={tab.k}
                 data-key={tab.k}
                 onClick={() => setCategory(tab.k)}
-                className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap
+                className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap flex-shrink-0
                            transition-all duration-200 ${
                              category === tab.k
                                ? "bg-[#8b5cf6] text-white"
