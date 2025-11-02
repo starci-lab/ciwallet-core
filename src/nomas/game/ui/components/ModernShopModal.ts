@@ -4,7 +4,7 @@ import { gameConfigManager } from "../../configs/gameConfig"
 import { PurchaseSystem } from "@/nomas/game/systems"
 import { PurchaseUI } from "../PurchaseUI"
 import { eventBus } from "@/nomas/game/event-bus"
-import type { ColyseusClient } from "../../colyseus/client"
+// Note: Removed ColyseusClient import - PurchaseSystem no longer needs it
 import { store } from "@/nomas/redux"
 
 // Reuse existing styles from ShopModal.ts
@@ -85,10 +85,9 @@ export default class ModernShopModal {
     private balanceValueElement: HTMLElement | null = null
 
     constructor(_scene: GameScene, petManager: PetManager) {
-        this.purchaseSystem = new PurchaseSystem(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (petManager as any).colyseusClient as ColyseusClient
-        )
+    // PurchaseSystem no longer requires ColyseusClient parameter
+    // It uses colyseusService singleton internally
+        this.purchaseSystem = new PurchaseSystem()
         this.purchaseUI = new PurchaseUI(_scene)
         this.modal = document.createElement("div")
         this.itemsGrid = document.createElement("div")

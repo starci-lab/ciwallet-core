@@ -1,4 +1,4 @@
-import type { ColyseusClient } from "@/nomas/game/colyseus/client"
+import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
 import { Pet } from "../entities/Pet"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { GAME_MECHANICS } from "../constants/gameConstants"
@@ -29,19 +29,18 @@ export class FeedingSystem {
     private lastHungerUpdate: number = 0
     private scene: Phaser.Scene
     private pet: Pet
-    private colyseusClient: ColyseusClient
     private petId: string
 
     constructor(
         scene: Phaser.Scene,
         pet: Pet,
-        colyseusClient: ColyseusClient,
+        _colyseusClient: unknown, // Deprecated parameter - no longer used, kept for backward compatibility
         petId: string
     ) {
         this.scene = scene
         this.pet = pet
-        this.colyseusClient = colyseusClient
         this.petId = petId
+    // Note: colyseusService singleton is used directly, no need to store client reference
     }
 
     // ===== UPDATE LOOP =====
@@ -72,7 +71,7 @@ export class FeedingSystem {
 
         const foodPrice = food.cost_nom
 
-        if (this.colyseusClient && this.colyseusClient.isConnected()) {
+        if (colyseusService.isConnected()) {
             console.log(
                 "🌐 Checking tokens before sending purchase request to server"
             )
@@ -90,7 +89,7 @@ export class FeedingSystem {
             const foodItem = gameConfigManager.getFoodItem(foodId)
             const itemName = foodItem?.name || foodId // Fallback to foodId if name not found
 
-            this.colyseusClient.purchaseItem("food", itemName, 1, foodId)
+            colyseusService.purchaseItem("food", itemName, 1, foodId)
 
             return true // Server will handle validation and update inventory
         } else {
@@ -130,9 +129,9 @@ export class FeedingSystem {
         )
 
         // Send eaten food event to server if connected
-        if (this.colyseusClient && this.colyseusClient.isConnected()) {
+        if (colyseusService.isConnected()) {
             const userStore = store.getState().stateless.user
-            this.colyseusClient.eatedFood({
+            colyseusService.eatedFood({
                 hunger_level: this.hungerLevel,
                 pet_id: this.petId,
                 owner_id: userStore.addressWallet || "unknown",
