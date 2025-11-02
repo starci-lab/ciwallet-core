@@ -89,11 +89,15 @@ export class PetManager {
 
     // Listen for buy_pet_response to create new pet
     const handleBuyPetResponse = (message: BuyPetResponseMessage) => {
-      if (message.success && message.pets && Array.isArray(message.pets)) {
+      if (
+        message.success &&
+        message.data.pets &&
+        Array.isArray(message.data.pets)
+      ) {
         console.log(
-          `✅ [PetManager] Buy pet successful, syncing ${message.pets.length} pets`
+          `✅ [PetManager] Buy pet successful, syncing ${message.data.pets.length} pets`
         )
-        this.syncPetsFromServer(message.pets)
+        this.syncPetsFromServer(message.data.pets)
       }
     }
 
@@ -102,7 +106,6 @@ export class PetManager {
 
     // Cleanup on scene shutdown
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      console.log("🧹 [PetManager] Cleaning up event listeners")
       eventBus.off(ColyseusMessageEvents.PetsStateSync, handlePetsSync)
       eventBus.off(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
     })
@@ -118,8 +121,6 @@ export class PetManager {
       return
     }
 
-    console.log(`🔄 [PetManager] Syncing ${serverPets.length} pets from server`)
-
     // Track which pets exist on server
     const serverPetIds = new Set(
       serverPets.map((p: any) => p.id || p.pet_id).filter(Boolean)
@@ -128,9 +129,6 @@ export class PetManager {
     // Remove pets that are no longer on server
     for (const [petId] of this.pets.entries()) {
       if (!serverPetIds.has(petId)) {
-        console.log(
-          `🗑️ [PetManager] Removing pet ${petId} (no longer on server)`
-        )
         this.removePet(petId)
       }
     }
@@ -141,7 +139,6 @@ export class PetManager {
       const pet: any = serverPet
       const petId = pet.id || pet.pet_id
       if (!petId) {
-        console.warn("⚠️ [PetManager] Pet missing ID:", pet)
         continue
       }
 
@@ -158,16 +155,12 @@ export class PetManager {
         if (pet.happiness !== undefined) {
           existingPet.happinessSystem.happinessLevel = pet.happiness
         }
-        console.log(`🔄 [PetManager] Updated existing pet ${petId}`)
       } else {
         // Create new pet
         const x = pet.x || pet.positionX || 400
         const y = pet.y || pet.positionY || 300
         const petType = pet.type || pet.petType || "chog"
 
-        console.log(
-          `🐕 [PetManager] Creating new pet from server: ${petId} (${petType}) at (${x}, ${y})`
-        )
         this.createPet(petId, x, y, petType)
 
         // Update stats after creation
@@ -185,8 +178,6 @@ export class PetManager {
         }
       }
     }
-
-    console.log(`✅ [PetManager] Sync complete. Total pets: ${this.pets.size}`)
   }
 
   /**
@@ -252,9 +243,6 @@ export class PetManager {
   }
 
   /**
-   * Gửi event mua pet lên server (buy_pet logic chuẩn backend)
-   */
-  /**
    * Gửi event mua pet lên server (chuẩn backend: create_pet với isBuyPet)
    * (Truyền x/y random để server có thể lưu vị trí spawn ban đầu nếu muốn)
    */
@@ -277,14 +265,12 @@ export class PetManager {
     }
   }
 
-  // Xóa pet
   removePet(petId: string): boolean {
     const petData = this.pets.get(petId)
     if (!petData) return false
 
     // Notify server about pet removal if connected
     if (colyseusService.isConnected()) {
-      console.log(`📤 Sending remove-pet message to server for ${petId}`)
       colyseusService.sendMessage("remove_pet", {
         petId: petId,
       })
@@ -303,7 +289,6 @@ export class PetManager {
       this.activePetId = remainingPets.length > 0 ? remainingPets[0] : null
     }
 
-    console.log(`🗑️ Pet ${petId} removed`)
     return true
   }
 
@@ -611,20 +596,6 @@ export class PetManager {
       petData.feedingSystem.update()
       petData.cleanlinessSystem.update()
       petData.happinessSystem.update()
-
-      // Sync with server if activity or position changed significantly
-      const currentActivity = petData.pet.currentActivity
-      const currentX = petData.pet.sprite.x
-      const currentY = petData.pet.sprite.y
-
-      const positionChanged =
-        Math.abs(currentX - previousX) > 5 || Math.abs(currentY - previousY) > 5
-      const activityChanged = currentActivity !== previousActivity
-
-      // Removed server sync for simplified version
-      if (activityChanged || positionChanged) {
-        console.log(`🔄 Pet ${petData.id} activity/position changed locally`)
-      }
     }
   }
 
@@ -1869,16 +1840,6 @@ export class PetManager {
   }
 
   private handlePetPostPlaying(petData: PetData): void {
-    console.log(
-      `⚽ Pet ${petData.id} finished playing, will check for next action in 2 seconds`
-    )
-    console.log("🔍 Debug: Pet state before post-playing:", {
-      isUserControlled: petData.pet.isUserControlled,
-      isChasing: petData.pet.isChasing,
-      currentActivity: petData.pet.currentActivity,
-      chaseTarget: petData.pet.chaseTarget,
-    })
-
     // Use a fixed timer for reliability, similar to post-eating logic
     this.scene.time.delayedCall(2000, () => {
       console.log("🔍 Debug: Pet state after 2s delay:", {

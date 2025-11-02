@@ -84,7 +84,7 @@ export class ColyseusService {
         eventBus.on(
             ColyseusActionEvents.PurchaseItem,
             (action: PurchaseItemAction) => {
-                this.sendMessage("purchase_item", action)
+                this.sendMessage("buy_food", action)
             }
         )
 

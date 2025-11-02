@@ -323,9 +323,9 @@ export interface CancelPurchaseAction {
  * Connection event names
  */
 export const ColyseusConnectionEvents = {
-  Connected: "colyseus:connected",
-  Disconnected: "colyseus:disconnected",
-  Error: "colyseus:error",
+    Connected: "colyseus:connected",
+    Disconnected: "colyseus:disconnected",
+    Error: "colyseus:error",
 } as const
 
 /**
@@ -349,25 +349,25 @@ export enum ColyseusMessageEvents {
 /**
  * Outgoing action event names (Client → Server)
  */
-export const ColyseusActionEvents = {
-  Send: "colyseus:action:send",
-  PurchaseItem: "colyseus:action:purchase_item",
-  BuyFood: "colyseus:action:buy_food",
-  FeedPet: "colyseus:action:feed_pet",
-  PlayWithPet: "colyseus:action:play_with_pet",
-  CleanPet: "colyseus:action:clean_pet",
-  BuyPet: "colyseus:action:buy_pet",
-  RemovePet: "colyseus:action:remove_pet",
-  CreatePoop: "colyseus:action:create_poop",
-  EatedFood: "colyseus:action:eated_food",
-  CleanedPet: "colyseus:action:cleaned_pet",
-  PlayedPet: "colyseus:action:played_pet",
-  RequestPlayerState: "colyseus:action:request_player_state",
-  RequestPetsState: "colyseus:action:request_pets_state",
-  GetStoreCatalog: "colyseus:action:get_store_catalog",
-  GetInventory: "colyseus:action:get_inventory",
-  CancelPurchase: "colyseus:action:cancel_purchase",
-} as const
+export enum ColyseusActionEvents {
+  Send = "colyseus:action:send",
+  PurchaseItem = "colyseus:action:purchase_item",
+  BuyFood = "colyseus:action:buy_food",
+  FeedPet = "colyseus:action:feed_pet",
+  PlayWithPet = "colyseus:action:play_with_pet",
+  CleanPet = "colyseus:action:clean_pet",
+  BuyPet = "colyseus:action:buy_pet",
+  RemovePet = "colyseus:action:remove_pet",
+  CreatePoop = "colyseus:action:create_poop",
+  EatedFood = "colyseus:action:eated_food",
+  CleanedPet = "colyseus:action:cleaned_pet",
+  PlayedPet = "colyseus:action:played_pet",
+  RequestPlayerState = "colyseus:action:request_player_state",
+  RequestPetsState = "colyseus:action:request_pets_state",
+  GetStoreCatalog = "colyseus:action:get_store_catalog",
+  GetInventory = "colyseus:action:get_inventory",
+  CancelPurchase = "colyseus:action:cancel_purchase",
+}
 
 // ===== TYPE HELPERS =====
 

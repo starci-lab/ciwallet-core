@@ -24,8 +24,8 @@ export interface PurchaseRequest {
 export interface PurchaseResponse {
   success: boolean
   message: string
-  currentTokens?: number
-  itemData?: unknown
+  newTokenBalance: number
+  action: string
 }
 
 /**

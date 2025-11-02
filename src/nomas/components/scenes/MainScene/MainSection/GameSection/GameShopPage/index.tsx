@@ -209,7 +209,6 @@ export const GameShopPage = () => {
     }
   }
 
-  // Close handler (Task 3.3)
   const handleClose = () => {
     eventBus.emit(ShopEvents.CloseShop)
   }

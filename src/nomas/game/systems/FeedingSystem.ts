@@ -34,12 +34,13 @@ export class FeedingSystem {
     constructor(
         scene: Phaser.Scene,
         pet: Pet,
-        _colyseusClient: unknown, // Deprecated parameter, kept for backward compatibility
+        _colyseusClient: unknown, // Deprecated parameter - no longer used, kept for backward compatibility
         petId: string
     ) {
         this.scene = scene
         this.pet = pet
         this.petId = petId
+    // Note: colyseusService singleton is used directly, no need to store client reference
     }
 
     // ===== UPDATE LOOP =====
@@ -70,7 +71,7 @@ export class FeedingSystem {
 
         const foodPrice = food.cost_nom
 
-        if (this.colyseusClient && this.colyseusClient.isConnected()) {
+        if (colyseusService.isConnected()) {
             console.log(
                 "🌐 Checking tokens before sending purchase request to server"
             )
@@ -88,7 +89,7 @@ export class FeedingSystem {
             const foodItem = gameConfigManager.getFoodItem(foodId)
             const itemName = foodItem?.name || foodId // Fallback to foodId if name not found
 
-            this.colyseusClient.purchaseItem("food", itemName, 1, foodId)
+            colyseusService.purchaseItem("food", itemName, 1, foodId)
 
             return true // Server will handle validation and update inventory
         } else {

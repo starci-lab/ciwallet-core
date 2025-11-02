@@ -19,6 +19,7 @@ import {
   type PetsStateSyncMessage,
   type BuyPetResponseMessage,
 } from "@/nomas/game/colyseus/events"
+import type { PurchaseResponse } from "@/nomas/game/systems"
 
 /**
  * React hook for syncing Colyseus messages to Redux store
@@ -178,34 +179,9 @@ export const useColyseusReduxSync = (): void => {
    * Supports both flat and nested message formats
    */
   useEffect(() => {
-    const handlePurchaseResponse = (message: any) => {
-      console.log(
-        "🔄 [useColyseusReduxSync] Purchase response received:",
-        message
-      )
-
-      // Handle nested format: {success: true, data: {currentTokens: ...}}
-      let tokens: number | undefined
-
-      if (
-        message &&
-        typeof message === "object" &&
-        "success" in message &&
-        "data" in message &&
-        message.data?.currentTokens !== undefined
-      ) {
-        // Nested format: extract from data
-        tokens = message.data.currentTokens
-      } else if (message?.currentTokens !== undefined) {
-        // Flat format: direct access
-        tokens = message.currentTokens
-      }
-
-      if (tokens !== undefined) {
-        console.log(
-          `💰 [useColyseusReduxSync] Updating tokens from purchase_response: ${tokens}`
-        )
-        dispatch(setNomToken(tokens))
+    const handlePurchaseResponse = (message: PurchaseResponse) => {
+      if (message.newTokenBalance !== undefined) {
+        dispatch(setNomToken(message.newTokenBalance))
       } else {
         console.warn(
           "⚠️ [useColyseusReduxSync] No tokens found in purchase_response:",
@@ -229,39 +205,9 @@ export const useColyseusReduxSync = (): void => {
    * Supports both flat and nested message formats
    */
   useEffect(() => {
-    const handlePurchaseItemResponse = (message: any) => {
-      console.log(
-        "🔄 [useColyseusReduxSync] Purchase item response received:",
-        message
-      )
-
-      // Handle nested format: {success: true, data: {currentTokens: ...}}
-      let tokens: number | undefined
-
-      if (
-        message &&
-        typeof message === "object" &&
-        "success" in message &&
-        "data" in message &&
-        message.data?.currentTokens !== undefined
-      ) {
-        // Nested format: extract from data
-        tokens = message.data.currentTokens
-      } else if (message?.currentTokens !== undefined) {
-        // Flat format: direct access
-        tokens = message.currentTokens
-      }
-
-      if (tokens !== undefined) {
-        console.log(
-          `💰 [useColyseusReduxSync] Updating tokens from purchase_item_response: ${tokens}`
-        )
-        dispatch(setNomToken(tokens))
-      } else {
-        console.warn(
-          "⚠️ [useColyseusReduxSync] No tokens found in purchase_item_response:",
-          message
-        )
+    const handlePurchaseItemResponse = (message: PurchaseResponse) => {
+      if (message.newTokenBalance !== undefined) {
+        dispatch(setNomToken(message.newTokenBalance))
       }
     }
 
