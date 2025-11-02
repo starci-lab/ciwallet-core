@@ -99,7 +99,7 @@ export const useSwapFormikCore = () => {
             formik.setFieldValue("tokenOut", TokenId.MonadMainnetMon)
         } else {
             formik.setFieldValue("tokenIn", TokenId.MonadTestnetUsdc)
-            formik.setFieldValue("tokenOut", TokenId.MonadMainnetMon)
+            formik.setFieldValue("tokenOut", TokenId.MonadTestnetUsdc)
         }
     }, [network])
     

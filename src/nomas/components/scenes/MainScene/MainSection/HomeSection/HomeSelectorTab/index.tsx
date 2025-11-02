@@ -42,7 +42,7 @@ export const HomeSelectorTab = () => {
         },
     ]
     return (
-        <NomasCard variant={NomasCardVariant.Gradient}>
+        <NomasCard variant={NomasCardVariant.Gradient2}>
             <NomasCardBody>
                 <div className="relative grid grid-cols-3 text-center mb-2">
                     {tabs.slice(0, 3).map((tab) => (

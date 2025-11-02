@@ -21,7 +21,7 @@ export const SelectAccountPage = () => {
                 }} />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner className="p-0">
-                    <NomasCardBody className="p-0 flex flex-col gap-2">
+                    <NomasCardBody scrollable scrollHeight={300} className="p-0 flex flex-col gap-2">
                         {accounts?.accounts.map((account) => (
                             <AccountCard 
                                 key={account.id} 

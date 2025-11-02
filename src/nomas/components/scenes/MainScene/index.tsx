@@ -17,9 +17,9 @@ export const MainScene = () => {
     return (
         <>
             <BalanceSection />
-            <NomasSpacer y={4} />
+            <NomasSpacer y={2} />
             <MenuSection />
-            <NomasSpacer y={4} />
+            <NomasSpacer y={2} />
             <MainSection />
         </>
     )

@@ -6,7 +6,6 @@ import {
     NomasImage,
 } from "../../extends"
 import { type UnifiedToken } from "@ciwallet-sdk/types"
-import { BalanceFetcher } from "../BalanceFetcher"
 import { useAppSelector, type TokenItem, selectTokens } from "@/nomas/redux"
 import { roundNumber } from "@ciwallet-sdk/utils"
 import { PressableMotion } from "../../styled"
@@ -21,7 +20,6 @@ export interface UnifiedTokenCard2Props {
 export const UnifiedTokenCard2 = ({
     token,
     onClick,
-    tokens,
     isPressable = false,
 }: UnifiedTokenCard2Props) => {
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
@@ -65,26 +63,12 @@ export const UnifiedTokenCard2 = ({
         )
     }
     return (
-        <>
-            {/* balance listeners */}
-            {tokens.map((tokenItem) => (
-                <BalanceFetcher
-                    key={tokenItem.tokenId}
-                    tokenId={tokenItem.tokenId}
-                    accountAddress={tokenItem.accountAddress}
-                    chainId={tokenItem.chainId}
-                    isToken2022={tokenItem.isToken2022}
-                />
-            ))}
-
-            {/* Motion wrapper */}
-            {isPressable ? (
-                <PressableMotion onClick={onClick}>
-                    {content()}
-                </PressableMotion>
-            ) : (
-                content()
-            )}
-        </>
+        isPressable ? (
+            <PressableMotion onClick={onClick}>
+                {content()}
+            </PressableMotion>
+        ) : (
+            content()
+        )
     )
 }

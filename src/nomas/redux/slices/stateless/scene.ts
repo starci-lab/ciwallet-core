@@ -9,6 +9,7 @@ export enum Scene {
   Main = "main",
   Settings = "settings",
   MyWallets = "my-wallets",
+  CopyAddress = "copy-address",
 }
 
 const initialState: SceneSlice = {

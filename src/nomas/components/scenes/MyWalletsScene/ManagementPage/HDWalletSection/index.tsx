@@ -9,7 +9,7 @@ export const HDWalletSection = () => {
     return (
         <>
             <NomasCard isInner variant={NomasCardVariant.Dark}>
-                <NomasCardBody className="p-4">
+                <NomasCardBody scrollable scrollHeight={300} className="p-4">
                     <div className="flex flex-col gap-4">
                         {hdWallets.map((hdWallet) => <HDWallet key={hdWallet.id} hdWallet={hdWallet} />)}
                     </div>

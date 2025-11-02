@@ -1,5 +1,5 @@
 import React from "react"
-import { NomasCard, NomasCardBody, NomasCardHeader, NomasButton } from "@/nomas/components/extends"
+import { NomasCard, NomasCardBody, NomasCardHeader, NomasButton, NomasCardVariant } from "@/nomas/components/extends"
 import { useAppSelector } from "@/nomas/redux"
 
 const WordBox = ({ index, value }: { index: number; value?: string }) => {
@@ -19,7 +19,7 @@ export const Mnemonic = () => {
     const filled = Array.from({ length: size }, (_, i) => words[i] ?? "")
 
     return (
-        <NomasCard asCore className="w-full max-w-2xl mx-auto">
+        <NomasCard variant={NomasCardVariant.Dark} className="w-full max-w-2xl mx-auto">
             <NomasCardHeader title="Secret Recovery Phrase" />
             <NomasCardBody className="flex flex-col gap-6">
                 <div className="text-center text-foreground-500 text-sm">

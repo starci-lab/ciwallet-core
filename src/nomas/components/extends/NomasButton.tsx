@@ -50,7 +50,7 @@ export const NomasButtonIcon = React.forwardRef<HTMLButtonElement, NomasButtonPr
                 whileTap={{ scale: 0.95 }}
                 className={
                     twMerge(
-                        "shadow-button bg-button rounded-full w-10 h-10 text cursor-pointer flex items-center justify-center",
+                        "shadow-button bg-button rounded-full w-8 h-8 text cursor-pointer flex items-center justify-center",
                         className
                     )}
                 {...props}
@@ -101,7 +101,7 @@ const NomasButtonTextWithIconCore: React.FC<NomasButtonTextWithIconProps> = (pro
         <NomasButton
             className={twMerge(
                 // Base styles
-                "group relative p-0 w-fit bg-button-dark text rounded-full text-muted cursor-pointer flex items-center justify-center",
+                "group relative p-0 w-fit bg-button-dark text rounded-full text-muted cursor-pointer flex items-center justify-center overflow-hidden",
                 props.className
             )}
             {...rest}

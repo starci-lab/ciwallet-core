@@ -12,7 +12,7 @@ export const NomasDivider = React.forwardRef<HTMLDivElement, NomasDividerProps>(
                 ref={ref}
                 role="separator"
                 className={twMerge(
-                    "shrink-0 bg-border",
+                    "shrink-0 !bg-border",
                     orientation === "horizontal" ? "h-px w-full" : "w-px h-full",
                     className
                 )}

@@ -52,8 +52,8 @@ export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
 
             {/* Copy Button */}
             <NomasButton
-                onPress={handleCopy}
-                startContent={<Copy size={16} />}
+                onClick={handleCopy}
+                startIcon={<Copy size={16} />}
                 className="w-full bg-foreground-700 hover:bg-foreground-600 rounded-xl text-white font-medium"
             >
         Copy Address

@@ -57,21 +57,12 @@ export const TokenCard2 = ({
         )
     }
     return (
-        <>
-            {/* balance listeners */}
-            <BalanceFetcher
-                key={token.tokenId}
-                tokenId={token.tokenId}
-                accountAddress={accountAddress}
-                chainId={chainId}
-            />
-            {isPressable ? (
-                <PressableMotion onClick={onClick}>
-                    {content()}
-                </PressableMotion>
-            ) : (
-                content()
-            )}
-        </>
+        isPressable ? (
+            <PressableMotion onClick={onClick}>
+                {content()}
+            </PressableMotion>
+        ) : (
+            content()
+        )
     )
 }
