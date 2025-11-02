@@ -6,11 +6,11 @@ import { useCloseShop } from "./useCloseShop"
  * Consolidates all shop-related event hooks
  */
 export const useShopEventsCore = () => {
-  const { openShop } = useOpenShop()
-  const { closeShop } = useCloseShop()
+    const { openShop } = useOpenShop()
+    const { closeShop } = useCloseShop()
 
-  return {
-    openShop,
-    closeShop,
-  }
+    return {
+        openShop,
+        closeShop,
+    }
 }

@@ -59,17 +59,14 @@ export const GameSection = () => {
   }, [])
 
   const renderContent = () => {
-    // Home page takes priority when open (event-driven)
     if (isHomeOpen) {
       return <GameHomePage />
     }
 
-    // Shop page takes priority when open (event-driven)
     if (isShopOpen) {
       return <GameShopPage />
     }
 
-    // Fallback to Redux routing for other pages
     switch (gameFunctionPage) {
       case GameFunctionPage.GameSplash: {
         return <GameSplashPage />

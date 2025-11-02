@@ -8,19 +8,19 @@ import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
  * Handles both emitting and listening to shop open events with cleanup
  */
 export const useOpenShop = () => {
-  const handlerRef = useRef<(() => void) | undefined>(undefined)
+    const handlerRef = useRef<(() => void) | undefined>(undefined)
 
-  /**
+    /**
    * Emit event to open shop modal
    */
-  const openShop = useCallback(() => {
-    eventBus.emit(ShopEvents.OpenShop)
-  }, [])
+    const openShop = useCallback(() => {
+        eventBus.emit(ShopEvents.OpenShop)
+    }, [])
 
-  /**
+    /**
    * Setup event listener and cleanup
    */
-  useEffect(() => {
+    useEffect(() => {
     // Setup listener for ShopEvents.OpenShop if needed
     // Example: can listen to shop state changes, analytics, etc.
     // const handleOpenShop = () => {
@@ -28,20 +28,20 @@ export const useOpenShop = () => {
     //     // Can add logic here: analytics, state updates, etc.
     // }
 
-    // Register listener if needed
-    // eventBus.on(ShopEvents.OpenShop, handleOpenShop)
-    // handlerRef.current = handleOpenShop
+        // Register listener if needed
+        // eventBus.on(ShopEvents.OpenShop, handleOpenShop)
+        // handlerRef.current = handleOpenShop
 
-    return () => {
-      // Cleanup: remove listener if it was registered
-      if (handlerRef.current) {
-        eventBus.off(ShopEvents.OpenShop, handlerRef.current)
-        handlerRef.current = undefined
-      }
+        return () => {
+            // Cleanup: remove listener if it was registered
+            if (handlerRef.current) {
+                eventBus.off(ShopEvents.OpenShop, handlerRef.current)
+                handlerRef.current = undefined
+            }
+        }
+    }, [])
+
+    return {
+        openShop,
     }
-  }, [])
-
-  return {
-    openShop,
-  }
 }
