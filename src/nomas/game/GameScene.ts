@@ -16,6 +16,13 @@ import { SceneName } from "@/nomas/game/types"
 import { envConfig } from "../env"
 import { ReactEventName } from "./events/react"
 import { reactBus } from "./events/react/bus"
+import {
+  ShopEvents,
+  type BuyPetPayload,
+  type BuyPlaceableItemPayload,
+  type BuyImmediateItemPayload,
+  type ActivateCursorPayload,
+} from "./events/shop/ShopEvents"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
@@ -75,6 +82,9 @@ export class GameScene extends Phaser.Scene {
 
     // Subscribe to React UI tile events via global event bus
     this.setupTileInputListeners()
+
+    // Subscribe to shop events from ReactShopModal
+    this.setupShopEventListeners()
 
     // Handle Phaser scale resize event
     this.scale.on(Phaser.Scale.Events.RESIZE, () => {
@@ -229,6 +239,41 @@ export class GameScene extends Phaser.Scene {
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventBus.off(EventNames.TileSelected, handleTileSelected)
+    })
+  }
+
+  private setupShopEventListeners() {
+    // Handler references for cleanup
+    const handleBuyPet = (payload: BuyPetPayload) => {
+      this.handleBuyPet(payload)
+    }
+    const handleStartPlacing = (payload: BuyPlaceableItemPayload) => {
+      this.handleStartPlacing(payload)
+    }
+    const handleBuyFurniture = (payload: BuyImmediateItemPayload) => {
+      this.handleBuyFurniture(payload)
+    }
+    const handleBuyBackground = (payload: BuyImmediateItemPayload) => {
+      this.handleBuyBackground(payload)
+    }
+    const handleActivateCursor = (payload: ActivateCursorPayload) => {
+      this.handleActivateCursor(payload)
+    }
+
+    // Register listeners
+    eventBus.on(ShopEvents.BuyPet, handleBuyPet)
+    eventBus.on(ShopEvents.StartPlacing, handleStartPlacing)
+    eventBus.on(ShopEvents.BuyFurniture, handleBuyFurniture)
+    eventBus.on(ShopEvents.BuyBackground, handleBuyBackground)
+    eventBus.on(ShopEvents.ActivateCursor, handleActivateCursor)
+
+    // Cleanup on scene shutdown
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      eventBus.off(ShopEvents.BuyPet, handleBuyPet)
+      eventBus.off(ShopEvents.StartPlacing, handleStartPlacing)
+      eventBus.off(ShopEvents.BuyFurniture, handleBuyFurniture)
+      eventBus.off(ShopEvents.BuyBackground, handleBuyBackground)
+      eventBus.off(ShopEvents.ActivateCursor, handleActivateCursor)
     })
   }
 
@@ -456,6 +501,82 @@ export class GameScene extends Phaser.Scene {
       payload.quantity,
       payload.itemId
     )
+  }
+
+  // ===== Shop Event Handlers =====
+  // These methods handle shop events emitted from ReactShopModal
+
+  private handleBuyPet(payload: BuyPetPayload): void {
+    try {
+      const petType = payload.petType || payload.petName
+      this.getPetManager().buyPet(petType, payload.petId)
+    } catch (error) {
+      console.error("Failed to buy pet", error)
+      // Fallback to legacy method if needed
+      this.sendBuyFoodLegacy({
+        itemType: "pet",
+        itemName: payload.petName,
+        quantity: 1,
+        itemId: payload.petId,
+      })
+    }
+  }
+
+  private handleStartPlacing(payload: BuyPlaceableItemPayload): void {
+    // Update registry for InputManager (backward compatibility)
+    this.registry.set("placingItem", {
+      type: payload.itemType,
+      itemId: payload.itemId,
+      itemName: payload.itemName,
+      cursorUrl: payload.cursorUrl,
+    })
+
+    // Activate cursor - emit event for internal handling
+    // For cleaning items, we need sprite sheet parameters
+    eventBus.emit(ShopEvents.ActivateCursor, {
+      cursorUrl: payload.cursorUrl,
+      cursorSize: payload.itemType === "clean" ? 64 : undefined,
+      frameWidth: payload.itemType === "clean" ? 74 : undefined,
+      frameIndex: payload.itemType === "clean" ? 0 : undefined,
+    })
+  }
+
+  private handleBuyFurniture(payload: BuyImmediateItemPayload): void {
+    // Immediate purchase via legacy method
+    this.sendBuyFoodLegacy({
+      itemType: "furniture",
+      itemName: payload.itemName,
+      quantity: 1,
+      itemId: payload.itemId,
+    })
+  }
+
+  private handleBuyBackground(payload: BuyImmediateItemPayload): void {
+    // Immediate purchase via legacy method
+    // Background creation will be handled by PurchaseSuccess event listener in ReactComponent
+    this.sendBuyFoodLegacy({
+      itemType: "background",
+      itemName: payload.itemName,
+      quantity: 1,
+      itemId: payload.itemId,
+    })
+  }
+
+  private handleActivateCursor(payload: ActivateCursorPayload): void {
+    try {
+      const cursorManager = this.getCustomCursorManager()
+      if (!cursorManager) {
+        console.warn("CustomCursorManager not available")
+        return
+      }
+
+      // For sprite sheet cursors (e.g., cleaning items), cursorUrl should already be pre-processed
+      // by ReactShopModal using createResizedCursor, so we can use it directly
+      const cursorSize = payload.cursorSize || 32
+      cursorManager.activateCustomCursor(payload.cursorUrl, cursorSize)
+    } catch (error) {
+      console.error("Failed to activate custom cursor", error)
+    }
   }
 
   private createGradientBackground() {

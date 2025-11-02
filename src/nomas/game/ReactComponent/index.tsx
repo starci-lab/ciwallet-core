@@ -3,10 +3,12 @@ import { useEffect, useRef, useState, type FC } from "react"
 import { Game } from "phaser"
 import { useAppDispatch, useAppSelector } from "@/nomas/redux"
 import {
-  eventBus,
+  eventBus as purchaseEventBus,
   PurchaseEvents,
   type PurchaseSystem,
 } from "@/nomas/game/systems"
+import { eventBus } from "@/nomas/game/event-bus"
+import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
 import { ReactShopModal } from "@/nomas/game/ui/react-ui/modal/ReactShopModal"
 import { createPortal } from "react-dom"
 import { GameScene as PhaserGameScene } from "@/nomas/game/GameScene"
@@ -211,27 +213,92 @@ const ShopPortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
 
   useEffect(() => {
     setPurchaseSystem(scene.getPurchaseSystem())
-    const el = document.createElement("div")
-    el.style.position = "fixed"
-    el.style.top = "50%"
-    el.style.right = "8%"
-    el.style.transform = "translateY(-50%)"
-    el.style.zIndex = "1001"
-    document.body.appendChild(el)
-    setContainer(el)
+
+    // Try to find NomasCardBody container, otherwise fallback to body
+    let targetContainer: HTMLElement | null = null
+    let createdEl: HTMLElement | null = null
+
+    // Look for NomasCardBody by finding elements with 'relative w-full' classes (GameSplashPage pattern)
+    const directBody = document.querySelector(".relative.w-full") as HTMLElement
+    if (directBody) {
+      targetContainer = directBody
+    } else {
+      // Fallback: look for any relative positioned container
+      const relativeContainers = document.querySelectorAll(
+        "[class*=\"relative\"]"
+      )
+      for (let i = relativeContainers.length - 1; i >= 0; i--) {
+        const el = relativeContainers[i] as HTMLElement
+        if (el && el.offsetParent !== null && el.offsetWidth > 0) {
+          targetContainer = el
+          break
+        }
+      }
+    }
+
+    // If no target found, create element in body (fallback)
+    if (!targetContainer) {
+      createdEl = document.createElement("div")
+      createdEl.style.position = "fixed"
+      createdEl.style.top = "50%"
+      createdEl.style.right = "8%"
+      createdEl.style.transform = "translateY(-50%)"
+      createdEl.style.zIndex = "1001"
+      document.body.appendChild(createdEl)
+      setContainer(createdEl)
+    } else {
+      // Create a wrapper div inside the target container
+      createdEl = document.createElement("div")
+      createdEl.style.position = "absolute"
+      createdEl.style.top = "0"
+      createdEl.style.left = "0"
+      createdEl.style.right = "0"
+      createdEl.style.bottom = "0"
+      createdEl.style.zIndex = "1001"
+      createdEl.style.pointerEvents = "none" // Allow clicks through when closed
+      // Ensure target container has relative positioning
+      const computedStyle = window.getComputedStyle(targetContainer)
+      if (computedStyle.position === "static") {
+        targetContainer.style.position = "relative"
+      }
+      targetContainer.appendChild(createdEl)
+      setContainer(createdEl)
+    }
 
     const openHandler = () => {
       setIsOpen(true)
       scene.registry.set("reactShopOpen", true)
+      // Enable pointer events when modal opens
+      if (createdEl) {
+        createdEl.style.pointerEvents = "auto"
+      }
     }
     const closeHandler = () => {
       setIsOpen(false)
       scene.registry.set("reactShopOpen", false)
+      // Disable pointer events when modal closes
+      if (createdEl) {
+        createdEl.style.pointerEvents = "none"
+      }
     }
     // Mark React shop as available as soon as portal mounts
     scene.registry.set("reactShopReady", true)
     scene.events.on("open-react-shop", openHandler)
     scene.events.on("close-react-shop", closeHandler)
+
+    // Also listen to global event bus for shop open/close (for testing from other components)
+    const globalOpenHandler = () => {
+      if (scene && scene.events) {
+        scene.events.emit("open-react-shop")
+      }
+    }
+    const globalCloseHandler = () => {
+      if (scene && scene.events) {
+        scene.events.emit("close-react-shop")
+      }
+    }
+    eventBus.on(ShopEvents.OpenShop, globalOpenHandler)
+    eventBus.on(ShopEvents.CloseShop, globalCloseHandler)
     const onPurchaseSuccess = (data: {
       itemType: string
       itemId: string
@@ -249,20 +316,24 @@ const ShopPortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
         }
       }
     }
-    eventBus.on(
+    purchaseEventBus.on(
       PurchaseEvents.PurchaseSuccess,
       onPurchaseSuccess as unknown as (...args: unknown[]) => void
     )
     return () => {
       scene.events.off("open-react-shop", openHandler)
       scene.events.off("close-react-shop", closeHandler)
-      eventBus.off(
+      eventBus.off(ShopEvents.OpenShop, globalOpenHandler)
+      eventBus.off(ShopEvents.CloseShop, globalCloseHandler)
+      purchaseEventBus.off(
         PurchaseEvents.PurchaseSuccess,
         onPurchaseSuccess as unknown as (...args: unknown[]) => void
       )
       scene.registry.set("reactShopReady", false)
       scene.registry.set("reactShopOpen", false)
-      el.remove()
+      if (createdEl) {
+        createdEl.remove()
+      }
     }
   }, [scene])
 
@@ -282,7 +353,6 @@ const ShopPortal: FC<{ scene: PhaserGameScene }> = ({ scene }) => {
     <ReactShopModal
       isOpen={isOpen}
       onClose={() => scene.events.emit("close-react-shop")}
-      scene={scene}
     />,
     container
   )
