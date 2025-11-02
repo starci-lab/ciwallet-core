@@ -20,7 +20,6 @@ export class ActivitySystem {
         this.randomStopTimer += 1 / 60
 
         if (this.randomStopTimer >= this.nextRandomStopTime) {
-            console.log("Random stop triggered!")
             this.randomActivity()
             this.setNextRandomStopTime()
             this.randomStopTimer = 0
@@ -29,7 +28,6 @@ export class ActivitySystem {
 
     private setNextRandomStopTime() {
         this.nextRandomStopTime = Phaser.Math.Between(15, 25)
-        console.log("Next random stop in:", this.nextRandomStopTime, "seconds")
     }
 
     private getRandomWeightedActivity(pool: { name: string; weight: number }[]) {
@@ -44,7 +42,6 @@ export class ActivitySystem {
             }
         }
 
-        // fallback
         return pool[0].name
     }
 

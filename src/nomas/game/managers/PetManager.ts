@@ -13,6 +13,8 @@ import {
 } from "@/nomas/game/constants/gameConstants"
 import { addToken, store } from "@/nomas/redux"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
+import { eventBus } from "@/nomas/game/event-bus"
+import { HomeEvents } from "@/nomas/game/events/home/HomeEvents"
 
 export interface PetData {
   id: string
@@ -1751,7 +1753,7 @@ export class PetManager {
     // }
 
     // Emit event to open React Home Modal with selected pet
-    this.scene.events.emit("open-react-home-with-pet", petId)
+    eventBus.emit(HomeEvents.OpenHomeWithPet, { petId })
   }
 
   /**
@@ -1767,7 +1769,7 @@ export class PetManager {
       if (petData.pet?.sprite && petData.pet.sprite.active) {
         petData.pet.sprite.setScale(responsivePetScale)
       }
-      
+
       // Update poop scales for each pet's cleanliness system
       if (petData.cleanlinessSystem) {
         petData.cleanlinessSystem.updatePoopScales()

@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.cursor
+docs/ai
+AGENTS.md
+.ai-devkit.json

@@ -1,6 +1,12 @@
 import React from "react"
 import { motion } from "framer-motion"
-import { NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardVariant } from "@/nomas/components"
+import {
+    NomasButton,
+    NomasCard,
+    NomasCardBody,
+    NomasCardFooter,
+    NomasCardVariant,
+} from "@/nomas/components"
 import { setScene, Scene, useAppDispatch } from "@/nomas/redux"
 import { assetsConfig } from "@/nomas/resources"
 
@@ -15,7 +21,10 @@ export const SplashPage = () => {
     const splashSteps: Array<SplashStep> = [
         { title: "Generating your wallets...", icon: assetsConfig().app.create },
         { title: "Encrypting your wallet...", icon: assetsConfig().app.encrypt },
-        { title: "All done! Your wallets are ready!", icon: assetsConfig().app.done },
+        {
+            title: "All done! Your wallets are ready!",
+            icon: assetsConfig().app.done,
+        },
     ]
 
     const renderStep = (step: SplashStep, index: number) => (

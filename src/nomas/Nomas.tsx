@@ -1,9 +1,6 @@
 import { SingletonHookProvider } from "./hooks"
 import { ChainId } from "@ciwallet-sdk/types"
-import {
-    ReduxProvider,
-    useAppSelector,
-} from "./redux"
+import { ReduxProvider, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
@@ -87,7 +84,6 @@ const NomasContent = () => {
                 }}
                 className={twMerge(
                     "fixed bottom-0 left-0 w-screen z-[9999] border-none bg-transparent pointer-events-auto isolate",
-                    "bg-red-500",
                     "h-[140px]"
                 )}
             >

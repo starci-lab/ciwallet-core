@@ -1,7 +1,8 @@
 /* eslint-disable indent */
 import { useEffect, useRef, useState } from "react"
-import { GameScene } from "@/nomas/game/GameScene"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
+import { eventBus } from "@/nomas/game/event-bus"
+import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
 import type {
   FoodItem,
   ToyItem,
@@ -28,11 +29,9 @@ type ShopItem =
 export function ReactShopModal({
   isOpen,
   onClose,
-  scene,
 }: {
   isOpen: boolean
   onClose: () => void
-  scene: GameScene
 }) {
   const [category, setCategory] = useState<string>("food")
   const [items, setItems] = useState<ShopItem[]>([])
@@ -155,131 +154,81 @@ export function ReactShopModal({
         : (category as "food" | "toy" | "clean" | "furniture")
     // Use dedicated buy pet flow
     if (category === "pets") {
-      try {
-        const petType =
-          (item as PetItem).texture || (item as PetItem).species || item.name
-        console.log("petType", petType)
-        console.log("item", item)
-        scene.getPetManager().buyPet(petType, (item as PetItem).id)
-      } catch {
-        // fallback to generic message
-        scene.sendBuyFoodLegacy({
-          itemType: "pet",
-          itemName: item.name,
-          quantity: 1,
-          itemId: String((item as PetItem).id || ""),
-        })
-      }
+      const petType =
+        (item as PetItem).texture || (item as PetItem).species || item.name
+      eventBus.emit(ShopEvents.BuyPet, {
+        petType,
+        petId: String((item as PetItem).id),
+        petName: item.name,
+      })
       return
     }
     // For food: defer purchase until user drops in scene
     if (mappedCategory === "food") {
-      try {
-        const cursorUrl = getItemImageSrc("food", item)
-        console.log("cursorUrl", cursorUrl)
-        // Store placing state on scene registry for InputManager to consume
-        scene.registry.set("placingItem", {
-          type: "food",
-          itemId: String((item as FoodItem).id),
-          itemName: item.name,
-          cursorUrl,
-        })
-        // Activate custom cursor with food image
-        if (cursorUrl) {
-          try {
-            const cursorManager = scene.getCustomCursorManager()
-            if (cursorManager) {
-              cursorManager.activateCustomCursor(cursorUrl)
-            }
-          } catch {
-            // ignore cursor errors
-          }
-        }
-        // Close modal so user can click to place
-        onClose()
-      } catch (e) {
-        console.error("Failed to start placing food", e)
-      }
+      const cursorUrl = getItemImageSrc("food", item)
+      eventBus.emit(ShopEvents.StartPlacing, {
+        itemType: "food",
+        itemId: String((item as FoodItem).id),
+        itemName: item.name,
+        cursorUrl,
+      })
+      // Close modal so user can click to place
+      onClose()
       return
     }
 
     // For toy: defer purchase until user drops in scene (same UX as food)
     if (mappedCategory === "toy") {
-      try {
-        const cursorUrl = getItemImageSrc("toy", item)
-        // Store placing state on scene registry for InputManager to consume
-        scene.registry.set("placingItem", {
-          type: "toy",
-          itemId: String((item as ToyItem).id),
-          itemName: item.name,
-          cursorUrl,
-        })
-        // Activate custom cursor with toy image
-        if (cursorUrl) {
-          try {
-            const cursorManager = scene.getCustomCursorManager()
-            if (cursorManager) {
-              cursorManager.activateCustomCursor(cursorUrl)
-            }
-          } catch {
-            // ignore cursor errors
-          }
-        }
-        // Close modal so user can click to place
-        onClose()
-      } catch (e) {
-        console.error("Failed to start placing toy", e)
-      }
+      const cursorUrl = getItemImageSrc("toy", item)
+      eventBus.emit(ShopEvents.StartPlacing, {
+        itemType: "toy",
+        itemId: String((item as ToyItem).id),
+        itemName: item.name,
+        cursorUrl,
+      })
+      // Close modal so user can click to place
+      onClose()
       return
     }
     if (mappedCategory === "clean") {
-      try {
-        const cursorUrl = getItemImageSrc("clean", item)
-        console.log("cursorUrl", cursorUrl)
-
-        // Resize and set cursor - extract first frame from sprite sheet
-        // Broom sprite sheet has 6 frames, each 74px wide
-        createResizedCursor(
-          cursorUrl,
-          64,
-          (resizedUrl) => {
-            console.log(
-              "Resized broom cursor URL:",
-              resizedUrl.substring(0, 50)
-            )
-
-            scene.registry.set("placingItem", {
-              type: "clean",
-              itemId: String((item as CleaningItem).id),
-              itemName: item.name,
-              cursorUrl: resizedUrl, // Use resized single-frame cursor
-            })
-
-            try {
-              const cursorManager = scene.getCustomCursorManager()
-              if (cursorManager) {
-                cursorManager.activateCustomCursor(resizedUrl, 64)
-              }
-              console.log("Custom cursor activated for clean item")
-            } catch (error) {
-              console.error("Failed to activate custom cursor", error)
-            }
-            onClose()
-          },
-          { frameWidth: 74, frameIndex: 0 }
-        )
-      } catch (error) {
-        console.error("Failed to start placing clean", error)
-      }
+      const cursorUrl = getItemImageSrc("clean", item)
+      // Resize and extract first frame from sprite sheet
+      // Broom sprite sheet has 6 frames, each 74px wide
+      createResizedCursor(
+        cursorUrl,
+        64,
+        (resizedUrl) => {
+          // Emit event with resized cursor URL
+          eventBus.emit(ShopEvents.StartPlacing, {
+            itemType: "clean",
+            itemId: String((item as CleaningItem).id),
+            itemName: item.name,
+            cursorUrl: resizedUrl, // Use resized single-frame cursor
+          })
+          onClose()
+        },
+        { frameWidth: 74, frameIndex: 0 }
+      )
       return
     }
-    // Other categories keep legacy immediate purchase
-    scene.sendBuyFoodLegacy({
-      itemType: mappedCategory,
-      itemName: item.name,
-      quantity: 1,
-      itemId: String(item.id),
-    })
+    // Other categories: immediate purchase
+    if (mappedCategory === "furniture") {
+      eventBus.emit(ShopEvents.BuyFurniture, {
+        itemType: "furniture",
+        itemId: String(item.id),
+        itemName: item.name,
+      })
+      return
+    }
+
+    if (mappedCategory === "background") {
+      eventBus.emit(ShopEvents.BuyBackground, {
+        itemType: "background",
+        itemId: String(item.id),
+        itemName: item.name,
+      })
+      return
+    }
   }
 
   return (

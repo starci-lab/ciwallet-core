@@ -13,7 +13,9 @@ export const usePhaserCore = () => {
         let container: HTMLDivElement
         let phaserGame: Phaser.Game
         if (import.meta.env.VITE_APP_ENV === "EXTENSION") {
-            const host = document.getElementById("nomas-wallet-overlay-container") as HTMLDivElement
+            const host = document.getElementById(
+                "nomas-wallet-overlay-container"
+            ) as HTMLDivElement
             if (!host) {
                 throw new Error("Host not found")
             }

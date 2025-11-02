@@ -1,5 +1,7 @@
 /* eslint-disable indent */
 import type { GameScene } from "@/nomas/game/GameScene"
+import { eventBus } from "@/nomas/game/event-bus"
+import { HomeEvents } from "@/nomas/game/events/home/HomeEvents"
 
 const NAV_BG_COLOR = 0x101010 // Inner panel color
 const NAV_BORDER_COLOR = 0x242424 // Inner border color
@@ -112,7 +114,7 @@ export class NavigationUI {
     // Click handler
     this.homeButton.on("pointerdown", () => {
       console.log("🏠 Home button clicked")
-      this.scene.events.emit("open-react-home")
+      eventBus.emit(HomeEvents.OpenHome)
     })
   }
 
