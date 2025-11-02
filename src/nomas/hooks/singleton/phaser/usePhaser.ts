@@ -3,7 +3,6 @@ import { PhaserContext } from "./PhaserProvider"
 import { phaserConfig, CONTAINER_ID } from "@/nomas/game"
 import { GameScene } from "@/nomas/game/GameScene"
 import { useEvents } from "./events"
-// import { CONTAINER_ID } from "@/nomas/content"
 
 export const usePhaserCore = () => {
     const gameRef = useRef<Phaser.Game | null>(null)

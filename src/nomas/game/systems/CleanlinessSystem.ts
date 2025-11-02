@@ -6,7 +6,9 @@ import {
   GamePositioning,
 } from "@/nomas/game/constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
-import type { ColyseusClient } from "@/nomas/game/colyseus/client"
+import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
+import { ColyseusMessageEvents } from "@/nomas/game/colyseus/events"
+import { eventBus } from "@/nomas/game/event-bus"
 import { spendToken, store } from "@/nomas/redux"
 import { PetsDB } from "@/nomas/utils/idb"
 
@@ -42,18 +44,16 @@ export class CleanlinessSystem {
   private lastPoopTime: number = 0 // Track when last poop was created
   private scene: Phaser.Scene
   private pet: Pet
-  private colyseusClient: ColyseusClient
   private petId: string
 
   constructor(
     scene: Phaser.Scene,
     pet: Pet,
-    colyseusClient: ColyseusClient,
+    _colyseusClient: unknown, // Deprecated parameter, kept for backward compatibility
     petId: string
   ) {
     this.scene = scene
     this.pet = pet
-    this.colyseusClient = colyseusClient
     this.petId = petId
 
     // Create poop animation
@@ -62,11 +62,22 @@ export class CleanlinessSystem {
   }
 
   private setupPoopEventListeners() {
-    if (this.colyseusClient.room) {
-      this.colyseusClient.room.onMessage("poop_created", (message) => {
-        console.log("💩 Poop created:", message)
-      })
-    }
+    // Listen to poop_created events from ColyseusService
+    eventBus.on(
+      ColyseusMessageEvents.PoopCreated,
+      (message: {
+        petId: string
+        poopId: string
+        positionX: number
+        positionY: number
+      }) => {
+        // Only handle poops for this pet
+        if (message.petId === this.petId) {
+          console.log("💩 Poop created:", message)
+          // Handle poop creation if needed
+        }
+      }
+    )
   }
 
   // ===== ANIMATION SETUP =====
@@ -173,8 +184,8 @@ export class CleanlinessSystem {
     const petX = this.pet.sprite.x
     const petY = GAME_LAYOUT.POOP_GROWN_OFFSET
 
-    if (this.colyseusClient && this.colyseusClient.isConnected()) {
-      this.colyseusClient.createPoop({
+    if (colyseusService.isConnected()) {
+      colyseusService.createPoop({
         petId: this.petId,
         positionX: petX,
         positionY: petY,
@@ -471,10 +482,10 @@ export class CleanlinessSystem {
       this.cleanlinessLevel = Math.min(100, this.cleanlinessLevel + 10)
 
       // Send cleaned pet event to server if connected
-      if (this.colyseusClient && this.colyseusClient.isConnected()) {
+      if (colyseusService.isConnected()) {
         // const userStore = useUserStore.getState();
         const userStore = store.getState().stateless.user
-        this.colyseusClient.cleanedPet({
+        colyseusService.cleanedPet({
           cleanliness_level: this.cleanlinessLevel,
           pet_id: this.petId,
           owner_id: userStore.addressWallet || "unknown",
@@ -491,7 +502,7 @@ export class CleanlinessSystem {
   buyAndCleaning(cleaningId: string, poopId: string): boolean {
     console.log(`Buying cleaning item: ${cleaningId}`)
     const price = gameConfigManager.getCleaningPrice(cleaningId)
-    if (this.colyseusClient && this.colyseusClient.isConnected()) {
+    if (colyseusService.isConnected()) {
       console.log("Checking tokens before sending purchase request to server")
 
       // Check if player has enough tokens before sending to server
@@ -504,7 +515,7 @@ export class CleanlinessSystem {
 
       // Get cleaning item to retrieve both id and name
       const cleaningItem = gameConfigManager.getCleaningItem(cleaningId)
-      this.colyseusClient.cleanPet(this.petId, cleaningItem?.id || "", poopId)
+      colyseusService.cleanPet(this.petId, cleaningItem?.id || "", poopId)
 
       return true // Server will handle validation and update inventory
     } else {

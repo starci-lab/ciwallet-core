@@ -98,18 +98,18 @@ export const GameHomePage = () => {
   }
 
   return (
-    <NomasCard variant={NomasCardVariant.Gradient}>
+    <NomasCard variant={NomasCardVariant.Gradient} isContainer>
       <NomasCardBody className="relative w-full h-full">
-        <div className="w-full h-full bg-[#1a1a1a] flex flex-col">
+        <div className="w-full h-full bg-card-dark flex flex-col rounded-card-inner!">
           {/* Header */}
-          <div className="relative bg-[#2a2a2a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)]">
+          <div className="relative bg-[#2a2a2a]  px-3 py-2 border-b ring-border rounded-t-card-inner">
             {/* Back/Close Button */}
             <button
               onClick={handleClose}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-[#323232] rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-button rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-button-dark-hover transition-colors"
             >
               <svg
-                className="w-3.5 h-3.5 text-gray-300"
+                className="w-3.5 h-3.5 text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -134,7 +134,7 @@ export const GameHomePage = () => {
           </div>
 
           {/* Balance Section */}
-          <div className="bg-[#2a2a2a] px-2 py-1 border-b border-[rgba(135,135,135,0.25)]">
+          <div className="bg-[#2a2a2a] px-2 py-1 border-b ring-border">
             <div className="flex items-center justify-between gap-1.5">
               <div className="flex items-center gap-2">
                 <div>
@@ -158,7 +158,7 @@ export const GameHomePage = () => {
           </div>
 
           {/* Tabs */}
-          <div className="bg-[#1a1a1a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)]">
+          <div className="bg-card-dark px-3 py-2 border-b ring-border">
             <div className="flex gap-3 justify-center">
               {[
                 { key: "farm", label: "Farm" },
@@ -170,8 +170,8 @@ export const GameHomePage = () => {
                   onClick={() => setActiveTab(tab.key as TabType)}
                   className={`px-4 py-1.5 text-sm font-semibold transition-all ${
                     activeTab === tab.key
-                      ? "text-white border-b-2 border-white"
-                      : "text-gray-500 hover:text-gray-300"
+                      ? "text border-b-2 border-text"
+                      : "text-muted text-muted-hover"
                   }`}
                 >
                   {tab.label}
