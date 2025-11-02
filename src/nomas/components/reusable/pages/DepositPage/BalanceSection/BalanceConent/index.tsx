@@ -37,8 +37,8 @@ export const BalanceContent = () => {
                         <EyeSlash size={18} className="text-foreground-300" />
                     )}
                 </button>
-                <span className="text-foreground-300 text-[13px] tracking-wide">
-          Total Balance <span className="opacity-70">(USD)</span>
+                <span className="text-muted text-sm tracking-wide">
+          Total Balance <span className="text-muted-dark">(USD)</span>
                 </span>
             </div>
 

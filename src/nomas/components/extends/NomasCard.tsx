@@ -11,10 +11,11 @@ import {
 } from "../shadcn"
 import { cva } from "class-variance-authority"
 import { NomasButtonIcon } from "./NomasButton"
-import { NomasSpacer } from "."
+import { NomasDivider, NomasSpacer } from "@/nomas/components"
 
 export enum NomasCardVariant {
     Gradient = "gradient",
+    Gradient2 = "gradient2",
     Transparent = "transparent",
     Dark = "dark",
     Button = "button",
@@ -33,6 +34,7 @@ const cardCva = cva(
         variants: {
             variant: {
                 gradient: "bg-card-gradient border-card", // gradient variant
+                gradient2: "bg-card-gradient2 border-card", // gradient2 variant
                 transparent: "bg-transparent border-none !shadow-none !border-none", // transparent variant
                 dark: "border-card bg-card-dark !shadow-none", // dark variant
                 button: "bg-button shadow-button radius-button cursor-pointer border-none", // button variant
@@ -42,7 +44,7 @@ const cardCva = cva(
                 false: "radius-card",
             },
             isContainer: {
-                true: "min-w-[600px] w-[600px]",
+                true: "min-w-[500px] w-[500px] max-w-[500px]",
                 false: "",
             },
         },
@@ -74,13 +76,15 @@ export interface NomasCardHeaderProps
   startIcon?: React.ReactNode
   description?: string
   showBackButton?: boolean
+  addDivider?: boolean
   onBackButtonPress?: () => void
+  hideLeftBlankSpace?: boolean
 }
 
 export const NomasCardHeader = React.forwardRef<
   HTMLDivElement,
   NomasCardHeaderProps
->(({ className, title, description, showBackButton, onBackButtonPress, startIcon, children, ...props }, ref) => {
+>(({ className, title, description, showBackButton, onBackButtonPress, startIcon, children, addDivider, hideLeftBlankSpace, ...props }, ref) => {
     return (
         <CardHeader
             ref={ref}
@@ -93,10 +97,10 @@ export const NomasCardHeader = React.forwardRef<
                     <NomasButtonIcon
                         onClick={onBackButtonPress}
                     >
-                        <ArrowLeftIcon className="w-6 h-6" weight="bold" />
+                        <ArrowLeftIcon className="w-5 h-5 text-muted" />
                     </NomasButtonIcon>
                 ) : (
-                    <div className="w-9" />
+                    !hideLeftBlankSpace ? <div className="w-9" /> : null
                 )}
 
                 {/* Center: title & description */}
@@ -120,19 +124,46 @@ export const NomasCardHeader = React.forwardRef<
                     </CardDescription>
                 </>
             )}
+            {addDivider && (
+                <>
+                    <NomasSpacer y={4} />
+                    <NomasDivider orientation="horizontal"/>
+                </>
+            )}
         </CardHeader>
     )
 })
 NomasCardHeader.displayName = "NomasCardHeader"
 
-// NomasCardBody (Content)
+export interface NomasCardBodyProps
+  extends React.ComponentProps<typeof CardContent> {
+  scrollable?: boolean
+  scrollHeight?: number // optional: limit vùng hiển thị
+}
+
 export const NomasCardBody = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof CardContent>
->(({ className, ...props }, ref) => {
-    return <CardContent ref={ref} className={twMerge("p-6", className)} {...props} />
+  NomasCardBodyProps
+>(({ className, scrollable, scrollHeight = 300, children, ...props }, ref) => {
+    return (
+        <CardContent
+            ref={ref}
+            className={twMerge(
+                "p-6 overflow-hidden relative select-none",
+                scrollable && "overflow-y-auto h-full hide-scrollbar will-change-transform",
+                className
+            )}
+            style={{ 
+                height: scrollable ? `${scrollHeight}px` : undefined,
+                maxHeight: scrollable ? `${scrollHeight}px` : undefined,
+                minHeight: scrollable ? `${scrollHeight}px` : undefined,
+            }}
+            {...props}
+        >
+            {children}
+        </CardContent>
+    )
 })
-NomasCardBody.displayName = "NomasCardBody"
 
 // NomasCardFooter
 export const NomasCardFooter = React.forwardRef<

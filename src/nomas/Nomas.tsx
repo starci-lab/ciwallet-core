@@ -9,11 +9,14 @@ import {
     MainScene,
     MyWalletsScene,
     SettingsScene,
+    CopyAddressScene,
+    Workers,
 } from "@/nomas/components"
 import { motion } from "framer-motion"
 import { WalletKitProvider } from "@ciwallet-sdk/providers"
 import { twMerge } from "tailwind-merge"
 import { CONTAINER_ID } from "@/nomas/game"
+import { NomasToaster } from "@/nomas/components"
 
 export const Nomas = () => {
     return (
@@ -51,8 +54,6 @@ const NomasContent = () => {
     const isGameMinimized = useAppSelector(
         (state) => state.persists.session.isGameMinimized
     )
-    const gameLoaded = useAppSelector((state) => state.stateless.game.gameLoaded)
-
     const renderContent = () => {
         switch (scene) {
         case Scene.Init:
@@ -63,16 +64,21 @@ const NomasContent = () => {
             return <SettingsScene />
         case Scene.MyWallets:
             return <MyWalletsScene />
+        case Scene.CopyAddress:
+            return <CopyAddressScene />
         }
     }
     return (
         <>
+            {/* workers */}
+            <Workers />
             <motion.div
                 drag
                 dragMomentum={false}
-                className="absolute top-10 max-w-[600px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[500px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                className="absolute top-10 max-w-[600px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[800px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
             >
                 {renderContent()}
+                <NomasToaster />
             </motion.div>
             <motion.div
                 initial={{ y: "100%" }}

@@ -24,8 +24,8 @@ export const HomeSection = () => {
     return (  
         <>
             <HomeSelectorTab />
-            <NomasSpacer y={4} />
-            <NomasCard variant={NomasCardVariant.Gradient}>{renderPage()}</NomasCard>
+            <NomasSpacer y={2} />
+            <NomasCard variant={NomasCardVariant.Gradient} isContainer>{renderPage()}</NomasCard>
         </>
     )
 }

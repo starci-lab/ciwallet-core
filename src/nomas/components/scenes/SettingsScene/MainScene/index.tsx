@@ -77,6 +77,18 @@ export const MainScene = () => {
                                 <CaretRightIcon className="w-4 h-4" />
                             </div>
                         </PressableMotion>
+                        <NomasSpacer y={6} />
+                        <PressableMotion onClick={() => {
+                            dispatch(setSettingsPage(SettingsPage.Main))
+                        }} className="flex items-center justify-between">
+                            <TooltipTitle title="Currency" size="sm" />
+                            <div className="flex items-center gap-2">
+                                <div className="text-sm">
+                            USD
+                                </div>
+                                <CaretRightIcon className="w-4 h-4" />
+                            </div>
+                        </PressableMotion>
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>

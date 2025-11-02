@@ -2,7 +2,7 @@ import React, { useMemo } from "react"
 import { NomasButton, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasLink, NomasSpacer } from "../../../../../../extends"
 import { DepositFunctionPage, HomeSelectorTab, PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setExpandTokenDetails, setHomeSelectorTab, setPortfolioFunctionPage, setSelectedChainId, setVisible, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
-import { ExpandToggle, LineChart, TooltipTitle } from "@/nomas/components"
+import { ExpandToggle, LineChart, PressableMotion, TooltipTitle } from "@/nomas/components"
 import { ArrowsLeftRightIcon, DownloadSimpleIcon, EyeClosedIcon, EyeIcon, PaperPlaneRightIcon, ShoppingCartIcon } from "@phosphor-icons/react"
 import { motion } from "framer-motion"
 import { AnimatePresence } from "framer-motion"
@@ -145,46 +145,22 @@ export const TokenDetailsPage = () => {
                         <>
                             <NomasSpacer y={6}/>
                             <NomasCard variant={NomasCardVariant.Dark} isInner>
-                                <NomasCardBody className="p-4">
-                                    <div className="flex items-center justify-between">
-                                        <TooltipTitle title="Allocation" size="sm"/>
-                                        <ExpandToggle 
-                                            isExpanded={expandTokenDetails}
-                                            setIsExpanded={() => {
-                                                dispatch(setExpandTokenDetails(!expandTokenDetails))
-                                            }}
-                                        />
-                                    </div>
-                                    {
-                                        <AnimatePresence initial={false}>
-                                            {expandTokenDetails && (
-                                                <motion.div
-                                                    key="allocation-expand"
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: "auto", opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ type: "spring", stiffness: 200, damping: 22 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <NomasSpacer y={6} />
-                                                    <div className="flex flex-col gap-4">
-                                                        {
-                                                            tokenItems.map((tokenItem) => {
-                                                                const token = tokens[tokenItem.chainId]?.[tokenItem.network].find((t) => t.tokenId === tokenItem.tokenId)
-                                                                if (!token) return null
-                                                                const chain = chainManagerObj.getChainById(tokenItem.chainId)
-                                                                if (!chain) return null
-                                                                return <ChainDetails 
-                                                                    key={tokenItem.tokenId} 
-                                                                    chain={chain}
-                                                                    tokenId={tokenItem.tokenId}
-                                                                />
-                                                            })
-                                                        }
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                <div className="flex items-center justify-between p-4 pb-2">
+                                    <TooltipTitle title="Allocation" size="sm"/>
+                                </div>
+                                <NomasCardBody className="p-4 flex flex-col gap-4" scrollHeight={200} scrollable> 
+                                    {   
+                                        tokenItems.map((tokenItem) => {
+                                            const token = tokens[tokenItem.chainId]?.[tokenItem.network].find((t) => t.tokenId === tokenItem.tokenId)
+                                            if (!token) return null
+                                            const chain = chainManagerObj.getChainById(tokenItem.chainId)
+                                            if (!chain) return null
+                                            return <ChainDetails 
+                                                key={tokenItem.tokenId} 
+                                                chain={chain}
+                                                tokenId={tokenItem.tokenId}
+                                            />
+                                        })
                                     }
                                 </NomasCardBody>
                             </NomasCard>
@@ -194,16 +170,22 @@ export const TokenDetailsPage = () => {
                     (selectedTokenType === SelectedTokenType.Token || selectedChainId !== "overview") && (
                         <>
                             <NomasSpacer y={6}/>
-                            <div className="grid grid-cols-4 gap-4">
-                                {actions.map((action) => {
-                                    return (
-                                        <NomasButton noShadow key={action.title} onClick={action.onPress} className="flex flex-col items-center justify-center h-fit !p-4 shadow-none">
-                                            {action.icon}
-                                            <div className="text-muted text-sm">{action.title}</div>
-                                        </NomasButton>
-                                    )
-                                })}
-                            </div>
+                            <NomasCard variant={NomasCardVariant.Dark} isInner>
+                                <NomasCardBody className="p-0">
+                                    <div className="grid grid-cols-4 gap-4">
+                                        {actions.map((action) => {
+                                            return (
+                                                <PressableMotion key={action.title} onClick={action.onPress}>
+                                                    <div className="flex flex-col items-center justify-center h-fit !p-4 shadow-none text-muted cursor-pointer">
+                                                        {action.icon}
+                                                        <div className="text-muted text-sm">{action.title}</div>
+                                                    </div>
+                                                </PressableMotion>
+                                            )
+                                        })}
+                                    </div>
+                                </NomasCardBody>
+                            </NomasCard>
                         </>
                     )
                 }

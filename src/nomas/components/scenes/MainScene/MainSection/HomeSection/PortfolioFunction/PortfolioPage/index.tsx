@@ -29,9 +29,11 @@ export const PortfolioPage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-4">
-                        <TokenList />
-                    </div>
+                    <NomasCardBody scrollable className="p-0">
+                        <div className="flex flex-col gap-4">
+                            <TokenList />
+                        </div>
+                    </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>
         </>

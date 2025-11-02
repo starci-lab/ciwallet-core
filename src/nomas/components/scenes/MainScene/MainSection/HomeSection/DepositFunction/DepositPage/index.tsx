@@ -5,6 +5,7 @@ import { NomasImage, NomasSpacer, QRCode, SelectChainTab } from "@/nomas/compone
 import { chainManagerObj } from "@/nomas/obj"
 import { CopyIcon } from "@phosphor-icons/react"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { toast } from "sonner"
 
 export const DepositPage = () => {
     const dispatch = useAppDispatch()
@@ -57,6 +58,9 @@ export const DepositPage = () => {
                             startIcon={<CopyIcon className="w-5 h-5" />}
                             onClick={() => {
                                 navigator.clipboard.writeText(account?.accountAddress || "")
+                                toast.success("Address copied to clipboard", {
+                                    icon: null,
+                                })
                             }}
                         >
                             Copy Address

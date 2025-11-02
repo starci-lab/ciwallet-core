@@ -63,7 +63,7 @@ export const SelectTokenFunction = () => {
                 />
                 <NomasSpacer y={4}/>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
-                    <NomasCardBody className="gap-2 p-0">
+                    <NomasCardBody className="gap-2 p-0" scrollable scrollHeight={300}>
                         {filteredTokenArray.map((token) => (
                             <TokenCard2 
                                 isPressable

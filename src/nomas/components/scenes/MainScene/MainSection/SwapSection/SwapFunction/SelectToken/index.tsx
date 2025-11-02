@@ -1,23 +1,24 @@
 import React from "react"
 import { type ChainMetadata, type Token } from "@ciwallet-sdk/types"
 import { NomasButton, NomasImage } from "@/nomas/components"
+
 export interface SelectTokenProps {
   token?: Token;
   chainMetadata?: ChainMetadata
-  onSelect: (token: Token) => void;
+  onSelect: () => void;
 }
 
 export const SelectToken = ({ token, chainMetadata, onSelect }: SelectTokenProps) => {
     if (!token) {
         return (
-            <NomasButton>
+            <NomasButton onClick={() => onSelect()}>
                 Select Token
             </NomasButton>
         )
     }
     return (
         <NomasButton
-            onClick={() => onSelect(token)}
+            onClick={() => onSelect()}
             className="h-12"
         >
             <div className="relative">

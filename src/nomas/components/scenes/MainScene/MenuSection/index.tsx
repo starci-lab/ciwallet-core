@@ -20,40 +20,41 @@ export const MenuSection = () => {
         { 
             key: HomeTab.Trade,
             label: "Trade",
-            icon: <ArrowsLeftRightIcon weight={homeTab === HomeTab.Trade ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Trade && "text-muted")} />,
+            icon: <ArrowsLeftRightIcon weight={homeTab === HomeTab.Trade ? "fill" : "regular"} className={twMerge("w-6 h-6 text-muted-dark", homeTab === HomeTab.Trade && "text-muted")} />,
             disabled: true,
             isSelected: homeTab === HomeTab.Trade,
         },
         { 
             key: HomeTab.Perp,
             label: "Perp",
-            icon: <TrendUpIcon weight={homeTab === HomeTab.Perp ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Perp && "text-muted")} />,
+            icon: <TrendUpIcon weight={homeTab === HomeTab.Perp ? "fill" : "regular"} className={twMerge("w-6 h-6 text-muted-dark", homeTab === HomeTab.Perp && "text-muted")} />,
             disabled: true,
             isSelected: homeTab === HomeTab.Perp,
         },
         { 
             key: HomeTab.Home,
             label: "Home",
-            icon: <WalletIcon weight={homeTab === HomeTab.Home ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Home && "text-muted")} />,
+            icon: <WalletIcon weight={homeTab === HomeTab.Home ? "fill" : "regular"} className={twMerge("w-6 h-6 text-muted-dark", homeTab === HomeTab.Home && "text-muted")} />,
             isSelected: homeTab === HomeTab.Home,
         },
         { 
             key: HomeTab.Game,
             label: "Game",
-            icon: <GameControllerIcon weight={homeTab === HomeTab.Game ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Game && "text-muted")} />,
+            icon: <GameControllerIcon weight={homeTab === HomeTab.Game ? "fill" : "regular"} className={twMerge("w-6 h-6 text-muted-dark", homeTab === HomeTab.Game && "text-muted")} />,
             isSelected: homeTab === HomeTab.Game,
         },
         { 
             key: HomeTab.Defi,
             label: "Defi",
-            icon: <BankIcon weight={homeTab === HomeTab.Defi ? "fill" : "regular"} className={twMerge("w-8 h-8 text-muted-dark", homeTab === HomeTab.Defi && "text-muted")} />,
+            icon: <BankIcon weight={homeTab === HomeTab.Defi ? "fill" : "regular"} className={twMerge("w-6 h-6 text-muted-dark", homeTab === HomeTab.Defi && "text-muted")} />,
             disabled: true,
             isSelected: homeTab === HomeTab.Defi,
         },
     ]
     return (
         <NomasCard
-            variant={NomasCardVariant.Gradient}
+            isContainer
+            variant={NomasCardVariant.Gradient2}
             //TODO: delete the mt-4 later
             className="flex flex-row items-center justify-center gap-2 p-4"
         >

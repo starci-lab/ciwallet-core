@@ -64,7 +64,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
                 >
                     {/* Prefix Icon */}
                     {prefixIcon && (
-                        <div className="flex items-center justify-center mr-2 text-muted">
+                        <div className="flex items-center justify-center text-muted">
                             {prefixIcon}
                         </div>
                     )}

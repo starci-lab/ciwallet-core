@@ -5,8 +5,8 @@ import { CopyIcon, CheckIcon } from "@phosphor-icons/react"
 import { motion, AnimatePresence } from "framer-motion"
 import type { WithClassName } from "@ciwallet-sdk/types"
 import { twMerge } from "tailwind-merge"
-import { NomasLink } from "../.."
-
+import { NomasLink } from "../../extends"
+import { toast } from "sonner"
 export interface SnippetProps extends WithClassName {
   copyString: string
 }
@@ -19,8 +19,14 @@ export const Snippet: React.FC<SnippetProps> = ({ copyString, className }) => {
             await navigator.clipboard.writeText(copyString)
             setCopied(true)
             setTimeout(() => setCopied(false), 1500)
+            toast.success("Copied to clipboard", {
+                icon: null,
+            })
         } catch (err) {
             console.error("Failed to copy:", err)
+            toast.error("Failed to copy", {
+                icon: null,
+            })
         }
     }
 

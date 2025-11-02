@@ -1,6 +1,6 @@
 import React from "react"
 import { NomasCardBody, NomasCardHeader, NomasSpacer, NomasSpinner, NomasImage, TooltipTitle, NomasCardVariant, NomasCard } from "@/nomas/components"
-import { useAppDispatch, useAppSelector, selectTokenById, HomeAction, setHomeAction, selectSelectedAccount } from "@/nomas/redux"
+import { useAppDispatch, useAppSelector, selectTokenById, HomeAction, setHomeAction, selectSelectedAccount, setHomeSelectorTab, HomeSelectorTab } from "@/nomas/redux"
 import { DownloadSimpleIcon, PaperPlaneTiltIcon, ShoppingCartIcon, SwapIcon } from "@phosphor-icons/react"
 import { useBalance } from "@ciwallet-sdk/hooks"
 import useSWR from "swr"
@@ -37,7 +37,7 @@ export const TokenFunction = () => {
             title: "Send",
             icon: <PaperPlaneTiltIcon weight="fill" className="w-8 h-8 min-w-8 min-h-8 text-muted" />,
             onPress: () => {
-                dispatch(setHomeFunction(HomeFunction.Send))
+                dispatch(setHomeAction(HomeAction.Send))
             },
             isActive: action === HomeAction.Send,
             disabled: false,
@@ -46,7 +46,7 @@ export const TokenFunction = () => {
             title: "Receive",
             icon: <DownloadSimpleIcon weight="fill" className="w-8 h-8 min-w-8 min-h-8 text-muted" />,
             onPress: () => {
-                dispatch(setHomeFunction(HomeFunction.Receive))
+                dispatch(setHomeAction(HomeAction.Receive))
             },
             isActive: action === HomeAction.Receive,
             disabled: false,
@@ -77,7 +77,7 @@ export const TokenFunction = () => {
             title="Token"
             showBackButton
             onBackButtonPress={() => {
-                dispatch(setHomeFunction(HomeFunction.Portfolio))
+                dispatch(setHomeSelectorTab(HomeSelectorTab.Portfolio))
             }}
         />
         <NomasCardBody>

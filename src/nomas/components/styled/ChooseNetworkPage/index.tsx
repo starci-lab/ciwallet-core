@@ -74,8 +74,8 @@ export const ChooseNetworkPage = ({ withAllNetworks = false, isSelected, showBac
                 onBackButtonPress={onBackButtonPress}
             />
             <NomasCardBody>
-                <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4">
-                    <NomasCardBody className="p-0 flex flex-col gap-2">
+                <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4" >
+                    <NomasCardBody scrollable className="p-0 flex flex-col gap-2">
                         {renderedChains.map((chain) => chain.component)}
                     </NomasCardBody>
                 </NomasCard>

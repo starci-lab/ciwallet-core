@@ -78,5 +78,5 @@ export const SwapSection = () => {
             />
         }
     }
-    return <NomasCard variant={NomasCardVariant.Gradient}>{renderPage()}</NomasCard>
+    return <NomasCard variant={NomasCardVariant.Gradient} isContainer>{renderPage()}</NomasCard>
 }

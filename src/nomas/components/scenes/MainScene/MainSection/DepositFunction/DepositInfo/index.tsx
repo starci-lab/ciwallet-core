@@ -1,8 +1,8 @@
 import { NomasCardBody } from "@/nomas/components/extends"
 import { NomasButton } from "@/nomas/components/extends"
-import React, { useEffect } from "react"
+import React from "react"
 import { ChainId } from "@ciwallet-sdk/types"
-import { chainManagerObj, encryptionObj } from "@/nomas/obj"
+import { chainManagerObj } from "@/nomas/obj"
 import { QRCode } from "@/nomas/components/styled"
 import { selectSelectedAccount, useAppSelector } from "@/nomas/redux"
 
@@ -13,11 +13,7 @@ interface DepositInfoProps {
 export const DepositInfo = ({ selectedChainId }: DepositInfoProps) => {
     const selectedChain = chainManagerObj.getChainById(selectedChainId)
     const account = useAppSelector(state => selectSelectedAccount(state.persists))
-    const password = useAppSelector(state => state.persists.session.password)
     if (!account) throw new Error("Account not found")
-    useEffect(() => {
-        encryptionObj.decrypt(account.encryptedPrivateKey, password).then(console.log)
-    }, [account.encryptedPrivateKey, password])
     return (
         <NomasCardBody>
             {/* QR + Network */}
