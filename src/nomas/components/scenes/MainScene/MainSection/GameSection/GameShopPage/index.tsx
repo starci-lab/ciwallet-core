@@ -214,7 +214,7 @@ export const GameShopPage = () => {
   }
 
   return (
-    <NomasCard variant={NomasCardVariant.Gradient}>
+    <NomasCard variant={NomasCardVariant.Gradient} isContainer>
       <NomasCardBody className="relative w-full h-full">
         <div className="w-full h-full bg-[#1a1a1a] flex flex-col rounded-2xl!">
           {/* Header */}

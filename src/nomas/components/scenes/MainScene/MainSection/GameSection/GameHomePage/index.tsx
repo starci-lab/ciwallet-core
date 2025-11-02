@@ -98,7 +98,7 @@ export const GameHomePage = () => {
   }
 
   return (
-    <NomasCard variant={NomasCardVariant.Gradient}>
+    <NomasCard variant={NomasCardVariant.Gradient} isContainer>
       <NomasCardBody className="relative w-full h-full">
         <div className="w-full h-full bg-card-dark flex flex-col rounded-card-inner!">
           {/* Header */}
