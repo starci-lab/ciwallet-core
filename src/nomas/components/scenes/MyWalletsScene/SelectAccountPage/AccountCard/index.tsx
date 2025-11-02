@@ -46,7 +46,7 @@ export const AccountCard = ({ accountAddress, onClick, isSelected = false, type,
         }
         case PlatformAccountType.ImportedWallet: {
             return (
-                <div className="text-xs text-muted">
+                <div className="text-sm">
                     {importedWallets.find((importedWallet) => importedWallet.id === refId)?.name}
                 </div>
             )
@@ -56,10 +56,10 @@ export const AccountCard = ({ accountAddress, onClick, isSelected = false, type,
         }
     }
     return (
-        <PressableMotion onClick={onClick} className="p-4 justify-between flex w-full">
+        <PressableMotion onClick={onClick} className="justify-between flex w-full">
             <div className={
                 twMerge("p-4 flex items-center gap-2 justify-between radius-button w-full", 
-                    isSelected ? "bg-button-dark-nohover border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                    isSelected ? "py-4 bg-button-dark-nohover border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
             }>
                 <div className="flex items-center gap-2">
                     <Jazzicon diameter={40} seed={jsNumberForAddress(accountAddress)} />

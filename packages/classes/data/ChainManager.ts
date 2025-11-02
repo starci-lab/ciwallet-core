@@ -116,6 +116,21 @@ export class ChainManager {
         return this.chains
     }
 
+    public getPlatformDescriptions(platform: Platform): string {
+        switch (platform) {
+        case Platform.Evm:
+            return " Uses standard 64-hex private keys (secp256k1), compatible with MetaMask and most EVM wallets."
+        case Platform.Solana:
+            return "Uses 64-byte Ed25519 secret keys (base58 or JSON array), not compatible with EVM keys."
+        case Platform.Sui:
+            return "Uses Ed25519 or Secp256r1 private keys with Sui-specific encoding (0x{...} prefix)."
+        case Platform.Aptos:
+            return "Uses Ed25519 private keys derived from mnemonic or 32-byte hex string."
+        default:
+            return ""
+        }
+    }
+
     public getChainById(id: ChainId): ChainMetadata | undefined {
         return this.chains.find(chain => chain.id === id)
     }

@@ -175,6 +175,7 @@ const resolveAccountsFromImportedWallet = async (
         importedWallet.encryptedPrivateKey,
         password
     )
+    console.log(privateKey)
     const wallet = await importedWalletGeneratorObj.generateWallet({
         privateKey,
         platform: importedWallet.platform,
@@ -183,7 +184,7 @@ const resolveAccountsFromImportedWallet = async (
         {
             id: `imported-wallet-${uuidv4()}`,
             accountAddress: wallet.accountAddress,
-            privateKey: await encryptionObj.decrypt(wallet.privateKey, password),
+            privateKey,
             type: PlatformAccountType.ImportedWallet,
             platform: importedWallet.platform,
             refId: importedWallet.id,
@@ -195,7 +196,6 @@ export const resolveAccountsThunk = createAsyncThunk<Array<Account>>(
     "accounts/resolveAll",
     async (_, thunkApi): Promise<Array<Account>> => {
         try {
-            console.log("Resolve accounts")
             const state = thunkApi.getState() as RootState
             // Resolve HD wallet accounts
             const hdAccounts = await Promise.all(
@@ -215,6 +215,7 @@ export const resolveAccountsThunk = createAsyncThunk<Array<Account>>(
             // Combine and return
             return [...hdAccounts.flat(), ...importedAccounts.flat()]
         } catch (err: unknown) {
+            console.log(err)
             throw new Error(
                 err instanceof Error ? err.message : "Failed to resolve accounts"
             )
@@ -390,6 +391,9 @@ export const sessionSlice = createSlice({
         },
         setEncryptedMnemonic: (state, action: PayloadAction<string>) => {
             state.encryptedMnemonic = action.payload
+        },
+        resetImportedWallets: (state) => {
+            state.importedWallets = []
         },
         setSelectedAccountId: (
             state,
@@ -666,6 +670,7 @@ export const {
     addHdWallet,
     addImportedWallet,
     addRpc,
+    resetImportedWallets,
     updateRpc,
     setExplorer,
     addTrackingTokenId,

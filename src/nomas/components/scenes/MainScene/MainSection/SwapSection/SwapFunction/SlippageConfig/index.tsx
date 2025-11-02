@@ -10,7 +10,7 @@ export const SlippageConfig = () => {
     return (
         <NomasButtonTextWithIcon onClick={() => {
             dispatch(setSwapFunctionPage(SwapFunctionPage.SlippageConfig))
-        }} icon={<SlidersIcon className="w-5 h-5 min-w-5 min-h-5" />}>
+        }} icon={<SlidersIcon className="w-5 h-5 min-w-5 min-h-5 text-muted" />}>
             {formik.values.slippage}%
         </NomasButtonTextWithIcon>   
     )

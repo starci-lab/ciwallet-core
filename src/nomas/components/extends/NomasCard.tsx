@@ -119,7 +119,7 @@ export const NomasCardHeader = React.forwardRef<
             {description && (
                 <>
                     <NomasSpacer y={4} />
-                    <CardDescription className="text-sm text-muted">
+                    <CardDescription className="text-sm text-muted text-center text-muted-dark">
                         {description}
                     </CardDescription>
                 </>

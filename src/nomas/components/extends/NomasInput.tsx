@@ -71,6 +71,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
 
                     <Input
                         ref={ref}
+                        
                         value={displayValue}
                         placeholder={label ?? placeholder}
                         onChange={(event) => {

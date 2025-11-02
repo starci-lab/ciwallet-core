@@ -162,7 +162,7 @@ export const SwapFunction = () => {
                         </div>
                     </div>
                     <NomasButtonIcon
-                        className="z-20"
+                        className="z-20 w-10 h-10"
                         onClick={() => {
                             swapFormik.setFieldValue("tokenIn", swapFormik.values.tokenOut)
                             swapFormik.setFieldValue("tokenOut", swapFormik.values.tokenIn)
@@ -177,7 +177,7 @@ export const SwapFunction = () => {
                             swapFormik.setFieldValue("amountIn", swapFormik.values.amountOut)
                         }}
                     >
-                        <ArrowsLeftRightIcon className="w-5 h-5 min-w-5 min-h-5" />
+                        <ArrowsLeftRightIcon className="w-5 h-5 min-w-5 min-h-5 text-muted" />
                     </NomasButtonIcon>
                     <div className="bg-card-dark radius-card-inner w-full p-4">
                         <div className="flex items-center justify-between">
