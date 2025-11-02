@@ -89,15 +89,41 @@ export class PetManager {
 
     // Listen for buy_pet_response to create new pet
     const handleBuyPetResponse = (message: BuyPetResponseMessage) => {
-      if (
-        message.success &&
-        message.data.pets &&
-        Array.isArray(message.data.pets)
-      ) {
-        console.log(
-          `✅ [PetManager] Buy pet successful, syncing ${message.data.pets.length} pets`
-        )
-        this.syncPetsFromServer(message.data.pets)
+      if (message.success) {
+        // Sync pets if provided
+        if (message.data?.pets && Array.isArray(message.data.pets)) {
+          this.syncPetsFromServer(message.data.pets)
+
+          // Show success notification via GameScene's gameUI
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const gameScene = this.scene as any
+          if (gameScene.gameUI && gameScene.gameUI.showNotification) {
+            gameScene.gameUI.showNotification("🎉 You bought a new pet!")
+          }
+        } else {
+          // If no pets in response, request pets state from server
+          console.log(
+            "🔄 [PetManager] No pets in response, requesting pets state"
+          )
+          this.requestPetsState()
+
+          // Show success notification anyway
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const gameScene = this.scene as any
+          if (gameScene.gameUI && gameScene.gameUI.showNotification) {
+            gameScene.gameUI.showNotification("🎉 You bought a new pet!")
+          }
+        }
+      } else {
+        // Show error notification
+        const errorMessage = message.message || "Failed to buy pet"
+        console.warn(`❌ [PetManager] Buy pet failed: ${errorMessage}`)
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const gameScene = this.scene as any
+        if (gameScene.gameUI && gameScene.gameUI.showNotification) {
+          gameScene.gameUI.showNotification(`❌ ${errorMessage}`)
+        }
       }
     }
 
@@ -243,12 +269,12 @@ export class PetManager {
   }
 
   /**
-   * Gửi event mua pet lên server (chuẩn backend: create_pet với isBuyPet)
-   * (Truyền x/y random để server có thể lưu vị trí spawn ban đầu nếu muốn)
+   * Send buy pet event to server (standard backend: create_pet with isBuyPet)
+   * (Send x/y random to server to save initial spawn position if desired)
    */
   buyPet(petType: string = "chog", petTypeId: string) {
     if (colyseusService.isConnected()) {
-      // Random vị trí spawn cho pet mới
+      // Random position spawn for new pet
       const minX = 100,
         maxX = 700
       const minY = 200,

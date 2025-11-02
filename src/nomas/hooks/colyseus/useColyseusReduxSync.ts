@@ -143,6 +143,7 @@ export const useColyseusReduxSync = (): void => {
   /**
    * Handle buy_pet_response to sync tokens
    * Supports both flat and nested message formats
+   * Note: Pet sync is handled by PetManager via event listeners
    */
   useEffect(() => {
     const handleBuyPetResponse = (message: BuyPetResponseMessage) => {
@@ -152,7 +153,15 @@ export const useColyseusReduxSync = (): void => {
       )
 
       // Handle nested format: {success: true, data: {currentTokens: ...}}
-      const tokens = message.data.currentTokens
+      let tokens: number | undefined
+
+      if (message && message.data && message.data.currentTokens !== undefined) {
+        // Nested format: extract from data
+        tokens = message.data.currentTokens
+      } else if ((message as any).currentTokens !== undefined) {
+        // Flat format: direct access (backward compatibility)
+        tokens = (message as any).currentTokens
+      }
 
       if (tokens !== undefined) {
         console.log(
@@ -165,9 +174,12 @@ export const useColyseusReduxSync = (): void => {
           message
         )
       }
+
+      // Note: Pet sync and toast notifications are handled by PetManager
+      // which listens to the same BuyPetResponse event
     }
 
-    eventBus.on(ColyseusMessageEvents.ActionResponse, handleBuyPetResponse)
+    eventBus.on(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
 
     return () => {
       eventBus.off(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
