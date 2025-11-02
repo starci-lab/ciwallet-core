@@ -23,6 +23,7 @@ import {
   type BuyImmediateItemPayload,
   type ActivateCursorPayload,
 } from "./events/shop/ShopEvents"
+import { HomeEvents, type PetDataUpdatePayload } from "./events/home/HomeEvents"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
@@ -85,6 +86,9 @@ export class GameScene extends Phaser.Scene {
 
     // Subscribe to shop events from ReactShopModal
     this.setupShopEventListeners()
+
+    // Subscribe to home events and setup pet data emission
+    this.setupHomeEventListeners()
 
     // Handle Phaser scale resize event
     this.scale.on(Phaser.Scale.Events.RESIZE, () => {
@@ -277,6 +281,30 @@ export class GameScene extends Phaser.Scene {
     })
   }
 
+  private petDataUpdateInterval?: NodeJS.Timeout
+
+  private setupHomeEventListeners() {
+    // Setup periodic pet data emission (every 1 second)
+    this.petDataUpdateInterval = setInterval(() => {
+      if (this.petManager) {
+        const pets = this.petManager.getAllPets()
+        const payload: PetDataUpdatePayload = {
+          pets,
+          timestamp: Date.now(),
+        }
+        eventBus.emit(HomeEvents.PetDataUpdate, payload)
+      }
+    }, 1000)
+
+    // Cleanup on scene shutdown
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.petDataUpdateInterval) {
+        clearInterval(this.petDataUpdateInterval)
+        this.petDataUpdateInterval = undefined
+      }
+    })
+  }
+
   shutdown() {
     if (this.tilemapInput) {
       this.tilemapInput.destroy()
@@ -285,6 +313,10 @@ export class GameScene extends Phaser.Scene {
     if (this.purchaseUI) {
       this.purchaseUI.destroy()
       this.purchaseUI = undefined
+    }
+    if (this.petDataUpdateInterval) {
+      clearInterval(this.petDataUpdateInterval)
+      this.petDataUpdateInterval = undefined
     }
   }
 

@@ -1,8 +1,9 @@
 /* eslint-disable indent */
 import { NomasButton } from "@/nomas/components"
 import type { PetData } from "@/nomas/game/managers/PetManager"
-import { GameScene } from "@/nomas/game/GameScene"
 import { getPetImagePath } from "@/nomas/game/utils/textureUtils"
+import { eventBus } from "@/nomas/game/event-bus"
+import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
 
 interface PetStat {
   label: string
@@ -15,7 +16,6 @@ interface FarmTabProps {
   activePets: PetData[]
   selectedPet: PetData | null
   setSelectedPet: (pet: PetData | null) => void
-  scene: GameScene
   onClose: () => void
 }
 
@@ -48,11 +48,10 @@ export function FarmTab({
   activePets,
   selectedPet,
   setSelectedPet,
-  scene,
   onClose,
 }: FarmTabProps) {
   const openShop = () => {
-    scene.events.emit("open-react-shop")
+    eventBus.emit(ShopEvents.OpenShop)
     onClose()
   }
 
