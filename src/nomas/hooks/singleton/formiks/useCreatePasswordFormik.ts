@@ -25,6 +25,7 @@ export interface CreatePasswordFormikValues {
     password: string
     confirmPassword: string
     passwordStrength: PasswordStrength
+    agreeToTerms: boolean
 }
 
 // -------------------------------------
@@ -38,6 +39,10 @@ const validationSchema = Yup.object({
     confirmPassword: Yup.string()
         .oneOf([Yup.ref("password")], "Password does not match")
         .required("Confirm Password is required"),
+    agreeToTerms: Yup.boolean()
+        .oneOf([true], "You must agree to the terms and conditions")
+        .required("You must agree to the terms and conditions")
+        .test("is-true", "You must agree to the terms and conditions", (value) => value === true),
 })
 
 // -------------------------------------
@@ -82,6 +87,7 @@ export const useCreatePasswordFormikCore = () => {
             password: "",
             confirmPassword: "",
             passwordStrength: PasswordStrength.Weak,
+            agreeToTerms: false,
         },
         validationSchema,
         onSubmit: async (values) => {

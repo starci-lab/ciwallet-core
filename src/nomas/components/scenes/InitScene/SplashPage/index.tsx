@@ -37,17 +37,17 @@ export const SplashPage = () => {
                 duration: 0.6,
                 ease: "easeOut",
             }}
-            className="flex flex-col items-center gap-2 bg-input p-4 radius-input w-full shadow-card"
+            className="flex flex-col items-center gap-2 bg-input p-4 radius-input w-full bg-card-dark border-card"
         >
             <img src={step.icon} alt={step.title} className="w-10 h-10" />
             <div className="text-sm text-muted">{step.title}</div>
         </motion.div>
     )
 
-    const buttonDelay = splashSteps.length * 1 + 0.5 // ví dụ: 3 steps *1s + 0.5s buffer
+    const buttonDelay = splashSteps.length * 1 + 0.5
 
     return (
-        <NomasCard variant={NomasCardVariant.Gradient}>
+        <NomasCard variant={NomasCardVariant.Gradient} isContainer>
             <NomasCardBody className="flex flex-col items-center gap-4">
                 {splashSteps.map(renderStep)}
             </NomasCardBody>
@@ -64,6 +64,7 @@ export const SplashPage = () => {
                         onClick={() => {
                             dispatch(setScene(Scene.Main))
                         }}
+                        xlSize
                     >
             Continue
                     </NomasButton>
