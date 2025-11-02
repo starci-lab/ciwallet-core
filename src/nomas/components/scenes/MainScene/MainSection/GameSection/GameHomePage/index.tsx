@@ -28,17 +28,14 @@ type TabType = "farm" | "tasks" | "referrals"
  * Displays home UI similar to ReactHomeModal but as a full page layout
  */
 export const GameHomePage = () => {
-  // Home UI state
   const [activeTab, setActiveTab] = useState<TabType>("farm")
   const [activePets, setActivePets] = useState<PetData[]>([])
   const [selectedPet, setSelectedPet] = useState<PetData | null>(null)
   const [initialPetId, setInitialPetId] = useState<string | null>(null)
 
-  // Get balance from Redux
   const balance = useAppSelector((state) => state.stateless.user.nomToken)
   const assets = assetsConfig().game
 
-  // Handle OpenHomeWithPet event to set initial pet selection
   useEffect(() => {
     const handleOpenWithPet = (payload: OpenHomeWithPetPayload) => {
       console.log("🏠 Home opened with pet:", payload.petId)
@@ -50,10 +47,8 @@ export const GameHomePage = () => {
     }
   }, [])
 
-  // Reset state when closing
   useEffect(() => {
     const handleClose = () => {
-      console.log("🏠 Home closed")
       setSelectedPet(null)
       setInitialPetId(null)
     }
@@ -63,36 +58,29 @@ export const GameHomePage = () => {
     }
   }, [])
 
-  // Task 2.3: Pet data update listener
   useEffect(() => {
     const handlePetDataUpdate = (payload: PetDataUpdatePayload) => {
       try {
-        if (!payload || !Array.isArray(payload.pets)) {
-          console.error("Invalid pet data update payload")
-          return
-        }
+        if (!payload || !Array.isArray(payload.pets)) return
 
         setActivePets(payload.pets)
 
-        // Update selected pet if it still exists
         if (selectedPet) {
           const updatedPet = payload.pets.find((p) => p.id === selectedPet.id)
           if (updatedPet) {
             setSelectedPet(updatedPet)
           } else {
-            // Pet was removed, clear selection
             setSelectedPet(null)
           }
         }
 
-        // Handle initial pet selection from OpenHomeWithPet
         if (initialPetId && !selectedPet) {
           const targetPet = payload.pets.find((p) => p.id === initialPetId)
           if (targetPet) {
             setSelectedPet(targetPet)
             setActiveTab("farm")
           }
-          setInitialPetId(null) // Clear after handling
+          setInitialPetId(null)
         }
       } catch (error) {
         console.error("Error handling pet data update:", error)
@@ -105,12 +93,10 @@ export const GameHomePage = () => {
     }
   }, [selectedPet, initialPetId])
 
-  // Handle close button click
   const handleClose = () => {
     eventBus.emit(HomeEvents.CloseHome)
   }
 
-  // Component is always rendered when mounted (visibility managed by GameSection)
   return (
     <NomasCard variant={NomasCardVariant.Gradient}>
       <NomasCardBody className="relative w-full h-full">
