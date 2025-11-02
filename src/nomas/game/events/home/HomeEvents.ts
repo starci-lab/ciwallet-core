@@ -7,7 +7,6 @@
 
 import type { PetData } from "@/nomas/game/managers/PetManager"
 
-// Event names for home actions
 export const HomeEvents = {
     // Visibility Actions
     OpenHome: "home:open",
@@ -17,8 +16,6 @@ export const HomeEvents = {
     // Data Updates
     PetDataUpdate: "home:pet:data:update",
 } as const
-
-// Event payload interfaces
 
 /**
  * Payload for opening home with a specific pet selected

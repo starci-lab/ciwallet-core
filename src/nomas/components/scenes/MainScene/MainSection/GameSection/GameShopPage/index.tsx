@@ -52,7 +52,6 @@ export const GameShopPage = () => {
   // Tabs container ref for scrolling
   const tabsContainerRef = useRef<HTMLDivElement | null>(null)
 
-  // Helper functions (Task 2.1)
   const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
     const effectiveCategory =
       cat === "items" ? detectItemType(shopItem) : (cat as string)
@@ -92,7 +91,6 @@ export const GameShopPage = () => {
     return "furniture"
   }
 
-  // Auto-scroll active tab into view when category changes
   useEffect(() => {
     const wrap = tabsContainerRef.current
     if (!wrap) return
@@ -107,7 +105,6 @@ export const GameShopPage = () => {
     })
   }, [category])
 
-  // Load items when category changes (Task 2.1)
   useEffect(() => {
     switch (category) {
       case "food":
@@ -133,7 +130,6 @@ export const GameShopPage = () => {
     }
   }, [category])
 
-  // Purchase handler (Task 2.1)
   const handleBuy = (item: ShopItem) => {
     const mappedCategory =
       category === "backgrounds"
@@ -142,7 +138,6 @@ export const GameShopPage = () => {
         ? "pet"
         : (category as "food" | "toy" | "clean" | "furniture")
 
-    // Use dedicated buy pet flow
     if (category === "pets") {
       const petType =
         (item as PetItem).texture || (item as PetItem).species || item.name
@@ -154,7 +149,6 @@ export const GameShopPage = () => {
       return
     }
 
-    // For food: defer purchase until user drops in scene
     if (mappedCategory === "food") {
       const cursorUrl = getItemImageSrc("food", item)
       eventBus.emit(ShopEvents.StartPlacing, {
@@ -163,11 +157,9 @@ export const GameShopPage = () => {
         itemName: item.name,
         cursorUrl,
       })
-      // Note: Don't auto-close page (unlike modal behavior)
       return
     }
 
-    // For toy: defer purchase until user drops in scene
     if (mappedCategory === "toy") {
       const cursorUrl = getItemImageSrc("toy", item)
       eventBus.emit(ShopEvents.StartPlacing, {
@@ -176,11 +168,9 @@ export const GameShopPage = () => {
         itemName: item.name,
         cursorUrl,
       })
-      // Note: Don't auto-close page (unlike modal behavior)
       return
     }
 
-    // For cleaning items
     if (mappedCategory === "clean") {
       const cursorUrl = getItemImageSrc("clean", item)
       createResizedCursor(
@@ -209,7 +199,6 @@ export const GameShopPage = () => {
       return
     }
 
-    // Immediate purchase: background
     if (mappedCategory === "background") {
       eventBus.emit(ShopEvents.BuyBackground, {
         itemType: "background",

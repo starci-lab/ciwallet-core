@@ -54,8 +54,6 @@ export class GameScene extends Phaser.Scene {
     // Add background image (default)
     this.createBackground()
 
-    // Initialize game configuration first
-    console.log("🎮 Initializing game configuration...")
     await initializeGame()
 
     // Debug log food items
@@ -63,20 +61,14 @@ export class GameScene extends Phaser.Scene {
 
     // Initialize systems
     this.initializeSystems()
-    this.initializePets()
+    // this.initializePets()
     this.initializeUI()
 
     // Setup cursor
     this.input.setDefaultCursor(GameScene.DEFAULT_CURSOR)
 
-    // Multiplayer connection is managed externally (React via use-colyseus) or via explicit call
-    console.log(
-      "🏁 Scene initialization complete (waiting for multiplayer attach/connect)"
-    )
-
     // Mark as initialized
     this.isInitialized = true
-    console.log("✅ GameScene fully initialized")
 
     // Notify external listeners (React) that assets/UI are ready for multiplayer connect
     this.events.emit("assets-ready")
@@ -95,10 +87,9 @@ export class GameScene extends Phaser.Scene {
       this.handleResize()
     })
 
-    // Thêm ResizeObserver để detect container resize realtime
+    // Add ResizeObserver to detect container resize realtime
     this.setupResizeObserver()
 
-    // Initialize Phaser-native tilemap input for the bottom HUD area
     const tileWidth = this.cameras.main.width / 32
     const tileHeight = this.cameras.main.height / 5
     this.tilemapInput = new TilemapInputSystem(this, {
@@ -111,7 +102,6 @@ export class GameScene extends Phaser.Scene {
       drawGrid: false,
     })
 
-    // Initialize purchase system
     this._purchaseSystem = new PurchaseSystem(this.colyseusClient)
     this.purchaseUI = new PurchaseUI(this)
   }
@@ -119,33 +109,30 @@ export class GameScene extends Phaser.Scene {
   private setupResizeObserver() {
     // Get container element
     const containerElement = this.scale.game.canvas?.parentElement
-    if (!containerElement) {
-      console.warn("⚠️ Container element not found for ResizeObserver")
-      return
-    }
+    if (!containerElement) return
 
     let rafId: number | null = null
     let lastWidth = containerElement.clientWidth
 
     const resizeObserver = new ResizeObserver(() => {
       const currentWidth = containerElement.clientWidth
-      // Chỉ update nếu width thay đổi (height cố định)
+      // Only update if width changes (height is fixed)
       if (currentWidth !== lastWidth) {
         lastWidth = currentWidth
 
-        // Cancel pending resize để tránh duplicate
+        // Cancel pending resize to avoid duplicates
         if (rafId !== null) {
           cancelAnimationFrame(rafId)
         }
 
-        // Resize Phaser game ngay lập tức
+        // Resize Phaser game immediately
         if (this.scale.game.isBooted) {
           this.scale.resize(currentWidth, 140)
         }
 
-        // Schedule handleResize sau khi Phaser đã update
+        // Schedule handleResize after Phaser has updated
         rafId = requestAnimationFrame(() => {
-          // Double RAF để đảm bảo Phaser đã render xong
+          // Double RAF to ensure Phaser has rendered
           requestAnimationFrame(() => {
             this.handleResize()
             rafId = null
@@ -156,7 +143,7 @@ export class GameScene extends Phaser.Scene {
 
     resizeObserver.observe(containerElement)
 
-    // Cleanup khi scene destroy
+    // Cleanup when scene is destroyed
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       resizeObserver.disconnect()
       if (rafId !== null) {
@@ -166,16 +153,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleResize() {
-    const cameraWidth = this.cameras.main.width
-    const cameraHeight = this.cameras.main.height
-
     // Update background
     if (this.backgroundImage) {
       const currentTextureKey = this.backgroundImage.texture.key
       this.createBackground(currentTextureKey)
     }
 
-    // Update tất cả vật thể qua PetManager
+    // Update all objects through PetManager
     if (this.petManager) {
       this.petManager.updateAllScales()
     }
@@ -184,8 +168,6 @@ export class GameScene extends Phaser.Scene {
     if (this.gameUI) {
       this.gameUI.resize()
     }
-
-    console.log(`📐 Game resized: ${cameraWidth}x${cameraHeight}`)
   }
 
   private initializeSystems() {
@@ -200,13 +182,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private initializePets() {
-    console.log("🐕 Pet initialization - waiting for server sync...")
-    // Don't create initial pets locally when using Colyseus
-    // The server will create and sync the starter pet automatically
-    // This prevents conflicts between local and server pet IDs
-  }
-
   private async initializeUI() {
     // Initialize UI with pet manager
     this.gameUI = new GameUI(this, this.petManager)
@@ -214,7 +189,6 @@ export class GameScene extends Phaser.Scene {
 
     // Set GameUI reference in ColyseusClient for notifications
     this.colyseusClient.setGameUI(this.gameUI)
-    // Connect to Colyseus after UI is ready
     await this.connectToColyseus()
     reactBus.emit(ReactEventName.GameLoaded)
   }
@@ -271,7 +245,6 @@ export class GameScene extends Phaser.Scene {
     eventBus.on(ShopEvents.BuyBackground, handleBuyBackground)
     eventBus.on(ShopEvents.ActivateCursor, handleActivateCursor)
 
-    // Cleanup on scene shutdown
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventBus.off(ShopEvents.BuyPet, handleBuyPet)
       eventBus.off(ShopEvents.StartPlacing, handleStartPlacing)
@@ -328,17 +301,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Check if managers are initialized
-    if (!this.petManager) {
-      return
-    }
+    if (!this.petManager) return
 
-    if (!this.gameUI) {
-      return
-    }
+    if (!this.gameUI) return
 
     try {
-      // Update all pets through manager
-      // auto update 60 lần 1 giây
       this.petManager.update()
 
       // Update UI
@@ -446,7 +413,7 @@ export class GameScene extends Phaser.Scene {
         const textureWidth = texture.source[0].width
         const textureHeight = texture.source[0].height
 
-        // Scale theo width để responsive ngang
+        // Scale by width to make responsive horizontally
         const scaleX = cameraWidth / textureWidth
         const scaledHeight = textureHeight * scaleX
 
@@ -455,7 +422,7 @@ export class GameScene extends Phaser.Scene {
         this.backgroundImage.setOrigin(0, 0)
         this.backgroundImage.setScale(scaleX)
 
-        // Nếu scaled height vẫn chưa đủ, scale thêm theo height
+        // If scaled height is still not enough, scale further by height
         if (scaledHeight < cameraHeight) {
           const additionalScale = cameraHeight / scaledHeight
           this.backgroundImage.setScale(scaleX * additionalScale)
@@ -544,7 +511,6 @@ export class GameScene extends Phaser.Scene {
       this.getPetManager().buyPet(petType, payload.petId)
     } catch (error) {
       console.error("Failed to buy pet", error)
-      // Fallback to legacy method if needed
       this.sendBuyFoodLegacy({
         itemType: "pet",
         itemName: payload.petName,
@@ -555,7 +521,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleStartPlacing(payload: BuyPlaceableItemPayload): void {
-    // Update registry for InputManager (backward compatibility)
     this.registry.set("placingItem", {
       type: payload.itemType,
       itemId: payload.itemId,
@@ -564,7 +529,6 @@ export class GameScene extends Phaser.Scene {
     })
 
     // Activate cursor - emit event for internal handling
-    // For cleaning items, we need sprite sheet parameters
     eventBus.emit(ShopEvents.ActivateCursor, {
       cursorUrl: payload.cursorUrl,
       cursorSize: payload.itemType === "clean" ? 64 : undefined,
@@ -574,7 +538,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleBuyFurniture(payload: BuyImmediateItemPayload): void {
-    // Immediate purchase via legacy method
     this.sendBuyFoodLegacy({
       itemType: "furniture",
       itemName: payload.itemName,
@@ -584,8 +547,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleBuyBackground(payload: BuyImmediateItemPayload): void {
-    // Immediate purchase via legacy method
-    // Background creation will be handled by PurchaseSuccess event listener in ReactComponent
     this.sendBuyFoodLegacy({
       itemType: "background",
       itemName: payload.itemName,
@@ -602,8 +563,6 @@ export class GameScene extends Phaser.Scene {
         return
       }
 
-      // For sprite sheet cursors (e.g., cleaning items), cursorUrl should already be pre-processed
-      // by ReactShopModal using createResizedCursor, so we can use it directly
       const cursorSize = payload.cursorSize || 32
       cursorManager.activateCustomCursor(payload.cursorUrl, cursorSize)
     } catch (error) {

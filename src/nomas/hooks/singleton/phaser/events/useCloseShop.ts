@@ -33,7 +33,6 @@ export const useCloseShop = () => {
         // handlerRef.current = handleCloseShop
 
         return () => {
-            // Cleanup: remove listener if it was registered
             if (handlerRef.current) {
                 eventBus.off(ShopEvents.CloseShop, handlerRef.current)
                 handlerRef.current = undefined
