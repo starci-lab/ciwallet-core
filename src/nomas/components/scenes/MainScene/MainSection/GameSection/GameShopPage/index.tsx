@@ -216,9 +216,9 @@ export const GameShopPage = () => {
   return (
     <NomasCard variant={NomasCardVariant.Gradient}>
       <NomasCardBody className="relative w-full h-full">
-        <div className="w-full h-full bg-[#1a1a1a] flex flex-col">
+        <div className="w-full h-full bg-[#1a1a1a] flex flex-col rounded-2xl!">
           {/* Header */}
-          <div className="relative bg-[#2a2a2a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)]">
+          <div className="relative bg-[#2a2a2a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)] rounded-t-2xl!">
             {/* Back/Close Button */}
             <button
               onClick={handleClose}
