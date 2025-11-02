@@ -5,7 +5,12 @@ import { CleanlinessSystem } from "@/nomas/game/systems/CleanlinessSystem"
 import { HappinessSystem } from "@/nomas/game/systems/HappinessSystem"
 import { MovementSystem } from "@/nomas/game/systems/MovementSystem"
 import { ActivitySystem } from "@/nomas/game/systems/ActivitySystem"
-import { ColyseusClient } from "@/nomas/game/colyseus/client"
+import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
+import {
+  ColyseusMessageEvents,
+  type PetsStateSyncMessage,
+  type BuyPetResponseMessage,
+} from "@/nomas/game/colyseus/events"
 import {
   GamePositioning,
   GAME_MECHANICS,
@@ -29,7 +34,6 @@ export interface PetData {
 export class PetManager {
   private pets: Map<string, PetData> = new Map()
   private scene: Phaser.Scene
-  private colyseusClient: ColyseusClient
   private activePetId: string | null = null
 
   // Shared food pool for all pets
@@ -51,12 +55,138 @@ export class PetManager {
   // Safety timer to prevent pets getting stuck
   private safetyTimer?: Phaser.Time.TimerEvent
 
-  constructor(scene: Phaser.Scene, colyseusClient: ColyseusClient) {
+  constructor(scene: Phaser.Scene) {
     this.scene = scene
-    this.colyseusClient = colyseusClient
 
     // Start safety check timer every 5 seconds
     this.startSafetyCheck()
+
+    // Setup event listeners for Colyseus messages
+    this.setupEventListeners()
+  }
+
+  /**
+   * Setup event listeners for Colyseus messages
+   */
+  private setupEventListeners() {
+    // Listen for pets state sync from server
+    const handlePetsSync = (message: PetsStateSyncMessage) => {
+      console.log("🔄 [PetManager] Pets state sync received:", message)
+
+      // Support nested shape under `data` or flat message
+      const payload =
+        message && typeof message === "object" && "data" in message
+          ? message.data
+          : message
+
+      const pets = payload?.pets || message.pets
+
+      if (pets && Array.isArray(pets)) {
+        console.log(`🐕 [PetManager] Syncing ${pets.length} pets from server`)
+        this.syncPetsFromServer(pets)
+      }
+    }
+
+    // Listen for buy_pet_response to create new pet
+    const handleBuyPetResponse = (message: BuyPetResponseMessage) => {
+      if (message.success && message.pets && Array.isArray(message.pets)) {
+        console.log(
+          `✅ [PetManager] Buy pet successful, syncing ${message.pets.length} pets`
+        )
+        this.syncPetsFromServer(message.pets)
+      }
+    }
+
+    eventBus.on(ColyseusMessageEvents.PetsStateSync, handlePetsSync)
+    eventBus.on(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
+
+    // Cleanup on scene shutdown
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      console.log("🧹 [PetManager] Cleaning up event listeners")
+      eventBus.off(ColyseusMessageEvents.PetsStateSync, handlePetsSync)
+      eventBus.off(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
+    })
+  }
+
+  /**
+   * Sync pets from server data
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private syncPetsFromServer(serverPets: any[]) {
+    if (!serverPets || !Array.isArray(serverPets)) {
+      console.warn("⚠️ [PetManager] Invalid pets data:", serverPets)
+      return
+    }
+
+    console.log(`🔄 [PetManager] Syncing ${serverPets.length} pets from server`)
+
+    // Track which pets exist on server
+    const serverPetIds = new Set(
+      serverPets.map((p: any) => p.id || p.pet_id).filter(Boolean)
+    )
+
+    // Remove pets that are no longer on server
+    for (const [petId] of this.pets.entries()) {
+      if (!serverPetIds.has(petId)) {
+        console.log(
+          `🗑️ [PetManager] Removing pet ${petId} (no longer on server)`
+        )
+        this.removePet(petId)
+      }
+    }
+
+    // Create or update pets from server
+    for (const serverPet of serverPets) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pet: any = serverPet
+      const petId = pet.id || pet.pet_id
+      if (!petId) {
+        console.warn("⚠️ [PetManager] Pet missing ID:", pet)
+        continue
+      }
+
+      const existingPet = this.pets.get(petId)
+
+      if (existingPet) {
+        // Update existing pet stats if needed
+        if (pet.hunger !== undefined) {
+          existingPet.feedingSystem.hungerLevel = pet.hunger
+        }
+        if (pet.cleanliness !== undefined) {
+          existingPet.cleanlinessSystem.cleanlinessLevel = pet.cleanliness
+        }
+        if (pet.happiness !== undefined) {
+          existingPet.happinessSystem.happinessLevel = pet.happiness
+        }
+        console.log(`🔄 [PetManager] Updated existing pet ${petId}`)
+      } else {
+        // Create new pet
+        const x = pet.x || pet.positionX || 400
+        const y = pet.y || pet.positionY || 300
+        const petType = pet.type || pet.petType || "chog"
+
+        console.log(
+          `🐕 [PetManager] Creating new pet from server: ${petId} (${petType}) at (${x}, ${y})`
+        )
+        this.createPet(petId, x, y, petType)
+
+        // Update stats after creation
+        const newPet = this.pets.get(petId)
+        if (newPet) {
+          if (pet.hunger !== undefined) {
+            newPet.feedingSystem.hungerLevel = pet.hunger
+          }
+          if (pet.cleanliness !== undefined) {
+            newPet.cleanlinessSystem.cleanlinessLevel = pet.cleanliness
+          }
+          if (pet.happiness !== undefined) {
+            newPet.happinessSystem.happinessLevel = pet.happiness
+          }
+        }
+      }
+    }
+
+    console.log(`✅ [PetManager] Sync complete. Total pets: ${this.pets.size}`)
   }
 
   /**
@@ -85,19 +215,20 @@ export class PetManager {
 
     const movementSystem = new MovementSystem(pet, this.scene)
     const activitySystem = new ActivitySystem(pet)
+    // Systems use colyseusService directly (singleton)
     const feedingSystem = new FeedingSystem(
       this.scene,
       pet,
-      this.colyseusClient,
+      null as unknown, // Deprecated parameter
       petId
     )
     const cleanlinessSystem = new CleanlinessSystem(
       this.scene,
       pet,
-      this.colyseusClient,
+      null as unknown, // Deprecated parameter
       petId
     )
-    const happinessSystem = new HappinessSystem(pet, this.colyseusClient, petId)
+    const happinessSystem = new HappinessSystem(pet, null as unknown, petId) // Deprecated parameter
 
     const petData: PetData = {
       id: petId,
@@ -128,7 +259,7 @@ export class PetManager {
    * (Truyền x/y random để server có thể lưu vị trí spawn ban đầu nếu muốn)
    */
   buyPet(petType: string = "chog", petTypeId: string) {
-    if (this.colyseusClient?.isConnected()) {
+    if (colyseusService.isConnected()) {
       // Random vị trí spawn cho pet mới
       const minX = 100,
         maxX = 700
@@ -136,7 +267,7 @@ export class PetManager {
         maxY = 500
       const x = Math.floor(Math.random() * (maxX - minX + 1)) + minX
       const y = Math.floor(Math.random() * (maxY - minY + 1)) + minY
-      this.colyseusClient.sendMessage("buy_pet", {
+      colyseusService.sendMessage("buy_pet", {
         petType,
         petTypeId,
         isBuyPet: true,
@@ -152,9 +283,9 @@ export class PetManager {
     if (!petData) return false
 
     // Notify server about pet removal if connected
-    if (this.colyseusClient?.isConnected()) {
+    if (colyseusService.isConnected()) {
       console.log(`📤 Sending remove-pet message to server for ${petId}`)
-      this.colyseusClient.sendMessage("remove_pet", {
+      colyseusService.sendMessage("remove_pet", {
         petId: petId,
       })
     }
@@ -284,6 +415,46 @@ export class PetManager {
   // Get all pets data
   getAllPetsData(): Map<string, PetData> {
     return this.pets
+  }
+
+  /**
+   * Request pets state from server
+   */
+  requestPetsState(): void {
+    if (colyseusService.isConnected()) {
+      console.log("📤 [PetManager] Requesting pets state from server")
+      colyseusService.requestPetsState()
+    } else {
+      console.warn("⚠️ [PetManager] Cannot request pets state - not connected")
+    }
+  }
+
+  /**
+   * Debug method to check PetManager state
+   */
+  debugState(): void {
+    console.log("🔍 [PetManager] Debug State:", {
+      totalPets: this.pets.size,
+      activePetId: this.activePetId,
+      pets: Array.from(this.pets.keys()),
+      colyseusConnected: colyseusService.isConnected(),
+      sharedFoodCount: this.sharedDroppedFood.length,
+      sharedBallCount: this.sharedDroppedBalls.length,
+    })
+
+    for (const [petId, petData] of this.pets.entries()) {
+      console.log(`  Pet ${petId}:`, {
+        isActive: petId === this.activePetId,
+        activity: petData.pet.currentActivity,
+        position: { x: petData.pet.sprite.x, y: petData.pet.sprite.y },
+        hunger: petData.feedingSystem.hungerLevel,
+        cleanliness: petData.cleanlinessSystem.cleanlinessLevel,
+        happiness: petData.happinessSystem.happinessLevel,
+        foodInventory: petData.feedingSystem.foodInventory,
+        cleaningInventory: petData.cleanlinessSystem.cleaningInventory,
+        toyInventory: petData.happinessSystem.toyInventory,
+      })
+    }
   }
 
   // Sync pet with server data
@@ -487,7 +658,7 @@ export class PetManager {
 
       // For both online and offline mode, ensure we can drop the food
       // In online mode, we trust the server response and allow immediate drop
-      if (this.colyseusClient?.isConnected()) {
+      if (colyseusService.isConnected()) {
         // Online mode: temporarily increase inventory to allow drop
         // Server will sync the correct state later
         activePet.feedingSystem.foodInventory += 1
@@ -524,7 +695,7 @@ export class PetManager {
       console.log("🛒 Toy purchased successfully, now dropping")
 
       // For both online and offline mode, ensure we can drop the toy
-      if (this.colyseusClient?.isConnected()) {
+      if (colyseusService.isConnected()) {
         // Online mode: temporarily increase inventory to allow drop
         // Server will sync the correct state later
         activePet.happinessSystem.toyInventory += 1

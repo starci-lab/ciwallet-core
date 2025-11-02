@@ -2,7 +2,6 @@
 import { loadAllAssets } from "@/nomas/game/load/asset"
 import Phaser from "phaser"
 import { GameUI } from "@/nomas/game/ui/GameUI"
-import { ColyseusClient } from "@/nomas/game/colyseus/client"
 import { initializeGame } from "@/nomas/game/game-init"
 import { PetManager } from "@/nomas/game/managers/PetManager"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
@@ -24,6 +23,14 @@ import {
   type ActivateCursorPayload,
 } from "./events/shop/ShopEvents"
 import { HomeEvents, type PetDataUpdatePayload } from "./events/home/HomeEvents"
+import {
+  ColyseusConnectionEvents,
+  ColyseusMessageEvents,
+  type ColyseusConnectedEvent,
+  type ColyseusDisconnectedEvent,
+  type ColyseusErrorEvent,
+} from "@/nomas/game/colyseus/events"
+import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
@@ -33,7 +40,6 @@ export class GameScene extends Phaser.Scene {
   rexUI!: RexUIPlugin
   private petManager!: PetManager
   private gameUI!: GameUI
-  private colyseusClient!: ColyseusClient
   private isInitialized = false
   private backgroundImage?: Phaser.GameObjects.Image
   private pendingColyseusRoom?: unknown
@@ -41,6 +47,10 @@ export class GameScene extends Phaser.Scene {
   private _purchaseSystem?: PurchaseSystem
   private purchaseUI?: PurchaseUI
   private isMinimized = false // Minimize state
+
+  // Phaser-specific features for Colyseus
+  private lastClickPosition: { x: number; y: number } | null = null // Track last click for error notifications
+  private connectionStatusText?: Phaser.GameObjects.Text // Connection status UI
 
   constructor() {
     super({ key: SceneName.Gameplay })
@@ -82,6 +92,9 @@ export class GameScene extends Phaser.Scene {
     // Subscribe to home events and setup pet data emission
     this.setupHomeEventListeners()
 
+    // Setup Phaser-specific Colyseus features
+    this.setupColyseusPhaserFeatures()
+
     // Handle Phaser scale resize event
     this.scale.on(Phaser.Scale.Events.RESIZE, () => {
       this.handleResize()
@@ -102,7 +115,7 @@ export class GameScene extends Phaser.Scene {
       drawGrid: false,
     })
 
-    this._purchaseSystem = new PurchaseSystem(this.colyseusClient)
+    this._purchaseSystem = new PurchaseSystem()
     this.purchaseUI = new PurchaseUI(this)
   }
 
@@ -171,15 +184,40 @@ export class GameScene extends Phaser.Scene {
   }
 
   private initializeSystems() {
-    // Initialize multiplayer client first
-    this.colyseusClient = new ColyseusClient(this)
-    // Initialize pet manager
-    this.petManager = new PetManager(this, this.colyseusClient)
+    // Initialize ColyseusService references
+    // Note: ColyseusService is already initialized in ColyseusProvider
+    // We just need to set PetManager and GameUI references when they're ready
+    console.log("🔗 [GameScene] Setting up ColyseusService references...")
+
+    // Initialize pet manager (uses ColyseusService)
+    this.petManager = new PetManager(this)
+
+    // Set PetManager in ColyseusService (for future use)
+    colyseusService.setPetManager(this.petManager)
+
     // If a room was provided before systems were ready, attach it now
+    // Note: Room is now managed by ColyseusProvider via ColyseusService
     if (this.pendingColyseusRoom) {
-      this.colyseusClient.attachRoom(this.pendingColyseusRoom)
+      // Room will be set in ColyseusService by ColyseusProvider
       this.pendingColyseusRoom = undefined
     }
+
+    // Request initial pets state after a short delay to ensure connection is ready
+    this.time.delayedCall(1000, () => {
+      if (colyseusService.isConnected()) {
+        console.log("📤 [GameScene] Requesting initial pets state")
+        this.petManager.requestPetsState()
+      } else {
+        console.log(
+          "⏳ [GameScene] Waiting for connection before requesting pets state"
+        )
+        // Retry after connection is established
+        eventBus.once("colyseus:connected", () => {
+          console.log("✅ [GameScene] Connected, requesting pets state")
+          this.petManager.requestPetsState()
+        })
+      }
+    })
   }
 
   private async initializeUI() {
@@ -187,9 +225,13 @@ export class GameScene extends Phaser.Scene {
     this.gameUI = new GameUI(this, this.petManager)
     this.gameUI.create()
 
-    // Set GameUI reference in ColyseusClient for notifications
-    this.colyseusClient.setGameUI(this.gameUI)
-    await this.connectToColyseus()
+    // Set GameUI reference in ColyseusService (for notifications)
+    colyseusService.setGameUI(this.gameUI)
+    console.log(
+      "✅ [GameScene] ColyseusService references set (PetManager & GameUI)"
+    )
+
+    // Connection is handled by ColyseusProvider, no need to connect here
     reactBus.emit(ReactEventName.GameLoaded)
   }
 
@@ -382,18 +424,137 @@ export class GameScene extends Phaser.Scene {
     this.petManager.forceResetAllPets()
   }
 
-  // ===== Multiplayer wiring (for React/use-colyseus) =====
-  attachColyseusRoom(room: unknown) {
-    if (!this.colyseusClient) {
-      // Defer until systems are initialized
-      this.pendingColyseusRoom = room
-      return
+  // ===== Phaser-Specific Colyseus Features =====
+
+  /**
+   * Setup Phaser-specific features for Colyseus:
+   * - Click tracking for error notifications
+   * - Connection status UI
+   * - Event listeners for notifications
+   */
+  private setupColyseusPhaserFeatures() {
+    // Setup click tracking
+    const clickHandler = (pointer: Phaser.Input.Pointer) => {
+      this.lastClickPosition = { x: pointer.x, y: pointer.y }
     }
-    this.colyseusClient.attachRoom(room)
+    this.input.on("pointerdown", clickHandler)
+
+    // Setup connection status UI event listeners
+    const handleConnected = (event: ColyseusConnectedEvent) => {
+      this.showConnectionStatus("✅ Connected!", "#00ff00")
+      console.log("✅ [GameScene] Colyseus connected:", event.roomId)
+    }
+
+    const handleDisconnected = (event: ColyseusDisconnectedEvent) => {
+      this.showConnectionStatus("❌ Disconnected", "#ff0000")
+      console.log("👋 [GameScene] Colyseus disconnected:", event.code)
+    }
+
+    const handleError = (event: ColyseusErrorEvent) => {
+      this.showConnectionStatus("❌ Connection Error", "#ff0000")
+      console.error("❌ [GameScene] Colyseus error:", event.message)
+
+      // Show error notification at last click position
+      if (this.gameUI && this.lastClickPosition) {
+        this.gameUI.showNotification(
+          `❌ ${event.message}`,
+          this.lastClickPosition.x,
+          this.lastClickPosition.y
+        )
+      }
+    }
+
+    eventBus.on(ColyseusConnectionEvents.Connected, handleConnected)
+    eventBus.on(ColyseusConnectionEvents.Disconnected, handleDisconnected)
+    eventBus.on(ColyseusConnectionEvents.Error, handleError)
+
+    // Setup message event listeners for notifications
+    const handlePurchaseError = (message: {
+      success: boolean
+      message: string
+    }) => {
+      if (!message.success && this.gameUI && this.lastClickPosition) {
+        this.gameUI.showNotification(
+          `❌ ${message.message}`,
+          this.lastClickPosition.x,
+          this.lastClickPosition.y
+        )
+      }
+    }
+
+    const handleBuyPetError = (message: {
+      success: boolean
+      message: string
+    }) => {
+      if (!message.success && this.gameUI && this.lastClickPosition) {
+        this.gameUI.showNotification(
+          `❌ ${message.message}`,
+          this.lastClickPosition.x,
+          this.lastClickPosition.y
+        )
+      }
+    }
+
+    eventBus.on(ColyseusMessageEvents.PurchaseItemResponse, handlePurchaseError)
+    eventBus.on(ColyseusMessageEvents.BuyPetResponse, handleBuyPetError)
+
+    // Cleanup on scene shutdown
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      console.log("🧹 [GameScene] Cleaning up Colyseus event listeners")
+      this.input.off("pointerdown", clickHandler)
+      eventBus.off(ColyseusConnectionEvents.Connected, handleConnected)
+      eventBus.off(ColyseusConnectionEvents.Disconnected, handleDisconnected)
+      eventBus.off(ColyseusConnectionEvents.Error, handleError)
+      eventBus.off(
+        ColyseusMessageEvents.PurchaseItemResponse,
+        handlePurchaseError
+      )
+      eventBus.off(ColyseusMessageEvents.BuyPetResponse, handleBuyPetError)
+    })
   }
 
-  async connectToColyseus(url: string = envConfig().colyseus.endpoint) {
-    await this.colyseusClient.connect(url)
+  /**
+   * Show connection status text in Phaser scene
+   */
+  private showConnectionStatus(text: string, color: string = "#ff0000") {
+    // Remove previous status text if exists
+    if (this.connectionStatusText) {
+      this.connectionStatusText.destroy()
+    }
+
+    // Create new status text
+    this.connectionStatusText = this.add
+      .text(10, 70, text)
+      .setStyle({ color, fontSize: "12px" })
+      .setPadding(4)
+
+    // Auto-hide after 3 seconds (except for errors which persist until reconnection)
+    if (text.includes("✅")) {
+      this.time.delayedCall(3000, () => {
+        if (this.connectionStatusText) {
+          this.connectionStatusText.destroy()
+          this.connectionStatusText = undefined
+        }
+      })
+    }
+  }
+
+  // ===== Multiplayer wiring (for React/use-colyseus) =====
+  // Deprecated: Room is now managed by ColyseusProvider via ColyseusService
+  // This method is kept for backward compatibility but does nothing
+  attachColyseusRoom(_room: unknown) {
+    console.log(
+      "⚠️ [GameScene] attachColyseusRoom is deprecated - room is managed by ColyseusProvider"
+    )
+    // Room is automatically set in ColyseusService by ColyseusProvider
+  }
+
+  // Deprecated: Connection is now handled by ColyseusProvider
+  async connectToColyseus(_url: string = envConfig().colyseus.endpoint) {
+    console.log(
+      "⚠️ [GameScene] connectToColyseus is deprecated - connection is handled by ColyseusProvider"
+    )
+    // Connection is automatically handled by ColyseusProvider
   }
 
   // Create or update background image
@@ -493,8 +654,8 @@ export class GameScene extends Phaser.Scene {
     quantity: number
     itemId: string
   }) {
-    if (!this.colyseusClient) return
-    this.colyseusClient.purchaseItem(
+    if (!colyseusService.isConnected()) return
+    colyseusService.purchaseItem(
       payload.itemType,
       payload.itemName,
       payload.quantity,

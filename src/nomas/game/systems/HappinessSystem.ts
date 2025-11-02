@@ -1,7 +1,7 @@
 import { Pet } from "../entities/Pet"
 import { GAME_MECHANICS } from "../constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
-import type { ColyseusClient } from "@/nomas/game/colyseus/client"
+import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
 import { spendToken, store } from "@/nomas/redux"
 
 // Happiness states
@@ -31,12 +31,10 @@ export class HappinessSystem {
     // Private properties
     private lastHappinessUpdate: number = 0
     private pet: Pet
-    private colyseusClient: ColyseusClient
     private petId: string
 
-    constructor(pet: Pet, colyseusClient: ColyseusClient, petId: string) {
+    constructor(pet: Pet, _colyseusClient: unknown, petId: string) {
         this.pet = pet
-        this.colyseusClient = colyseusClient
         this.petId = petId
     }
 
@@ -75,7 +73,7 @@ export class HappinessSystem {
         console.log(`🛒 Buying toy: ${toy.name}`)
         const toyPrice = toy.price
 
-        if (this.colyseusClient && this.colyseusClient.isConnected()) {
+        if (colyseusService.isConnected()) {
             console.log(
                 "🌐 Checking tokens before sending purchase request to server"
             )
@@ -93,7 +91,7 @@ export class HappinessSystem {
             const toyItem = gameConfigManager.getToyItem(toyId)
             const itemName = toyItem?.name || toyId // Fallback to toyId if name not found
 
-            this.colyseusClient.purchaseItem("toys", itemName, 1, toyId)
+            colyseusService.purchaseItem("toys", itemName, 1, toyId)
 
             return true // Server will handle validation and update inventory
         } else {
@@ -126,9 +124,9 @@ export class HappinessSystem {
         )
 
         // Send played pet event to server if connected
-        if (this.colyseusClient && this.colyseusClient.isConnected()) {
+        if (colyseusService.isConnected()) {
             const userStore = store.getState().stateless.user
-            this.colyseusClient.playedPet({
+            colyseusService.playedPet({
                 happiness_level: this.happinessLevel,
                 pet_id: this.petId,
                 owner_id: userStore.addressWallet || "unknown",

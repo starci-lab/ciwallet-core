@@ -1,9 +1,9 @@
-import type { ColyseusClient } from "@/nomas/game/colyseus/client"
+import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
+import { ColyseusMessageEvents } from "@/nomas/game/colyseus/events"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { eventBus } from "@/nomas/game/event-bus"
-import { setNomToken, store } from "@/nomas/redux"
+// Note: Removed setNomToken and store imports - token updates handled by useColyseusReduxSync
 
-// Export eventBus for other modules
 export { eventBus }
 
 // Purchase events for UI feedback
@@ -31,37 +31,36 @@ export interface PurchaseResponse {
 /**
  * PurchaseSystem handles all item purchases with server-first approach.
  * Client only handles UI/animations, server handles all economic logic.
+ *
+ * Migrated to use ColyseusService (event-based) instead of ColyseusClient.
  */
 export class PurchaseSystem {
-    private colyseusClient: ColyseusClient
     private pendingPurchases: Map<string, PurchaseRequest> = new Map()
     private purchaseIdCounter = 0
     private retryTimers: Map<string, number> = new Map()
 
-    constructor(colyseusClient: ColyseusClient) {
-        this.colyseusClient = colyseusClient
+    constructor() {
         this.setupEventListeners()
     }
 
     private setupEventListeners() {
-    // Listen for server responses
-        if (this.colyseusClient.room) {
-            this.colyseusClient.room.onMessage(
-                "purchase_response",
-                (message: {
-          purchaseId: string
-          success: boolean
-          message: string
-          currentTokens?: number
-          itemData?: unknown
-        }) => {
-                    this.handlePurchaseResponse(message)
-                }
-            )
-        }
+    // Listen for purchase_item_response events from ColyseusService
+    // This replaces the old room.onMessage("purchase_response") pattern
+        eventBus.on(
+            ColyseusMessageEvents.PurchaseItemResponse,
+            (message: {
+        purchaseId: string
+        success: boolean
+        message: string
+        currentTokens?: number
+        itemData?: unknown
+      }) => {
+                this.handlePurchaseResponse(message)
+            }
+        )
 
-        // Also listen to forwarded responses from networking layer (e.g., when
-        // the client receives "purchase_item_response" and forwards as eventBus)
+        // Also listen to legacy "purchase_response" for backward compatibility
+        // during migration period
         eventBus.on(
             "purchase_response",
             (message: {
@@ -149,17 +148,17 @@ export class PurchaseSystem {
         purchaseId: string,
         request: PurchaseRequest
     ): void {
-        if (!this.colyseusClient.isConnected()) {
+        if (!colyseusService.isConnected()) {
             // Retry sending a few times until connected
             let attempts = 0
             const maxAttempts = 10
             const intervalMs = 500
             const timerId = window.setInterval(() => {
                 attempts += 1
-                if (this.colyseusClient.isConnected()) {
+                if (colyseusService.isConnected()) {
                     window.clearInterval(timerId)
                     this.retryTimers.delete(purchaseId)
-                    this.colyseusClient.sendMessage("purchase_item", {
+                    colyseusService.sendMessage("purchase_item", {
                         purchaseId,
                         itemType: request.itemType,
                         itemId: request.itemId,
@@ -180,8 +179,8 @@ export class PurchaseSystem {
             return
         }
 
-        // Send purchase request to server (connected)
-        this.colyseusClient.sendMessage("purchase_item", {
+        // Send purchase request to server via ColyseusService (connected)
+        colyseusService.sendMessage("purchase_item", {
             purchaseId,
             itemType: request.itemType,
             itemId: request.itemId,
@@ -217,11 +216,9 @@ export class PurchaseSystem {
         this.pendingPurchases.delete(purchaseId)
 
         if (success) {
-            // Update client state from server response
-            if (currentTokens !== undefined) {
-                store.dispatch(setNomToken(currentTokens))
-                console.log(`💰 Tokens updated from server: ${currentTokens}`)
-            }
+            // Note: Token updates are handled by useColyseusReduxSync hook
+            // This ensures single source of truth for Redux state updates
+            // Don't dispatch here to avoid duplicate updates
 
             // Emit success event for UI animations
             eventBus.emit(PurchaseEvents.PurchaseSuccess, {
@@ -229,7 +226,7 @@ export class PurchaseSystem {
                 itemType: pendingPurchase.itemType,
                 itemId: pendingPurchase.itemId,
                 quantity: pendingPurchase.quantity,
-                newTokenBalance: currentTokens,
+                newTokenBalance: currentTokens, // Pass for UI display, but Redux is updated by hook
                 itemData,
             })
 
@@ -281,7 +278,7 @@ export class PurchaseSystem {
     cancelPurchase(purchaseId: string): boolean {
         if (this.pendingPurchases.has(purchaseId)) {
             this.pendingPurchases.delete(purchaseId)
-            this.colyseusClient.sendMessage("cancel_purchase", { purchaseId })
+            colyseusService.sendMessage("cancel_purchase", { purchaseId })
             return true
         }
         return false
@@ -289,6 +286,6 @@ export class PurchaseSystem {
 
     /** Public connection check for UI */
     isConnected(): boolean {
-        return this.colyseusClient.isConnected()
+        return colyseusService.isConnected()
     }
 }
