@@ -115,6 +115,7 @@ export interface SessionSlice {
   explorers: Partial<Record<ChainId, ExplorerId>>
   // game minimized
   isGameMinimized: boolean
+  isOverlayVisible: boolean
 }
 
 /* -----------------------------
@@ -374,6 +375,7 @@ const initialState: SessionSlice = {
         [ChainId.Fantom]: ExplorerId.Ftmscan,
     },
     isGameMinimized: false,
+    isOverlayVisible: false,
 }
 /* -----------------------------
  * Slice
@@ -461,6 +463,9 @@ export const sessionSlice = createSlice({
         },
         setIsGameMinimized: (state, action: PayloadAction<boolean>) => {
             state.isGameMinimized = action.payload
+        },
+        setIsOverlayVisible: (state, action: PayloadAction<boolean>) => {
+            state.isOverlayVisible = action.payload
         },
     },
     extraReducers: (builder) => {
@@ -678,6 +683,7 @@ export const {
     removeTrackingTokenId,
     removeTrackingUnifiedTokenId,
     setIsGameMinimized,
+    setIsOverlayVisible,
 } = sessionSlice.actions
 
 export const {
