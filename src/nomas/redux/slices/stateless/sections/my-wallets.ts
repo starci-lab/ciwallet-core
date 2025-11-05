@@ -24,7 +24,7 @@ export enum MyWalletsManagementTab {
     ImportedWallets = "imported-wallets",
 }
 
-export interface MyWalletsSectionSlice {
+export interface MyWalletsSlice {
     page: MyWalletsPage;
     selectedPlatform: Platform;
     selectedPrivateKeyPlatform: Platform;
@@ -36,7 +36,7 @@ export interface MyWalletsSectionSlice {
     use24Words: boolean;
 }
 
-const initialState: MyWalletsSectionSlice = {
+const initialState: MyWalletsSlice = {
     page: MyWalletsPage.Accounts,
     selectedPlatform: Platform.Evm,
     selectedPrivateKeyPlatform: Platform.Evm,
@@ -48,8 +48,8 @@ const initialState: MyWalletsSectionSlice = {
     use24Words: true,
 }
 
-export const myWalletsSectionSlice = createSlice({
-    name: "myWalletsSection",
+export const myWalletsSlice = createSlice({
+    name: "myWallets",
     initialState,
     reducers: {
         setMyWalletsPage: (state, action: PayloadAction<MyWalletsPage>) => {
@@ -82,5 +82,5 @@ export const myWalletsSectionSlice = createSlice({
     },
 })
 
-export const { setMyWalletsPage, setSelectedPlatform, setSelectedPrivateKeyPlatform, setHdWalletsAccordionAccountId, setManagementTab, setHdWalletId, setSelectedImportedWalletId, setSelectedHDWalletCreationType, setUseImportedHDWallet24Words } = myWalletsSectionSlice.actions
-export const myWalletsSectionReducer = myWalletsSectionSlice.reducer
+export const { setMyWalletsPage, setSelectedPlatform, setSelectedPrivateKeyPlatform, setHdWalletsAccordionAccountId, setManagementTab, setHdWalletId, setSelectedImportedWalletId, setSelectedHDWalletCreationType, setUseImportedHDWallet24Words } = myWalletsSlice.actions
+export const myWalletsReducer = myWalletsSlice.reducer

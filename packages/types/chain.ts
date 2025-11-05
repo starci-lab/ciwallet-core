@@ -10,6 +10,7 @@ export enum ChainId {
     Fantom = "fantom",
     Arbitrum = "arbitrum",
     Base = "base",
+    Hyperliquid = "hyperliquid",
 }
 
 export enum Network {

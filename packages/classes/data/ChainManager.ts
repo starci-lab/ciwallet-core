@@ -14,6 +14,15 @@ export class ChainManager {
             },
         },
         {
+            id: ChainId.Hyperliquid,
+            name: "Hyperliquid",
+            iconUrl: "/assets/chains/hyperliquid.webp",
+            explorerUrl: {
+                [Network.Mainnet]: "https://rpc.hyperliquid.xyz/evm",
+                [Network.Testnet]: "https://rpc.hyperliquid-testnet.xyz/evm",
+            },
+        },
+        {
             id: ChainId.Aptos,
             name: "Aptos",
             iconUrl: "/assets/chains/aptos.png",

@@ -18,8 +18,8 @@ const initialState: SettingsSectionSlice = {
     rpcChainId: ChainId.Monad,
 }
 
-export const settingsSectionSlice = createSlice({
-    name: "settingsSection",
+export const settingsSlice = createSlice({
+    name: "settings",
     initialState,
     reducers: {
         setSettingsPage: (state, action: PayloadAction<SettingsPage>) => {
@@ -31,5 +31,5 @@ export const settingsSectionSlice = createSlice({
     },
 })
 
-export const { setSettingsPage, setRPCChainId } = settingsSectionSlice.actions
-export const settingsSectionReducer = settingsSectionSlice.reducer
+export const { setSettingsPage, setRPCChainId } = settingsSlice.actions
+export const settingsReducer = settingsSlice.reducer

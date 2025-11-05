@@ -32,6 +32,12 @@ export const assetsConfig = () => {
             sui: getUrl("/assets/tokens/sui.jpeg"),
             usdc: getUrl("/assets/tokens/usdc.svg"),
         },
+        hyperliquid: {
+            logo: getUrl("/assets/hyperliquid/logo.svg"),
+            btc: getUrl("/assets/hyperliquid/btc.svg"),
+            eth: getUrl("/assets/hyperliquid/eth.svg"),
+            sol: getUrl("/assets/hyperliquid/sol.svg"),
+        },
         chains: {
             bsc: {
                 iconUrl: getUrl("/assets/chains/bsc.svg"),
