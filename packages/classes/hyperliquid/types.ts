@@ -8,7 +8,7 @@ export enum HyperliquidDepositAsset {
     Sol = "sol",
     TwoZ = "2z",
     Bonk = "bonk",
-    Fartcoin = "fartcoin",
+    Fartcoin = "fart",
     Pump = "pump",
     Spx = "spx",
     Xpl = "xpl",

@@ -22,6 +22,10 @@ export const TokenIcons = ({ platform }: TokenIconsProps) => {
         return <div className="flex items-center gap-2">
             <RenderTokenIcons chains={chainManagerObj.getChainsByPlatform(platform)} />
         </div>
+    case Platform.Bitcoin:
+        return <div className="flex items-center gap-2">
+            <RenderTokenIcons chains={chainManagerObj.getChainsByPlatform(platform)} />
+        </div>
     default:
         throw new Error(`Unsupported platform: ${platform}`)
     }

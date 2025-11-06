@@ -28,7 +28,7 @@ export const SelectAssetPage = () => {
                                 if (refs.length > 0) {
                                     dispatch(setDepositSourceChainId(refs[0].chainId ?? ChainId.Arbitrum))
                                 }
-                                dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
+                                dispatch(setPerpSectionPage(PerpSectionPage.SourceChain))
                             }} className={
                                 twMerge("p-4 flex items-center gap-2 justify-between rounded-button w-full", 
                                     depositCurrentAsset === depositAssetInfo.asset ? "py-4 bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")

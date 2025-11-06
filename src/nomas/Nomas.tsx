@@ -20,6 +20,7 @@ import { NomasToaster } from "@/nomas/components"
 import { EventEmitter } from "eventemitter3"
 import { useContentBus } from "./hooks"
 import { AnimatePresence } from "framer-motion"
+import { SWRConfig } from "swr"
 
 export interface NomasProps {
     contentEventBus?: EventEmitter
@@ -40,17 +41,21 @@ export const Nomas = ({ contentEventBus }: NomasProps) => {
             }}
         >
             <ReduxProvider>
-                <SingletonHookProvider>
-                    <IconContext.Provider
-                        value={{
-                            className: "h-5 w-5",
-                        }}
-                    >
-                        <div className="font-sans w-full h-full relative text-text">
-                            <NomasContent contentEventBus={contentEventBus} />
-                        </div>
-                    </IconContext.Provider>
-                </SingletonHookProvider>
+                <SWRConfig value={{
+                    provider: () => new Map()
+                }}>
+                    <SingletonHookProvider>
+                        <IconContext.Provider
+                            value={{
+                                className: "h-5 w-5",
+                            }}
+                        >
+                            <div className="font-sans w-full h-full relative text-text">
+                                <NomasContent contentEventBus={contentEventBus} />
+                            </div>
+                        </IconContext.Provider>
+                    </SingletonHookProvider>
+                </SWRConfig>
             </ReduxProvider>
         </WalletKitProvider>
     )

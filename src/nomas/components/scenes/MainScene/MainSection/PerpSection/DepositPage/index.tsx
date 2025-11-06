@@ -6,6 +6,8 @@ import {
     Snippet,
     NomasSpacer,
     TooltipTitle,
+    NomasCardFooter,
+    NomasButton,
 } from "@/nomas/components"
 import {
     PerpSectionPage,
@@ -14,11 +16,10 @@ import {
     useAppDispatch,
     useAppSelector,
 } from "@/nomas/redux"
-import { ChainId } from "@ciwallet-sdk/types"
+import { ChainId, Platform } from "@ciwallet-sdk/types"
 import { useHyperunitGenerateAddressSwrMutation } from "@/nomas/hooks"
-import { chainIdToPlatform, shortenAddress } from "@ciwallet-sdk/utils"
+import { shortenAddress } from "@ciwallet-sdk/utils"
 import { SelectAsset } from "./SelectAsset"
-import { SourceChain } from "./SourceChain"
 
 export const DepositPage = () => {
     const dispatch = useAppDispatch()
@@ -33,10 +34,11 @@ export const DepositPage = () => {
     const depositSourceChainId = useAppSelector(
         (state) => state.stateless.sections.perp.depositSourceChainId
     )
+    // your destination account address
     const destinationAccount = useAppSelector((state) =>
         selectSelectedAccountByPlatform(
             state.persists,
-            chainIdToPlatform(depositSourceChainId)
+            Platform.Evm
         )
     )
     const network = useAppSelector((state) => state.persists.session.network)
@@ -48,6 +50,8 @@ export const DepositPage = () => {
                 asset: depositCurrentAsset,
                 destinationAddress: destinationAccount?.accountAddress || "",
                 network,
+            }, {
+                populateCache: true,
             })
         }
         handleEffect()
@@ -66,33 +70,45 @@ export const DepositPage = () => {
                 }}
             />
             <NomasCardBody>
-                <TooltipTitle title="Select Asset" size="sm" className="text"/>
                 <NomasSpacer y={2} />
-                <SelectAsset />
-                <NomasSpacer y={4} />
-                <TooltipTitle title="Source Chain" size="sm" className="text"/>
-                <NomasSpacer y={2} />
-                <SourceChain />
+                <SelectAsset />  
                 {depositSourceChainId !== ChainId.Arbitrum && (
-                    <div className="flex items-center gap-2">
-                        <NomasSkeleton
-                            className="h-5 w-25"
-                            isLoading={hyperunitGenerateAddressSwrMutation.isMutating}
-                        >
-                            <div>
-                                {shortenAddress(
-                                    hyperunitGenResponse[depositCurrentAsset]?.address || ""
-                                )}
+                    <>
+                        <NomasSpacer y={4} />
+                        <div className="flex items-center justify-between">
+                            <TooltipTitle title="Destination Address" size="sm" className="text"/>
+                            <div className="flex items-center gap-2">
+                                <NomasSkeleton
+                                    className="h-5 w-25"
+                                    isLoading={hyperunitGenerateAddressSwrMutation.isMutating}
+                                >
+                                    <div className="text-sm text-text">
+                                        {shortenAddress(
+                                            hyperunitGenResponse[depositCurrentAsset]?.address || ""
+                                        )}
+                                    </div>
+                                </NomasSkeleton>
+                                <Snippet
+                                    copyString={
+                                        hyperunitGenResponse[depositCurrentAsset]?.address || ""
+                                    }
+                                />
                             </div>
-                        </NomasSkeleton>
-                        <Snippet
-                            copyString={
-                                hyperunitGenResponse[depositCurrentAsset]?.address || ""
-                            }
-                        />
-                    </div>
+                        </div>
+                    </>
                 )}
             </NomasCardBody>
+            <NomasCardFooter>
+                <NomasButton
+                    className="w-full"
+                    xlSize
+                    onClick={() => {
+                        dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
+                    }}
+                >
+                    Deposit
+                </NomasButton>
+            </NomasCardFooter>
         </>
     )
 }

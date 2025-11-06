@@ -20,7 +20,7 @@ export const SourceChainPage = () => {
                 title="Select Source Chain"
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
+                    dispatch(setPerpSectionPage(PerpSectionPage.SelectAsset))
                 }}
             />
             <NomasCardBody>
