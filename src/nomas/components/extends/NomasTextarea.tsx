@@ -87,7 +87,7 @@ export const NomasTextarea = React.forwardRef<HTMLTextAreaElement, NomasTextarea
                         rows={minRows}
                         spellCheck={false}
                         className={twMerge(
-                            "resize-none outline-none border-none bg-transparent flex-1 text-sm text leading-relaxed w-full p-3",
+                            "resize-none outline-none border-none bg-transparent flex-1 text-sm text-textleading-relaxed w-full p-3",
                             "placeholder:text-muted focus:ring-0 focus-visible:ring-0"
                         )}
                         {...props}

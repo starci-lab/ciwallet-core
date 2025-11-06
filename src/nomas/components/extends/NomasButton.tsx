@@ -13,19 +13,22 @@ export interface NomasButtonProps extends HTMLMotionProps<"button"> {
   endIcon?: React.ReactNode
   noShadow?: boolean
   children: React.ReactNode
+  roundedFull?: boolean
 }
 
 export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>(
-    ({ className, isLoading, isDisabled, xlSize, startIcon, endIcon, noShadow, ...props }, ref) => {
+    ({ className, isLoading, isDisabled, xlSize, startIcon, endIcon, noShadow, roundedFull, ...props }, ref) => {
         return (
             <motion.button
                 ref={ref}
                 whileTap={{ scale: 0.95 }}
                 className={
                     twMerge(
+                        "rounded-button",
                         "block flex items-center relative px-4 gap-2 justify-center",
-                        "shadow-button bg-button-dark h-10 radius-button text-muted cursor-pointer",
-                        xlSize && "h-14 text",
+                        "shadow-button bg-button-dark hover:bg-button-dark-hover h-10 text-text-muted cursor-pointer",
+                        roundedFull && "!rounded-full",
+                        xlSize && "h-14",
                         noShadow && "!shadow-none bg-button",
                         className
                     )}
@@ -43,14 +46,15 @@ export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>
 NomasButton.displayName = "NomasButton"
 
 export const NomasButtonIcon = React.forwardRef<HTMLButtonElement, NomasButtonProps>(
-    ({ className, children, ...props }, ref) => {
+    ({ className, children, roundedFull, ...props }, ref) => {
         return (
             <motion.button
                 ref={ref}
                 whileTap={{ scale: 0.95 }}
                 className={
                     twMerge(
-                        "shadow-button bg-button rounded-full w-8 h-8 text cursor-pointer flex items-center justify-center",
+                        "shadow-button bg-button w-8 h-8 text-text cursor-pointer flex items-center justify-center",
+                        roundedFull ? "rounded-full" : "rounded-button",
                         className
                     )}
                 {...props}
@@ -90,7 +94,7 @@ const NomasButtonTextWithIconCore: React.FC<NomasButtonTextWithIconProps> = (pro
         <div
             className={twMerge(
                 "flex items-center justify-center",
-                "grid place-items-center h-full px-3 bg-button-nohover transition-colors duration-200 group-hover:bg-button-hover"
+                "grid place-items-center h-full px-3 bg-button transition-colors duration-200 group-hover:bg-button-hover"
             )}
         >
             {icon}
@@ -101,12 +105,12 @@ const NomasButtonTextWithIconCore: React.FC<NomasButtonTextWithIconProps> = (pro
         <NomasButton
             className={twMerge(
                 // Base styles
-                "group relative p-0 w-fit bg-button-dark text rounded-full text-muted cursor-pointer flex items-center justify-center overflow-hidden",
+                "group relative p-0 w-fit bg-button-dark rounded-button text-text-muted cursor-pointer flex items-center justify-center overflow-hidden",
                 props.className
             )}
             {...rest}
         >
-            <div className="absolute w-full h-full shadow-button radius-button"/>
+            <div className="absolute w-full h-full shadow-button rounded-button"/>
             {iconPosition === "start" && iconElement}
             <div className="pl-3">
                 {useGradient ? (

@@ -11,7 +11,7 @@ export const BalanceSection = () => {
             <NomasCardHeader className="justify-between items-center py-4">
                 <div className="flex flex-row items-center gap-3">
                     <div className="relative">
-                        <NomasButtonIcon>
+                        <NomasButtonIcon roundedFull>
                             <Bell size={18} />
                         </NomasButtonIcon>
                         {/* Notification dot */}
@@ -20,10 +20,10 @@ export const BalanceSection = () => {
                     <p className="text-foreground font-medium">Teddy</p>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                    <NomasButtonIcon>
+                    <NomasButtonIcon roundedFull>
                         <CopySimple size={18} />
                     </NomasButtonIcon>
-                    <NomasButtonIcon>
+                    <NomasButtonIcon roundedFull>
                         <Gear size={18} />
                     </NomasButtonIcon>
                 </div>

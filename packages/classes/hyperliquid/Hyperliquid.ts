@@ -1,5 +1,7 @@
 import { ChainId, Network, TokenId } from "@ciwallet-sdk/types"
 import { HyperliquidDepositAsset, type HyperliquidDepositAssetInfo } from "./types"
+import * as hl from "@nktkas/hyperliquid"
+import { privateKeyToAccount } from "viem/accounts"
 
 export enum HyperliquidMarketId {
     BTC = "BTC",
@@ -13,6 +15,14 @@ export interface HyperliquidMetadata {
 }
 
 export class Hyperliquid {
+    private readonly getExchangeClient = (network: Network, privateKey: string) => {
+        return new hl.ExchangeClient({
+            transport: new hl.HttpTransport({
+                isTestnet: network === Network.Testnet,
+            }),
+            wallet: privateKeyToAccount(privateKey as `0x${string}`),
+        })
+    }
     constructor() {}
 
     getMarketMetadata(marketId: HyperliquidMarketId): HyperliquidMetadata {
@@ -81,6 +91,37 @@ export class Hyperliquid {
     ): HyperliquidDepositAssetInfo {
         return this.getDepositAssetInfos().find((item) => item.asset === asset)!
     }
+
+    async approveAgent(
+        {
+            privateKey,
+            accountAddress,
+            network,
+        }: ApproveAgentParams,
+    ): Promise<ApproveAgentResponse> {
+        const exchangeClient = this.getExchangeClient(network, privateKey)
+        const result = await exchangeClient.approveAgent({
+            agentAddress: accountAddress,
+            agentName: "NomasWalletHyperliquid",
+        })
+        if (result.status !== "ok") {
+            throw new Error("Failed to approve agent")
+        }
+        // return "ok" message
+        return { status: result.status }
+    }
 }   
 
 export type CandleInterval = "1m" | "5m" | "15m" | "30m" | "1h" | "4h" | "1d"
+
+
+export interface ApproveAgentParams {
+    network: Network
+    accountAddress: string
+    // we take ethereum private key here because we need to aprrove agent
+    privateKey: string
+}
+
+export interface ApproveAgentResponse {
+    status: string
+}

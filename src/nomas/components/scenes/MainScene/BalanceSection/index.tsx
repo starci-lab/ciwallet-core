@@ -17,16 +17,16 @@ export const BalanceSection = () => {
             <NomasCardHeader addDivider hideLeftBlankSpace>
                 <div className="flex flex-row items-center gap-2 justify-between w-full">
                     <div className="flex items-center gap-2">
-                        <NomasButtonIcon className="radius-button" onClick={() => dispatch(setScene(Scene.MyWallets))}>
-                            <CardholderIcon className="min-w-5 min-h-5 text-muted w-5 h-5" />
+                        <NomasButtonIcon roundedFull onClick={() => dispatch(setScene(Scene.MyWallets))}>
+                            <CardholderIcon className="min-w-5 min-h-5 text-text-muted w-5 h-5" />
                         </NomasButtonIcon>
-                        <NomasButtonIcon className="radius-button" onClick={() => dispatch(setScene(Scene.CopyAddress))}>
-                            <CopyIcon className="min-w-5 min-h-5 text-muted w-5 h-5" />
+                        <NomasButtonIcon roundedFull onClick={() => dispatch(setScene(Scene.CopyAddress))}>
+                            <CopyIcon className="min-w-5 min-h-5 text-text-muted w-5 h-5" />
                         </NomasButtonIcon>
                     </div>
                     <div className="flex items-center gap-2">
-                        <NomasButtonIcon className="radius-button" onClick={() => dispatch(setScene(Scene.Settings))}>
-                            <GearIcon className="min-w-5 min-h-5 text-muted w-5 h-5" />
+                        <NomasButtonIcon roundedFull onClick={() => dispatch(setScene(Scene.Settings))}>
+                            <GearIcon className="min-w-5 min-h-5 text-text-muted w-5 h-5" />
                         </NomasButtonIcon>
                     </div>
                 </div>

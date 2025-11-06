@@ -42,14 +42,14 @@ export const TokenCard2 = ({
                             <NomasImage src={chain?.iconUrl} className="absolute bottom-0 right-0 z-50 w-5 h-5 rounded-full" />
                         </div>
                         <div className="flex flex-col">
-                            <div className="text-sm text">{token.name}</div>
+                            <div className="text-sm text-text">{token.name}</div>
                             <div className="text-xs text-muted">{token.symbol}</div>
                         </div>
                     </div>
         
                     {/* Right: balance */}
                     <div className="flex flex-col text-right">
-                        <div className="text-sm text">{balance ?? 0}</div>
+                        <div className="text-sm text-text">{balance ?? 0}</div>
                         <div className="text-xs text-foreground-500 text-muted">${roundNumber((balance ?? 0) * (price ?? 0), 5)}</div>
                     </div>
                 </NomasCardBody>

@@ -46,8 +46,8 @@ export interface BalanceWalletProps extends WithClassName {
 const BalanceWallet = ({ balance, className }: BalanceWalletProps) => {
     return (
         <div className={twMerge("flex items-center gap-1", className)}>
-            <WalletIcon className={twMerge("w-4 h-4 text", className)} />
-            <div className={twMerge("text-xs text", className)}>{balance}</div>
+            <WalletIcon className={twMerge("w-4 h-4 text-text", className)} />
+            <div className={twMerge("text-xs text-text", className)}>{balance}</div>
         </div>
     )
 }

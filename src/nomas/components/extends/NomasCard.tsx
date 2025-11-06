@@ -29,19 +29,19 @@ export interface NomasCardProps extends React.ComponentProps<typeof Card> {
 }
 
 const cardCva = cva(
-    "radius-card border text-text shadow-card py-0 gap-0 overflow-hidden", // base styles
+    "rounded-card border text-text shadow-shadow-card py-0 gap-0 overflow-hidden", // base styles
     {
         variants: {
             variant: {
-                gradient: "bg-card-gradient border-card", // gradient variant
-                gradient2: "bg-card-gradient2 border-card", // gradient2 variant
+                gradient: "bg-card-gradient border-border-card", // gradient variant
+                gradient2: "bg-card-gradient2 border-border-card", // gradient2 variant
                 transparent: "bg-transparent border-none !shadow-none !border-none", // transparent variant
-                dark: "border-card bg-card-dark !shadow-none", // dark variant
-                button: "bg-button shadow-button radius-button cursor-pointer border-none", // button variant
+                dark: "border-border-card bg-card-dark !shadow-none", // dark variant
+                button: "bg-button shadow-button rounded-button cursor-pointer border-none", // button variant
             },
             isInner: {
-                true: "radius-card-inner",
-                false: "radius-card",
+                true: "rounded-card-inner",
+                false: "rounded-card",
             },
             isContainer: {
                 true: "min-w-[400px] w-[400px] max-w-[400px]",
@@ -96,6 +96,7 @@ export const NomasCardHeader = React.forwardRef<
                 {showBackButton ? (
                     <NomasButtonIcon
                         onClick={onBackButtonPress}
+                        roundedFull
                     >
                         <ArrowLeftIcon className="w-5 h-5 text-muted" />
                     </NomasButtonIcon>
@@ -106,7 +107,7 @@ export const NomasCardHeader = React.forwardRef<
                 {/* Center: title & description */}
                 <div className="flex-1 text-center">
                     {title && (
-                        <CardTitle className="text-lg font-semibold text-muted flex items-center gap-2 justify-center">
+                        <CardTitle className="text-lg font-semiboldtext-text-muted flex items-center gap-2 justify-center">
                             {startIcon}
                             {title}
                         </CardTitle>
@@ -119,7 +120,7 @@ export const NomasCardHeader = React.forwardRef<
             {description && (
                 <>
                     <NomasSpacer y={4} />
-                    <CardDescription className="text-sm text-muted text-center text-muted-dark">
+                    <CardDescription className="text-smtext-text-muted text-center text-text-muted-dark">
                         {description}
                     </CardDescription>
                 </>

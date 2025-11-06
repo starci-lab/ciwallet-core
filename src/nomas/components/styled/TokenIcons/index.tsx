@@ -45,7 +45,7 @@ const RenderTokenIcons = ({ chains }: RenderTokenIconsProps) => {
             ))}
 
             {remaining > 0 && (
-                <span className="text-xs text-muted bg-muted/20 w-5 h-5 rounded-full grid place-items-center">+{remaining}</span>
+                <span className="text-xstext-text-muted bg-muted/20 w-5 h-5 rounded-full grid place-items-center">+{remaining}</span>
             )}
         </div>
     )

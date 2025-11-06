@@ -4,47 +4,49 @@
 :host, :root {
   /* Font */
   --font-sans: "Plus Jakarta Sans Variable", sans-serif;
-  /* Primary text color (white) — used for titles and main content */
-  --text: hsl(0 0% 100%);
-  --text-dark: hsl(0 0% 0%);
-  /* Muted text color (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text */
-  --text-muted: hsl(0 0% 70.2%);
+
+  /* Colors */
+  /* Primary text-textcolor (white) — used for titles and main content */
+  --color-text: hsl(0 0% 100%);
+  --color-text-dark: hsl(0 0% 0%);
+  /* Muted text-textcolor (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text-text*/
+  --color-text-muted: hsl(0 0% 70.2%);
   /* Muted background color */
-  --bg-muted: hsl(0 0% 70.2%);
+  --color-muted: hsl(0 0% 70.2%);
   /* Border color */
-  --border: hsl(0 0% 29.8%);
-  /* Muted text color (dark gray ~ #505050) — used for descriptions, placeholders, or less important text */
-  --text-muted-dark: hsl(0 0% 29.8%);
-  /* Muted hover text color */
-  --text-muted-hover:hsl(0 0% 80%);
+  --color-border: hsl(0 0% 29.8%);
+  /* Muted text-textcolor (dark gray ~ #505050) — used for descriptions, placeholders, or less important text-text*/
+  --color-text-muted-dark: hsl(0 0% 29.8%);
+  /* Muted hover text-textcolor */
+  --color-text-muted-hover:hsl(0 0% 80%);
   /* Card dark color */
-  --card-dark: hsl(0 0% 6.3%);
+  --color-card-dark: hsl(0 0% 6.3%);
   /* Card dark 2 color */
-  --card-dark-2: hsl(0 0% 2.7%); 
+  --color-card-dark-2: hsl(0 0% 2.7%); 
   /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
-  --card-gradient: linear-gradient(0deg, hsl(0, 0%, 16%) 0%, hsl(0, 0%, 8%) 100%);
-  --card-gradient2: linear-gradient(0deg, hsl(0, 0%, 10%) 0%, hsl(0, 0%, 3%) 100%);
+  --color-card-gradient: linear-gradient(0deg, hsl(0, 0%, 16%) 0%, hsl(0, 0%, 8%) 100%);
+  --color-card-gradient2: linear-gradient(0deg, hsl(0, 0%, 10%) 0%, hsl(0, 0%, 3%) 100%);
   /* Card foreground color */
-  --card-foreground: 	hsl(240, 8%, 7%);
+  --color-card-foreground: 	hsl(240, 8%, 7%);
   /* Card radius */
-  --card-radius: 32px;
+  --radius-card: 32px;
   /* Switch background color */
-  --bg-switch-background: hsl(0 0% 6.3%);
+  --color-switch-background: hsl(0 0% 6.3%);
   /* Switch thumb color */
-  --bg-switch-thumb: hsl(0 0% 80%);
+  --color-switch-thumb: hsl(0 0% 80%);
   /* Switch thump active color */
-  --bg-switch-background-active: hsl(0 0% 22%);
+  --color-switch-background-active: hsl(0 0% 22%);
   /* Toast background color */
-  --toast-background: hsl(0 0% 20%);
+  --color-toast-background: hsl(0 0% 20%);
   /* Card border color */
-  --card-border: hsla(0 0% 0% / 0.55);
+  --color-border-card: hsla(0 0% 0% / 0.55);
   /* Radius card inner */
-  --card-radius-inner: 24px;
+  --radius-card-inner: 24px;
   /* Card shadow */
-  --card-shadow: 
+  --color-shadow-card: 
     inset 0 4px 0px 0 rgba(119, 119, 119, 0.5);
   /* Button shadow */
-  --button-shadow: 
+  --color-shadow-button: 
     inset 0 1px 0px 0 rgba(119, 119, 119, 0.5);
   /* Button background color */
   --button-background: 	hsl(0, 0%, 20%);
@@ -55,201 +57,85 @@
   /* Button dark hover background color */
   --button-dark-hover-background: 	hsl(0, 0%, 15.6%);
   /* Button radius */
-  --button-radius: 12px;
+  --radius-button: 12px;
+  /* Skeleton background color */
+  --color-skeleton: hsl(227, 54%, 95%);
+  /* Skeleton radius */
+  --radius-skeleton: 12px;
   /* Input border color */
-  --input-border: hsl(0 0% 22%);
+  --color-input-border: hsl(0 0% 22%);
   /* Input bg color */
-  --input-background: hsl(0 0% 4.7%);
+  --color-input-background: hsl(0 0% 4.7%);
   /* Input radius */
-  --input-radius: 12px;
+  --radius-input: 12px;
   /* Danger color */
-  --primary: hsl(217 91% 60.2%);
+  --color-primary: hsl(217 91% 60.2%);
   /* Danger color */
-  --danger: hsl(359 100% 65.1%);
+  --color-danger: hsl(359 100% 65.1%);
   /* Warning color */
-  --warning: hsl(34 100% 50%);
+  --color-warning: hsl(34 100% 50%);
   /* Success color */
-  --success: hsl(145 100% 39.2%);
+  --color-success: hsl(145 100% 39.2%);
 }
 
 @theme {
   /* Font */
   --font-sans: var(--font-sans);
-
   /* Colors */
-  --color-text: var(--text);
-  --color-text-dark: var(--text-dark);
-  --color-text-muted: var(--text-muted);
-  --color-text-muted-dark: var(--text-muted-dark);
-  --color-border: var(--border);
-  --color-muted: var(--bg-muted);
-  --color-card-dark: var(--card-dark);
-  --color-card-dark-2: var(--card-dark-2);
-  --color-card-foreground: var(--card-foreground);
-  --color-card-1: var(--bg-card-1);
-  --color-card-2: var(--bg-card-2);
-
+  --color-text: var(--color-text);
+  --color-text-dark: var(--color-text-dark);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-muted-dark: var(--color-text-muted-dark);
+  --color-border: var(--color-border);
+  --color-muted: var(--color-muted);
+  --color-card-dark: var(--color-card-dark);
+  --color-card-dark-2: var(--color-card-dark-2);
+  --color-card-foreground: var(--color-card-foreground);
+  --color-card-1: var(--color-card-1);
+  --color-card-2: var(--color-card-2);
   /* Switch */
-  --color-switch-background: var(--bg-switch-background);
-  --color-switch-background-active: var(--bg-switch-background-active);
-  --color-switch-thumb: var(--bg-switch-thumb);
-
+  --color-switch-background: var(--color-switch-background);
+  --color-switch-background-active: var(--color-switch-background-active);
+  --color-switch-thumb: var(--color-switch-thumb);
   /* Button */
   --color-button: var(--button-background);
   --color-button-hover: var(--button-hover-background);
   --color-button-dark: var(--button-dark-background);
   --color-button-dark-hover: var(--button-dark-hover-background);
-
   /* Input */
-  --color-input: var(--input-background);
-  --color-input-border: var(--input-border);
-
+  --color-input: var(--color-input-background);
+  --color-input-border: var(--color-input-border);
   /* Semantic */
-  --color-primary: var(--primary);
-  --color-danger: var(--danger);
-  --color-warning: var(--warning);
-  --color-success: var(--success);
-
+  --color-primary: var(--color-primary);
+  --color-danger: var(--color-danger);
+  --color-warning: var(--color-warning);
+  --color-success: var(--color-success);
   /* Radii */
-  --radius-card: var(--card-radius);
-  --radius-card-inner: var(--card-radius-inner);
-  --radius-button: var(--button-radius);
-  --radius-input: var(--input-radius);
-
-  /* Shadows */
-  --shadow-card: var(--card-shadow);
-  --shadow-button: var(--button-shadow);
-
-  /* Gradient */
-  --bg-card-gradient: var(--card-gradient);
-  --bg-card-gradient2: var(--card-gradient2);
+  --radius-card: var(--radius-card);
+  --radius-card-inner: var(--radius-card-inner);
+  --radius-input: var(--radius-input);
+  --radius-button: var(--radius-button);
   /* Toast */
-  --bg-toast: var(--toast-background);
+  --color-toast: var(--color-toast-background);
+  /* Skeleton */
+  --color-skeleton: var(--color-skeleton);
+  --radius-skeleton: var(--radius-skeleton);
+  /* Border */
+  --color-border-card: var(--color-border-card);
 }
 
 @layer utilities {
   .bg-card-gradient {
-    background-image: var(--card-gradient);
+    background-image: var(--color-card-gradient);
   }
   .bg-card-gradient2 {
-    background-image: var(--card-gradient2);
-  }
-  .radius-card {
-    border-radius: var(--card-radius);
-  }
-  .border-card {
-    border: 1px solid var(--card-border);
+    background-image: var(--color-card-gradient2);
   }
   .shadow-card {
-    box-shadow: var(--card-shadow);
-  }
-  .text-muted {
-    color: var(--text-muted);
-  }
-  .text-muted-hover {
-    color: var(--text-muted);
-  }
-  .text-muted-hover:hover {
-    color: var(--text-muted-hover);
-  }
-  .text {
-    color: var(--color-text);
-  }
-  .text-dark {
-    color: var(--color-text-dark);
-  }
-  .bg-card-foreground {
-    background-color: var(--card-foreground);
-  }
-  .bg-border {
-    background-color: var(--border);
+    box-shadow: var(--color-shadow-card);
   }
   .shadow-button {
-    box-shadow: var(--button-shadow);
-  }
-  .bg-button {
-    background-color: var(--button-background);
-  }
-  .bg-button:hover {
-    background-color: var(--button-hover-background);
-  }
-  .bg-button-nohover {
-    background-color: var(--button-background) !important;
-  }
-  .bg-button-hover {
-    background-color: var(--button-hover-background) !important;
-  }
-  .bg-button-dark {
-    background-color: var(--button-dark-background);
-  }
-  .bg-button-dark:hover {
-    background-color: var(--button-dark-hover-background);
-  }
-  .bg-button-dark-nohover {
-    background-color: var(--button-dark-background) !important;
-  }
-  .bg-toast {
-    background-color: var(--toast-background) !important;
-  }
-  .radius-button {
-    border-radius: var(--button-radius);
-  }
-  .border-input {
-    border: 1px solid var(--input-border);
-  }
-  .bg-input {
-    background-color: var(--input-background);
-  }
-  .radius-input {
-    border-radius: var(--input-radius);
-  }
-  .text-danger {
-    color: var(--danger);
-  }
-  .text-warning {
-    color: var(--warning);
-  }
-  .text-success {
-    color: var(--success);
-  }
-  .border-danger {
-    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
-  }
-  .text-muted-dark {
-    color: var(--text-muted-dark);
-  }
-  .bg-card-dark {
-    background-color: var(--card-dark);
-  }
-  .bg-card-dark-2 {
-    background-color: var(--card-dark-2);
-  }
-  .radius-card-inner {
-    border-radius: var(--card-radius-inner);
-  }
-  .bg-card-1 {
-    background-color: var(--bg-card-1);
-  }
-  .bg-card-2 {
-    background-color: var(--bg-card-2);
-  }
-  .ring-border {
-    border: 1px solid var(--border);
-  }
-  .bg-muted {
-    background-color: var(--bg-muted);
-  }
-  .bg-switch-background {
-    background-color: var(--bg-switch-background);
-  }
-  .bg-switch-background-active {
-    background-color: var(--bg-switch-background-active);
-  }
-  .bg-switch-thumb {
-    background-color: var(--bg-switch-thumb);
-  }
-  .bg-primary {
-    background-color: var(--primary);
+    box-shadow: var(--color-shadow-button);
   }
 }
 

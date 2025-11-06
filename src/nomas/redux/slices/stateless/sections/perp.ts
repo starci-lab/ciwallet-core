@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import * as hl from "@nktkas/hyperliquid"
-import { HyperliquidMarketId, type CandleInterval, type GenerateAddressResponse } from "@ciwallet-sdk/classes"
+import { HyperliquidMarketId, type CandleInterval } from "@ciwallet-sdk/classes"
 import { HyperliquidDepositAsset } from "@ciwallet-sdk/classes"
 import { ChainId } from "@ciwallet-sdk/types"
 
@@ -49,24 +49,26 @@ export interface PerpSlice {
     tab: PerpTab;
     perpSectionPage: PerpSectionPage;
     perpMetas: PerpMetas;
+    approvedAgent: boolean;
     allMids?: AllMids;
     selectedMarketId: HyperliquidMarketId;
     candleSnapshots: CandleSnapshots;
     candleInterval: CandleInterval;
     candleStartTime: number;
-    hyperunitGenResponse: Partial<Record<HyperliquidDepositAsset, GenerateAddressResponse>>;
+    hyperunitGenResponse: Partial<Record<HyperliquidDepositAsset, HyperunitGenResponse>>;
     depositCurrentAssetInfo: HyperliquidDepositAsset;
     depositSourceChainId: ChainId;
 }
 
 export interface SetHyperunitGenResponseParam {
     asset: HyperliquidDepositAsset
-    response: GenerateAddressResponse
+    response: HyperunitGenResponse
 }
 const initialState: PerpSlice = {
     tab: PerpTab.Trade,
     perpSectionPage: PerpSectionPage.Perp,
     perpMetas: [],
+    approvedAgent: false,
     selectedMarketId: HyperliquidMarketId.BTC,
     candleSnapshots: [],
     candleInterval: "4h",
@@ -116,6 +118,9 @@ export const perpSlice = createSlice({
         setDepositSourceChainId: (state, action: PayloadAction<ChainId>) => {
             state.depositSourceChainId = action.payload
         },
+        setApprovedAgent: (state, action: PayloadAction<boolean>) => {
+            state.approvedAgent = action.payload
+        },
     },
     selectors: {
         selectPerpUniverses: (state) => {
@@ -130,7 +135,7 @@ export const perpSlice = createSlice({
     },
 })
 
-export const { setPerpTab, setPerpSectionPage, setPerpMetas, setAllMids, setSelectedMarketId, setCandleSnapshots, setCandleInterval, setCandleStartTime, setLastCandleSnapshot, setHyperunitGenResponse, setDepositCurrentAssetInfo, setDepositSourceChainId } = perpSlice.actions
+export const { setPerpTab, setPerpSectionPage, setPerpMetas, setAllMids, setSelectedMarketId, setCandleSnapshots, setCandleInterval, setCandleStartTime, setLastCandleSnapshot, setHyperunitGenResponse, setDepositCurrentAssetInfo, setDepositSourceChainId, setApprovedAgent } = perpSlice.actions
 export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedMarketMarkedPrice } = perpSlice.selectors
 export const perpReducer = perpSlice.reducer
 export const perpSelectors = perpSlice.selectors

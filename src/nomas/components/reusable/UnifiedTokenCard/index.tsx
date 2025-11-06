@@ -29,7 +29,7 @@ export const UnifiedTokenCard = ({ token, onPin, onUnpin, isPressable = false, i
                         </div>
                         <div className="flex flex-col">
                             <div className="text-sm font-medium">{token.name}</div>
-                            <div className="text-xs text-muted text-left">{token.symbol}</div>
+                            <div className="text-xstext-text-muted text-left">{token.symbol}</div>
                         </div>
                     </div>
                     {isPinned && (

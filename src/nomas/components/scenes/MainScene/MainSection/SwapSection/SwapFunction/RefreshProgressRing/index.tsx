@@ -27,7 +27,7 @@ export const RefreshProgressRing = () => {
     return (
         <NomasTooltip content="Auto refresh every 10 s (click to refresh manually).">
             <NomasButtonIcon
-                className="relative overflow-hidden w-10 h-10 radius-button"
+                className="relative overflow-hidden w-10 h-10 rounded-button"
                 onClick={
                     () => {
                         swapFormik.setFieldValue("refreshKey", swapFormik.values.refreshKey + 1)

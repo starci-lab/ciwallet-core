@@ -46,7 +46,7 @@ export const Nomas = ({ contentEventBus }: NomasProps) => {
                             className: "h-5 w-5",
                         }}
                     >
-                        <div className="font-sans w-full h-full relative text">
+                        <div className="font-sans w-full h-full relative text-text">
                             <NomasContent contentEventBus={contentEventBus} />
                         </div>
                     </IconContext.Provider>
@@ -94,7 +94,7 @@ const NomasContent = ({ contentEventBus }: NomasProps) => {
                         animate={{ opacity: 1, x: 0 }}          
                         exit={{ opacity: 0, x: 200 }} 
                         transition={{ type: "spring", damping: 20, stiffness: 120 }}
-                        className="absolute top-10 w-[500px] h-[600px] left-10 pointer-events-auto origin-top-center left-10 pointer-events-auto origin-top-center w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                        className="absolute top-10 w-[500px] h-[600px] left-10 pointer-events-auto origin-top-center left-10 pointer-events-auto origin-top-center w-auto overflow-autorounded-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
                     >
                         {renderContent()}
                         <NomasToaster />

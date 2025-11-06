@@ -1,37 +1,19 @@
 import { setHyperunitGenResponse, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { hyperunitObj } from "@/nomas/obj"
 import useSWRMutation from "swr/mutation"
-import type { HyperliquidChainId, HyperliquidDepositAsset } from "@ciwallet-sdk/classes"
+import type { HyperunitGenerateAddressParams } from "@ciwallet-sdk/classes"
   
-export interface HyperunitGenParams {
-    sourceChain: HyperliquidChainId
-    destinationChain: HyperliquidChainId
-    asset: HyperliquidDepositAsset
-    destinationAddress: string
-}
-
-export interface HyperunitGenResponse {
-    address: string
-    signatures: {
-        field_node: string
-        hl_node: string
-        unit_node: string
-        unit_node_signature: string
-    },
-    status: string
-}
-
-export const useHyperliquidGenSwrMutationCore = () => {
+export const useHyperunitGenerateAddressSwrMutationCore = () => {
     const dispatch = useAppDispatch()
     const network = useAppSelector((state) => state.persists.session.network)
     const swrMutation = useSWRMutation(
-        ["hyperunit-gen", network],
+        ["hyperunit-generate-address", network],
         async (_, { arg: {
             sourceChain,
             destinationChain,
             asset,
             destinationAddress,
-        } }: { arg: HyperunitGenParams }) => {
+        } }: { arg: HyperunitGenerateAddressParams }) => {
             const result = await hyperunitObj.generateAddress({
                 network,
                 sourceChain,
@@ -41,14 +23,22 @@ export const useHyperliquidGenSwrMutationCore = () => {
             })
             dispatch(setHyperunitGenResponse({
                 asset,
-                response: result
+                response: {
+                    address: result.address,
+                    signatures: {
+                        fieldNode: result.signatures.field_node,
+                        hlNode: result.signatures.hl_node,
+                        unitNode: result.signatures.unit_node,
+                        unitNodeSignature: result.signatures.unit_node_signature,
+                    },
+                }
             }))
             return result
         }
     )
     return swrMutation
 }   
-export const useHyperliquidGenSwrMutation = () => {
-    const swrMutation = useHyperliquidGenSwrMutationCore()
+export const useHyperunitGenerateAddressSwrMutation = () => {
+    const swrMutation = useHyperunitGenerateAddressSwrMutationCore()
     return swrMutation
 }

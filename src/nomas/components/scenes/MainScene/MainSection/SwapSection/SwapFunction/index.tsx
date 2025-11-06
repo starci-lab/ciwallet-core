@@ -80,9 +80,9 @@ export const SwapFunction = () => {
                 </div>
                 <NomasSpacer y={4} />
                 <div className="items-center -space-y-2 flex flex-col">
-                    <div className="bg-card-dark radius-card-inner w-full p-4">
+                    <div className="bg-card-dark rounded-card-inner w-full p-4">
                         <div className="flex items-center justify-between">
-                            <div className="text-xs text">You Pay</div>
+                            <div className="text-xs text-text">You Pay</div>
                             <Wallet
                                 isFocused={swapFormik.values.tokenInFocused}
                                 balance={swapFormik.values.balanceIn}
@@ -122,7 +122,7 @@ export const SwapFunction = () => {
                             />
                         </div>
                         <NomasSpacer y={1.5} />
-                        <div className="bg-card-dark-2 radius-card-inner p-2 pr-4">
+                        <div className="bg-card-dark-2 rounded-card-inner p-2 pr-4">
                             <div className="flex justify-between items-center">
                                 <SelectToken
                                     token={tokensIn.find((token) => token.tokenId === swapFormik.values.tokenIn)}
@@ -154,7 +154,7 @@ export const SwapFunction = () => {
                                             )
                                         }
                                     />
-                                    <div className="text-xs text-right text-muted text-foreground-500">
+                                    <div className="text-xs text-righttext-text-muted text-foreground-500">
                       ${roundNumber((prices[swapFormik.values.tokenIn] ?? 0) * Number(swapFormik.values.amountIn))}
                                     </div>
                                 </div>
@@ -163,6 +163,7 @@ export const SwapFunction = () => {
                     </div>
                     <NomasButtonIcon
                         className="z-20 w-10 h-10"
+                        roundedFull
                         onClick={() => {
                             swapFormik.setFieldValue("tokenIn", swapFormik.values.tokenOut)
                             swapFormik.setFieldValue("tokenOut", swapFormik.values.tokenIn)
@@ -179,13 +180,13 @@ export const SwapFunction = () => {
                     >
                         <ArrowsLeftRightIcon className="w-5 h-5 min-w-5 min-h-5 text-muted" />
                     </NomasButtonIcon>
-                    <div className="bg-card-dark radius-card-inner w-full p-4">
+                    <div className="bg-card-dark rounded-card-inner w-full p-4">
                         <div className="flex items-center justify-between">
-                            <div className="text-xs text">You Receive</div>
+                            <div className="text-xs text-text">You Receive</div>
                             <Wallet disableFocus balance={swapFormik.values.balanceOut} />
                         </div>
                         <NomasSpacer y={1.5} />
-                        <div className="bg-card-dark-2 radius-card-inner p-2 pr-4">
+                        <div className="bg-card-dark-2 rounded-card-inner p-2 pr-4">
                             <div className="flex justify-between items-center">
                                 <SelectToken
                                     chainMetadata={chainManagerObj.getChainById(swapFormik.values.tokenOutChainId)}

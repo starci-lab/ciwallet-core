@@ -176,7 +176,7 @@ export const TokenDetailsPage = () => {
                                         {actions.map((action) => {
                                             return (
                                                 <PressableMotion key={action.title} onClick={action.onPress}>
-                                                    <div className="flex flex-col items-center justify-center h-fit !p-4 shadow-none text-muted cursor-pointer">
+                                                    <div className="flex flex-col items-center justify-center h-fit !p-4 shadow-nonetext-text-muted cursor-pointer">
                                                         {action.icon}
                                                         <div className="text-muted text-sm">{action.title}</div>
                                                     </div>

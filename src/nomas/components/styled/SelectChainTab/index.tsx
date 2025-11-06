@@ -61,11 +61,11 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
     const renderedGlobeChain = (isSelected: boolean) => {
         if (isSelected) {
             return (
-                <div key={globeChain.id} className="px-4 py-1.5 bg-button-nohover radius-button">
+                <div key={globeChain.id} className="px-4 py-1.5 bg-button-nohover rounded-button">
                     <NomasCardBody className="p-0">
                         <div className="flex gap-2 items-center">   
                             {globeChain.icon}
-                            <div className="text-sm text">{globeChain.name}</div>
+                            <div className="text-sm text-text">{globeChain.name}</div>
                         </div>
                     </NomasCardBody>
                 </div>
@@ -77,11 +77,11 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
     const renderChain = (chain: RenderedChain, isSelected: boolean) => {
         if (isSelected) {
             return (
-                <div key={chain.id} className="px-4 py-1.5 bg-button-nohover radius-button">
+                <div key={chain.id} className="px-4 py-1.5 bg-button-nohover rounded-button">
                     <NomasCardBody className="p-0">
                         <div className="flex gap-2 items-center">   
                             {chain.icon}
-                            <div className="text-sm text">{chain.name}</div>
+                            <div className="text-sm text-text">{chain.name}</div>
                         </div>
                     </NomasCardBody>
                 </div>
@@ -91,7 +91,7 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
     }
     return (
         <PressableMotion onClick={onClick}>
-            <div className={twMerge("cursor-pointer radius-card-inner p-2", variant === SelectChainTabVariant.Dark2 ? "bg-card-dark-2" : "bg-card-dark border border-card")}>
+            <div className={twMerge("cursor-pointer rounded-card-inner p-2", variant === SelectChainTabVariant.Dark2 ? "bg-card-dark-2" : "bg-card-dark border border-card")}>
                 <div className="flex justify-between items-center gap-4">
                     <div className="flex items-center justify-between flex-1">
                         {withAllNetworks && renderedGlobeChain(isSelected("all-network"))}
@@ -103,7 +103,7 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
                             return renderChain(chain, isSelected(chain.id ?? "all-network"))
                         })}
                     </div>
-                    <ChevronRightIcon className="w-5 h-5 text-muted " />
+                    <ChevronRightIcon className="w-5 h-5text-text-muted " />
                 </div>
             </div>
         </PressableMotion>

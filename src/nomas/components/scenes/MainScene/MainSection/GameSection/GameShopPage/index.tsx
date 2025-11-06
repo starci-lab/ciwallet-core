@@ -254,7 +254,7 @@ export const GameShopPage = () => {
             <div className="flex items-center justify-between gap-1.5">
               <div className="flex items-center gap-2">
                 <div>
-                  <div className="text-xs text-muted pl-1">Balance</div>
+                  <div className="text-xstext-text-muted pl-1">Balance</div>
                   <NomasInput
                     value={balance.toLocaleString()}
                     prefixIcon={

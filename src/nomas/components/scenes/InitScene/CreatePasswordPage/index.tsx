@@ -63,7 +63,7 @@ export const CreatePasswordPage = () => {
                             <NomasWarningText>{formik.errors.confirmPassword}</NomasWarningText>
                         ) : (
                             <div className="w-full text-start flex items-center gap-1">
-                                <div className="text-xs text-muted font-bold">Password Strength:</div>
+                                <div className="text-xstext-text-muted font-bold">Password Strength:</div>
                                 {renderStrength()}
                             </div>
                         )
@@ -75,7 +75,7 @@ export const CreatePasswordPage = () => {
                         checked={formik.values.agreeToTerms}
                         onCheckedChange={(checked) => formik.setFieldValue("agreeToTerms", checked)}
                     />
-                    <div className="text-xs text-muted flex flex-wrap items-center gap-1">
+                    <div className="text-xstext-text-muted flex flex-wrap items-center gap-1">
   I agree to the 
                         <NomasLink underline>Terms of Service</NomasLink>
   and 

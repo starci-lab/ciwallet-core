@@ -42,7 +42,6 @@ export const platformToChainIds = (platform: Platform): Array<ChainId> => {
     case Platform.Aptos:
         return [ChainId.Aptos]
     }
-    throw new Error(`Invalid platform: ${platform}`)
 }
 
 const emvChainIdMap: Partial<Record<ChainId, Record<Network, number>>> = {

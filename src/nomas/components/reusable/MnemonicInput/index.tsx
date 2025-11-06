@@ -49,7 +49,7 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
             setMnemonic(truncated)
         }
     }
-    // when receive ctrl+v, check if the pasted text is a valid mnemonic
+    // when receive ctrl+v, check if the pasted text-textis a valid mnemonic
     useEffect(() => {
         const handlePaste = (event: ClipboardEvent) => {
             const pastedText = event.clipboardData?.getData("text")

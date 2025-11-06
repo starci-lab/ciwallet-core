@@ -1,30 +1,34 @@
 import React, { useEffect } from "react"
-import { NomasCardBody, NomasCardHeader, Snippet } from "@/nomas/components"
+import { NomasCardBody, NomasCardHeader, NomasSkeleton, Snippet } from "@/nomas/components"
 import { PerpSectionPage, selectSelectedAccountByPlatform, setPerpSectionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { hyperliquidObj } from "@/nomas/obj"
-import { useHyperliquidGenSwrMutation } from "@/nomas/hooks"
-import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { ChainId } from "@ciwallet-sdk/types"
+import { useHyperunitGenerateAddressSwrMutation } from "@/nomas/hooks"
+import { chainIdToPlatform, shortenAddress } from "@ciwallet-sdk/utils"
 
 export const DepositPage = () => {
     const dispatch = useAppDispatch()
-    const swrMutation = useHyperliquidGenSwrMutation()
+    const hyperunitGenerateAddressSwrMutation = useHyperunitGenerateAddressSwrMutation()
+    const hyperunitGenResponse = useAppSelector((state) => state.stateless.sections.perp.hyperunitGenResponse)
     const depositCurrentAssetInfo = useAppSelector((state) => state.stateless.sections.perp.depositCurrentAssetInfo)
-    const { asset } = hyperliquidObj.getDepositAssetInfoByAsset(depositCurrentAssetInfo)
     const depositSourceChainId = useAppSelector((state) => state.stateless.sections.perp.depositSourceChainId)
     const destinationAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, chainIdToPlatform(depositSourceChainId)))
-    const hyperunitGenResponse = useAppSelector((state) => state.stateless.sections.perp.hyperunitGenResponse)
+    const network = useAppSelector((state) => state.persists.session.network)
     useEffect(() => {
         const handleEffect = async () => {
-            await swrMutation.trigger({
+            await hyperunitGenerateAddressSwrMutation.trigger({
                 sourceChain: depositSourceChainId,
-                destinationChain: "hyperliquid",
-                asset,
+                destinationChain: ChainId.Hyperliquid,
+                asset: depositCurrentAssetInfo,
                 destinationAddress: destinationAccount?.accountAddress || "",
+                network,
             })
         }
         handleEffect()
-    }, [depositCurrentAssetInfo, depositSourceChainId])
-    
+    }, [
+        depositCurrentAssetInfo, 
+        depositSourceChainId, 
+        destinationAccount?.accountAddress
+    ])
     return (
         <>
             <NomasCardHeader 
@@ -36,8 +40,13 @@ export const DepositPage = () => {
                     }} 
             />
             <NomasCardBody>
-                <div>
-                    <div>{hyperunitGenResponse[depositCurrentAssetInfo]?.address}</div>
+                <div className="flex items-center gap-2">
+                    <NomasSkeleton
+                        className="h-5 w-25"
+                        isLoading={!hyperunitGenerateAddressSwrMutation.isMutating}
+                    >
+                        <div>{shortenAddress(hyperunitGenResponse[depositCurrentAssetInfo]?.address || "")}</div>
+                    </NomasSkeleton>
                     <Snippet copyString={hyperunitGenResponse[depositCurrentAssetInfo]?.address || ""} />
                 </div>
             </NomasCardBody>

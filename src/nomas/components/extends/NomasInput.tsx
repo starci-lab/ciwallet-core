@@ -91,14 +91,14 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
                         onBlur={onBlur}
                         type={isPassword ? (showPassword ? "text" : "password") : "text"}
                         className={twMerge(
-                            "ring-0 focus-visible:ring-0 !border-none text-sm text flex-1"
+                            "ring-0 focus-visible:ring-0 !border-none text-sm text-textflex-1"
                         )}
                         {...props}
                     />
 
-                    {/* Suffix Text */}
+                    {/* Suffix text-text*/}
                     {suffixText && (
-                        <div className="flex items-center justify-center ml-2 text-muted text-sm">
+                        <div className="flex items-center justify-center ml-2text-text-muted text-sm">
                             {suffixText}
                         </div>
                     )}
@@ -108,12 +108,12 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
             (showPassword ? (
                 <EyeIcon
                     onClick={() => setShowPassword(!showPassword)}
-                    className="w-5 h-5 cursor-pointer text-muted ml-2"
+                    className="w-5 h-5 cursor-pointertext-text-muted ml-2"
                 />
             ) : (
                 <EyeClosedIcon
                     onClick={() => setShowPassword(!showPassword)}
-                    className="w-5 h-5 cursor-pointer text-muted ml-2"
+                    className="w-5 h-5 cursor-pointertext-text-muted ml-2"
                 />
             ))}
                 </div>

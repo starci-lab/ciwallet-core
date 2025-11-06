@@ -40,7 +40,7 @@ export const ChainSlider = () => {
                             className="flex flex-col items-center min-w-[64px]"
                         >
                             <div className={
-                                twMerge("text-sm text-muted mt-1 h-8 relative", isSelected && "text")
+                                twMerge("text-smtext-text-muted mt-1 h-8 relative", isSelected && "text")
                             }>
                                 {item.value}
                                 {isSelected && (

@@ -21,7 +21,7 @@ export const MenuItemButton = ({ item, isSelected, onClick }: MenuItemButtonProp
             <div className="flex flex-col p-2 items-center gap-1 justify-center">
                 {item.icon}
                 <div className={
-                    twMerge("text-sm text-muted-dark", 
+                    twMerge("text-sm text-text-muted-dark", 
                         isSelected && "text-muted"
                     )}>{item.label}</div>
             </div>
