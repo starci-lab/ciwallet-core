@@ -15,7 +15,7 @@ export const MenuItemButton = ({ item, isSelected, onClick }: MenuItemButtonProp
             className={
                 twMerge(
                     "aspect-square w-20 rounded-full grid place-items-center cursor-pointer transition-colors duration-200", 
-                    isSelected && "bg-card-gradient border-card"
+                    isSelected && "bg-card-gradient border-border-card"
                 )
             }>
             <div className="flex flex-col p-2 items-center gap-1 justify-center">

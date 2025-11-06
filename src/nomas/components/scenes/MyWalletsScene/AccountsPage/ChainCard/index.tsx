@@ -22,7 +22,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ platform, isSelected = fal
             <div
                 className={
                     twMerge("p-4 flex items-center gap-2 justify-between rounded-button", 
-                        isSelected ? "bg-button-dark-nohover border-border-cardshadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                        isSelected ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                 }
             >
                 <div className="p-0 flex items-center justify-between w-full">
@@ -39,7 +39,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ platform, isSelected = fal
                         <div className="text-sm">
                             {shortenAddress(selectedAccount?.accountAddress ?? "")}
                         </div>
-                        <CaretRightIcon className="w-4 h-4" />
+                        <CaretRightIcon className="w-4 h-4 text-text-muted" />
                     </div>
                 </div>
             </div>

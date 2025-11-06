@@ -29,6 +29,11 @@ export const CopyAddressScene = () => {
                             filterValue={filterValue}
                             popularItems={[
                                 {
+                                    letter: "B",
+                                    item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Bitcoin),
+                                    key: ChainId.Bitcoin
+                                },
+                                {
                                     letter: "E",
                                     item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Ethereum),
                                     key: ChainId.Ethereum

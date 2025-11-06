@@ -45,7 +45,7 @@ export const ChooseNetworkPage = ({ withAllNetworks = false, isSelected, showBac
                 component: <div
                     className={
                         twMerge("px-3 py-2 flex items-center gap-2 justify-between rounded-button", 
-                            isSelected("all-network") ? "bg-button-dark-nohover border-border-cardshadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                            isSelected("all-network") ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                     }
                 >
                     <PressableMotion onClick={() => {

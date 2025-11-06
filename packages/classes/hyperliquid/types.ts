@@ -1,9 +1,9 @@
-import type { Network } from "@ciwallet-sdk/types"
+import type { ChainId, Network } from "@ciwallet-sdk/types"
 import type { TokenId } from "@ciwallet-sdk/types"
 
 export enum HyperliquidDepositAsset {
     Usdc = "usdc",
-    Btc = "btc",
+    Bitcoin = "btc",
     Eth = "eth",
     Sol = "sol",
     TwoZ = "2z",
@@ -14,10 +14,16 @@ export enum HyperliquidDepositAsset {
     Xpl = "xpl",
 }
 
+export interface HyperliquidDepositAssetRef {
+    chainId: ChainId
+    tokenId: TokenId
+}
 export interface HyperliquidDepositAssetInfo {
     network: Network
-    chainIds: Array<ChainId>
-    tokenId: TokenId
+    refs: Array<HyperliquidDepositAssetRef>
     asset: HyperliquidDepositAsset
+    iconUrl: string
+    name: string
+    symbol: string
 }
 

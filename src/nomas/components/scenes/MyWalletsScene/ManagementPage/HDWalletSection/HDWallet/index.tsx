@@ -25,7 +25,7 @@ export const HDWallet = ({ hdWallet }: HDWalletProps) => {
                         <div className="text-xs text-muted">$0</div>
                     </div>
                 </div>
-                <CaretRightIcon className="size-4" />
+                <CaretRightIcon className="size-4 text-text-muted" />
             </div>
         </PressableMotion>
     )

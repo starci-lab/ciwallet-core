@@ -59,7 +59,7 @@ export const AccountCard = ({ accountAddress, onClick, isSelected = false, type,
         <PressableMotion onClick={onClick} className="justify-between flex w-full">
             <div className={
                 twMerge("p-4 flex items-center gap-2 justify-between rounded-button w-full", 
-                    isSelected ? "py-4 bg-button-dark-nohover border-border-cardshadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                    isSelected ? "py-4 bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
             }>
                 <div className="flex items-center gap-2">
                     <Jazzicon diameter={40} seed={jsNumberForAddress(accountAddress)} />

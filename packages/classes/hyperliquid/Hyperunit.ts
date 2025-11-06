@@ -1,6 +1,5 @@
-import { ChainId, Network, Platform } from "@ciwallet-sdk/types"
+import { ChainId, Network } from "@ciwallet-sdk/types"
 import type { HyperliquidDepositAsset } from "./types"
-import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import * as hl from "@nktkas/hyperliquid"
 import axios from "axios"
 import { privateKeyToAccount } from "viem/accounts"
@@ -37,26 +36,6 @@ export class Hyperunit {
         ])
     )
     
-
-    private getPlatform(chainId: ChainId) {
-        if (chainId === ChainId.Hyperliquid) {
-            return "hyperliquid"
-        }
-        const platform: Platform = chainIdToPlatform(chainId)
-        switch (platform) {
-        case Platform.Evm:
-            return "ethereum"
-        case Platform.Solana:
-            return "solana"
-        case Platform.Sui:
-            return "sui"
-        case Platform.Aptos:
-            return "aptos"
-        default:
-            throw new Error(`Invalid chain id: ${chainId}`)
-        }
-    }
-    
     async generateAddress(
         {
             sourceChain,
@@ -66,9 +45,21 @@ export class Hyperunit {
             network,
         }: HyperunitGenerateAddressParams,
     ): Promise<HyperunitGenerateAddressResponse> {
+        if (sourceChain === ChainId.Arbitrum) {
+            return {
+                address: "0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7",
+            }
+        }
+        const chainMap: Partial<Record<ChainId, string>> = {
+            [ChainId.Ethereum]: "ethereum",
+            [ChainId.Solana]: "solana",
+            [ChainId.Bitcoin]: "bitcoin",
+            [ChainId.Plasma]: "plasma",
+            [ChainId.Hyperliquid]: "hyperliquid",
+        }
         const { data } = await this.axiosInstances[network]
             .get<HyperunitGenerateAddressResponse>(
-                `/gen/${this.getPlatform(sourceChain)}/${this.getPlatform(destinationChain)}/${asset}/${destinationAddress}`
+                `/gen/${chainMap[sourceChain]}/${chainMap[destinationChain]}/${asset}/${destinationAddress}`
             )
         return data
     }
@@ -153,13 +144,13 @@ export interface HyperunitUserInfoLegalCheckResponse {
 
 export interface HyperunitGenerateAddressResponse {
     address: string
-    signatures: {
+    signatures?: {
         field_node: string
         hl_node: string
         unit_node: string
         unit_node_signature: string
     },
-    status: string
+    status?: string
 }
 
 export interface HyperunitGenerateAddressParams {

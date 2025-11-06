@@ -37,7 +37,7 @@ export const SplashPage = () => {
                 duration: 0.6,
                 ease: "easeOut",
             }}
-            className="flex flex-col items-center gap-2 bg-input p-4 radius-input w-full bg-card-dark border-card"
+            className="flex flex-col items-center gap-2 bg-input p-4 radius-input w-full bg-card-dark border-border-card"
         >
             <img src={step.icon} alt={step.title} className="w-10 h-10" />
             <div className="text-sm text-muted">{step.title}</div>

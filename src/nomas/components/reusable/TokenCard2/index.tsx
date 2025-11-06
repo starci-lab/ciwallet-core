@@ -27,7 +27,6 @@ export const TokenCard2 = ({
     const balance = balances[token.tokenId]
     const prices = useAppSelector((state) => state.stateless.dynamic.prices)
     const price = prices[token.tokenId]
-    const accountAddress = useAppSelector((state) => selectSelectedAccounts(state.persists))[chainIdToPlatform(chainId)]?.accountAddress ?? ""
     const content = () => {
         return (
             <NomasCard

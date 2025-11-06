@@ -91,7 +91,7 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
     }
     return (
         <PressableMotion onClick={onClick}>
-            <div className={twMerge("cursor-pointer rounded-card-inner p-2", variant === SelectChainTabVariant.Dark2 ? "bg-card-dark-2" : "bg-card-dark border border-card")}>
+            <div className={twMerge("cursor-pointer rounded-card-inner p-2", variant === SelectChainTabVariant.Dark2 ? "bg-card-dark-2" : "bg-card-dark border border-border-card")}>
                 <div className="flex justify-between items-center gap-4">
                     <div className="flex items-center justify-between flex-1">
                         {withAllNetworks && renderedGlobeChain(isSelected("all-network"))}

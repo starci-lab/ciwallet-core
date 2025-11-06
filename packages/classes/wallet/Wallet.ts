@@ -3,6 +3,7 @@ import { EvmWallet } from "./EvmWallet"
 import { SolanaWallet } from "./SolanaWallet"
 import { SuiWallet } from "./SuiWallet"
 import { AptosWallet } from "./AptosWallet"
+import { BitcoinWallet } from "./BitcoinWallet"
 import type { Wallet } from "./IWallet"
 import { Encryption } from "../crypto"
 
@@ -59,6 +60,13 @@ export class WalletGenerator {
             return {
                 ...evmWallet,
                 privateKey: await this.encryption.encrypt(evmWallet.privateKey, password),
+            }
+        }
+        case Platform.Bitcoin: {
+            const bitcoinWallet = new BitcoinWallet().fromMnemonic(mnemonic, index)
+            return {
+                ...bitcoinWallet,
+                privateKey: await this.encryption.encrypt(bitcoinWallet.privateKey, password),
             }
         }
         default: {
@@ -121,6 +129,12 @@ export class ImportedWalletGenerator {
             const evmWallet = new EvmWallet().fromPrivateKey(privateKey)
             return {
                 ...evmWallet,
+            }
+        }
+        case Platform.Bitcoin: {
+            const bitcoinWallet = new BitcoinWallet().fromPrivateKey(privateKey)
+            return {
+                ...bitcoinWallet,
             }
         }
         default: {

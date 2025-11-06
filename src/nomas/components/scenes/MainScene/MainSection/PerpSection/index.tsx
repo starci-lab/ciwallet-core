@@ -4,6 +4,8 @@ import React from "react"
 import { PerpSectionPage } from "@/nomas/redux"
 import { PerpPage } from "./PerpPage"
 import { DepositPage } from "./DepositPage"
+import { SelectAssetPage } from "./SelectAssetPage"
+import { SourceChainPage } from "./SourceChainPage"
 
 export const PerpSection = () => {
     const perpSectionPage = useAppSelector((state) => state.stateless.sections.perp.perpSectionPage)   
@@ -13,6 +15,10 @@ export const PerpSection = () => {
             return <PerpPage />
         case PerpSectionPage.Deposit:
             return <DepositPage />
+        case PerpSectionPage.SelectAsset:
+            return <SelectAssetPage />
+        case PerpSectionPage.SourceChain:
+            return <SourceChainPage />
         }
     }
     return <NomasCard 

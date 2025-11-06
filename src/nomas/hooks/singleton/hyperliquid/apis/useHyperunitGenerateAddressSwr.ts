@@ -26,10 +26,10 @@ export const useHyperunitGenerateAddressSwrMutationCore = () => {
                 response: {
                     address: result.address,
                     signatures: {
-                        fieldNode: result.signatures.field_node,
-                        hlNode: result.signatures.hl_node,
-                        unitNode: result.signatures.unit_node,
-                        unitNodeSignature: result.signatures.unit_node_signature,
+                        fieldNode: result.signatures?.field_node || "",
+                        hlNode: result.signatures?.hl_node || "",
+                        unitNode: result.signatures?.unit_node || "",
+                        unitNodeSignature: result.signatures?.unit_node_signature || "",
                     },
                 }
             }))

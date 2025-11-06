@@ -18,14 +18,14 @@ export const PerpHeader = () => {
                         <div className="text-sm">
                             {marketMetadata.name}
                         </div>
-                        <CaretRightIcon className="size-4" />
+                        <CaretRightIcon className="size-4 text-text-muted" />
                     </PressableMotion>
                     <PressableMotion>
                         <div className="flex items-center gap-2">
                             <div className="text">
                                 {selectedMarketMarkedPrice}
                             </div>
-                            <CaretUpIcon className="size-4" />
+                            <CaretUpIcon className="size-4 text-text-muted" />
                         </div>
                     </PressableMotion>
                 </div>

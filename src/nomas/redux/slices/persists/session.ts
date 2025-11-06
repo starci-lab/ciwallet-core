@@ -176,7 +176,6 @@ const resolveAccountsFromImportedWallet = async (
         importedWallet.encryptedPrivateKey,
         password
     )
-    console.log(privateKey)
     const wallet = await importedWalletGeneratorObj.generateWallet({
         privateKey,
         platform: importedWallet.platform,
@@ -328,11 +327,11 @@ const initialState: SessionSlice = {
             [Network.Testnet]: ["https://polygon-testnet.g.alchemy.com/v2/demo"],
         },
         [ChainId.Ethereum]: {
-            [Network.Mainnet]: ["https://eth-mainnet.g.alchemy.com/v2/demo"],
-            [Network.Testnet]: ["https://eth-testnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://eth.llamarpc.com"],
+            [Network.Testnet]: ["https://eth-sepolia.g.alchemy.com/v2/demo"],
         },
         [ChainId.Avalanche]: {
-            [Network.Mainnet]: ["https://avalanche-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://api.zan.top/avax-mainnet/ext/bc/C/rpc"],
             [Network.Testnet]: ["https://avalanche-testnet.g.alchemy.com/v2/demo"],
         },
         [ChainId.Fantom]: {
@@ -340,13 +339,25 @@ const initialState: SessionSlice = {
             [Network.Testnet]: ["https://fantom-testnet.g.alchemy.com/v2/demo"],
         },
         [ChainId.Arbitrum]: {
-            [Network.Mainnet]: ["https://arbitrum-mainnet.g.alchemy.com/v2/demo"],
-            [Network.Testnet]: ["https://arbitrum-testnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://arb1.arbitrum.io/rpc"],
+            [Network.Testnet]: ["https://sepolia-rollup.arbitrum.io/rpc"],
         },
         [ChainId.Base]: {
             [Network.Mainnet]: ["https://base-mainnet.g.alchemy.com/v2/demo"],
             [Network.Testnet]: ["https://base-testnet.g.alchemy.com/v2/demo"],
         },
+        [ChainId.Hyperliquid]: {
+            [Network.Mainnet]: ["https://arb-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://arb-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Bitcoin]: {
+            [Network.Mainnet]: ["https://bitcoin-rpc.publicnode.com"],  // endpoint công cộng cho Bitcoin mainnet :contentReference[oaicite:0]{index=0}
+            [Network.Testnet]: ["https://bitcoin-rpc.publicnode.com"]    // sử dụng cùng endpoint hoặc tìm riêng testnet nếu cần
+        },
+        [ChainId.Plasma]: {
+            [Network.Mainnet]: ["https://rpc.plasma.to"],         // Plasma mainnet :contentReference[oaicite:1]{index=1}
+            [Network.Testnet]: ["https://testnet-rpc.plasma.to"]  // Plasma testnet :contentReference[oaicite:2]{index=2}
+        }   
     },
     tokens: {
         [ChainId.Monad]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
@@ -360,6 +371,9 @@ const initialState: SessionSlice = {
         [ChainId.Fantom]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
         [ChainId.Arbitrum]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
         [ChainId.Base]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Hyperliquid]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Bitcoin]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Plasma]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
     },
     explorers: {
         [ChainId.Monad]: ExplorerId.MonVision,
