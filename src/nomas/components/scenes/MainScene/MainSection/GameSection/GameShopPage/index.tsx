@@ -216,13 +216,13 @@ export const GameShopPage = () => {
   return (
     <NomasCard variant={NomasCardVariant.Gradient} isContainer>
       <NomasCardBody className="relative w-full h-full">
-        <div className="w-full h-full bg-[#1a1a1a] flex flex-col rounded-2xl!">
+        <div className="w-full h-full bg-card-dark-3 flex flex-col rounded-card-inner!">
           {/* Header */}
-          <div className="relative bg-[#2a2a2a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)] rounded-t-2xl!">
+          <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted rounded-t-card-inner!">
             {/* Back/Close Button */}
             <button
               onClick={handleClose}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-[#323232] rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-card-dark-5 rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[hsl(0,0%,22.7%)] transition-colors"
             >
               <svg
                 className="w-3.5 h-3.5 text-gray-300"
@@ -250,7 +250,7 @@ export const GameShopPage = () => {
           </div>
 
           {/* Balance Section */}
-          <div className="bg-[#2a2a2a] px-2 py-1 border-b border-[rgba(135,135,135,0.25)]">
+          <div className="bg-card-dark-4 px-2 py-1 border-b border-muted">
             <div className="flex items-center justify-between gap-1.5">
               <div className="flex items-center gap-2">
                 <div>
@@ -274,7 +274,7 @@ export const GameShopPage = () => {
           </div>
 
           {/* Tabs Section */}
-          <div className="bg-[#1a1a1a] px-4 py-3 border-b border-[rgba(135,135,135,0.25)] shrink-0">
+          <div className="bg-card-dark-3 px-4 py-3 border-b border-muted shrink-0">
             <ScrollArea className="w-full">
               <div
                 ref={tabsContainerRef}
@@ -295,8 +295,8 @@ export const GameShopPage = () => {
                     className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap shrink-0
                            transition-all duration-200 ${
                              category === tab.k
-                               ? "bg-[#8b5cf6] text-white"
-                               : "bg-transparent text-gray-400 hover:text-white"
+                               ? "bg-accent-purple text-white"
+                               : "bg-transparent text-muted text-muted-hover"
                            }`}
                   >
                     {tab.t}
@@ -311,13 +311,13 @@ export const GameShopPage = () => {
             <div className="p-4">
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-20 h-20 bg-[#2a2a2a] rounded-2xl flex items-center justify-center mb-4">
+                  <div className="w-20 h-20 bg-card-dark-4 rounded-2xl flex items-center justify-center mb-4">
                     <span className="text-4xl">📦</span>
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-2">
                     Items Coming Soon!
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="text-muted">
                     New items will be added regularly
                   </p>
                 </div>
@@ -327,10 +327,10 @@ export const GameShopPage = () => {
                     <div
                       key={item.id}
                       onClick={() => handleBuy(item)}
-                      className="group bg-[rgba(60,60,60,0.26)] border border-[rgba(0,0,0,0.37)]
+                      className="group bg-shop-item border border-shop-item
                              rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center
                              gap-1.5 cursor-pointer opacity-100
-                             shadow-[inset_0px_3px_5px_0px_rgba(0,0,0,0.3)] hover:bg-[rgba(80,80,80,0.4)]
+                             shadow-shop-item hover:bg-shop-item-hover
                              transition-all duration-200"
                     >
                       {/* Item Image */}
@@ -355,10 +355,10 @@ export const GameShopPage = () => {
                       </div>
 
                       {/* Item Info */}
-                      <div className="font-semibold text-[13px] text-[#B3B3B3] text-center">
+                      <div className="font-semibold text-[13px] text-muted text-center">
                         {item.name}
                       </div>
-                      <div className="text-xs text-[#B3B3B3]">
+                      <div className="text-xs text-muted">
                         {Number(item.cost_nom ?? 0).toLocaleString()} NOM
                       </div>
                     </div>
