@@ -96,11 +96,6 @@ export class CleanlinessSystem {
     console.log(`✅ [CleanlinessSystem] Initialized for pet ${petId}`)
   }
 
-  // ===== EVENT LISTENERS SETUP =====
-
-  /**
-   * Setup event listeners for Colyseus poop messages
-   */
   private setupEventListeners() {
     // Listen to poop_created (broadcast from server)
     this.handlePoopCreated = (message: {
@@ -145,6 +140,7 @@ export class CleanlinessSystem {
         poopId: string
       }
     }) => {
+      // TODO: handle error
       if (message.success && message.data) {
         console.log(
           "💩 [CleanlinessSystem] Poop creation confirmed:",
@@ -152,6 +148,12 @@ export class CleanlinessSystem {
         )
         // Note: Usually handled by poop_created broadcast
         // This is just a confirmation, can be used for error handling
+        this.createPoopAt(
+          message.data.positionX,
+          message.data.positionY,
+          message.data.poopId
+        )
+        // TODO: handle error
       } else {
         console.warn("⚠️ [CleanlinessSystem] Poop creation failed:", message)
       }
@@ -319,15 +321,13 @@ export class CleanlinessSystem {
   private async checkPoopOpportunity() {
     const poopCount = await PetsDB.getPoopCount(this.petId)
     if (poopCount >= 3) return
-    // const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
-
-    // const shouldPoop =
-    //   !this.pet.isChasing &&
-    //   this.pet.currentActivity !== "chew" &&
-    //   (cleanlinessState === CleanlinessState.Dirty ||
-    //     cleanlinessState === CleanlinessState.Filthy) &&
-    //   this.cleanlinessLevel < GAME_MECHANICS.POOP_THRESHOLD
-    const shouldPoop = true
+    const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
+    const shouldPoop =
+      !this.pet.isChasing &&
+      this.pet.currentActivity !== "chew" &&
+      (cleanlinessState === CleanlinessState.Dirty ||
+        cleanlinessState === CleanlinessState.Filthy) &&
+      this.cleanlinessLevel < GAME_MECHANICS.POOP_THRESHOLD
     if (shouldPoop) {
       const now = this.scene.time.now
       // Add minimum 10 seconds between poops to prevent spam
@@ -795,31 +795,5 @@ export class CleanlinessSystem {
     while (this.poopObjects.length > 0) {
       this.removePoopAtIndex(0)
     }
-  }
-
-  // ===== DEBUG UTILITIES =====
-
-  /**
-   * Debug method to check all poops state
-   * Use in browser console: window.game.scene.scenes[0].petManager.getActivePet().cleanlinessSystem.debugPoops()
-   */
-  public debugPoops(): void {
-    console.log("=== POOP DEBUG INFO ===")
-    console.log(`Pet ID: ${this.petId}`)
-    console.log(`Total Poops: ${this.poopObjects.length}`)
-    console.log(`Cleanliness Level: ${this.cleanlinessLevel.toFixed(1)}%`)
-
-    this.poopObjects.forEach((poop, index) => {
-      const poopId = (poop as unknown as { poopId: string }).poopId
-      console.log(`  Poop ${index}:`)
-      console.log(`    ID: ${poopId || "NO_ID"}`)
-      console.log(`    Position: (${poop.x.toFixed(1)}, ${poop.y.toFixed(1)})`)
-      console.log(`    Visible: ${poop.visible}`)
-      console.log(`    Active: ${poop.active}`)
-      console.log(`    Depth: ${poop.depth}`)
-      console.log(`    Texture: ${poop.texture?.key}`)
-    })
-
-    console.log("=== END POOP DEBUG ===")
   }
 }
