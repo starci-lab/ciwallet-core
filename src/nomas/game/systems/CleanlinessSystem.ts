@@ -7,10 +7,10 @@ import {
 } from "@/nomas/game/constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
-import { ColyseusMessageEvents } from "@/nomas/game/colyseus/events"
-import { eventBus } from "@/nomas/game/event-bus"
 import { spendToken, store } from "@/nomas/redux"
 import { PetsDB } from "@/nomas/utils/idb"
+import { eventBus } from "@/nomas/game/event-bus"
+import { ColyseusMessageEvents } from "@/nomas/game/colyseus/events"
 
 // Cleanliness states
 export const CleanlinessState = {
@@ -46,6 +46,35 @@ export class CleanlinessSystem {
   private pet: Pet
   private petId: string
 
+  // Event handlers (stored for cleanup)
+  private handlePoopCreated?: (message: {
+    petId: string
+    poopId: string
+    positionX: number
+    positionY: number
+  }) => void
+  private handleCreatePoopResponse?: (message: {
+    success: boolean
+    data?: {
+      positionX: number
+      positionY: number
+      poopId: string
+    }
+  }) => void
+  private handleCleanedPetResponse?: (message: {
+    success: boolean
+    message: string
+    data?: {
+      poopId?: string
+      petId?: string
+    }
+    petStats?: {
+      hunger?: number
+      happiness?: number
+      cleanliness?: number
+    }
+  }) => void
+
   constructor(
     scene: Phaser.Scene,
     pet: Pet,
@@ -56,27 +85,166 @@ export class CleanlinessSystem {
     this.pet = pet
     this.petId = petId
 
+    console.log(`🏗️ [CleanlinessSystem] Constructor called for pet ${petId}`)
+
     // Create poop animation
     this.createPoopAnimation()
-    this.setupPoopEventListeners()
+
+    // Setup event listeners for poop management
+    this.setupEventListeners()
+
+    console.log(`✅ [CleanlinessSystem] Initialized for pet ${petId}`)
   }
 
-  private setupPoopEventListeners() {
-    // Listen to poop_created events from ColyseusService
-    eventBus.on(
-      ColyseusMessageEvents.PoopCreated,
-      (message: {
-        petId: string
-        poopId: string
+  // ===== EVENT LISTENERS SETUP =====
+
+  /**
+   * Setup event listeners for Colyseus poop messages
+   */
+  private setupEventListeners() {
+    // Listen to poop_created (broadcast from server)
+    this.handlePoopCreated = (message: {
+      petId: string
+      poopId: string
+      positionX: number
+      positionY: number
+    }) => {
+      console.log(
+        `💩 [CleanlinessSystem ${this.petId}] Received poop_created event:`,
+        message
+      )
+      console.log(
+        `💩 [CleanlinessSystem ${
+          this.petId
+        }] Comparing petIds - message.petId: "${message.petId}", this.petId: "${
+          this.petId
+        }", match: ${message.petId === this.petId}`
+      )
+
+      // Only handle if this poop belongs to this pet
+      if (message.petId === this.petId) {
+        console.log(
+          `💩 [CleanlinessSystem] Poop created for pet ${this.petId}:`,
+          message
+        )
+
+        this.createPoopAt(message.positionX, message.positionY, message.poopId)
+      } else {
+        console.log(
+          `💩 [CleanlinessSystem] Ignoring poop - not for this pet (${this.petId})`
+        )
+      }
+    }
+
+    // Listen to create_poop_response (response when we create poop)
+    this.handleCreatePoopResponse = (message: {
+      success: boolean
+      data?: {
         positionX: number
         positionY: number
-      }) => {
-        // Only handle poops for this pet
-        if (message.petId === this.petId) {
-          console.log("💩 Poop created:", message)
-          // Handle poop creation if needed
+        poopId: string
+      }
+    }) => {
+      if (message.success && message.data) {
+        console.log(
+          "💩 [CleanlinessSystem] Poop creation confirmed:",
+          message.data
+        )
+        // Note: Usually handled by poop_created broadcast
+        // This is just a confirmation, can be used for error handling
+      } else {
+        console.warn("⚠️ [CleanlinessSystem] Poop creation failed:", message)
+      }
+    }
+
+    // Listen to cleaned_pet_response (response when we clean poop)
+    this.handleCleanedPetResponse = (message: {
+      success: boolean
+      message: string
+      data?: {
+        poopId?: string
+        petId?: string
+      }
+      petStats?: {
+        hunger?: number
+        happiness?: number
+        cleanliness?: number
+      }
+    }) => {
+      console.log("🧹 [CleanlinessSystem] Cleaned pet response:", message)
+
+      // Only handle if this response is for this pet
+      if (message.data?.petId === this.petId) {
+        if (message.success && message.data?.poopId) {
+          const poopId = message.data.poopId
+          const removed = this.removePoopById(poopId, true)
+
+          if (removed) {
+            console.log(
+              `✅ [CleanlinessSystem] Poop ${poopId} removed from pet ${this.petId}`
+            )
+
+            // Update cleanliness from server if provided
+            if (message.petStats?.cleanliness !== undefined) {
+              this.cleanlinessLevel = message.petStats.cleanliness
+              console.log(
+                `📊 [CleanlinessSystem] Updated cleanliness: ${message.petStats.cleanliness}%`
+              )
+            }
+          } else {
+            console.warn(`⚠️ [CleanlinessSystem] Poop ${poopId} not found`)
+          }
+        } else {
+          console.warn(
+            "⚠️ [CleanlinessSystem] Cleaning failed or no poopId:",
+            message
+          )
         }
       }
+    }
+
+    // Register event listeners
+    eventBus.on(ColyseusMessageEvents.PoopCreated, this.handlePoopCreated)
+    eventBus.on(
+      ColyseusMessageEvents.CreatePoopResponse,
+      this.handleCreatePoopResponse
+    )
+    eventBus.on(
+      ColyseusMessageEvents.CleanedPetResponse,
+      this.handleCleanedPetResponse
+    )
+
+    // Cleanup on scene shutdown
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.cleanupEventListeners()
+    })
+
+    console.log(
+      `🎧 [CleanlinessSystem] Event listeners setup for pet ${this.petId}`
+    )
+  }
+
+  /**
+   * Cleanup event listeners
+   */
+  private cleanupEventListeners() {
+    if (this.handlePoopCreated) {
+      eventBus.off(ColyseusMessageEvents.PoopCreated, this.handlePoopCreated)
+    }
+    if (this.handleCreatePoopResponse) {
+      eventBus.off(
+        ColyseusMessageEvents.CreatePoopResponse,
+        this.handleCreatePoopResponse
+      )
+    }
+    if (this.handleCleanedPetResponse) {
+      eventBus.off(
+        ColyseusMessageEvents.CleanedPetResponse,
+        this.handleCleanedPetResponse
+      )
+    }
+    console.log(
+      `🧹 [CleanlinessSystem] Event listeners cleaned up for pet ${this.petId}`
     )
   }
 
@@ -151,14 +319,15 @@ export class CleanlinessSystem {
   private async checkPoopOpportunity() {
     const poopCount = await PetsDB.getPoopCount(this.petId)
     if (poopCount >= 3) return
-    const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
-    const shouldPoop =
-      !this.pet.isChasing &&
-      this.pet.currentActivity !== "chew" &&
-      (cleanlinessState === CleanlinessState.Dirty ||
-        cleanlinessState === CleanlinessState.Filthy) &&
-      this.cleanlinessLevel < GAME_MECHANICS.POOP_THRESHOLD
+    // const cleanlinessState = getCleanlinessState(this.cleanlinessLevel)
 
+    // const shouldPoop =
+    //   !this.pet.isChasing &&
+    //   this.pet.currentActivity !== "chew" &&
+    //   (cleanlinessState === CleanlinessState.Dirty ||
+    //     cleanlinessState === CleanlinessState.Filthy) &&
+    //   this.cleanlinessLevel < GAME_MECHANICS.POOP_THRESHOLD
+    const shouldPoop = true
     if (shouldPoop) {
       const now = this.scene.time.now
       // Add minimum 10 seconds between poops to prevent spam
@@ -166,8 +335,9 @@ export class CleanlinessSystem {
 
       if (
         !this.lastPoopCheck ||
+        // TODO: handle time create poop
         (now - this.lastPoopCheck > GAME_MECHANICS.POOP_CHECK_INTERVAL &&
-          timeSinceLastPoop >= 10)
+          timeSinceLastPoop >= 2)
       ) {
         await PetsDB.setPoopCount(this.petId, poopCount + 1)
         this.dropPoop()
@@ -207,8 +377,29 @@ export class CleanlinessSystem {
     poopId: string
   ): Phaser.GameObjects.Sprite | null {
     console.log(
-      `💩 [CREATE] Creating poop at original position (${x}, ${y}) ID: ${poopId}`
+      `💩 [CREATE ${this.petId}] Creating poop at original position (${x}, ${y}) ID: ${poopId}`
     )
+    console.log(`💩 [CREATE ${this.petId}] Scene exists:`, !!this.scene)
+    console.log(
+      `💩 [CREATE ${this.petId}] Scene active:`,
+      this.scene?.scene?.isActive()
+    )
+    console.log(
+      `💩 [CREATE ${this.petId}] Current poops count:`,
+      this.poopObjects.length
+    )
+
+    // ✅ FIX: Check if poop already exists to prevent duplicates
+    const existingPoop = this.poopObjects.find(
+      (poop) => (poop as unknown as { poopId: string }).poopId === poopId
+    )
+
+    if (existingPoop) {
+      console.warn(
+        `⚠️ [CREATE] Poop with ID ${poopId} already exists! Skipping creation.`
+      )
+      return existingPoop
+    }
 
     // ✨ THÊM: Clamp position to current scene bounds
     const scene = this.scene
@@ -286,8 +477,17 @@ export class CleanlinessSystem {
       this.poopShadows.push(shadow)
 
       console.log(
-        `Poop created at (${clampedX}, ${clampedY}). Total: ${this.poopObjects.length}`
+        `✅ [CREATE ${this.petId}] Poop created successfully at (${clampedX}, ${poopY}). Total: ${this.poopObjects.length}`
       )
+      console.log(`✅ [CREATE ${this.petId}] Poop sprite:`, {
+        x: poop.x,
+        y: poop.y,
+        texture: poop.texture.key,
+        visible: poop.visible,
+        active: poop.active,
+        alpha: poop.alpha,
+        depth: poop.depth,
+      })
 
       return poop
     } catch (error) {
@@ -346,24 +546,40 @@ export class CleanlinessSystem {
   public syncPoops(
     poopsData: Array<{ id: string; positionX: number; positionY: number }>
   ): void {
-    console.log(`[SYNC] Syncing ${poopsData.length} poops...`)
+    console.log(`💩 [SYNC ${this.petId}] Syncing ${poopsData.length} poops...`)
+    console.log(`💩 [SYNC ${this.petId}] Poops data:`, poopsData)
 
     // Clear existing poops first
     this.clearAllPoops()
 
     // Create new poops from server data
     let successCount = 0
-    poopsData.forEach((poopData) => {
+    poopsData.forEach((poopData, index) => {
+      console.log(
+        `💩 [SYNC ${this.petId}] Creating poop ${index + 1}/${
+          poopsData.length
+        }:`,
+        poopData
+      )
       const poop = this.createPoopAt(
         poopData.positionX,
         poopData.positionY,
         poopData.id
       )
-      if (poop) successCount++
+      if (poop) {
+        successCount++
+        console.log(
+          `✅ [SYNC ${this.petId}] Poop ${index + 1} created successfully`
+        )
+      } else {
+        console.error(
+          `❌ [SYNC ${this.petId}] Failed to create poop ${index + 1}`
+        )
+      }
     })
 
     console.log(
-      `[SYNC] Synced ${successCount}/${poopsData.length} poops successfully`
+      `💩 [SYNC ${this.petId}] Synced ${successCount}/${poopsData.length} poops successfully`
     )
   }
 
@@ -569,12 +785,41 @@ export class CleanlinessSystem {
   // ===== CLEANUP =====
 
   destroy(): void {
+    this.cleanupEventListeners()
     this.cleanup()
+    console.log("🧹 CleanlinessSystem destroyed")
   }
 
   cleanup() {
+    // Clean up all poops
     while (this.poopObjects.length > 0) {
       this.removePoopAtIndex(0)
     }
+  }
+
+  // ===== DEBUG UTILITIES =====
+
+  /**
+   * Debug method to check all poops state
+   * Use in browser console: window.game.scene.scenes[0].petManager.getActivePet().cleanlinessSystem.debugPoops()
+   */
+  public debugPoops(): void {
+    console.log("=== POOP DEBUG INFO ===")
+    console.log(`Pet ID: ${this.petId}`)
+    console.log(`Total Poops: ${this.poopObjects.length}`)
+    console.log(`Cleanliness Level: ${this.cleanlinessLevel.toFixed(1)}%`)
+
+    this.poopObjects.forEach((poop, index) => {
+      const poopId = (poop as unknown as { poopId: string }).poopId
+      console.log(`  Poop ${index}:`)
+      console.log(`    ID: ${poopId || "NO_ID"}`)
+      console.log(`    Position: (${poop.x.toFixed(1)}, ${poop.y.toFixed(1)})`)
+      console.log(`    Visible: ${poop.visible}`)
+      console.log(`    Active: ${poop.active}`)
+      console.log(`    Depth: ${poop.depth}`)
+      console.log(`    Texture: ${poop.texture?.key}`)
+    })
+
+    console.log("=== END POOP DEBUG ===")
   }
 }

@@ -127,6 +127,7 @@ export class PetManager {
       }
     }
 
+    // Register event listeners (poop events are now handled by CleanlinessSystem)
     eventBus.on(ColyseusMessageEvents.PetsStateSync, handlePetsSync)
     eventBus.on(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
 
@@ -181,6 +182,14 @@ export class PetManager {
         if (pet.happiness !== undefined) {
           existingPet.happinessSystem.happinessLevel = pet.happiness
         }
+
+        // ✅ NEW: Sync poops from server if provided
+        if (pet.poops && Array.isArray(pet.poops)) {
+          console.log(
+            `💩 [PetManager] Syncing ${pet.poops.length} poops for pet ${petId}`
+          )
+          existingPet.cleanlinessSystem.syncPoops(pet.poops)
+        }
       } else {
         // Create new pet
         const x = pet.x || pet.positionX || 400
@@ -200,6 +209,14 @@ export class PetManager {
           }
           if (pet.happiness !== undefined) {
             newPet.happinessSystem.happinessLevel = pet.happiness
+          }
+
+          // ✅ NEW: Sync poops from server if provided
+          if (pet.poops && Array.isArray(pet.poops)) {
+            console.log(
+              `💩 [PetManager] Syncing ${pet.poops.length} poops for new pet ${petId}`
+            )
+            newPet.cleanlinessSystem.syncPoops(pet.poops)
           }
         }
       }

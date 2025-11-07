@@ -73,7 +73,7 @@ export const GAME_MECHANICS = {
   CLEANLINESS_DECREASE_PER_HOUR: 3000, // Cleanliness decrease rate per hour (about half of hunger)
   POOP_CHECK_INTERVAL: 5000, // Interval between poop opportunity checks (ms)
   POOP_THRESHOLD: 50, // Cleanliness level below which pet may poop
-  POOP_DESPAWN_TIME: 60000, // Time before poop auto-despawns (ms) - 1 minute
+  POOP_DESPAWN_TIME: 2000, // Time before poop auto-despawns (ms) - 1 minute
 
   // Happiness system constants
   HAPPINESS_UPDATE_INTERVAL: 5000, // Interval between happiness updates (ms)
