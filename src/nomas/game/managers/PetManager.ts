@@ -164,7 +164,7 @@ export class PetManager {
     for (const serverPet of serverPets) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pet: any = serverPet
-      const petId = pet.id || pet.pet_id
+      const petId = pet.id
       if (!petId) {
         continue
       }
@@ -183,13 +183,13 @@ export class PetManager {
           existingPet.happinessSystem.happinessLevel = pet.happiness
         }
 
-        // ✅ NEW: Sync poops from server if provided
-        if (pet.poops && Array.isArray(pet.poops)) {
-          console.log(
-            `💩 [PetManager] Syncing ${pet.poops.length} poops for pet ${petId}`
-          )
-          existingPet.cleanlinessSystem.syncPoops(pet.poops)
-        }
+        // // ✅ NEW: Sync poops from server if provided
+        // if (pet.poops && Array.isArray(pet.poops)) {
+        //   console.log(
+        //     `💩 [PetManager] Syncing ${pet.poops.length} poops for pet ${petId}`
+        //   )
+        //   existingPet.cleanlinessSystem.syncPoops(pet.poops)
+        // }
       } else {
         // Create new pet
         const x = pet.x || pet.positionX || 400
@@ -211,13 +211,13 @@ export class PetManager {
             newPet.happinessSystem.happinessLevel = pet.happiness
           }
 
-          // ✅ NEW: Sync poops from server if provided
-          if (pet.poops && Array.isArray(pet.poops)) {
-            console.log(
-              `💩 [PetManager] Syncing ${pet.poops.length} poops for new pet ${petId}`
-            )
-            newPet.cleanlinessSystem.syncPoops(pet.poops)
-          }
+          // // ✅ NEW: Sync poops from server if provided
+          // if (pet.poops && Array.isArray(pet.poops)) {
+          //   console.log(
+          //     `💩 [PetManager] Syncing ${pet.poops.length} poops for new pet ${petId}`
+          //   )
+          //   newPet.cleanlinessSystem.syncPoops(pet.poops)
+          // }
         }
       }
     }
@@ -259,7 +259,7 @@ export class PetManager {
     const cleanlinessSystem = new CleanlinessSystem(
       this.scene,
       pet,
-      null as unknown, // Deprecated parameter
+      colyseusService,
       petId
     )
     const happinessSystem = new HappinessSystem(pet, null as unknown, petId) // Deprecated parameter
@@ -273,6 +273,8 @@ export class PetManager {
       movementSystem,
       activitySystem,
     }
+
+    console.log(123123123123, petData)
     pet.onStopChasing = () => {
       this.releaseFoodTarget(petId)
     }
@@ -281,7 +283,6 @@ export class PetManager {
       this.activePetId = petId
       this.updatePetVisualStates() // Update visual states when first pet becomes active
     }
-    console.log(`✅ Pet entity ${petId} created (local only)`)
     return petData
   }
 
@@ -733,8 +734,11 @@ export class PetManager {
       return false
     }
 
+    console.log(123123123123, activePet)
+
     // First, try to clean the poop at the position
     const poopFound = activePet.cleanlinessSystem.findPoop(x, y)
+    console.log(1231212312, poopFound)
     const poopId = (poopFound as unknown as { poopId: string }).poopId
     if (!poopFound) {
       console.log("No poop found at clicked position")

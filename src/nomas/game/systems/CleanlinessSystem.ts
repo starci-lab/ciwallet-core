@@ -340,6 +340,7 @@ export class CleanlinessSystem {
           timeSinceLastPoop >= 2)
       ) {
         await PetsDB.setPoopCount(this.petId, poopCount + 1)
+        console.log(674564566)
         this.dropPoop()
         this.lastPoopCheck = now
         this.lastPoopTime = now
@@ -351,6 +352,7 @@ export class CleanlinessSystem {
   // ===== POOP MANAGEMENT =====
   // TODO: UPDATE POOP SYSTEM
   private dropPoop() {
+    console.log(674564566)
     const petX = this.pet.sprite.x
     const petY = GAME_LAYOUT.POOP_GROWN_OFFSET
 
@@ -389,7 +391,6 @@ export class CleanlinessSystem {
       this.poopObjects.length
     )
 
-    // ✅ FIX: Check if poop already exists to prevent duplicates
     const existingPoop = this.poopObjects.find(
       (poop) => (poop as unknown as { poopId: string }).poopId === poopId
     )
@@ -476,19 +477,6 @@ export class CleanlinessSystem {
       this.poopObjects.push(poop)
       this.poopShadows.push(shadow)
 
-      console.log(
-        `✅ [CREATE ${this.petId}] Poop created successfully at (${clampedX}, ${poopY}). Total: ${this.poopObjects.length}`
-      )
-      console.log(`✅ [CREATE ${this.petId}] Poop sprite:`, {
-        x: poop.x,
-        y: poop.y,
-        texture: poop.texture.key,
-        visible: poop.visible,
-        active: poop.active,
-        alpha: poop.alpha,
-        depth: poop.depth,
-      })
-
       return poop
     } catch (error) {
       console.error("Failed to create poop:", error)
@@ -546,41 +534,13 @@ export class CleanlinessSystem {
   public syncPoops(
     poopsData: Array<{ id: string; positionX: number; positionY: number }>
   ): void {
-    console.log(`💩 [SYNC ${this.petId}] Syncing ${poopsData.length} poops...`)
-    console.log(`💩 [SYNC ${this.petId}] Poops data:`, poopsData)
-
     // Clear existing poops first
     this.clearAllPoops()
 
     // Create new poops from server data
-    let successCount = 0
-    poopsData.forEach((poopData, index) => {
-      console.log(
-        `💩 [SYNC ${this.petId}] Creating poop ${index + 1}/${
-          poopsData.length
-        }:`,
-        poopData
-      )
-      const poop = this.createPoopAt(
-        poopData.positionX,
-        poopData.positionY,
-        poopData.id
-      )
-      if (poop) {
-        successCount++
-        console.log(
-          `✅ [SYNC ${this.petId}] Poop ${index + 1} created successfully`
-        )
-      } else {
-        console.error(
-          `❌ [SYNC ${this.petId}] Failed to create poop ${index + 1}`
-        )
-      }
+    poopsData.forEach((poopData) => {
+      this.createPoopAt(poopData.positionX, poopData.positionY, poopData.id)
     })
-
-    console.log(
-      `💩 [SYNC ${this.petId}] Synced ${successCount}/${poopsData.length} poops successfully`
-    )
   }
 
   private removePoopAtIndex(index: number, playAnimation: boolean = false) {
@@ -677,6 +637,7 @@ export class CleanlinessSystem {
   // ===== PUBLIC METHODS =====
 
   findPoop(x: number, y: number): Phaser.GameObjects.Sprite | null {
+    console.log(3453455, this.poopObjects)
     const poopIndex = this.poopObjects.findIndex(
       (poop) => Phaser.Math.Distance.Between(poop.x, poop.y, x, y) < 40
     )
