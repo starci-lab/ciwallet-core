@@ -127,6 +127,7 @@ export class PetManager {
       }
     }
 
+    // Register event listeners (poop events are now handled by CleanlinessSystem)
     eventBus.on(ColyseusMessageEvents.PetsStateSync, handlePetsSync)
     eventBus.on(ColyseusMessageEvents.BuyPetResponse, handleBuyPetResponse)
 
@@ -163,7 +164,7 @@ export class PetManager {
     for (const serverPet of serverPets) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pet: any = serverPet
-      const petId = pet.id || pet.pet_id
+      const petId = pet.id
       if (!petId) {
         continue
       }
@@ -180,6 +181,14 @@ export class PetManager {
         }
         if (pet.happiness !== undefined) {
           existingPet.happinessSystem.happinessLevel = pet.happiness
+        }
+
+        // // ✅ NEW: Sync poops from server if provided
+        if (pet.poops && Array.isArray(pet.poops)) {
+          console.log(
+            `💩 [PetManager] Syncingfsdfdf ${pet.poops.length} poops for pet ${petId}`
+          )
+          existingPet.cleanlinessSystem.syncPoops(pet.poops)
         }
       } else {
         // Create new pet
@@ -201,9 +210,18 @@ export class PetManager {
           if (pet.happiness !== undefined) {
             newPet.happinessSystem.happinessLevel = pet.happiness
           }
+
+          // // ✅ NEW: Sync poops from server if provided
+          if (pet.poops && Array.isArray(pet.poops)) {
+            console.log(
+              `💩 [PetManager] Syncing ${pet.poops.length} poops for new pet ${petId}`
+            )
+            newPet.cleanlinessSystem.syncPoops(pet.poops)
+          }
         }
       }
     }
+    console.log(4534345, this.pets)
   }
 
   /**
@@ -242,7 +260,7 @@ export class PetManager {
     const cleanlinessSystem = new CleanlinessSystem(
       this.scene,
       pet,
-      null as unknown, // Deprecated parameter
+      colyseusService,
       petId
     )
     const happinessSystem = new HappinessSystem(pet, null as unknown, petId) // Deprecated parameter
@@ -256,6 +274,7 @@ export class PetManager {
       movementSystem,
       activitySystem,
     }
+
     pet.onStopChasing = () => {
       this.releaseFoodTarget(petId)
     }
@@ -264,7 +283,6 @@ export class PetManager {
       this.activePetId = petId
       this.updatePetVisualStates() // Update visual states when first pet becomes active
     }
-    console.log(`✅ Pet entity ${petId} created (local only)`)
     return petData
   }
 
@@ -424,8 +442,8 @@ export class PetManager {
   }
 
   // Get all pets data
-  getAllPetsData(): Map<string, PetData> {
-    return this.pets
+  getAllPetsData(): PetData[] {
+    return Array.from(this.pets.values())
   }
 
   /**
@@ -708,39 +726,35 @@ export class PetManager {
     return false
   }
 
-  // Combined buy and clean poop operation - similar to buyAndDropFood/Toy
   buyAndCleanPoop(x: number, y: number, cleaningId: string = "broom"): boolean {
-    const activePet = this.getActivePet()
-    if (!activePet) {
-      console.log("No active pet for buyAndCleanPoop")
-      return false
+    const allPetsData = this.getAllPetsData()
+    for (const petData of Object.values(allPetsData)) {
+      if (
+        !petData.cleanlinessSystem ||
+        petData.cleanlinessSystem.poopObjects.length === 0
+      ) {
+        continue
+      }
+      const poopFound = petData.cleanlinessSystem.findPoop(x, y)
+      if (!poopFound) {
+        console.log("No poop found at clicked position")
+        continue
+      }
+      console.log(123123123123, poopFound)
+      const poopId = (poopFound as unknown as { poopId: string }).poopId
+      if (petData.cleanlinessSystem.cleaningInventory > 0) {
+        petData.cleanlinessSystem.cleaningInventory -= 1
+        return true
+      }
+      const purchased = petData.cleanlinessSystem.buyAndCleaning(
+        cleaningId,
+        poopId
+      )
+      if (purchased) {
+        console.log("Cleaning request sent to server, waiting for response...")
+        return true // Server will handle cleaning and notify via cleaned_pet_response
+      }
     }
-
-    // First, try to clean the poop at the position
-    const poopFound = activePet.cleanlinessSystem.findPoop(x, y)
-    const poopId = (poopFound as unknown as { poopId: string }).poopId
-    if (!poopFound) {
-      console.log("No poop found at clicked position")
-      return false
-    }
-
-    // Check if we already have cleaning item in inventory
-    if (activePet.cleanlinessSystem.cleaningInventory > 0) {
-      activePet.cleanlinessSystem.cleaningInventory -= 1
-      return true
-    }
-
-    // Try to buy cleaning item
-    const purchased = activePet.cleanlinessSystem.buyAndCleaning(
-      cleaningId,
-      poopId
-    )
-    if (purchased) {
-      console.log("Cleaning request sent to server, waiting for response...")
-      return true // Server will handle cleaning and notify via cleaned_pet_response
-    }
-
-    console.log("Failed to buy cleaning item (not enough tokens)")
     return false
   }
 
