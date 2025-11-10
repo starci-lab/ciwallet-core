@@ -28,7 +28,7 @@ export const SelectAccountPage = () => {
                                 accountId={account.id} 
                                 accountAddress={account.accountAddress} 
                                 isSelected={
-                                    accounts.selectedAccountId ? accounts.selectedAccountId === account.id : index === 0
+                                    accounts.selectedAccountIndex ? accounts.selectedAccountIndex === index : index === 0
                                 }
                                 onClick={() => {
                                     dispatch(setSelectedAccountId({

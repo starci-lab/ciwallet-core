@@ -1,36 +1,65 @@
-import * as hl from "@nktkas/hyperliquid"
-import { useCallback, useContext, useLayoutEffect, useRef } from "react"
+import { useCallback, useContext, useLayoutEffect, useMemo } from "react"
 import { HyperliquidContext } from "./HyperliquidProvider"
 import { useDispatch } from "react-redux"
 import { setAllMids, setLastCandleSnapshot, useAppSelector } from "@/nomas/redux"
+import { subscriptionHyperliquidObj } from "@/nomas/obj"
 
-const subscriptionClient = new hl.SubscriptionClient({
-    transport: new hl.WebSocketTransport(),
-})
 export const useHyperliquidSubscriptionCore = () => {
-    const subRef = useRef<hl.Subscription | null>(null)
+    const network = useAppSelector((state) => state.persists.session.network)
+    const client = useMemo(
+        () => 
+            subscriptionHyperliquidObj.getSubscriptionClient({
+                network: network,
+            }), 
+        [network]
+    )
     const dispatch = useDispatch()
-    const selectedMarketId = useAppSelector((state) => state.stateless.sections.perp.selectedMarketId)
+    const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
     const candleInterval = useAppSelector((state) => state.stateless.sections.perp.candleInterval)
     
     const subscribe = useCallback(async () => {
-        subRef.current = await subscriptionClient.allMids((event) => {
-            dispatch(setAllMids(event))
-        })
-        subRef.current = await subscriptionClient.candle({
-            coin: selectedMarketId,
-            interval: candleInterval,
-        }, (event) => {
-            dispatch(setLastCandleSnapshot(event))
-        })
-    }, [dispatch])
+        await Promise.all([
+            subscriptionHyperliquidObj.subscribeToAllMids({
+                client: client,
+                onUpdate: (event) => {
+                    dispatch(setAllMids(event))
+                }
+            }),
+            subscriptionHyperliquidObj.subscribeToCandle({
+                client: client,
+                onUpdate: (event) => {
+                    dispatch(setLastCandleSnapshot(event))
+                },
+                assetId: selectedAssetId,
+                interval: candleInterval,
+            })
+        ])
+    }, [dispatch, client, selectedAssetId, candleInterval])
 
     const unsubscribe = useCallback(async () => {
-        await subRef.current?.unsubscribe()
+        await Promise.all([
+            subscriptionHyperliquidObj.subscribeToAllMids({
+                client: client,
+                onUpdate: (event) => {
+                    dispatch(setAllMids(event))
+                }
+            }),
+            subscriptionHyperliquidObj.subscribeToCandle({
+                client: client,
+                onUpdate: (event) => {
+                    dispatch(setLastCandleSnapshot(event))
+                },
+                assetId: selectedAssetId,
+                interval: candleInterval,
+            })
+        ])
     }, [])
 
     useLayoutEffect(() => {
         subscribe()
+        return () => {
+            unsubscribe()
+        }
     }, [subscribe])
 
     return {

@@ -5,15 +5,17 @@ import { PerpTab, setPerpTab, useAppSelector } from "@/nomas/redux"
 import { PerpBody } from "./PerpBody"
 import { useAppDispatch } from "@/nomas/redux"
 import { PerpAssets } from "./PerpAssets"
+import { PerpTrade } from "./PerpTrade"
 
 export const PerpPage = () => {
     const perpTab = useAppSelector((state) => state.stateless.sections.perp.tab)
     const dispatch = useAppDispatch()
+    
     const tabs = [
         {
             value: PerpTab.Trade,
             label: "Trade",
-            content: <PerpBody />,
+            content: <PerpTrade />,
         },
         {
             value: PerpTab.Assets,

@@ -1,17 +1,19 @@
 import { ChainId, Network, TokenId } from "@ciwallet-sdk/types"
-import { HyperliquidDepositAsset, type HyperliquidDepositAssetInfo } from "./types"
+import { HyperliquidDepositAsset, HyperliquidMarketMode, type HyperliquidDepositAssetInfo, type HyperliquidMarketModeMetadata, HyperliquidAssetId } from "./types"
 import * as hl from "@nktkas/hyperliquid"
 import { privateKeyToAccount } from "viem/accounts"
 
 export enum HyperliquidMarketId {
-    BTC = "BTC",
-    ETH = "ETH",
-    SOL = "SOL",
+    BTC = "btc",
+    ETH = "eth",
+    SOL = "sol",
 }
 
 export interface HyperliquidMetadata {
     name: string
     imageUrl: string
+    assetId: number
+    coin: string
 }
 
 export class Hyperliquid {
@@ -23,24 +25,45 @@ export class Hyperliquid {
             wallet: privateKeyToAccount(privateKey as `0x${string}`),
         })
     }
-    constructor() {}
 
-    getMarketMetadata(marketId: HyperliquidMarketId): HyperliquidMetadata {
-        const map = {
-            [HyperliquidMarketId.BTC]: {
-                name: "BTC/USDC",
-                imageUrl: "/assets/hyperliquid/btc.svg",
+    getModeMetadata() {
+        const metadata: Record<HyperliquidMarketMode, HyperliquidMarketModeMetadata> = {
+            [HyperliquidMarketMode.Isolated]: {
+                key: HyperliquidMarketMode.Isolated,
+                name: "Isolated",
+                description: "Manage your risk on individual positions by restricting the amount of margin allocated to each. If the margin ratio of an isolated position reaches 100%, the position will be liquidated. Margin can be added or removed to individual positions in this mode.",
             },
-            [HyperliquidMarketId.ETH]: {
-                name: "ETH/USDC",
-                imageUrl: "/assets/hyperliquid/eth.svg",
-            },
-            [HyperliquidMarketId.SOL]: {
-                name: "SOL/USDC",
-                imageUrl: "/assets/hyperliquid/sol.svg",
+            [HyperliquidMarketMode.CrossMargin]: {
+                key: HyperliquidMarketMode.CrossMargin,
+                name: "Cross Margin",
+                description: "All cross positions share the same cross margin as collateral. In the event of liquidation, your cross margin balance and any remaining open positions under assets in this mode may be forfeited.",
             },
         }
-        return map[marketId]
+        return metadata
+    }
+
+    getAssetMetadata(assetId: HyperliquidAssetId): HyperliquidMetadata {
+        const map = {
+            [HyperliquidAssetId.BTC]: {
+                coin: "BTC",
+                name: "BTC/USDC",
+                imageUrl: "/assets/hyperliquid/btc.svg",
+                assetId: 0,
+            },
+            [HyperliquidAssetId.ETH]: {
+                coin: "ETH",
+                name: "ETH/USDC",
+                imageUrl: "/assets/hyperliquid/eth.svg",
+                assetId: 1,
+            },
+            [HyperliquidAssetId.SOL]: {
+                coin: "SOL",
+                name: "SOL/USDC",
+                imageUrl: "/assets/hyperliquid/sol.svg",
+                assetId: 2,
+            },
+        }
+        return map[assetId]
     }
 
     public getDepositAssetInfos(
@@ -205,9 +228,6 @@ export class Hyperliquid {
         return { status: result.status }
     }
 }   
-
-export type CandleInterval = "1m" | "5m" | "15m" | "30m" | "1h" | "4h" | "1d"
-
 
 export interface ApproveAgentParams {
     network: Network

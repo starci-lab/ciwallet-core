@@ -6,6 +6,7 @@ import type { WithClassName } from "@ciwallet-sdk/types"
 export interface NomasTabTab {
     value: string
     label: string
+    className?: string
     renderLabel?: (label: string) => React.ReactNode
 }
 
@@ -24,7 +25,8 @@ export const NomasTab = ({ value, onValueChange, tabs, className }: NomasTabProp
                         className={twMerge(
                             "flex-1",
                             "text h-10 transition-all duration-200 ease-in-out px-4 cursor-pointer", 
-                            value === tab.value && "bg-button rounded-button"
+                            value === tab.value && "bg-button rounded-button",
+                            tab.className
                         )}
                     >{tab.renderLabel ? tab.renderLabel(tab.label) : tab.label}
                     </TabsTrigger>

@@ -1,6 +1,6 @@
 import { SingletonHookProvider } from "./hooks"
 import { ChainId } from "@ciwallet-sdk/types"
-import { ReduxProvider, useAppSelector } from "./redux"
+import { ReduxProvider, useAppDispatch, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
@@ -26,7 +26,6 @@ export interface NomasProps {
     contentEventBus?: EventEmitter
 }
 export const Nomas = ({ contentEventBus }: NomasProps) => {
-    
     return (
         <WalletKitProvider
             context={{
@@ -66,6 +65,7 @@ const NomasContent = ({ contentEventBus }: NomasProps) => {
     const isGameMinimized = useAppSelector(
         (state) => state.persists.session.isGameMinimized
     )
+    const draggable = useAppSelector((state) => state.stateless.scene.draggable)
     const gameLoaded = useAppSelector((state) => state.stateless.game.gameLoaded)
     const renderContent = () => {
         switch (scene) {
@@ -93,7 +93,7 @@ const NomasContent = ({ contentEventBus }: NomasProps) => {
                 {isOverlayVisible && (
                     <motion.div
                         key="nomas-overlay"
-                        drag
+                        drag={draggable}
                         dragMomentum={false}
                         initial={{ opacity: 0, x: 100 }}       
                         animate={{ opacity: 1, x: 0 }}          

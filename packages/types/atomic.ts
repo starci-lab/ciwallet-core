@@ -1,0 +1,1 @@
+export type ElementOf<T extends Array<unknown>> = T[number]

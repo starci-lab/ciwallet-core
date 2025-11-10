@@ -76,6 +76,13 @@
   --color-warning: hsl(34 100% 50%);
   /* Success color */
   --color-success: hsl(145 100% 39.2%);
+  /* Input ring color */
+  --color-input-ring: hsl(0 0% 22%);
+  /* Bullish color */
+  --color-bullish: 	hsl(174 63% 40%);
+  /* Bearish color */
+  --color-bearish: 	hsl(1 83% 63%);
+
 }
 
 @theme {
@@ -105,6 +112,7 @@
   /* Input */
   --color-input: var(--color-input-background);
   --color-input-border: var(--color-input-border);
+  --color-input-ring: var(--color-input-ring);
   /* Semantic */
   --color-primary: var(--color-primary);
   --color-danger: var(--color-danger);
@@ -122,6 +130,10 @@
   --radius-skeleton: var(--radius-skeleton);
   /* Border */
   --color-border-card: var(--color-border-card);
+
+  /* Colors */
+  --color-bullish: var(--color-bullish);
+  --color-bearish: var(--color-bearish);
 }
 
 @layer utilities {

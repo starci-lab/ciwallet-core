@@ -17,7 +17,7 @@ import {
     useAppSelector,
 } from "@/nomas/redux"
 import { ChainId, Platform } from "@ciwallet-sdk/types"
-import { useHyperunitGenerateAddressSwrMutation } from "@/nomas/hooks"
+import { useHyperliquidDepositFormik, useHyperunitGenerateAddressSwrMutation } from "@/nomas/hooks"
 import { shortenAddress } from "@ciwallet-sdk/utils"
 import { SelectAsset } from "./SelectAsset"
 
@@ -28,12 +28,7 @@ export const DepositPage = () => {
     const hyperunitGenResponse = useAppSelector(
         (state) => state.stateless.sections.perp.hyperunitGenResponse
     )
-    const depositCurrentAsset = useAppSelector(
-        (state) => state.stateless.sections.perp.depositCurrentAsset
-    )
-    const depositSourceChainId = useAppSelector(
-        (state) => state.stateless.sections.perp.depositSourceChainId
-    )
+    const hyperliquidDepositFormik = useHyperliquidDepositFormik()
     // your destination account address
     const destinationAccount = useAppSelector((state) =>
         selectSelectedAccountByPlatform(
@@ -45,9 +40,9 @@ export const DepositPage = () => {
     useEffect(() => {
         const handleEffect = async () => {
             await hyperunitGenerateAddressSwrMutation.trigger({
-                sourceChain: depositSourceChainId,
+                sourceChain: hyperliquidDepositFormik.values.chainId,
                 destinationChain: ChainId.Hyperliquid,
-                asset: depositCurrentAsset,
+                asset: hyperliquidDepositFormik.values.asset,
                 destinationAddress: destinationAccount?.accountAddress || "",
                 network,
             }, {
@@ -56,8 +51,8 @@ export const DepositPage = () => {
         }
         handleEffect()
     }, [
-        depositCurrentAsset,
-        depositSourceChainId,
+        hyperliquidDepositFormik.values.asset,
+        hyperliquidDepositFormik.values.chainId,
         destinationAccount?.accountAddress,
     ])
     return (
@@ -72,7 +67,7 @@ export const DepositPage = () => {
             <NomasCardBody>
                 <NomasSpacer y={2} />
                 <SelectAsset />  
-                {depositSourceChainId !== ChainId.Arbitrum && (
+                {hyperliquidDepositFormik.values.chainId !== ChainId.Arbitrum && (
                     <>
                         <NomasSpacer y={4} />
                         <div className="flex items-center justify-between">
@@ -84,13 +79,13 @@ export const DepositPage = () => {
                                 >
                                     <div className="text-sm text-text">
                                         {shortenAddress(
-                                            hyperunitGenResponse[depositCurrentAsset]?.address || ""
+                                            hyperunitGenResponse[hyperliquidDepositFormik.values.asset]?.address || ""
                                         )}
                                     </div>
                                 </NomasSkeleton>
                                 <Snippet
                                     copyString={
-                                        hyperunitGenResponse[depositCurrentAsset]?.address || ""
+                                        hyperunitGenResponse[hyperliquidDepositFormik.values.asset]?.address || ""
                                     }
                                 />
                             </div>
@@ -102,8 +97,10 @@ export const DepositPage = () => {
                 <NomasButton
                     className="w-full"
                     xlSize
+                    disabled={!hyperliquidDepositFormik.isValid}
+                    isLoading={hyperliquidDepositFormik.isSubmitting}
                     onClick={() => {
-                        dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
+                        hyperliquidDepositFormik.submitForm()
                     }}
                 >
                     Deposit

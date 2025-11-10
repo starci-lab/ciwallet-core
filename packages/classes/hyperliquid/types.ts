@@ -1,5 +1,6 @@
 import type { ChainId, Network } from "@ciwallet-sdk/types"
 import type { TokenId } from "@ciwallet-sdk/types"
+import type * as hl from "@nktkas/hyperliquid"
 
 export enum HyperliquidDepositAsset {
     Usdc = "usdc",
@@ -27,3 +28,38 @@ export interface HyperliquidDepositAssetInfo {
     symbol: string
 }
 
+export enum HyperliquidMarketMode {
+    Isolated = "isolated",
+    CrossMargin = "cross-margin",
+}
+
+export interface HyperliquidMarketModeMetadata {
+    key: HyperliquidMarketMode
+    name: string
+    description: string
+}
+
+export enum HyperliquidTransport {
+    Http = "http",
+    Websocket = "websocket",
+}
+
+export enum HyperliquidAssetId {
+    BTC = "btc",
+    ETH = "eth",
+    SOL = "sol",
+}
+
+export type CandleInterval = "1m" | "5m" | "15m" | "30m" | "1h" | "4h" | "1d"
+
+export type ActiveAssetData = Awaited<
+    ReturnType<
+        hl.InfoClient["activeAssetData"]
+    >
+>
+
+export type ClearingHouseData = Awaited<
+    ReturnType<
+        hl.InfoClient["clearinghouseState"]
+    >
+>

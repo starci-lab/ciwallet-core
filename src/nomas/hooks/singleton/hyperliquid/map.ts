@@ -1,26 +1,21 @@
 import { assetsConfig } from "@/nomas/resources"
-
+import { HyperliquidAssetId } from "@ciwallet-sdk/classes"
 export interface HyperliquidMetadata {
     name: string
     imageUrl: string
 }
 
-export enum HyperliquidMarketId {
-    BTC = "BTC",
-    ETH = "ETH",
-    SOL = "SOL",
-}
-export const getHyperliquidMetadata = (marketId: HyperliquidMarketId) => {
-    const metadata: Record<HyperliquidMarketId, HyperliquidMetadata> = {
-        [HyperliquidMarketId.BTC]: {
+export const getHyperliquidMetadata = (marketId: HyperliquidAssetId) => {
+    const metadata: Record<HyperliquidAssetId, HyperliquidMetadata> = {
+        [HyperliquidAssetId.BTC]: {
             name: "BTC/USDC",
             imageUrl: assetsConfig().hyperliquid.btc,
         },
-        [HyperliquidMarketId.ETH]: {
+        [HyperliquidAssetId.ETH]: {
             name: "ETH/USDC",
             imageUrl: assetsConfig().hyperliquid.eth,
         },
-        [HyperliquidMarketId.SOL]: {
+        [HyperliquidAssetId.SOL]: {
             name: "SOL/USDC",
             imageUrl: assetsConfig().hyperliquid.sol,
         },

@@ -6,6 +6,8 @@ import { PerpPage } from "./PerpPage"
 import { DepositPage } from "./DepositPage"
 import { SelectAssetPage } from "./SelectAssetPage"
 import { SourceChainPage } from "./SourceChainPage"
+import { MarginModePage } from "./MarginModePage"
+import { LeveragePage } from "./LeveragePage"
 
 export const PerpSection = () => {
     const perpSectionPage = useAppSelector((state) => state.stateless.sections.perp.perpSectionPage)   
@@ -19,6 +21,10 @@ export const PerpSection = () => {
             return <SelectAssetPage />
         case PerpSectionPage.SourceChain:
             return <SourceChainPage />
+        case PerpSectionPage.MarginMode:
+            return <MarginModePage />
+        case PerpSectionPage.Leverage:
+            return <LeveragePage />
         }
     }
     return <NomasCard 
