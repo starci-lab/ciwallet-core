@@ -1104,6 +1104,7 @@ export class PetManager {
     console.log("🎾 Sprite scale:", { scaleX: toy.scaleX, scaleY: toy.scaleY })
 
     // Add drop animation effect
+    const toyScale = GAME_LAYOUT.TOY_SCALE
     this.scene.tweens.add({
       targets: toy,
       y: toyFinalY,

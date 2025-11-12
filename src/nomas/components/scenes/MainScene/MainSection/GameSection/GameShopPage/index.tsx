@@ -215,17 +215,17 @@ export const GameShopPage = () => {
 
   return (
     <NomasCard variant={NomasCardVariant.Gradient} isContainer>
-      <NomasCardBody className="relative w-full h-full">
-        <div className="w-full h-full bg-card-dark-3 flex flex-col rounded-card-inner!">
+      <NomasCardBody className="relative w-full min-h-[500px]">
+        <div className="w-full h-full bg-card-dark-3 flex flex-col radius-card-inner">
           {/* Header */}
-          <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted rounded-t-card-inner!">
+          <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted rounded-t-[var(--card-radius-inner)]">
             {/* Back/Close Button */}
             <button
               onClick={handleClose}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-card-dark-5 rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[hsl(0,0%,22.7%)] transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-card-dark-5 rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-card-dark-6 transition-colors"
             >
               <svg
-                className="w-3.5 h-3.5 text-gray-300"
+                className="w-3.5 h-3.5 text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -295,8 +295,8 @@ export const GameShopPage = () => {
                     className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap shrink-0
                            transition-all duration-200 ${
                              category === tab.k
-                               ? "bg-accent-purple text-white"
-                               : "bg-transparent text-muted text-muted-hover"
+                               ? "bg-accent-purple text"
+                               : "bg-transparent text-muted hover:text-muted-hover"
                            }`}
                   >
                     {tab.t}
@@ -314,7 +314,7 @@ export const GameShopPage = () => {
                   <div className="w-20 h-20 bg-card-dark-4 rounded-2xl flex items-center justify-center mb-4">
                     <span className="text-4xl">📦</span>
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className="text-xl font-semibold text mb-2">
                     Items Coming Soon!
                   </h3>
                   <p className="text-muted">
