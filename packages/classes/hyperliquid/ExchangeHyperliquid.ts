@@ -1,7 +1,7 @@
 import { Network } from "@ciwallet-sdk/types"
 import * as hl from "@nktkas/hyperliquid"
 import { privateKeyToAccount } from "viem/accounts"
-import { HyperliquidAssetId, HyperliquidTransport } from "./types"
+import { HyperliquidAssetId, HyperliquidOrderSide, HyperliquidTransport } from "./types"
 import { getRequestTransport } from "./utils"
 import { Hyperliquid } from "./Hyperliquid"
 
@@ -43,7 +43,7 @@ export class ExchangeHyperliquid {
         })
     }
     // we update the leverage for the given asset
-    async updateLeverage(
+    async updateLeverage(   
         { 
             asset, 
             leverage, 
@@ -78,4 +78,46 @@ export class ExchangeHyperliquid {
             agentName: "NomasWalletHyperliquid",
         })
     }
+
+    async placeOrder(
+        {
+            clientParams,
+            asset,
+            side,
+            price,
+            size,
+            reduceOnly,
+        }: HyperliquidPlaceOrderParams
+    ) {
+        const client = this.getExchangeClient({ 
+            ...clientParams, 
+            transport: HyperliquidTransport.Http 
+        })
+
+        return await client.order({
+            orders: [{
+                a: this.hyperliquidObj.getAssetMetadata(asset).assetId,
+                b: side === HyperliquidOrderSide.Buy,
+                p: price,
+                s: size,
+                r: reduceOnly,
+                t: {
+                    limit: {
+                        tif: "FrontendMarket",
+                    },
+                },
+            }],
+        })   
+    }
+}
+
+export interface HyperliquidPlaceOrderParams {
+    clientParams: HttpExchangeHyperliquidClientParams
+    asset: HyperliquidAssetId
+    side: HyperliquidOrderSide
+    price: string
+    size: string
+    reduceOnly: boolean
+    takeProfit?: string
+    stopLoss?: string
 }

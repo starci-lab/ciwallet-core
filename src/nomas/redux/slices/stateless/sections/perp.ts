@@ -1,13 +1,14 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import { 
     HyperliquidAssetId, 
+    HyperliquidOrderType, 
     type CandleInterval, 
     type PerpMetas, 
     type AllMids, 
     type CandleSnapshots, 
     type ActiveAssetData,
-    type ClearingHouseData
-} from "@ciwallet-sdk/classes"
+    type ClearingHouseData,
+    HyperliquidOrderSide} from "@ciwallet-sdk/classes"
 import { HyperliquidDepositAsset } from "@ciwallet-sdk/classes"
 import { hyperliquidObj } from "@/nomas/obj"
 
@@ -18,12 +19,13 @@ export enum PerpSectionPage {
     SourceChain = "source-chain",
     MarginMode = "margin-mode",
     Leverage = "leverage",
+    OrderType = "order-type",
 }
 
 export enum PerpTab {
     Trade = "trade",
     Assets = "assets",
-    History = "history",
+    Orders = "orders",
 }
 
 export interface HyperunitGenResponse {
@@ -34,11 +36,6 @@ export interface HyperunitGenResponse {
         unitNode: string
         unitNodeSignature: string
     },
-}
-
-export enum TradeType {
-    Buy = "buy",
-    Sell = "sell",
 }
 
 export interface PerpSlice {
@@ -56,7 +53,8 @@ export interface PerpSlice {
     clearingHouseData?: ClearingHouseData;
     leverage: number;
     isCross: boolean;
-    tradeType: TradeType;
+    orderType: HyperliquidOrderType;
+    orderSide: HyperliquidOrderSide;
 }
 
 export interface SetHyperunitGenResponseParam {
@@ -76,7 +74,8 @@ const initialState: PerpSlice = {
     hyperunitGenResponse: {},
     leverage: 1,
     isCross: false,
-    tradeType: TradeType.Buy,
+    orderSide: HyperliquidOrderSide.Buy,
+    orderType: HyperliquidOrderType.Market,
 }
 
 export const perpSlice = createSlice({
@@ -128,8 +127,11 @@ export const perpSlice = createSlice({
         setIsCross: (state, action: PayloadAction<boolean>) => {
             state.isCross = action.payload
         },
-        setTradeType: (state, action: PayloadAction<TradeType>) => {
-            state.tradeType = action.payload
+        setOrderSide: (state, action: PayloadAction<HyperliquidOrderSide>) => {
+            state.orderSide = action.payload
+        },
+        setOrderType: (state, action: PayloadAction<HyperliquidOrderType>) => {
+            state.orderType = action.payload
         },
     },
     selectors: {
@@ -163,7 +165,8 @@ export const {
     setClearingHouseData,
     setLeverage,
     setIsCross,
-    setTradeType,
+    setOrderSide,
+    setOrderType,
 } = perpSlice.actions
 export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice } = perpSlice.selectors
 export const perpReducer = perpSlice.reducer

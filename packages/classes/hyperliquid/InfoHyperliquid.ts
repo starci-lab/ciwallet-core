@@ -101,6 +101,20 @@ export class InfoHyperliquid {
             user: accountAddress,
         })
     }
+
+    async getOrders(
+        {
+            clientParams,
+            userAddress,
+        }: InfoHyperliquidGetOrdersParams
+    ) {
+        const client = this.getInfoClient({ 
+            ...clientParams, 
+        })
+        return await client.openOrders({
+            user: userAddress,
+        })
+    }   
 }
 
 export interface InfoHyperliquidOpenOrdersParams {
@@ -117,4 +131,9 @@ export interface InfoHyperliquidGetActiveAssetDataParams {
 export interface InfoHyperliquidGetClearingHouseDataParams {
     clientParams: InfoHyperliquidClientParams
     accountAddress: string
+}
+
+export interface InfoHyperliquidGetOrdersParams {
+    clientParams: InfoHyperliquidClientParams
+    userAddress: string
 }

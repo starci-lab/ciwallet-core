@@ -12,11 +12,11 @@ export const SingletonHookProvider = ({ children }: PropsWithChildren) => {
             <PhaserProvider>
                 <SwrProvider>
                     <MixinProvider>
-                        <FormikProvider>
-                            <HyperliquidProvider>
+                        <HyperliquidProvider>
+                            <FormikProvider>
                                 {children}
-                            </HyperliquidProvider>
-                        </FormikProvider>
+                            </FormikProvider>
+                        </HyperliquidProvider>
                     </MixinProvider>
                 </SwrProvider>
             </PhaserProvider>

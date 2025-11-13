@@ -33,6 +33,17 @@ export enum HyperliquidMarketMode {
     CrossMargin = "cross-margin",
 }
 
+export enum HyperliquidOrderType {
+    Market = "market",
+    Limit = "limit",
+    StopLimit = "stop-limit",
+    StopMarket = "stop-market",
+    TakeLimit = "take-limit",
+    TakeMarket = "take-market",
+    TWAP = "twap",
+    Scale = "scale",
+}
+
 export interface HyperliquidMarketModeMetadata {
     key: HyperliquidMarketMode
     name: string
@@ -48,6 +59,11 @@ export enum HyperliquidAssetId {
     BTC = "btc",
     ETH = "eth",
     SOL = "sol",
+}
+
+export enum HyperliquidOrderSide {
+    Buy = "buy",
+    Sell = "sell",
 }
 
 export type CandleInterval = "1m" | "5m" | "15m" | "30m" | "1h" | "4h" | "1d"

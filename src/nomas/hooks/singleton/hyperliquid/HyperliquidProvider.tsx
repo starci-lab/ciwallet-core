@@ -12,6 +12,8 @@ import {
 import { useHyperliquidActiveAssetSwrCore } from "./useHyperliquidActiveAssetSwr"
 import { useHyperliquidUpdateLeverageSwrMutationCore } from "./useHyperliquidUpdateLeverageSwrMutation"
 import { useHyperliquidClearHouseSwrCore } from "./useHyperliquidClearHouseSwr"
+import { useHyperliquidPlaceOrderSwrMutatationCore } from "./useHyperliquidPlaceOrderSwrMutatation"
+import { useHyperliquidOpenOrdersSwrCore } from "./useHyperliquidOpenOrdersSwr"
 
 export interface HyperliquidContextType {
     useHyperliquidInfo: ReturnType<typeof useHyperliquidInfoCore> | null
@@ -22,6 +24,8 @@ export interface HyperliquidContextType {
     useHyperliquidActiveAssetSwr: ReturnType<typeof useHyperliquidActiveAssetSwrCore> | null
     useHyperliquidUpdateLeverageSwrMutation: ReturnType<typeof useHyperliquidUpdateLeverageSwrMutationCore> | null
     useHyperliquidClearHouseSwr: ReturnType<typeof useHyperliquidClearHouseSwrCore> | null
+    useHyperliquidPlaceOrderSwrMutatation: ReturnType<typeof useHyperliquidPlaceOrderSwrMutatationCore> | null
+    useHyperliquidOpenOrdersSwr: ReturnType<typeof useHyperliquidOpenOrdersSwrCore> | null
 }
 
 export const HyperliquidContext = createContext<HyperliquidContextType>({
@@ -33,6 +37,8 @@ export const HyperliquidContext = createContext<HyperliquidContextType>({
     useHyperliquidActiveAssetSwr: null,
     useHyperliquidUpdateLeverageSwrMutation: null,
     useHyperliquidClearHouseSwr: null,
+    useHyperliquidPlaceOrderSwrMutatation: null,
+    useHyperliquidOpenOrdersSwr: null,
 })
 
 export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
@@ -44,6 +50,8 @@ export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
     const useHyperliquidActiveAssetSwr = useHyperliquidActiveAssetSwrCore()
     const useHyperliquidUpdateLeverageSwrMutation = useHyperliquidUpdateLeverageSwrMutationCore()
     const useHyperliquidClearHouseSwr = useHyperliquidClearHouseSwrCore()
+    const useHyperliquidPlaceOrderSwrMutatation = useHyperliquidPlaceOrderSwrMutatationCore()
+    const useHyperliquidOpenOrdersSwr = useHyperliquidOpenOrdersSwrCore()
     return (
         <HyperliquidContext.Provider value={{ 
             useHyperliquidInfo, 
@@ -54,6 +62,8 @@ export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
             useHyperliquidActiveAssetSwr,
             useHyperliquidUpdateLeverageSwrMutation,
             useHyperliquidClearHouseSwr,
+            useHyperliquidPlaceOrderSwrMutatation,
+            useHyperliquidOpenOrdersSwr,
         }}>
             {children}
         </HyperliquidContext.Provider>

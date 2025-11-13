@@ -8,6 +8,7 @@ import { SelectAssetPage } from "./SelectAssetPage"
 import { SourceChainPage } from "./SourceChainPage"
 import { MarginModePage } from "./MarginModePage"
 import { LeveragePage } from "./LeveragePage"
+import { SelectOrderTypePage } from "./SelectOrderTypePage"
 
 export const PerpSection = () => {
     const perpSectionPage = useAppSelector((state) => state.stateless.sections.perp.perpSectionPage)   
@@ -25,6 +26,8 @@ export const PerpSection = () => {
             return <MarginModePage />
         case PerpSectionPage.Leverage:
             return <LeveragePage />
+        case PerpSectionPage.OrderType:
+            return <SelectOrderTypePage />
         }
     }
     return <NomasCard 

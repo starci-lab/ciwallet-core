@@ -1,5 +1,5 @@
 import { ChainId, Network, TokenId } from "@ciwallet-sdk/types"
-import { HyperliquidDepositAsset, HyperliquidMarketMode, type HyperliquidDepositAssetInfo, type HyperliquidMarketModeMetadata, HyperliquidAssetId } from "./types"
+import { HyperliquidDepositAsset, HyperliquidMarketMode, type HyperliquidDepositAssetInfo, type HyperliquidMarketModeMetadata, HyperliquidAssetId, HyperliquidOrderType } from "./types"
 import * as hl from "@nktkas/hyperliquid"
 import { privateKeyToAccount } from "viem/accounts"
 
@@ -14,6 +14,12 @@ export interface HyperliquidMetadata {
     imageUrl: string
     assetId: number
     coin: string
+}
+
+export interface HyperliquidOrderTypeMetadata {
+    key: HyperliquidOrderType
+    name: string
+    description: string
 }
 
 export class Hyperliquid {
@@ -40,6 +46,52 @@ export class Hyperliquid {
             },
         }
         return metadata
+    }
+
+    getOrderTypeMetadata() {
+        const metadatas: Record<HyperliquidOrderType, HyperliquidOrderTypeMetadata> = {
+            [HyperliquidOrderType.Market]: {
+                key: HyperliquidOrderType.Market,
+                name: "Market",
+                description: "Instantly executes the order at the best available market price.",
+            },
+            [HyperliquidOrderType.Limit]: {
+                key: HyperliquidOrderType.Limit,
+                name: "Limit",
+                description: "Places an order at a specific price. The order executes only if the market reaches that price.",
+            },
+            [HyperliquidOrderType.StopLimit]: {
+                key: HyperliquidOrderType.StopLimit,
+                name: "Stop Limit",
+                description: "Triggers a limit order once the market reaches a specified stop price.",
+            },
+            [HyperliquidOrderType.StopMarket]: {
+                key: HyperliquidOrderType.StopMarket,
+                name: "Stop Market",
+                description: "Triggers a market order once the market reaches a specified stop price.",
+            },
+            [HyperliquidOrderType.TakeLimit]: {
+                key: HyperliquidOrderType.TakeLimit,
+                name: "Take Limit",
+                description: "Triggers a limit order to take profit when the market reaches a specified price.",
+            },
+            [HyperliquidOrderType.TakeMarket]: {
+                key: HyperliquidOrderType.TakeMarket,
+                name: "Take Market",
+                description: "Triggers a market order to take profit when the market reaches a specified price.",
+            },
+            [HyperliquidOrderType.TWAP]: {
+                key: HyperliquidOrderType.TWAP,
+                name: "TWAP",
+                description: "Executes a large order gradually over a specified time period to achieve an average price.",
+            },
+            [HyperliquidOrderType.Scale]: {
+                key: HyperliquidOrderType.Scale,
+                name: "Scale",
+                description: "Places multiple layered limit orders across a price range to scale into or out of a position.",
+            },
+        }
+        return metadatas
     }
 
     getAssetMetadata(assetId: HyperliquidAssetId): HyperliquidMetadata {

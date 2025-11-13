@@ -12,6 +12,7 @@ import { useInputPrivateKeyFormikCore, type InputPrivateKeyFormikValues } from "
 import { useInputMnemonicFormikCore, type InputMnemonicFormikValues } from "./useInputMnemonicFormik"
 import { useCreateMnemonicFormikCore, type CreateMnemonicFormikValues } from "./useCreateMnemonicFormik"
 import { useHyperliquidDepositFormikCore, type HyperliquidDepositFormikValues } from "./useHyperliquidDepositFormik"
+import { usePlacePerpOrderFormikCore, type PlacePerpOrderFormikValues } from "./usePlacePerpOrderFormik"
 
 export interface FormikContextType {
   swapFormik: ReturnType<typeof useFormik<SwapFormikValues>>;
@@ -22,6 +23,7 @@ export interface FormikContextType {
   inputMnemonicFormik: ReturnType<typeof useFormik<InputMnemonicFormikValues>>;
   createMnemonicFormik: ReturnType<typeof useFormik<CreateMnemonicFormikValues>>;
   hyperliquidDepositFormik: ReturnType<typeof useFormik<HyperliquidDepositFormikValues>>;
+  placePerpOrderFormik: ReturnType<typeof useFormik<PlacePerpOrderFormikValues>>;
 }
 
 
@@ -38,6 +40,7 @@ export const FormikProvider = ({ children }: PropsWithChildren) => {
     const inputMnemonicFormik = useInputMnemonicFormikCore()
     const createMnemonicFormik = useCreateMnemonicFormikCore()
     const hyperliquidDepositFormik = useHyperliquidDepositFormikCore()
+    const placePerpOrderFormik = usePlacePerpOrderFormikCore()
     return (
         <FormikContext.Provider value={{ 
             swapFormik, 
@@ -48,6 +51,7 @@ export const FormikProvider = ({ children }: PropsWithChildren) => {
             inputMnemonicFormik,
             createMnemonicFormik,
             hyperliquidDepositFormik,
+            placePerpOrderFormik,
         }}>
             {children}
         </FormikContext.Provider>

@@ -1,5 +1,5 @@
 import * as hl from "@nktkas/hyperliquid"
-import type { HyperliquidAssetId } from "./types"
+import type { ActiveAssetData, HyperliquidAssetId } from "./types"
 import type { CandleInterval } from "./types"
 import { type ElementOf, Network } from "@ciwallet-sdk/types"
 import { Hyperliquid } from "./Hyperliquid" 
@@ -57,6 +57,22 @@ export class SubscriptionHyperliquid {
         })
     }
 
+    async subscribeToActiveAssetData(
+        {
+            client,
+            onUpdate,
+            assetId,
+            userAddress,
+        }: SubscriptionHyperliquidSubscribeToActiveAssetDataParams
+    ) {
+        await client.activeAssetData({
+            coin: this.hyperliquidObj.getAssetMetadata(assetId).coin,
+            user: userAddress,
+        }, (event) => {
+            onUpdate(event)
+        })
+    }
+
     getSubscriptionClient(
         {
             network,
@@ -82,4 +98,11 @@ export interface SubscriptionHyperliquidSubscribeToCandleParams {
 }
 export interface SubscriptionHyperliquidGetSubscriptionClientParams {
     network: Network
+}
+
+export interface SubscriptionHyperliquidSubscribeToActiveAssetDataParams {
+    client: hl.SubscriptionClient
+    onUpdate: (event: ActiveAssetData) => void
+    userAddress: string
+    assetId: HyperliquidAssetId
 }

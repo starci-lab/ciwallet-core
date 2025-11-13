@@ -1,15 +1,53 @@
-import { NomasCard, NomasCardBody, NomasCardVariant, NomasCheckbox, NomasInput, NomasSlider, NomasSpacer, NomasTab, PressableMotion, TooltipTitle } from "@/nomas/components"
-import React from "react"
-import { PerpSectionPage, setPerpSectionPage, setTradeType, TradeType } from "@/nomas/redux"
+import React, { useEffect } from "react"
+import { 
+    NomasButton,
+    NomasCard, 
+    NomasCardBody, 
+    NomasCardVariant, 
+    NomasCheckbox, 
+    NomasInput, 
+    NomasSlider, 
+    NomasSpacer, 
+    NomasTab, 
+    PressableMotion, 
+    TooltipTitle
+} from "@/nomas/components"
+import { PerpSectionPage, setOrderSide, setPerpSectionPage } from "@/nomas/redux"
 import { useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { CaretRightIcon } from "@phosphor-icons/react"
+import { usePlacePerpOrderFormik } from "@/nomas/hooks"
+import { HyperliquidOrderSide, HyperliquidOrderType } from "@ciwallet-sdk/classes"
 
 export const PerpTrade = () => {
     const dispatch = useAppDispatch()
-    const isCross = useAppSelector((state) => state.stateless.sections.perp.isCross)
-    const leverage = useAppSelector((state) => state.stateless.sections.perp.leverage)
-    const tradeType = useAppSelector((state) => state.stateless.sections.perp.tradeType)
     const clearingHouseData = useAppSelector((state) => state.stateless.sections.perp.clearingHouseData)
+    const leverage = useAppSelector((state) => state.stateless.sections.perp.leverage)
+    const isCross = useAppSelector((state) => state.stateless.sections.perp.isCross)
+    const orderSide = useAppSelector((state) => state.stateless.sections.perp.orderSide)
+    const formik = usePlacePerpOrderFormik()
+    const orderType = useAppSelector((state) => state.stateless.sections.perp.orderType)
+    useEffect(() => {
+        if (!clearingHouseData) return
+        formik.setFieldValue("balanceAmount", clearingHouseData?.marginSummary.accountValue || "0")
+    }, [clearingHouseData])
+    const renderOrderType = () => {
+        switch (orderType) {
+        case HyperliquidOrderType.Market:
+            return "Market"
+        case HyperliquidOrderType.Limit:
+            return "Limit"  
+        case HyperliquidOrderType.StopLimit:
+            return "Stop Limit"
+        case HyperliquidOrderType.StopMarket:
+            return "Stop Market"
+        case HyperliquidOrderType.TakeMarket:
+            return "Take Market"
+        case HyperliquidOrderType.TWAP:
+            return "TWAP"
+        case HyperliquidOrderType.Scale:
+            return "Scale"
+        }
+    }
     return (
         <div>
             <NomasCard variant={NomasCardVariant.Dark} isInner>
@@ -22,6 +60,15 @@ export const PerpTrade = () => {
                             }}
                         >
                             <div className="text-sm">{isCross ? "Cross" : "Isolated"}</div>
+                            <CaretRightIcon className="size-4 text-text-muted" />
+                        </PressableMotion>
+                        <PressableMotion
+                            className="flex items-center w-full"
+                            onClick={() => {
+                                dispatch(setPerpSectionPage(PerpSectionPage.OrderType))
+                            }}
+                        >
+                            <div className="text-sm">{renderOrderType()}</div>
                             <CaretRightIcon className="size-4 text-text-muted" />
                         </PressableMotion>
                         <PressableMotion
@@ -38,17 +85,17 @@ export const PerpTrade = () => {
             </NomasCard>
             <NomasSpacer y={4} />
             <NomasTab 
-                value={tradeType}
-                onValueChange={(value) => dispatch(setTradeType(value as TradeType))}
+                value={orderSide}
+                onValueChange={(value) => dispatch(setOrderSide(value as HyperliquidOrderSide))}
                 tabs={[{
-                    value: TradeType.Buy,
+                    value: HyperliquidOrderSide.Buy,
                     label: "Buy/Long",
-                    className: tradeType === TradeType.Buy ? "transition-colors duration-300 ease-in-out bg-bullish" : undefined,
+                    className: orderSide === HyperliquidOrderSide.Buy ? "transition-colors duration-300 ease-in-out bg-bullish" : undefined,
                 },
                 {
-                    value: TradeType.Sell,
+                    value: HyperliquidOrderSide.Sell,
                     label: "Sell/Short",
-                    className: tradeType === TradeType.Sell ? "transition-colors duration-300 ease-in-out bg-bearish" : undefined,
+                    className: orderSide === HyperliquidOrderSide.Sell ? "transition-colors duration-300 ease-in-out bg-bearish" : undefined,
                 },
                 ]}
             />
@@ -68,11 +115,15 @@ export const PerpTrade = () => {
             </NomasCard>
             <NomasSpacer y={4} />
             <NomasInput
-                value={"0"}
+                value={formik.values.amount}
                 prefixIcon={<div className="text-sm">Size</div>}
                 textAlign="right"
-                onValueChange={(value) => {}}
+                onValueChange={(value) => formik.setFieldValue("amount", value)}
                 numericOnly
+                onBlur={() => formik.setFieldTouched("amount")}
+                isInvalid={!!(formik.touched.amount && formik.errors.amount)}
+                isRequired
+                errorMessage={formik.errors.amount}
                 className="w-full"
             />
             <NomasSpacer y={4} />
@@ -81,34 +132,95 @@ export const PerpTrade = () => {
                     min={1}
                     max={100}
                     defaultValue={1}
-                    value={1}
-                    onValueChange={(value) => {}}
+                    value={[formik.values.amountPercentage]}
+                    onValueChange={(value) => formik.setFieldValue("amountPercentage", value)}
                     className="w-full flex-1"
                 />
                 <NomasInput
-                    value={"100%"}
+                    value={formik.values.amountPercentage.toString()}
                     textAlign="right"
-                    onValueChange={(value) => {}}
+                    postfixIcon={<div className="text-sm">%</div>}
+                    onBlur={() => formik.setFieldTouched("amountPercentage")}
+                    onValueChange={(value) => formik.setFieldValue("amountPercentage", value)}
+                    isRequired
                     numericOnly
-                    className="w-20 max-w-20"
+                    className="w-25 max-w-25"
                 />
             </div>
             <NomasSpacer y={4} />
             <div className="flex items-center gap-2">
                 <NomasCheckbox 
-                    checked={false}
-                    onCheckedChange={(checked) => {}}
+                    checked={formik.values.isReduceOnly}
+                    onCheckedChange={(checked) => formik.setFieldValue("isReduceOnly", checked)}
                 />
                 <div className="text-sm">Reduce Only</div>
             </div>
             <NomasSpacer y={2} />
             <div className="flex items-center gap-2">
                 <NomasCheckbox 
-                    checked={false}
-                    onCheckedChange={(checked) => {}}
+                    checked={formik.values.isTakeProfitAndStopLoss}
+                    onCheckedChange={(checked) => formik.setFieldValue("isTakeProfitAndStopLoss", checked)}
                 />
                 <div className="text-sm">Take Profit & Stop Loss</div>
-            </div>
+            </div>  
+            {formik.values.isTakeProfitAndStopLoss && (
+                <>
+                    <NomasSpacer y={6} />
+                    <div className="flex items-center gap-2">
+                        <NomasInput
+                            value={formik.values.takeProfit.toString()}
+                            textAlign="right"
+                            onBlur={() => formik.setFieldTouched("takeProfit")}
+                            onValueChange={(value) => formik.setFieldValue("takeProfit", value)}
+                            isRequired
+                            numericOnly
+                            className="flex-1"
+                        />
+                        <NomasInput
+                            value={formik.values.takeProfitPercentage.toString()}
+                            textAlign="right"
+                            postfixIcon={<div className="text-sm">%</div>}
+                            onBlur={() => formik.setFieldTouched("takeProfitPercentage")}
+                            onValueChange={(value) => formik.setFieldValue("takeProfitPercentage", value)}
+                            isRequired
+                            numericOnly
+                            className="flex-1"
+                        />
+                    </div>
+                    <NomasSpacer y={4} />
+                    <div className="flex items-center gap-2">
+                        <NomasInput
+                            value={formik.values.stopLoss.toString()}
+                            textAlign="right"
+                            onBlur={() => formik.setFieldTouched("stopLoss")}
+                            onValueChange={(value) => formik.setFieldValue("stopLoss", value)}
+                            isRequired
+                            numericOnly
+                            className="flex-1"
+                        />
+                        <NomasInput
+                            value={formik.values.stopLossPercentage.toString()}
+                            textAlign="right"
+                            postfixIcon={<div className="text-sm">%</div>}
+                            onBlur={() => formik.setFieldTouched("stopLossPercentage")}
+                            onValueChange={(value) => formik.setFieldValue("stopLossPercentage", value)}
+                            isRequired
+                            numericOnly
+                            className="flex-1"
+                        />  
+                    </div>
+                </>
+            )}
+            <NomasSpacer y={6} />
+            <NomasButton
+                xlSize
+                className="w-full"
+                isDisabled={!formik.isValid}
+                isLoading={formik.isSubmitting}
+                onClick={() => formik.submitForm()}
+            >
+                Place Order
+            </NomasButton>
         </div>
     )
 }

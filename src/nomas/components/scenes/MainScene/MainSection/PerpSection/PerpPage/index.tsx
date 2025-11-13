@@ -23,9 +23,9 @@ export const PerpPage = () => {
             content: <PerpAssets />,
         },
         {
-            value: PerpTab.History,
-            label: "History",
-            content: <div>History</div>,
+            value: PerpTab.Orders,
+            label: "Orders",
+            content: <div>Orders</div>,
         },
     ]
     return (

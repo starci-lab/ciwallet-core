@@ -16,7 +16,6 @@ export const useHyperliquidSubscriptionCore = () => {
     const dispatch = useDispatch()
     const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
     const candleInterval = useAppSelector((state) => state.stateless.sections.perp.candleInterval)
-    
     const subscribe = useCallback(async () => {
         await Promise.all([
             subscriptionHyperliquidObj.subscribeToAllMids({

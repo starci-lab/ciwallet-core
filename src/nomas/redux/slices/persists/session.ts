@@ -395,7 +395,7 @@ const initialState: SessionSlice = {
         [ChainId.Fantom]: ExplorerId.Ftmscan,
     },
     isGameMinimized: false,
-    isOverlayVisible: false,
+    isOverlayVisible: true,
 }
 /* -----------------------------
  * Slice
