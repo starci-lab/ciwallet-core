@@ -31,11 +31,16 @@ export function getCleanlinessState(
   return CleanlinessState.Filthy
 }
 
+// Extended Sprite type with poopId
+interface PoopSprite extends Phaser.GameObjects.Sprite {
+  poopId?: string
+}
+
 export class CleanlinessSystem {
   // Public properties - quản lý poop objects và cleaning inventory
   public cleaningInventory: number = 0 // Số lượng broom có trong inventory
   public cleanlinessLevel: number = 100 // Cleanliness level similar to hungerLevel in FeedingSystem
-  public poopObjects: Phaser.GameObjects.Sprite[] = []
+  public poopObjects: PoopSprite[] = []
   public poopShadows: Phaser.GameObjects.Ellipse[] = []
 
   // Private properties
@@ -140,27 +145,20 @@ export class CleanlinessSystem {
         poopId: string
       }
     }) => {
-      // TODO: handle error
       if (message.success && message.data) {
         console.log(
           "💩 [CleanlinessSystem] Poop creation confirmed:",
           message.data
         )
-        // Note: Usually handled by poop_created broadcast
-        // This is just a confirmation, can be used for error handling
-        this.createPoopAt(
-          message.data.positionX,
-          message.data.positionY,
-          message.data.poopId
-        )
-        // TODO: handle error
+        // Note: poop_created broadcast will handle the actual creation
+        // This is just a confirmation response - no need to create again
       } else {
         console.warn("⚠️ [CleanlinessSystem] Poop creation failed:", message)
       }
     }
 
     // Listen to cleaned_pet_response (response when we clean poop)
-    this.handleCleanedPetResponse = (message: {
+    this.handleCleanedPetResponse = async (message: {
       success: boolean
       message: string
       data?: {
@@ -185,6 +183,8 @@ export class CleanlinessSystem {
             console.log(
               `✅ [CleanlinessSystem] Poop ${poopId} removed from pet ${this.petId}`
             )
+            const poopCount = await PetsDB.getPoopCount(this.petId)
+            await PetsDB.setPoopCount(this.petId, +poopCount - 1)
 
             // Update cleanliness from server if provided
             if (message.petStats?.cleanliness !== undefined) {
@@ -340,7 +340,6 @@ export class CleanlinessSystem {
           timeSinceLastPoop >= 2)
       ) {
         await PetsDB.setPoopCount(this.petId, poopCount + 1)
-        console.log(674564566)
         this.dropPoop()
         this.lastPoopCheck = now
         this.lastPoopTime = now
@@ -352,7 +351,6 @@ export class CleanlinessSystem {
   // ===== POOP MANAGEMENT =====
   // TODO: UPDATE POOP SYSTEM
   private dropPoop() {
-    console.log(674564566)
     const petX = this.pet.sprite.x
     const petY = GAME_LAYOUT.POOP_GROWN_OFFSET
 
@@ -391,9 +389,7 @@ export class CleanlinessSystem {
       this.poopObjects.length
     )
 
-    const existingPoop = this.poopObjects.find(
-      (poop) => (poop as unknown as { poopId: string }).poopId === poopId
-    )
+    const existingPoop = this.poopObjects.find((poop) => poop.poopId === poopId)
 
     if (existingPoop) {
       console.warn(
@@ -637,7 +633,6 @@ export class CleanlinessSystem {
   // ===== PUBLIC METHODS =====
 
   findPoop(x: number, y: number): Phaser.GameObjects.Sprite | null {
-    console.log(3453455, this.poopObjects)
     const poopIndex = this.poopObjects.findIndex(
       (poop) => Phaser.Math.Distance.Between(poop.x, poop.y, x, y) < 40
     )

@@ -20,7 +20,10 @@ import {
   type PetsStateSyncMessage,
   type BuyPetResponseMessage,
 } from "@/nomas/game/colyseus/events"
-import type { PurchaseResponse } from "@/nomas/game/systems"
+import type {
+  PurchaseCleanedPetResponse,
+  PurchaseResponse,
+} from "@/nomas/game/systems"
 
 /**
  * React hook for syncing Colyseus messages to Redux store
@@ -233,6 +236,34 @@ export const useColyseusReduxSync = (): void => {
       eventBus.off(
         ColyseusMessageEvents.PurchaseItemResponse,
         handlePurchaseItemResponse
+      )
+    }
+  }, [dispatch])
+
+  /**
+   * Handle cleaned_pet_response to sync tokens
+   * Supports both flat and nested message formats
+   */
+  useEffect(() => {
+    const handleCleanedPetResponse = (message: PurchaseCleanedPetResponse) => {
+      console.log(
+        "🔄 [useColyseusReduxSync] Cleaned pet response received:",
+        message
+      )
+      if (message.data.remainingTokens !== undefined) {
+        dispatch(setNomToken(message.data.remainingTokens))
+      }
+    }
+
+    eventBus.on(
+      ColyseusMessageEvents.CleanedPetResponse,
+      handleCleanedPetResponse
+    )
+
+    return () => {
+      eventBus.off(
+        ColyseusMessageEvents.CleanedPetResponse,
+        handleCleanedPetResponse
       )
     }
   }, [dispatch])

@@ -67,8 +67,6 @@ export const useColyseusMessages = (room: Room<GameRoomState> | null): void => {
       const eventName =
         MESSAGE_TO_EVENT_MAP[messageType] || `colyseus:message:${messageType}`
 
-      console.log(123123123, eventName)
-
       // Emit typed event
       eventBus.emit(eventName, message)
       console.log(`📤 [useColyseusMessages] Emitted event: ${eventName}`)

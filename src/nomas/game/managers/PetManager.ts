@@ -221,7 +221,6 @@ export class PetManager {
         }
       }
     }
-    console.log(4534345, this.pets)
   }
 
   /**
@@ -740,7 +739,6 @@ export class PetManager {
         console.log("No poop found at clicked position")
         continue
       }
-      console.log(123123123123, poopFound)
       const poopId = (poopFound as unknown as { poopId: string }).poopId
       if (petData.cleanlinessSystem.cleaningInventory > 0) {
         petData.cleanlinessSystem.cleaningInventory -= 1
