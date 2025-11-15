@@ -87,3 +87,9 @@ export type ActiveAssetCtx = Parameters<
         >[1]
     >
 >[0]
+
+export type UserFees = Awaited<
+    ReturnType<
+        hl.InfoClient["userFees"]
+    >
+>

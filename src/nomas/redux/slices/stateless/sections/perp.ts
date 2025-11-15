@@ -9,7 +9,9 @@ import {
     type ActiveAssetData,
     type ClearingHouseData,
     HyperliquidOrderSide,
-    type ActiveAssetCtx} from "@ciwallet-sdk/classes"
+    type ActiveAssetCtx,
+    type UserFees
+} from "@ciwallet-sdk/classes"
 import { HyperliquidDepositAsset } from "@ciwallet-sdk/classes"
 import { hyperliquidObj } from "@/nomas/obj"
 
@@ -58,6 +60,7 @@ export interface PerpSlice {
     orderType: HyperliquidOrderType;
     orderSide: HyperliquidOrderSide;
     activeAssetCtx?: ActiveAssetCtx;
+    userFees?: UserFees;
 }
 
 export interface SetHyperunitGenResponseParam {
@@ -139,6 +142,9 @@ export const perpSlice = createSlice({
         setActiveAssetCtx: (state, action: PayloadAction<ActiveAssetCtx>) => {
             state.activeAssetCtx = action.payload
         },
+        setUserFees: (state, action: PayloadAction<UserFees>) => {
+            state.userFees = action.payload
+        },
     },
     selectors: {
         selectPerpUniverses: (state) => {
@@ -174,6 +180,7 @@ export const {
     setIsCross,
     setOrderSide,
     setOrderType,
+    setUserFees,
 } = perpSlice.actions
 export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice } = perpSlice.selectors
 export const perpReducer = perpSlice.reducer

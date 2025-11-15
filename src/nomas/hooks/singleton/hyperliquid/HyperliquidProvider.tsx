@@ -14,6 +14,7 @@ import { useHyperliquidUpdateLeverageSwrMutationCore } from "./useHyperliquidUpd
 import { useHyperliquidClearHouseSwrCore } from "./useHyperliquidClearHouseSwr"
 import { useHyperliquidPlaceOrderSwrMutatationCore } from "./useHyperliquidPlaceOrderSwrMutatation"
 import { useHyperliquidOpenOrdersSwrCore } from "./useHyperliquidOpenOrdersSwr"
+import { useHyperliquidUserFeesSwrCore } from "./useHyperliquidUserFeesSwr"
 
 export interface HyperliquidContextType {
     useHyperliquidInfo: ReturnType<typeof useHyperliquidInfoCore> | null
@@ -26,6 +27,7 @@ export interface HyperliquidContextType {
     useHyperliquidClearHouseSwr: ReturnType<typeof useHyperliquidClearHouseSwrCore> | null
     useHyperliquidPlaceOrderSwrMutatation: ReturnType<typeof useHyperliquidPlaceOrderSwrMutatationCore> | null
     useHyperliquidOpenOrdersSwr: ReturnType<typeof useHyperliquidOpenOrdersSwrCore> | null
+    useHyperliquidUserFeesSwr: ReturnType<typeof useHyperliquidUserFeesSwrCore> | null
 }
 
 export const HyperliquidContext = createContext<HyperliquidContextType>({
@@ -39,6 +41,7 @@ export const HyperliquidContext = createContext<HyperliquidContextType>({
     useHyperliquidClearHouseSwr: null,
     useHyperliquidPlaceOrderSwrMutatation: null,
     useHyperliquidOpenOrdersSwr: null,
+    useHyperliquidUserFeesSwr: null,
 })
 
 export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
@@ -52,6 +55,7 @@ export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
     const useHyperliquidClearHouseSwr = useHyperliquidClearHouseSwrCore()
     const useHyperliquidPlaceOrderSwrMutatation = useHyperliquidPlaceOrderSwrMutatationCore()
     const useHyperliquidOpenOrdersSwr = useHyperliquidOpenOrdersSwrCore()
+    const useHyperliquidUserFeesSwr = useHyperliquidUserFeesSwrCore()
     return (
         <HyperliquidContext.Provider value={{ 
             useHyperliquidInfo, 
@@ -64,6 +68,7 @@ export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
             useHyperliquidClearHouseSwr,
             useHyperliquidPlaceOrderSwrMutatation,
             useHyperliquidOpenOrdersSwr,
+            useHyperliquidUserFeesSwr,
         }}>
             {children}
         </HyperliquidContext.Provider>

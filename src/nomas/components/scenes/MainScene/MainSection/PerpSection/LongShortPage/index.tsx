@@ -9,7 +9,9 @@ import {
     NomasSpacer,
     NomasLink,
     TooltipTitle,
-    NomasNumberTransparentInput,
+    NomasCardFooter,
+    NomasButton,
+    NomasImage,
 } from "@/nomas/components"
 import { PerpSectionPage, setPerpSectionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { hyperliquidObj } from "@/nomas/obj"
@@ -17,10 +19,9 @@ import { useMemo } from "react"
 import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
 import { usePlacePerpOrderFormik } from "@/nomas/hooks"
 import { CaretRightIcon, GearSixIcon } from "@phosphor-icons/react"
-import { SizeDropdown } from "./SizeDropdown"
-import { computeRatio } from "@ciwallet-sdk/utils"
-import BN from "bn.js"
 import Decimal from "decimal.js"
+import { computePercentage } from "@/nomas/utils"
+import { assetsConfig } from "@/nomas/resources"
 
 export const LongShortPage = () => {
     const dispatch = useAppDispatch()   
@@ -41,6 +42,13 @@ export const LongShortPage = () => {
         return clearingHouseData?.assetPositions.find((assetPosition) => assetPosition.position.coin === 
             hyperliquidObj.getAssetMetadata(selectedAssetId)?.coin)
     }, [clearingHouseData, selectedAssetId])
+    const userFees = useAppSelector((state) => state.stateless.sections.perp.userFees)
+    const takerFee = useMemo(() => {
+        return new Decimal(userFees?.feeSchedule.cross ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
+    }, [userFees])
+    const makerFee = useMemo(() => {
+        return new Decimal(userFees?.feeSchedule.add ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
+    }, [userFees])
     return (
         <>
             <NomasCardHeader
@@ -70,10 +78,10 @@ export const LongShortPage = () => {
                                 }}
                                 className="flex items-center gap-2"
                             >
-                                <div className="text-sm">
+                                <div className="text-xs">
                                     {isCross ? "Cross" : "Isolated"}
                                 </div>
-                                <CaretRightIcon className="size-4 text-text-muted" />
+                                <CaretRightIcon className="size-3 text-text-muted" />
                             </PressableMotion>
                         </div>
                         <div className="flex justify-center flex-1">  
@@ -83,10 +91,10 @@ export const LongShortPage = () => {
                                 }}
                                 className="flex items-center gap-2"
                             >
-                                <div className="text-sm">
+                                <div className="text-xs">
                                     {orderTypeMetadata.name}
                                 </div>
-                                <CaretRightIcon className="size-4 text-text-muted" />
+                                <CaretRightIcon className="size-3 text-text-muted" />
                             </PressableMotion>
                         </div>
                         <div className="flex justify-end flex-1">
@@ -96,10 +104,10 @@ export const LongShortPage = () => {
                                 }}
                                 className="flex items-center gap-2"
                             >
-                                <div className="text-sm">
+                                <div className="text-xs">
                                     {leverage}x
                                 </div>
-                                <CaretRightIcon className="size-4 text-text-muted" />
+                                <CaretRightIcon className="size-3 text-text-muted" />
                             </PressableMotion>
                         </div>
                     </NomasCardBody>
@@ -108,8 +116,8 @@ export const LongShortPage = () => {
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
                     <NomasCardBody className="p-4">
                         <div className="flex items-center gap-2 justify-between">
-                            <TooltipTitle title="Available to Trade" size="sm"/>
-                            <div className="text-sm">
+                            <TooltipTitle title="Available to Trade" size="xs"/>
+                            <div className="text-xs">
                                 <div className="flex items-center gap-2">
                                 ${clearingHouseData?.marginSummary.totalRawUsd}
                                     <NomasLink onClick={() => {
@@ -122,19 +130,13 @@ export const LongShortPage = () => {
                         </div>
                         <NomasSpacer y={4} />
                         <div className="flex items-center gap-2 justify-between">
-                            <TooltipTitle title="Current Position" size="sm"/>
-                            <div className="text-sm">
+                            <TooltipTitle title="Current Position" size="xs"/>
+                            <div className="text-xs">
                                 <div className="flex items-center gap-2">
                                     {
                                         `${
-                                            new Decimal(
-                                                currentPosition?.position.positionValue ?? "0"
-                                            )
-                                                .div(
-                                                    new Decimal(activeAssetCtx?.ctx.markPx ?? "0")
-                                                )
-                                                .toFixed(5)
-                                        } ${assetMetadata.coin}`
+                                            currentPosition?.position.positionValue
+                                        } USDC`
                                     }
                                 </div>
                             </div>
@@ -144,20 +146,75 @@ export const LongShortPage = () => {
                 <NomasSpacer y={4} />
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
                     <NomasCardBody className="p-4">
-                        <div className="flex items-center gap-2 justify-between w-full">
-                            <SizeDropdown />
-                            <NomasNumberTransparentInput
-                                value={`${formik.values.amount}`}
-                                onValueChange={(value) => {
-                                    formik.setFieldValue("amount", value)
-                                }}
-                                numericOnly
-                                className="w-full"
-                            />
+                        <NomasInput
+                            value={formik.values.amount}
+                            textAlign="right"
+                            onValueChange={(value) => {
+                                formik.setFieldValue("amount", value)
+                            }}
+                            prefixIcon={
+                                <div className="text-sm text-text-muted">
+                                    Pay
+                                </div>
+                            }
+                            numericOnly
+                            className="w-full"
+                        />
+                        <NomasSpacer y={4} />
+                        <div className="flex items-center gap-2 justify-between">
+                            <TooltipTitle title="Liquidation Price" size="xs"/>
+                            <div className="text-xs text-bearish">
+                                {
+                                    `$${new Decimal(activeAssetCtx?.ctx.markPx ?? "0").mul(1.05).toString()} USDC`
+                                }
+                            </div>
+                        </div>
+                        <NomasSpacer y={2} />
+                        <div className="flex items-center gap-2 justify-between">
+                            <TooltipTitle title="Order Value" size="xs"/>
+                            <div className="text-xs">
+                                {
+                                    `$${new Decimal(activeAssetCtx?.ctx.markPx ?? "0").mul(0.95).toString()} USDC`
+                                }
+                            </div>
+                        </div>
+                        <NomasSpacer y={2} />
+                        <div className="flex items-center gap-2 justify-between">
+                            <TooltipTitle title="Fees" size="xs"/>
+                            <div className="flex items-center gap-2">
+                                <NomasImage 
+                                    src={assetsConfig().hyperliquid.logo}
+                                    alt={assetMetadata.coin}
+                                    className="w-4 h-4"
+                                />
+                                <div className="text-xs">
+                                    {
+                                        `${computePercentage(takerFee, 1, 10)}%/${computePercentage(makerFee, 1, 10)}%`
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </NomasCardBody>  
                 </NomasCard>
+                <NomasSpacer y={4} />
+                <PressableMotion>
+                    <NomasCard variant={NomasCardVariant.Dark} isInner>
+                        <NomasCardBody className="p-4 flex items-center justify-between">
+                            <TooltipTitle title="Take Profit/Stop Loss" size="xs"/>
+                            <div className="text-xs">
+                            N/A
+                            </div>
+                        </NomasCardBody>
+                    </NomasCard>
+                </PressableMotion>
             </NomasCardBody>
+            <NomasCardFooter>
+                <NomasButton xlSize className="w-full" onClick={() => {
+                    formik.submitForm()
+                }}>
+                    Place Order
+                </NomasButton>
+            </NomasCardFooter>
         </>
     )
 }
