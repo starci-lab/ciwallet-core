@@ -21,10 +21,12 @@ import { useHyperliquidUpdateLeverageSwrMutation } from "@/nomas/hooks"
 
 export const MarginModePage = () => {
     const dispatch = useAppDispatch()
-    const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
-    const assetMetadata = useMemo(() => hyperliquidObj.getAssetMetadata(selectedAssetId), [selectedAssetId])
     const modes = useMemo(() => Object.values(hyperliquidObj.getModeMetadata()), [])
     const hyperliquidUpdateLeverageSwrMutation = useHyperliquidUpdateLeverageSwrMutation()
+    const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
+    const assetMetadata = useMemo(() => hyperliquidObj.getAssetMetadata(selectedAssetId), [selectedAssetId])
+    
+    
     const renderIcon = (mode: HyperliquidMarketModeMetadata) => {
         switch (mode.key) {
         case HyperliquidMarketMode.Isolated:
@@ -43,8 +45,11 @@ export const MarginModePage = () => {
                 title={`${assetMetadata.name} Margin Mode`}
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setPerpSectionPage(PerpSectionPage.Perp))
+                    dispatch(setPerpSectionPage(PerpSectionPage.LongShort))
                 }}
+                description={
+                    ""
+                }
             />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>

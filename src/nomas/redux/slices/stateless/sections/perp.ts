@@ -8,7 +8,8 @@ import {
     type CandleSnapshots, 
     type ActiveAssetData,
     type ClearingHouseData,
-    HyperliquidOrderSide} from "@ciwallet-sdk/classes"
+    HyperliquidOrderSide,
+    type ActiveAssetCtx} from "@ciwallet-sdk/classes"
 import { HyperliquidDepositAsset } from "@ciwallet-sdk/classes"
 import { hyperliquidObj } from "@/nomas/obj"
 
@@ -56,6 +57,7 @@ export interface PerpSlice {
     isCross: boolean;
     orderType: HyperliquidOrderType;
     orderSide: HyperliquidOrderSide;
+    activeAssetCtx?: ActiveAssetCtx;
 }
 
 export interface SetHyperunitGenResponseParam {
@@ -134,6 +136,9 @@ export const perpSlice = createSlice({
         setOrderType: (state, action: PayloadAction<HyperliquidOrderType>) => {
             state.orderType = action.payload
         },
+        setActiveAssetCtx: (state, action: PayloadAction<ActiveAssetCtx>) => {
+            state.activeAssetCtx = action.payload
+        },
     },
     selectors: {
         selectPerpUniverses: (state) => {
@@ -160,6 +165,7 @@ export const {
     setCandleInterval, 
     setCandleStartTime, 
     setLastCandleSnapshot, 
+    setActiveAssetCtx,
     setHyperunitGenResponse, 
     setApprovedAgent,
     setActiveAssetData,

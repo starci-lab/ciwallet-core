@@ -1,7 +1,7 @@
 import { useCallback, useContext, useLayoutEffect, useMemo } from "react"
 import { HyperliquidContext } from "./HyperliquidProvider"
 import { useDispatch } from "react-redux"
-import { selectSelectedAccountByPlatform, setAllMids, setClearingHouseData, setLastCandleSnapshot, useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccountByPlatform, setActiveAssetCtx, setAllMids, setClearingHouseData, setLastCandleSnapshot, useAppSelector } from "@/nomas/redux"
 import { subscriptionHyperliquidObj } from "@/nomas/obj"
 import { Platform } from "@ciwallet-sdk/types"
 
@@ -40,7 +40,14 @@ export const useHyperliquidSubscriptionCore = () => {
                     dispatch(setClearingHouseData(event))
                 },
                 userAddress: selectedAccount?.accountAddress || "",
-            })  
+            }),
+            subscriptionHyperliquidObj.subscribeToActiveAssetCtx({
+                client: client,
+                onUpdate: (event) => {
+                    dispatch(setActiveAssetCtx(event))
+                },
+                assetId: selectedAssetId,
+            }),
         ])
     }, [dispatch, client, selectedAssetId, candleInterval])
 

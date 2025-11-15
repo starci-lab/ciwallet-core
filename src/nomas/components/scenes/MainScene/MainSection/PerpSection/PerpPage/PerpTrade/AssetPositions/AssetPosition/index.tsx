@@ -28,6 +28,7 @@ export const AssetPosition = ({ assetPosition }: AssetPositionProps) => {
     const unrealizedPnl = useMemo(() => {
         return new Decimal(assetPosition.position.unrealizedPnl).abs().toNumber()
     }, [assetPosition])
+    
     return (
         <PressableMotion onClick={() => {}} className="flex items-center justify-between">
             <div className="flex items-center gap-2">

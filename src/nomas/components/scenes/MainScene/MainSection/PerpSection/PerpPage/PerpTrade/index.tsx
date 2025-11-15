@@ -13,6 +13,7 @@ import { usePlacePerpOrderFormik } from "@/nomas/hooks"
 import { GearSixIcon } from "@phosphor-icons/react"
 import { AssetPositions } from "./AssetPositions"
 import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
+
 export const PerpTrade = () => {
     const dispatch = useAppDispatch()
     const clearingHouseData = useAppSelector((state) => state.stateless.sections.perp.clearingHouseData)
@@ -28,7 +29,7 @@ export const PerpTrade = () => {
             <NomasCard variant={NomasCardVariant.Dark} isInner>
                 <NomasCardBody className="p-4">
                     <div className="flex items-center gap-2 justify-between">
-                        <TooltipTitle title="Available to trade" size="sm"/>
+                        <TooltipTitle title="Available to Trade" size="sm"/>
                         <div className="text-sm">
                             <div className="flex items-center gap-2">
                                 ${clearingHouseData?.marginSummary.totalRawUsd}

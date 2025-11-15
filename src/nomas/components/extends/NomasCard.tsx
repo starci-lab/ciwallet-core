@@ -71,8 +71,8 @@ NomasCard.displayName = "NomasCard"
 
 // NomasCardHeader
 export interface NomasCardHeaderProps
-  extends React.ComponentProps<typeof CardHeader> {
-  title?: string
+  extends Omit<React.ComponentProps<typeof CardHeader>, "title"> {
+  title?: React.ReactNode
   startIcon?: React.ReactNode
   description?: string
   showBackButton?: boolean

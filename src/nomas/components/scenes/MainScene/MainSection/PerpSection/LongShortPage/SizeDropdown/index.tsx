@@ -3,6 +3,7 @@ import {
     NomasDropdownMenuItem, 
     NomasDropdownContent, 
     NomasDropdownTrigger,
+    NomasButton,
 } from "@/nomas/components"
 import React, { useMemo } from "react"
 import { usePlacePerpOrderFormik } from "@/nomas/hooks"
@@ -13,11 +14,17 @@ export const SizeDropdown = () => {
     const formik = usePlacePerpOrderFormik()
     const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
     const assetMetadata = useMemo(() => hyperliquidObj.getAssetMetadata(selectedAssetId), [selectedAssetId])
+
     return (
         <NomasDropdown>
             <NomasDropdownTrigger>
                 {
-                    formik.values.useUsdc ? "USDC" : assetMetadata.coin
+                    <NomasButton 
+                        noShadow
+                        className="text-sm text-text"
+                    >
+                        {formik.values.useUsdc ? "USDC" : assetMetadata.coin}
+                    </NomasButton>
                 }
             </NomasDropdownTrigger>
             <NomasDropdownContent>

@@ -31,7 +31,7 @@ export const LeveragePage = () => {
                 title={`${assetMetadata.name} Leverage`}
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setPerpSectionPage(PerpSectionPage.Perp))
+                    dispatch(setPerpSectionPage(PerpSectionPage.LongShort))
                 }}
             />
             <NomasCardBody> 

@@ -2,7 +2,6 @@ import React from "react"
 import { NomasCard, NomasCardBody, NomasCardVariant } from "@/nomas/components"
 import { useAppSelector } from "@/nomas/redux"
 import { AssetPosition } from "./AssetPosition"
-import { Divide } from "lucide-react"
 
 export const AssetPositions = () => {
     const clearingHouseData = useAppSelector((state) => state.stateless.sections.perp.clearingHouseData)

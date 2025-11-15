@@ -79,3 +79,11 @@ export type ClearingHouseData = Awaited<
         hl.InfoClient["clearinghouseState"]
     >
 >
+
+export type ActiveAssetCtx = Parameters<
+    NonNullable<
+        Parameters<
+            hl.SubscriptionClient["activeAssetCtx"]
+        >[1]
+    >
+>[0]
