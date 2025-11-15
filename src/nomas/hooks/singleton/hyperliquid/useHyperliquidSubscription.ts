@@ -1,8 +1,9 @@
 import { useCallback, useContext, useLayoutEffect, useMemo } from "react"
 import { HyperliquidContext } from "./HyperliquidProvider"
 import { useDispatch } from "react-redux"
-import { setAllMids, setLastCandleSnapshot, useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccountByPlatform, setAllMids, setClearingHouseData, setLastCandleSnapshot, useAppSelector } from "@/nomas/redux"
 import { subscriptionHyperliquidObj } from "@/nomas/obj"
+import { Platform } from "@ciwallet-sdk/types"
 
 export const useHyperliquidSubscriptionCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
@@ -16,6 +17,7 @@ export const useHyperliquidSubscriptionCore = () => {
     const dispatch = useDispatch()
     const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
     const candleInterval = useAppSelector((state) => state.stateless.sections.perp.candleInterval)
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     const subscribe = useCallback(async () => {
         await Promise.all([
             subscriptionHyperliquidObj.subscribeToAllMids({
@@ -31,7 +33,14 @@ export const useHyperliquidSubscriptionCore = () => {
                 },
                 assetId: selectedAssetId,
                 interval: candleInterval,
-            })
+            }),
+            subscriptionHyperliquidObj.subscribeToClearingHouseData({
+                client: client,
+                onUpdate: (event) => {
+                    dispatch(setClearingHouseData(event))
+                },
+                userAddress: selectedAccount?.accountAddress || "",
+            })  
         ])
     }, [dispatch, client, selectedAssetId, candleInterval])
 

@@ -22,6 +22,27 @@ export interface HyperliquidOrderTypeMetadata {
     description: string
 }
 
+const map = {
+    [HyperliquidAssetId.BTC]: {
+        coin: "BTC",
+        name: "BTC/USDC",
+        imageUrl: "/assets/hyperliquid/btc.svg",
+        assetId: 0,
+    },
+    [HyperliquidAssetId.ETH]: {
+        coin: "ETH",
+        name: "ETH/USDC",
+        imageUrl: "/assets/hyperliquid/eth.png",
+        assetId: 1,
+    },
+    [HyperliquidAssetId.SOL]: {
+        coin: "SOL",
+        name: "SOL/USDC",
+        imageUrl: "/assets/hyperliquid/sol.svg",
+        assetId: 2,
+    },
+}
+
 export class Hyperliquid {
     private readonly getExchangeClient = (network: Network, privateKey: string) => {
         return new hl.ExchangeClient({
@@ -95,27 +116,15 @@ export class Hyperliquid {
     }
 
     getAssetMetadata(assetId: HyperliquidAssetId): HyperliquidMetadata {
-        const map = {
-            [HyperliquidAssetId.BTC]: {
-                coin: "BTC",
-                name: "BTC/USDC",
-                imageUrl: "/assets/hyperliquid/btc.svg",
-                assetId: 0,
-            },
-            [HyperliquidAssetId.ETH]: {
-                coin: "ETH",
-                name: "ETH/USDC",
-                imageUrl: "/assets/hyperliquid/eth.svg",
-                assetId: 1,
-            },
-            [HyperliquidAssetId.SOL]: {
-                coin: "SOL",
-                name: "SOL/USDC",
-                imageUrl: "/assets/hyperliquid/sol.svg",
-                assetId: 2,
-            },
-        }
         return map[assetId]
+    }
+
+    getAssetMetadataByCoin(coin: string): HyperliquidMetadata {
+        const assetId = Object.keys(map).find((key) => map[key as HyperliquidAssetId].coin === coin)
+        if (!assetId) {
+            throw new Error(`Asset with coin ${coin} not found`)
+        }
+        return this.getAssetMetadata(assetId as HyperliquidAssetId)
     }
 
     public getDepositAssetInfos(

@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge"
 import { NomasSpinner } from "./NomasSpinner"
 import { motion } from "framer-motion"
 import type { HTMLMotionProps } from "framer-motion"
+
 export interface NomasButtonProps extends HTMLMotionProps<"button"> {
   isLoading?: boolean
   isDisabled?: boolean

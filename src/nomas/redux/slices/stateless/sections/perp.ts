@@ -20,6 +20,7 @@ export enum PerpSectionPage {
     MarginMode = "margin-mode",
     Leverage = "leverage",
     OrderType = "order-type",
+    LongShort = "long-short",
 }
 
 export enum PerpTab {

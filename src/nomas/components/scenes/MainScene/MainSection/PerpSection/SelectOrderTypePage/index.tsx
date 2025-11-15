@@ -14,7 +14,7 @@ export const SelectOrderTypePage = () => {
                 title="Select Order Type"
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setPerpSectionPage(PerpSectionPage.Perp))
+                    dispatch(setPerpSectionPage(PerpSectionPage.LongShort))
                 }}
             />
             <NomasCardBody>
@@ -34,6 +34,7 @@ export const SelectOrderTypePage = () => {
                                 key={orderType.key}
                                 onClick={async () => {
                                     dispatch(setOrderType(orderType.key))
+                                    dispatch(setPerpSectionPage(PerpSectionPage.LongShort))
                                 }}
                                 >
                                     <div>

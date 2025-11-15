@@ -15,6 +15,7 @@ export interface PlacePerpOrderFormikValues {
     stopLoss: string
     takeProfitPercentage: number
     stopLossPercentage: number
+    useUsdc: boolean
 }
 
 export const usePlacePerpOrderFormikCore = () => {
@@ -30,6 +31,7 @@ export const usePlacePerpOrderFormikCore = () => {
             stopLoss: "0",
             takeProfitPercentage: 0,
             stopLossPercentage: 0,
+            useUsdc: true,
         },
         validationSchema: Yup.object({
             amount: Yup.string()

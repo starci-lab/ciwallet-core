@@ -9,7 +9,6 @@ import {
     PerpSectionPage,
     setPerpSectionPage,
     useAppDispatch,
-    useAppSelector,
 } from "@/nomas/redux"
 
 export const OrdersPage = () => {

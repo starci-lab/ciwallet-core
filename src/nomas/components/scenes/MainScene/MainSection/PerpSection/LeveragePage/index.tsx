@@ -25,7 +25,6 @@ export const LeveragePage = () => {
         }, 1000)
         return () => clearTimeout(timeout)
     }, [leverage, dispatch])
-
     return (
         <>
             <NomasCardHeader
@@ -41,13 +40,12 @@ export const LeveragePage = () => {
                     textAlign="center"
                     onValueChange={(value) => {
                         const _value = new Decimal(value)
-                        if (_value.lt(1)) return
-                        if (_value.gt(activeAssetData?.leverage.value ?? 0)) return
+                        if (_value.gt(perpMeta?.maxLeverage ?? 0)) return
                         dispatch(setLeverage(_value.toNumber()))
                     }}
                     numericOnly
                     min={1}
-                    max={activeAssetData?.leverage.value}
+                    max={perpMeta?.maxLeverage ?? 0}
                     prefixIcon={
                         <NomasLink
                             onClick={() => {
@@ -61,7 +59,7 @@ export const LeveragePage = () => {
                     postfixIcon={
                         <NomasLink
                             onClick={() => {
-                                if (leverage >= (activeAssetData?.leverage.value ?? 0)) return
+                                if (leverage >= (perpMeta?.maxLeverage ?? 0)) return
                                 dispatch(setLeverage(leverage + 1))
                             }}
                         >
@@ -70,7 +68,7 @@ export const LeveragePage = () => {
                     }
                     className="w-full"
                 />
-                <NomasSpacer y={4} />
+                <NomasSpacer y={6} />
                 <NomasSlider
                     onValueChange={
                         (value) => {
