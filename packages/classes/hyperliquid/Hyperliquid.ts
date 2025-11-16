@@ -1,7 +1,12 @@
 import { ChainId, Network, TokenId } from "@ciwallet-sdk/types"
-import { HyperliquidDepositAsset, HyperliquidMarketMode, type HyperliquidDepositAssetInfo, type HyperliquidMarketModeMetadata, HyperliquidAssetId, HyperliquidOrderType } from "./types"
-import * as hl from "@nktkas/hyperliquid"
-import { privateKeyToAccount } from "viem/accounts"
+import { 
+    HyperliquidDepositAsset, 
+    HyperliquidMarketMode, 
+    type HyperliquidDepositAssetInfo, 
+    type HyperliquidMarketModeMetadata, 
+    HyperliquidAssetId, 
+    HyperliquidOrderType
+} from "./types"
 
 export enum HyperliquidMarketId {
     BTC = "btc",
@@ -44,15 +49,6 @@ const map = {
 }
 
 export class Hyperliquid {
-    private readonly getExchangeClient = (network: Network, privateKey: string) => {
-        return new hl.ExchangeClient({
-            transport: new hl.HttpTransport({
-                isTestnet: network === Network.Testnet,
-            }),
-            wallet: privateKeyToAccount(privateKey as `0x${string}`),
-        })
-    }
-
     getModeMetadata() {
         const metadata: Record<HyperliquidMarketMode, HyperliquidMarketModeMetadata> = {
             [HyperliquidMarketMode.Isolated]: {
@@ -268,25 +264,6 @@ export class Hyperliquid {
         asset: HyperliquidDepositAsset
     ): HyperliquidDepositAssetInfo {
         return this.getDepositAssetInfos().find((item) => item.asset === asset)!
-    }
-
-    async approveAgent(
-        {
-            privateKey,
-            accountAddress,
-            network,
-        }: ApproveAgentParams,
-    ): Promise<ApproveAgentResponse> {
-        const exchangeClient = this.getExchangeClient(network, privateKey)
-        const result = await exchangeClient.approveAgent({
-            agentAddress: accountAddress,
-            agentName: "NomasWalletHyperliquid",
-        })
-        if (result.status !== "ok") {
-            throw new Error("Failed to approve agent")
-        }
-        // return "ok" message
-        return { status: result.status }
     }
 }   
 

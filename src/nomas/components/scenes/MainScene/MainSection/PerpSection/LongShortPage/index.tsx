@@ -13,7 +13,7 @@ import {
     NomasButton,
     NomasImage,
 } from "@/nomas/components"
-import { PerpSectionPage, setPerpSectionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { PerpSectionPage, selectMarginTableByUniverseId, setPerpSectionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { hyperliquidObj } from "@/nomas/obj"
 import { useMemo } from "react"
 import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
@@ -40,35 +40,51 @@ export const LongShortPage = () => {
     const activeAssetCtx = useAppSelector((state) => state.stateless.sections.perp.activeAssetCtx)
     const clearingHouseData = useAppSelector((state) => state.stateless.sections.perp.clearingHouseData)
     const userFees = useAppSelector((state) => state.stateless.sections.perp.userFees)
+    const marginTable = useAppSelector((state) => selectMarginTableByUniverseId(state.stateless.sections))
+    const activeAssetData = useAppSelector((state) => state.stateless.sections.perp.activeAssetData)
     const takerFee = useMemo(() => {
         return new Decimal(userFees?.feeSchedule.cross ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
     }, [userFees])
+    const positionValueInUsdc = useMemo(() => {
+        return new Decimal(formik.values.amount || 0)
+            .mul(leverage)
+    }, [formik.values.amount, leverage])
     const makerFee = useMemo(() => {
         return new Decimal(userFees?.feeSchedule.add ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
     }, [userFees])
+    
+    // to-do: require support for corresponding calculation for corresponding chain
     const liquidationPrice = useMemo(() => {
         const markPx = new Decimal(activeAssetCtx?.ctx.markPx ?? 0)
-        const side = orderSide === HyperliquidOrderSide.Buy ? 1 : -1
-        // position_size = amount * leverage * price
-        const positionSize = new Decimal(formik.values.amount || 0)
-            .mul(leverage)
-            .mul(markPx)
-        // margin_available = accountValue - maintenanceMarginRequired
-        const accountValue = new Decimal(clearingHouseData?.marginSummary.accountValue ?? 0)
-        const mmRequired = new Decimal(clearingHouseData?.crossMaintenanceMarginUsed ?? 0)
-        const marginAvailable = accountValue.sub(mmRequired)
-        // l = 1 / maintenance_leverage
-        const maintLev = new Decimal(leverage ?? 20)
-        const l = new Decimal(1).div(maintLev)
-        if (positionSize.lte(0)) return 0
-        const denom = new Decimal(1).sub(l.mul(side))
-        const liqPrice = markPx.sub(
-            new Decimal(side)
-                .mul(marginAvailable)
-                .div(positionSize)
-                .div(denom)
+        const positionValue = positionValueInUsdc.div(markPx)
+        // 1. Determine l = 1 / maintenanceLeverage
+        let l = new Decimal(0)
+        for (const tier of marginTable?.marginTiers || []) {
+            if (positionValueInUsdc.gte(tier.lowerBound)) {
+                l = new Decimal(1).div(tier.maxLeverage)
+            }
+        }
+        const side = orderSide === HyperliquidOrderSide.Buy ? new Decimal(1) : new Decimal(-1)
+        let marginAvailable = new Decimal(0)
+        // 2. CROSS
+        if (isCross) {
+            marginAvailable =
+            new Decimal(clearingHouseData?.crossMarginSummary.totalRawUsd ?? 0)
+                .sub(clearingHouseData?.crossMaintenanceMarginUsed ?? 0)
+        }
+        // 3. ISOLATED
+        else {
+            const isolatedMargin = positionValueInUsdc.div(leverage)
+            const maintenanceMargin = positionValueInUsdc.mul(l)
+            marginAvailable = isolatedMargin.sub(maintenanceMargin)
+        }
+        // 4. Final liquidation formula
+        const px = new Decimal(activeAssetCtx?.ctx.markPx ?? 0)
+        const liq = px.sub(
+            side.mul(marginAvailable.div(positionValue))
+                .div(new Decimal(1).sub(l.mul(side)))
         )
-        return roundNumber(liqPrice.toNumber(), 3)
+        return roundNumber(liq.toNumber(), 3)
     }, [
         activeAssetCtx?.ctx.markPx,
         leverage,
@@ -148,7 +164,7 @@ export const LongShortPage = () => {
                             <TooltipTitle title="Available to Trade" size="xs"/>
                             <div className="text-xs">
                                 <div className="flex items-center gap-2">
-                                ${clearingHouseData?.marginSummary.totalRawUsd}
+                                ${orderSide === HyperliquidOrderSide.Buy ? activeAssetData?.availableToTrade[0] : activeAssetData?.availableToTrade[1]}
                                     <NomasLink onClick={() => {
                                         dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
                                     }}>
@@ -187,10 +203,10 @@ export const LongShortPage = () => {
                         </div>
                         <NomasSpacer y={2} />
                         <div className="flex items-center gap-2 justify-between">
-                            <TooltipTitle title="Order Value" size="xs"/>
+                            <TooltipTitle title="Position Value" size="xs"/>
                             <div className="text-xs">
                                 {
-                                    `${roundNumber(new Decimal(formik.values.amount).mul(leverage).toNumber())} USDC`
+                                    `${roundNumber(positionValueInUsdc.toNumber())} USDC`
                                 }
                             </div>
                         </div>

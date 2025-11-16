@@ -156,6 +156,13 @@ export const perpSlice = createSlice({
             const universes = Object.values(state.perpMetas).flatMap((perpMeta) => perpMeta.universe)
             return universes.find((universe) => universe.name === metadata.coin)
         },
+        selectMarginTableByUniverseId: (state) => {
+            const metadata = hyperliquidObj.getAssetMetadata(state.selectedAssetId)
+            const universes = Object.values(state.perpMetas).flatMap((perpMeta) => perpMeta.universe)
+            const universe = universes.find((universe) => universe.name === metadata.coin)
+            const marginTables = state.perpMetas.flatMap((perpMeta) => perpMeta.marginTables)
+            return marginTables.find(([id]) => id === universe?.marginTableId)?.[1]
+        },
         selectSelectedAssetPrice: (state) => {
             return state.allMids?.mids[state.selectedAssetId]
         },
@@ -183,6 +190,6 @@ export const {
     setOrderType,
     setUserFees,
 } = perpSlice.actions
-export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice } = perpSlice.selectors
+export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice, selectMarginTableByUniverseId } = perpSlice.selectors
 export const perpReducer = perpSlice.reducer
 export const perpSelectors = perpSlice.selectors

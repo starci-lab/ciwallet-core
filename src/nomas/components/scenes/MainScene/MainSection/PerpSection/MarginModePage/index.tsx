@@ -58,7 +58,12 @@ export const MarginModePage = () => {
                             <PressableMotion
                                 key={mode.key}
                                 onClick={() => {
-                                    dispatch(setPerpSectionPage(PerpSectionPage.MarginMode))
+                                    hyperliquidUpdateLeverageSwrMutation?.trigger({
+                                        asset: selectedAssetId,
+                                        leverage,
+                                        isCross: mode.key === HyperliquidMarketMode.CrossMargin,
+                                    })
+                                    dispatch(setPerpSectionPage(PerpSectionPage.LongShort))
                                 }}
                             >
                                 <div className={
@@ -66,14 +71,6 @@ export const MarginModePage = () => {
                                         mode.key === (isCross ? HyperliquidMarketMode.CrossMargin : HyperliquidMarketMode.Isolated) ? "py-4 bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                                 }
                                 key={mode.key}
-                                onClick={async () => {
-                                    // update cross -> isolated and vise versa
-                                    await hyperliquidUpdateLeverageSwrMutation?.trigger({
-                                        asset: selectedAssetId,
-                                        leverage,
-                                        isCross: mode.key === HyperliquidMarketMode.CrossMargin,
-                                    })
-                                }}
                                 >
                                     <div>
                                         <div className="flex items-center gap-2">

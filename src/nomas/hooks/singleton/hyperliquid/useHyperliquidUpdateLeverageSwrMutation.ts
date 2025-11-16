@@ -1,4 +1,4 @@
-import { selectSelectedAccountByPlatform, setLeverage, useAppDispatch, useAppSelector } from "@/nomas/redux" 
+import { selectSelectedAccountByPlatform, setIsCross, setLeverage, useAppDispatch, useAppSelector } from "@/nomas/redux" 
 import useSWRMutation from "swr/mutation"
 import { exchangeHyperliquidObj } from "@/nomas/obj"
 import type { HyperliquidAssetId } from "@ciwallet-sdk/classes"
@@ -23,6 +23,7 @@ export const useHyperliquidUpdateLeverageSwrMutationCore = () => {
             leverage,
         } }: { arg: UseHyperliquidUpdateLeverageSwrMutationParams }) => {
             dispatch(setLeverage(Number(leverage)))
+            dispatch(setIsCross(isCross))
             const result = await exchangeHyperliquidObj.updateLeverage({
                 asset,
                 leverage,
