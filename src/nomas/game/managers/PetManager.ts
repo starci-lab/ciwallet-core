@@ -1,16 +1,16 @@
 /* eslint-disable indent */
 import { Pet } from "@/nomas/game/entities/Pet"
-import { FeedingSystem } from "@/nomas/game/systems/FeedingSystem"
-import { CleanlinessSystem } from "@/nomas/game/systems/CleanlinessSystem"
-import { HappinessSystem } from "@/nomas/game/systems/HappinessSystem"
-import { MovementSystem } from "@/nomas/game/systems/MovementSystem"
-import { ActivitySystem } from "@/nomas/game/systems/ActivitySystem"
+import { FeedingSystem } from "../systems"
+import { CleanlinessSystem } from "../systems"
+import { HappinessSystem } from "../systems"
+import { MovementSystem } from "../systems"
+import { ActivitySystem } from "../systems"
 import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
 import {
   ColyseusMessageEvents,
   type PetsStateSyncMessage,
   type BuyPetResponseMessage,
-} from "@/nomas/game/colyseus/events"
+} from "../../events"
 import {
   GamePositioning,
   GAME_MECHANICS,
@@ -144,7 +144,7 @@ export class PetManager {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private syncPetsFromServer(serverPets: any[]) {
     if (!serverPets || !Array.isArray(serverPets)) {
-      console.warn("⚠️ [PetManager] Invalid pets data:", serverPets)
+      console.warn("[PetManager] Invalid pets data:", serverPets)
       return
     }
 
@@ -1979,7 +1979,5 @@ export class PetManager {
         ball.setScale(originalScale * scaleMultiplier)
       }
     })
-
-    console.log(`📐 Updated all game object scales (width: ${cameraWidth})`)
   }
 }
