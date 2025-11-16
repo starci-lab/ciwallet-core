@@ -19,18 +19,24 @@ export const AssetPosition = ({ assetPosition }: AssetPositionProps) => {
     const isLong = useMemo(() => {
         return new Decimal(assetPosition.position.szi).gt(0)
     }, [assetPosition])
-    const [unrealizedRoiPercentage] = useMemo(() => {
-        const unrealizedRoiPercentage = new Decimal(computePercentage(assetPosition.position.unrealizedPnl, assetPosition.position.marginUsed))
-        const isPositive = unrealizedRoiPercentage.gt(0)
-        return [`${isPositive ? "+" : "-"}${roundNumber(unrealizedRoiPercentage.abs().toNumber(), 2)}%`, isPositive]
-    }, [assetPosition])
+    
     const [unrealizedPnl, isUnrealizedPnlPositive] = useMemo(() => {
         const decimalValue = new Decimal(assetPosition.position.unrealizedPnl)
+        const isPositive = decimalValue.gt(0)
         const unrealizedPnl = decimalValue.abs()
-        const isPositive = unrealizedPnl.gt(0)
         return [`${isPositive ? "+" : "-"}$${roundNumber(unrealizedPnl.abs().toNumber(), 2)}`, isPositive]
     }, [assetPosition])
-    
+
+    const unrealizedRoiPercentage = useMemo(
+        () => {
+            const decimalValue = new Decimal(computePercentage(assetPosition.position.unrealizedPnl, assetPosition.position.marginUsed))
+            return `${isUnrealizedPnlPositive ? "+" : "-"}${roundNumber(decimalValue.abs().toNumber(), 2)}%`
+        }, [
+            assetPosition.position.unrealizedPnl, 
+            assetPosition.position.marginUsed, 
+            isUnrealizedPnlPositive
+        ])
+        
     return (
         <PressableMotion onClick={() => {
             dispatch(setPositionAssetId(hyperliquidObj.getAssetIdByCoin(assetPosition.position.coin)))

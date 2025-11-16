@@ -78,7 +78,10 @@ export const PositionPage = () => {
     }, [assetPosition])
 
     const [fundingPayment, isFundingPaymentPositive] = useMemo(() => {
-        const decimalValue = new Decimal(assetPosition?.position.cumFunding.allTime ?? 0).mul(new Decimal(-1))
+        const decimalValue = new Decimal(assetPosition?.position.cumFunding.sinceOpen ?? 0).mul(new Decimal(-1))
+        if (decimalValue.eq(0)) {
+            return ["$0.00", true]
+        }
         const isPositive = decimalValue.gt(0)
         const sign = decimalValue.gt(0) ? "+" : "-"
         const fundingPayment = decimalValue.abs()
