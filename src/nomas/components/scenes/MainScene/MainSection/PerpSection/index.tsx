@@ -10,6 +10,7 @@ import { MarginModePage } from "./MarginModePage"
 import { LeveragePage } from "./LeveragePage"
 import { SelectOrderTypePage } from "./SelectOrderTypePage"
 import { LongShortPage } from "./LongShortPage"
+import { TakeProfitStopLossPage } from "./TakeProfitStopLossPage"
 
 export const PerpSection = () => {
     const perpSectionPage = useAppSelector((state) => state.stateless.sections.perp.perpSectionPage)   
@@ -31,6 +32,8 @@ export const PerpSection = () => {
             return <SelectOrderTypePage />
         case PerpSectionPage.LongShort:
             return <LongShortPage />
+        case PerpSectionPage.TakeProfitStopLoss:
+            return <TakeProfitStopLossPage />
         }
     }
     return <NomasCard 

@@ -99,7 +99,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
                     />
                     {/* Postfix Icon */}
                     {postfixIcon && (
-                        <div className="flex items-center justify-center mr-2 text-text-muted text-sm">
+                        <div className="flex items-center justify-center text-text-muted text-sm">
                             {postfixIcon}
                         </div>
                     )}

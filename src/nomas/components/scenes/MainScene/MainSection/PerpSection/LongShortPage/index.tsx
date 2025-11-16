@@ -20,8 +20,9 @@ import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
 import { usePlacePerpOrderFormik } from "@/nomas/hooks"
 import { CaretRightIcon, GearSixIcon } from "@phosphor-icons/react"
 import Decimal from "decimal.js"
-import { computePercentage } from "@/nomas/utils"
+import { computePercentage, roundNumber } from "@/nomas/utils"
 import { assetsConfig } from "@/nomas/resources"
+import { twMerge } from "tailwind-merge"
 
 export const LongShortPage = () => {
     const dispatch = useAppDispatch()   
@@ -38,10 +39,6 @@ export const LongShortPage = () => {
     const orderTypeMetadata = useMemo(() => hyperliquidObj.getOrderTypeMetadata()[orderType], [orderType])
     const activeAssetCtx = useAppSelector((state) => state.stateless.sections.perp.activeAssetCtx)
     const clearingHouseData = useAppSelector((state) => state.stateless.sections.perp.clearingHouseData)
-    const currentPosition = useMemo(() => {
-        return clearingHouseData?.assetPositions.find((assetPosition) => assetPosition.position.coin === 
-            hyperliquidObj.getAssetMetadata(selectedAssetId)?.coin)
-    }, [clearingHouseData, selectedAssetId])
     const userFees = useAppSelector((state) => state.stateless.sections.perp.userFees)
     const takerFee = useMemo(() => {
         return new Decimal(userFees?.feeSchedule.cross ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
@@ -49,6 +46,38 @@ export const LongShortPage = () => {
     const makerFee = useMemo(() => {
         return new Decimal(userFees?.feeSchedule.add ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
     }, [userFees])
+    const liquidationPrice = useMemo(() => {
+        const markPx = new Decimal(activeAssetCtx?.ctx.markPx ?? 0)
+        const side = orderSide === HyperliquidOrderSide.Buy ? 1 : -1
+        // position_size = amount * leverage * price
+        const positionSize = new Decimal(formik.values.amount || 0)
+            .mul(leverage)
+            .mul(markPx)
+        // margin_available = accountValue - maintenanceMarginRequired
+        const accountValue = new Decimal(clearingHouseData?.marginSummary.accountValue ?? 0)
+        const mmRequired = new Decimal(clearingHouseData?.crossMaintenanceMarginUsed ?? 0)
+        const marginAvailable = accountValue.sub(mmRequired)
+        // l = 1 / maintenance_leverage
+        const maintLev = new Decimal(leverage ?? 20)
+        const l = new Decimal(1).div(maintLev)
+        if (positionSize.lte(0)) return 0
+        const denom = new Decimal(1).sub(l.mul(side))
+        const liqPrice = markPx.sub(
+            new Decimal(side)
+                .mul(marginAvailable)
+                .div(positionSize)
+                .div(denom)
+        )
+        return roundNumber(liqPrice.toNumber(), 3)
+    }, [
+        activeAssetCtx?.ctx.markPx,
+        leverage,
+        clearingHouseData?.marginSummary.accountValue,
+        clearingHouseData?.crossMaintenanceMarginUsed,
+        leverage,
+        orderSide,
+        formik.values.amount
+    ])
     return (
         <>
             <NomasCardHeader
@@ -128,19 +157,6 @@ export const LongShortPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <NomasSpacer y={4} />
-                        <div className="flex items-center gap-2 justify-between">
-                            <TooltipTitle title="Current Position" size="xs"/>
-                            <div className="text-xs">
-                                <div className="flex items-center gap-2">
-                                    {
-                                        `${
-                                            currentPosition?.position.positionValue
-                                        } USDC`
-                                    }
-                                </div>
-                            </div>
-                        </div>
                     </NomasCardBody>
                 </NomasCard>
                 <NomasSpacer y={4} />
@@ -165,7 +181,7 @@ export const LongShortPage = () => {
                             <TooltipTitle title="Liquidation Price" size="xs"/>
                             <div className="text-xs text-bearish">
                                 {
-                                    `$${new Decimal(activeAssetCtx?.ctx.markPx ?? "0").mul(1.05).toString()} USDC`
+                                    `${liquidationPrice} USDC`
                                 }
                             </div>
                         </div>
@@ -174,7 +190,7 @@ export const LongShortPage = () => {
                             <TooltipTitle title="Order Value" size="xs"/>
                             <div className="text-xs">
                                 {
-                                    `$${new Decimal(activeAssetCtx?.ctx.markPx ?? "0").mul(0.95).toString()} USDC`
+                                    `${roundNumber(new Decimal(formik.values.amount).mul(leverage).toNumber())} USDC`
                                 }
                             </div>
                         </div>
@@ -197,12 +213,20 @@ export const LongShortPage = () => {
                     </NomasCardBody>  
                 </NomasCard>
                 <NomasSpacer y={4} />
-                <PressableMotion>
+                <PressableMotion onClick={() => {
+                    dispatch(setPerpSectionPage(PerpSectionPage.TakeProfitStopLoss))
+                }}>
                     <NomasCard variant={NomasCardVariant.Dark} isInner>
                         <NomasCardBody className="p-4 flex items-center justify-between">
-                            <TooltipTitle title="Take Profit/Stop Loss" size="xs"/>
+                            <TooltipTitle title="TP/SL" size="xs"/>
                             <div className="text-xs">
-                            N/A
+                                <span className={twMerge(formik.values.takeProfit && "text-bullish")}>
+                                    {formik.values.takeProfit || "--"}
+                                </span>
+                                /
+                                <span className={twMerge(formik.values.stopLoss && "text-bearish")}>
+                                    {formik.values.stopLoss || "--"}
+                                </span>
                             </div>
                         </NomasCardBody>
                     </NomasCard>

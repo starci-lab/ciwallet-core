@@ -24,6 +24,7 @@ export enum PerpSectionPage {
     Leverage = "leverage",
     OrderType = "order-type",
     LongShort = "long-short",
+    TakeProfitStopLoss = "take-profit-stop-loss",
 }
 
 export enum PerpTab {
