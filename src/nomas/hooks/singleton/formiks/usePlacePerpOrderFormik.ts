@@ -3,15 +3,15 @@ import * as Yup from "yup"
 import Decimal from "decimal.js"
 import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
-import { useHyperliquidPlaceOrderSwrMutatation } from "../hyperliquid"
 import { useAppSelector } from "@/nomas/redux"
-import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
+import { HyperliquidOrderSide, HyperliquidOrderType } from "@ciwallet-sdk/classes"
 import { roundNumber } from "@/nomas/utils/math"
+import { useHyperliquidPlaceOrderSwrMutatation } from "../hyperliquid"
 
 export interface PlacePerpOrderFormikValues {
+    limitPrice: string
     amount: string
     balanceAmount: string
-    amountPercentage: number
     isReduceOnly: boolean
     markPx: number
     isTakeProfitAndStopLoss: boolean
@@ -30,11 +30,13 @@ export const usePlacePerpOrderFormikCore = () => {
     const activeAssetCtx = useAppSelector((state) => state.stateless.sections.perp.activeAssetCtx)
     const orderSide = useAppSelector((state) => state.stateless.sections.perp.orderSide)
     const leverage = useAppSelector((state) => state.stateless.sections.perp.leverage)
+    const markPx = useAppSelector((state) => state.stateless.sections.perp.activeAssetCtx?.ctx.markPx ?? 0)
+    const orderType = useAppSelector((state) => state.stateless.sections.perp.orderType)
     const formik = useFormik<PlacePerpOrderFormikValues>({
         initialValues: {
+            limitPrice: "0",
             amount: "0",
             balanceAmount: "0",
-            amountPercentage: 0,
             isReduceOnly: false,
             isTakeProfitAndStopLoss: false,
             markPx: 0,
@@ -51,6 +53,14 @@ export const usePlacePerpOrderFormikCore = () => {
             amount: Yup.string()
                 .required("Amount is required")
                 .test(
+                    "amount-greater-than-10",
+                    "Amount must be more than $10",
+                    function (value) {
+                        const amountNum = new Decimal(value || "0")
+                        return amountNum.gt(new Decimal(10))
+                    }
+                )
+                .test(
                     "amount-less-than-balance",
                     "Amount must be less than or equal to balance",
                     function (value) {
@@ -60,6 +70,7 @@ export const usePlacePerpOrderFormikCore = () => {
                         return amountNum.lte(balanceNum)
                     }
                 ),
+            limitPrice: Yup.string(),
             takeProfit: Yup.string()
                 .nullable()
                 .test(
@@ -119,19 +130,21 @@ export const usePlacePerpOrderFormikCore = () => {
             balanceAmount: Yup.string().required("Balance is required"),
         }),
         onSubmit: async (values) => {
+            // we either increase/decrease the mark price by 10% to ensure the order is executed
             await hyperliquidPlaceOrderSwrMutatation?.trigger({
-                price: "113000",
-                size: values.amount,
+                price: markPx.toString(),
+                size: roundNumber(
+                    new Decimal(values.amount)
+                        .mul(leverage)
+                        .div(new Decimal(markPx))
+                        .toNumber())
+                    .toString(),
+                takeProfit: values.takeProfit,
+                stopLoss: values.stopLoss,
                 reduceOnly: values.isReduceOnly,
             })
         },
     })
-    useEffect(() => {
-        formik.setFieldValue(
-            "amount",
-            new Decimal(formik.values.balanceAmount).mul(formik.values.amountPercentage / 100).toString()
-        )
-    }, [formik.values.balanceAmount, formik.values.amountPercentage])
     useEffect(() => {
         formik.setFieldValue(
             "markPx",

@@ -109,6 +109,36 @@ export class ExchangeHyperliquid {
             }],
         })   
     }
+
+    async closePosition(
+        {
+            clientParams,
+            asset,
+            size,
+            price,
+            side,
+        }: HyperliquidClosePositionParams
+    ) {
+        const client = this.getExchangeClient({ 
+            ...clientParams, 
+            transport: HyperliquidTransport.Http 
+        })
+        return await client.order({
+            orders: [{
+                a: this.hyperliquidObj.getAssetMetadata(asset).assetId,
+                b: !(side === HyperliquidOrderSide.Buy),
+                p: price,
+                s: size,
+                // reduce only is true
+                r: true,
+                t: {
+                    limit: {
+                        tif: "FrontendMarket",
+                    },
+                }
+            }],
+        })
+    }
 }
 
 export interface HyperliquidPlaceOrderParams {
@@ -120,4 +150,12 @@ export interface HyperliquidPlaceOrderParams {
     reduceOnly: boolean
     takeProfit?: string
     stopLoss?: string
+}
+
+export interface HyperliquidClosePositionParams {
+    clientParams: HttpExchangeHyperliquidClientParams
+    asset: HyperliquidAssetId
+    size: string
+    price: string
+    side: HyperliquidOrderSide
 }

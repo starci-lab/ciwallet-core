@@ -42,7 +42,7 @@ export const MarginModePage = () => {
     return (
         <>
             <NomasCardHeader
-                title={`${assetMetadata.name} Margin Mode`}
+                title={`${assetMetadata.coin} Margin Mode`}
                 showBackButton
                 onBackButtonPress={() => {
                     dispatch(setPerpSectionPage(PerpSectionPage.LongShort))

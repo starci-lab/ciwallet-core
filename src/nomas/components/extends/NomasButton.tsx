@@ -31,6 +31,7 @@ export const NomasButton = React.forwardRef<HTMLButtonElement, NomasButtonProps>
                         roundedFull && "!rounded-full",
                         xlSize && "h-14",
                         noShadow && "!shadow-none bg-button",
+                        isDisabled && "cursor-not-allowed opacity-50 hover:bg-button-dark",
                         className
                     )}
                 disabled={isDisabled || isLoading}

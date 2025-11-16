@@ -93,3 +93,11 @@ export type UserFees = Awaited<
         hl.InfoClient["userFees"]
     >
 >
+
+export type OpenOrders = Parameters<
+NonNullable<
+    Parameters<
+        hl.SubscriptionClient["openOrders"]
+    >[1]
+>
+>[0]["orders"]

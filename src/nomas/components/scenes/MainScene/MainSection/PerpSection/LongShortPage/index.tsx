@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { 
     NomasCardHeader, 
     NomasCardBody, 
@@ -12,11 +12,12 @@ import {
     NomasCardFooter,
     NomasButton,
     NomasImage,
+    NomasInvalidVariant,
 } from "@/nomas/components"
-import { PerpSectionPage, selectMarginTableByUniverseId, setPerpSectionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { PerpSectionPage, selectMarginTableByUniverseId, setPerpSectionPage, setPositionAssetId, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { hyperliquidObj } from "@/nomas/obj"
 import { useMemo } from "react"
-import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
+import { HyperliquidOrderSide, HyperliquidOrderType } from "@ciwallet-sdk/classes"
 import { usePlacePerpOrderFormik } from "@/nomas/hooks"
 import { CaretRightIcon, GearSixIcon } from "@phosphor-icons/react"
 import Decimal from "decimal.js"
@@ -42,6 +43,9 @@ export const LongShortPage = () => {
     const userFees = useAppSelector((state) => state.stateless.sections.perp.userFees)
     const marginTable = useAppSelector((state) => selectMarginTableByUniverseId(state.stateless.sections))
     const activeAssetData = useAppSelector((state) => state.stateless.sections.perp.activeAssetData)
+    const availableToTrade = useMemo(() => {
+        return orderSide === HyperliquidOrderSide.Buy ? activeAssetData?.availableToTrade[0] : activeAssetData?.availableToTrade[1]
+    }, [activeAssetData, orderSide])
     const takerFee = useMemo(() => {
         return new Decimal(userFees?.feeSchedule.cross ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
     }, [userFees])
@@ -52,6 +56,11 @@ export const LongShortPage = () => {
     const makerFee = useMemo(() => {
         return new Decimal(userFees?.feeSchedule.add ?? 0).mul(new Decimal(1).sub(userFees?.activeReferralDiscount ?? 0)).toNumber()
     }, [userFees])
+
+    useEffect(() => {
+        if (!availableToTrade) return
+        formik.setFieldValue("balanceAmount", availableToTrade)
+    }, [availableToTrade])
     
     // to-do: require support for corresponding calculation for corresponding chain
     const liquidationPrice = useMemo(() => {
@@ -94,13 +103,21 @@ export const LongShortPage = () => {
         orderSide,
         formik.values.amount
     ])
+    const isLimitExceed = useMemo(() => {
+        return new Decimal(formik.values.limitPrice).gt(new Decimal(activeAssetCtx?.ctx.markPx ?? 0))
+    }, [formik.values.limitPrice, activeAssetCtx?.ctx.markPx])
+
+    useEffect(() => {
+        if (!clearingHouseData) return
+        formik.setFieldValue("balanceAmount", clearingHouseData?.marginSummary.accountValue || "0")
+    }, [clearingHouseData])
     return (
         <>
             <NomasCardHeader
                 title={
                     <div className="flex flex-col">
                         <div className="text-lg">
-                            {renderTitle} {assetMetadata.name}
+                            {renderTitle} {assetMetadata.coin}
                         </div>
                         <NomasSpacer y={1} />
                         <div className="text-xs text-text-muted font-normal">
@@ -164,7 +181,7 @@ export const LongShortPage = () => {
                             <TooltipTitle title="Available to Trade" size="xs"/>
                             <div className="text-xs">
                                 <div className="flex items-center gap-2">
-                                ${orderSide === HyperliquidOrderSide.Buy ? activeAssetData?.availableToTrade[0] : activeAssetData?.availableToTrade[1]}
+                                ${availableToTrade}
                                     <NomasLink onClick={() => {
                                         dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
                                     }}>
@@ -178,6 +195,35 @@ export const LongShortPage = () => {
                 <NomasSpacer y={4} />
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
                     <NomasCardBody className="p-4">
+                        { 
+                            orderType === HyperliquidOrderType.Limit && (
+                                <>
+                                    <NomasInput
+                                        value={formik.values.limitPrice}
+                                        textAlign="right"
+                                        onValueChange={(value) => {
+                                            formik.setFieldValue("limitPrice", value)
+                                        }}
+                                        prefixIcon={
+                                            <div className="text-sm text-text-muted">
+                                    Limit Price
+                                            </div>
+                                        }
+                                        numericOnly
+                                        invalidVariant={NomasInvalidVariant.Warning}
+                                        errorMessage={
+                                            orderSide === HyperliquidOrderSide.Buy ?
+                                                "Limit price is above the mark price and may execute immediately"
+                                                :
+                                                "Limit price is below the mark price and may execute immediately"
+                                        }
+                                        isInvalid={isLimitExceed}
+                                        className="w-full"
+                                    />
+                                    <NomasSpacer y={4} />
+                                </>
+                            )
+                        }
                         <NomasInput
                             value={formik.values.amount}
                             textAlign="right"
@@ -189,6 +235,11 @@ export const LongShortPage = () => {
                                     Pay
                                 </div>
                             }
+                            onBlur={() => {
+                                formik.setFieldTouched("amount")
+                            }}
+                            errorMessage={formik.errors.amount}
+                            isInvalid={!!(formik.errors.amount && formik.touched.amount)}
                             numericOnly
                             className="w-full"
                         />
@@ -249,9 +300,22 @@ export const LongShortPage = () => {
                 </PressableMotion>
             </NomasCardBody>
             <NomasCardFooter>
-                <NomasButton xlSize className="w-full" onClick={() => {
-                    formik.submitForm()
-                }}>
+                <NomasButton 
+                    xlSize 
+                    className="w-full" onClick={
+                        async () => {
+                            await formik.submitForm()
+                            switch (orderType) {
+                            case HyperliquidOrderType.Limit:
+                                dispatch(setPerpSectionPage(PerpSectionPage.Perp))
+                                break
+                            case HyperliquidOrderType.Market:
+                                dispatch(setPositionAssetId(selectedAssetId))
+                                dispatch(setPerpSectionPage(PerpSectionPage.Position))
+                                break
+                            }
+                        }} 
+                    isLoading={formik.isSubmitting}>
                     Place Order
                 </NomasButton>
             </NomasCardFooter>

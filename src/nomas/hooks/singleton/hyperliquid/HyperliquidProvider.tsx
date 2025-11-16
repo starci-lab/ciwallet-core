@@ -1,8 +1,7 @@
 import React, {
     type PropsWithChildren,
 } from "react"
-import { useHyperliquidInfoCore } from "./useHyperliquidInfo"
-import { useHyperliquidSubscriptionCore } from "./useHyperliquidSubscription"
+import { useHyperliquidSubscriptionCore } from "./subscriptions/useHyperliquidSubscription"
 import { createContext } from "react"
 import { 
     useHyperunitGenerateAddressSwrMutationCore, 
@@ -12,12 +11,15 @@ import {
 import { useHyperliquidActiveAssetSwrCore } from "./useHyperliquidActiveAssetSwr"
 import { useHyperliquidUpdateLeverageSwrMutationCore } from "./useHyperliquidUpdateLeverageSwrMutation"
 import { useHyperliquidClearHouseSwrCore } from "./useHyperliquidClearHouseSwr"
-import { useHyperliquidPlaceOrderSwrMutatationCore } from "./useHyperliquidPlaceOrderSwrMutatation"
 import { useHyperliquidOpenOrdersSwrCore } from "./useHyperliquidOpenOrdersSwr"
 import { useHyperliquidUserFeesSwrCore } from "./useHyperliquidUserFeesSwr"
+import { useHyperliquidCandleSnapshotSwrCore } from "./useHyperliquidCandleSnapshotSwr"
+import { useHyperliquidAllPerpMetasSwrCore } from "./useHyperliquidAllPerpMetasSwr"
+import { useHyperliquidClosePositionSwrMutationCore } from "./useHyperliquidClosePositionSwrMutation"
+import { useHyperliquidPlaceOrderSwrMutatationCore } from "./useHyperliquidPlaceOrderSwrMutatation"
 
 export interface HyperliquidContextType {
-    useHyperliquidInfo: ReturnType<typeof useHyperliquidInfoCore> | null
+    useHyperliquidCandleSnapshotSwr: ReturnType<typeof useHyperliquidCandleSnapshotSwrCore> | null
     useHyperliquidSubscription: ReturnType<typeof useHyperliquidSubscriptionCore> | null
     useHyperunitGenerateAddressSwrMutation: ReturnType<typeof useHyperunitGenerateAddressSwrMutationCore> | null
     useHyperunitLegalCheckSwrMutation: ReturnType<typeof useHyperunitLegalCheckSwrMutationCore> | null
@@ -25,13 +27,15 @@ export interface HyperliquidContextType {
     useHyperliquidActiveAssetSwr: ReturnType<typeof useHyperliquidActiveAssetSwrCore> | null
     useHyperliquidUpdateLeverageSwrMutation: ReturnType<typeof useHyperliquidUpdateLeverageSwrMutationCore> | null
     useHyperliquidClearHouseSwr: ReturnType<typeof useHyperliquidClearHouseSwrCore> | null
-    useHyperliquidPlaceOrderSwrMutatation: ReturnType<typeof useHyperliquidPlaceOrderSwrMutatationCore> | null
     useHyperliquidOpenOrdersSwr: ReturnType<typeof useHyperliquidOpenOrdersSwrCore> | null
     useHyperliquidUserFeesSwr: ReturnType<typeof useHyperliquidUserFeesSwrCore> | null
+    useHyperliquidAllPerpMetasSwr: ReturnType<typeof useHyperliquidAllPerpMetasSwrCore> | null
+    useHyperliquidClosePositionSwrMutation: ReturnType<typeof useHyperliquidClosePositionSwrMutationCore> | null
+    useHyperliquidPlaceOrderSwrMutatation: ReturnType<typeof useHyperliquidPlaceOrderSwrMutatationCore> | null
 }
 
 export const HyperliquidContext = createContext<HyperliquidContextType>({
-    useHyperliquidInfo: null,
+    useHyperliquidCandleSnapshotSwr: null,
     useHyperliquidSubscription: null,
     useHyperunitGenerateAddressSwrMutation: null,
     useHyperunitLegalCheckSwrMutation: null,
@@ -39,13 +43,15 @@ export const HyperliquidContext = createContext<HyperliquidContextType>({
     useHyperliquidActiveAssetSwr: null,
     useHyperliquidUpdateLeverageSwrMutation: null,
     useHyperliquidClearHouseSwr: null,
-    useHyperliquidPlaceOrderSwrMutatation: null,
     useHyperliquidOpenOrdersSwr: null,
     useHyperliquidUserFeesSwr: null,
+    useHyperliquidAllPerpMetasSwr: null,
+    useHyperliquidClosePositionSwrMutation: null,
+    useHyperliquidPlaceOrderSwrMutatation: null,
 })
 
-export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
-    const useHyperliquidInfo = useHyperliquidInfoCore()
+export const HyperliquidProvider: React.FC<PropsWithChildren> = ({ children }) => {
+    const useHyperliquidCandleSnapshotSwr = useHyperliquidCandleSnapshotSwrCore()
     const useHyperliquidSubscription = useHyperliquidSubscriptionCore()
     const useHyperunitGenerateAddressSwrMutation = useHyperunitGenerateAddressSwrMutationCore()
     const useHyperunitLegalCheckSwrMutation = useHyperunitLegalCheckSwrMutationCore()
@@ -53,12 +59,14 @@ export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
     const useHyperliquidActiveAssetSwr = useHyperliquidActiveAssetSwrCore()
     const useHyperliquidUpdateLeverageSwrMutation = useHyperliquidUpdateLeverageSwrMutationCore()
     const useHyperliquidClearHouseSwr = useHyperliquidClearHouseSwrCore()
-    const useHyperliquidPlaceOrderSwrMutatation = useHyperliquidPlaceOrderSwrMutatationCore()
     const useHyperliquidOpenOrdersSwr = useHyperliquidOpenOrdersSwrCore()
     const useHyperliquidUserFeesSwr = useHyperliquidUserFeesSwrCore()
+    const useHyperliquidAllPerpMetasSwr = useHyperliquidAllPerpMetasSwrCore()
+    const useHyperliquidClosePositionSwrMutation = useHyperliquidClosePositionSwrMutationCore()
+    const useHyperliquidPlaceOrderSwrMutatation = useHyperliquidPlaceOrderSwrMutatationCore()
     return (
         <HyperliquidContext.Provider value={{ 
-            useHyperliquidInfo, 
+            useHyperliquidCandleSnapshotSwr, 
             useHyperliquidSubscription, 
             useHyperunitGenerateAddressSwrMutation,
             useHyperunitLegalCheckSwrMutation,
@@ -66,9 +74,11 @@ export const HyperliquidProvider = ({ children }: PropsWithChildren) => {
             useHyperliquidActiveAssetSwr,
             useHyperliquidUpdateLeverageSwrMutation,
             useHyperliquidClearHouseSwr,
-            useHyperliquidPlaceOrderSwrMutatation,
             useHyperliquidOpenOrdersSwr,
             useHyperliquidUserFeesSwr,
+            useHyperliquidAllPerpMetasSwr,
+            useHyperliquidClosePositionSwrMutation,
+            useHyperliquidPlaceOrderSwrMutatation,
         }}>
             {children}
         </HyperliquidContext.Provider>

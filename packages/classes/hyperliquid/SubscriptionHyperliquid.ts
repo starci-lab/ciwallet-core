@@ -1,5 +1,5 @@
 import * as hl from "@nktkas/hyperliquid"
-import type { ActiveAssetCtx, ActiveAssetData, ClearingHouseData, HyperliquidAssetId } from "./types"
+import type { ActiveAssetCtx, ActiveAssetData, ClearingHouseData, HyperliquidAssetId, OpenOrders } from "./types"
 import type { CandleInterval } from "./types"
 import { type ElementOf, Network } from "@ciwallet-sdk/types"
 import { Hyperliquid } from "./Hyperliquid" 
@@ -35,7 +35,7 @@ export class SubscriptionHyperliquid {
             onUpdate,
         }: SubscriptionHyperliquidSubscribeToAllMidsParams
     ) {
-        await client.allMids((event) => {
+        return await client.allMids((event) => {
             onUpdate(event)
         })
     }
@@ -49,7 +49,7 @@ export class SubscriptionHyperliquid {
         }: SubscriptionHyperliquidSubscribeToCandleParams
     ) {
         const metadata = this.hyperliquidObj.getAssetMetadata(assetId)
-        await client.candle({
+        return await client.candle({
             coin: metadata.coin,
             interval: interval,
         }, (event) => {
@@ -64,7 +64,7 @@ export class SubscriptionHyperliquid {
             userAddress,
         }: SubscriptionHyperliquidSubscribeToClearingHouseDataParams
     ) {
-        await client.clearinghouseState({
+        return await client.clearinghouseState({
             user: userAddress,
         }, (event) => {
             onUpdate(event.clearinghouseState)
@@ -79,7 +79,7 @@ export class SubscriptionHyperliquid {
             userAddress,
         }: SubscriptionHyperliquidSubscribeToActiveAssetDataParams
     ) {
-        await client.activeAssetData({
+        return await client.activeAssetData({
             coin: this.hyperliquidObj.getAssetMetadata(assetId).coin,
             user: userAddress,
         }, (event) => {
@@ -106,10 +106,22 @@ export class SubscriptionHyperliquid {
             assetId,
         }: SubscriptionHyperliquidSubscribeToActiveAssetCtxParams
     ) {
-        await client.activeAssetCtx({
+        return await client.activeAssetCtx({
             coin: this.hyperliquidObj.getAssetMetadata(assetId).coin,
         }, (event) => {
             onUpdate(event)
+        })
+    }
+
+    async subscribeToOpenOrders(
+        {
+            client,
+            onUpdate,
+            userAddress,
+        }: SubscriptionHyperliquidSubscribeToOpenOrdersParams
+    ) {
+        return await client.openOrders({ user: userAddress }, (event) => {
+            onUpdate(event.orders)
         })
     }
 }
@@ -145,4 +157,17 @@ export interface SubscriptionHyperliquidSubscribeToActiveAssetCtxParams {
     client: hl.SubscriptionClient
     onUpdate: (event: ActiveAssetCtx) => void
     assetId: HyperliquidAssetId
+}
+
+export interface SubscriptionHyperliquidSubscribeToOpenOrdersParams {
+    client: hl.SubscriptionClient
+    onUpdate: (event: OpenOrders) => void
+    userAddress: string
+}
+
+export interface SubscriptionHyperliquidSubscribeToActiveAssetDataParams {
+    client: hl.SubscriptionClient
+    onUpdate: (event: ActiveAssetData) => void
+    assetId: HyperliquidAssetId
+    userAddress: string
 }

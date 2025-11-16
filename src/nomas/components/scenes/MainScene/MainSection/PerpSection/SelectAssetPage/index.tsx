@@ -1,48 +1,73 @@
 import React from "react"
-import { NomasCardHeader, NomasCardBody, NomasImage, NomasCard, NomasCardVariant, PressableMotion } from "@/nomas/components"
-import { PerpSectionPage, setPerpSectionPage, useAppDispatch } from "@/nomas/redux"
+import { 
+    NomasCard, 
+    NomasCardBody, 
+    NomasCardHeader, 
+    NomasCardVariant, 
+    NomasImage, 
+    PressableMotion
+} from "@/nomas/components"
+import { 
+    PerpSectionPage, 
+    selectPerpUniverses, 
+    setPerpSectionPage, 
+    setSelectedAssetId, 
+    useAppDispatch, 
+    useAppSelector
+} from "@/nomas/redux"
 import { hyperliquidObj } from "@/nomas/obj"
 import { twMerge } from "tailwind-merge"
-import { ChainId } from "@ciwallet-sdk/types"
-import { useHyperliquidDepositFormik } from "@/nomas/hooks"
 
 export const SelectAssetPage = () => {
     const dispatch = useAppDispatch()
-    const depositAssetInfos = hyperliquidObj.getDepositAssetInfos()
-    const hyperliquidDepositFormik = useHyperliquidDepositFormik()
+    const perpMetas = useAppSelector((state) => selectPerpUniverses(state.stateless.sections))
+    const selectedAssetId = useAppSelector((state) => state.stateless.sections.perp.selectedAssetId)
     return (
         <>
             <NomasCardHeader
-                title="Select Asset"
+                title={"Select Asset"}
                 showBackButton
                 onBackButtonPress={() => {
-                    dispatch(setPerpSectionPage(PerpSectionPage.Deposit))
+                    dispatch(setPerpSectionPage(PerpSectionPage.Perp))
                 }}
             />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
-                    <NomasCardBody scrollable scrollHeight={300} className="p-4">
-                        {depositAssetInfos.map((depositAssetInfo) => (
-                            <PressableMotion key={depositAssetInfo.asset} onClick={() => {
-                                hyperliquidDepositFormik.setFieldValue("asset", depositAssetInfo.asset)
-                                const refs = hyperliquidObj.getDepositAssetInfoByAsset(depositAssetInfo.asset).refs
-                                if (refs.length > 0) {
-                                    hyperliquidDepositFormik.setFieldValue("chainId", refs[0].chainId ?? ChainId.Arbitrum)
+                    <NomasCardBody className="p-4">
+                        {
+                            perpMetas.map((perpMeta) => {   
+                                try {
+                                    const selectedAssetMetadata = hyperliquidObj.getAssetMetadataByCoin(perpMeta.name)
+                                    if (!selectedAssetMetadata) return null
+                                    return (
+                                        <PressableMotion
+                                            key={perpMeta.name}
+                                            className={
+                                                twMerge("p-4 flex items-center gap-2 justify-between rounded-button w-full", 
+                                                    hyperliquidObj.getAssetIdByCoin(perpMeta.name) === selectedAssetId 
+                                                        ? "py-4 bg-button-dark border-border-card shadow-button" 
+                                                        : "bg-card-foreground transition-colors !shadow-none"
+                                                )                                          
+                                            }
+                                            onClick={
+                                                () => {
+                                                    const assetId = hyperliquidObj.getAssetIdByCoin(perpMeta.name)
+                                                    if (!assetId) return
+                                                    dispatch(setSelectedAssetId(assetId))
+                                                    dispatch(setPerpSectionPage(PerpSectionPage.Perp))
+                                                }}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <NomasImage src={selectedAssetMetadata.imageUrl} className="w-10 h-10 rounded-full" />
+                                                <div className="text-sm">{selectedAssetMetadata.name}</div>
+                                            </div>
+                                        </PressableMotion>
+                                    )
+                                } catch{
+                                    return null
                                 }
-                                dispatch(setPerpSectionPage(PerpSectionPage.SourceChain))
-                            }} className={
-                                twMerge("p-4 flex items-center gap-2 justify-between rounded-button w-full", 
-                                    hyperliquidDepositFormik.values.asset === depositAssetInfo.asset ? "py-4 bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
-                            }>
-                                <div className="flex items-center gap-2">
-                                    <NomasImage src={depositAssetInfo.iconUrl ?? ""} className="w-10 h-10 rounded-full" />
-                                    <div className="flex flex-col">
-                                        <div className="text-sm text-text">{depositAssetInfo.name}</div>
-                                        <div className="text-text-muted text-xs text-left">{depositAssetInfo.symbol}</div>
-                                    </div>
-                                </div>
-                            </PressableMotion>
-                        ))}
+                            })
+                        }
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>

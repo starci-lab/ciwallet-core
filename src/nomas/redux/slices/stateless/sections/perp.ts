@@ -10,10 +10,12 @@ import {
     type ClearingHouseData,
     HyperliquidOrderSide,
     type ActiveAssetCtx,
-    type UserFees
+    type UserFees,
+    type OpenOrders
 } from "@ciwallet-sdk/classes"
 import { HyperliquidDepositAsset } from "@ciwallet-sdk/classes"
 import { hyperliquidObj } from "@/nomas/obj"
+import type { ElementOf } from "@ciwallet-sdk/types"
 
 export enum PerpSectionPage {
     Perp = "perp",
@@ -25,6 +27,9 @@ export enum PerpSectionPage {
     OrderType = "order-type",
     LongShort = "long-short",
     TakeProfitStopLoss = "take-profit-stop-loss",
+    Position = "position",
+    ClosePositionConfirmation = "close-position-confirmation",
+    Order = "order",
 }
 
 export enum PerpTab {
@@ -62,6 +67,12 @@ export interface PerpSlice {
     orderSide: HyperliquidOrderSide;
     activeAssetCtx?: ActiveAssetCtx;
     userFees?: UserFees;
+    positionAssetId: HyperliquidAssetId;
+    positionAssetCtx?: ActiveAssetCtx;
+    positionCandleSnapshots: CandleSnapshots;
+    positionUseUsdc: boolean;
+    openOrders: OpenOrders;
+    selectedOrder?: ElementOf<OpenOrders>;
 }
 
 export interface SetHyperunitGenResponseParam {
@@ -83,6 +94,10 @@ const initialState: PerpSlice = {
     isCross: false,
     orderSide: HyperliquidOrderSide.Buy,
     orderType: HyperliquidOrderType.Market,
+    positionAssetId: HyperliquidAssetId.BTC,
+    positionCandleSnapshots: [],
+    positionUseUsdc: false,
+    openOrders: [],
 }
 
 export const perpSlice = createSlice({
@@ -101,6 +116,9 @@ export const perpSlice = createSlice({
         setCandleSnapshots: (state, action: PayloadAction<CandleSnapshots>) => {
             state.candleSnapshots = action.payload
         },
+        setPositionCandleSnapshots: (state, action: PayloadAction<CandleSnapshots>) => {
+            state.positionCandleSnapshots = action.payload
+        },
         setAllMids: (state, action: PayloadAction<AllMids>) => {
             state.allMids = action.payload
         },
@@ -116,11 +134,17 @@ export const perpSlice = createSlice({
         setLastCandleSnapshot: (state, action: PayloadAction<CandleSnapshots[number]>) => {
             state.candleSnapshots[state.candleSnapshots.length - 1] = action.payload
         },
+        setLastPositionCandleSnapshot: (state, action: PayloadAction<CandleSnapshots[number]>) => {
+            state.positionCandleSnapshots[state.positionCandleSnapshots.length - 1] = action.payload
+        },
         setHyperunitGenResponse: (state, action: PayloadAction<SetHyperunitGenResponseParam>) => {
             state.hyperunitGenResponse[action.payload.asset] = action.payload.response
         },
         setApprovedAgent: (state, action: PayloadAction<boolean>) => {
             state.approvedAgent = action.payload
+        },
+        setSelectedOrder: (state, action: PayloadAction<ElementOf<OpenOrders>>) => {
+            state.selectedOrder = action.payload
         },
         setActiveAssetData: (state, action: PayloadAction<ActiveAssetData>) => {
             state.activeAssetData = action.payload
@@ -143,8 +167,20 @@ export const perpSlice = createSlice({
         setActiveAssetCtx: (state, action: PayloadAction<ActiveAssetCtx>) => {
             state.activeAssetCtx = action.payload
         },
+        setPositionAssetCtx: (state, action: PayloadAction<ActiveAssetCtx>) => {
+            state.positionAssetCtx = action.payload
+        },
         setUserFees: (state, action: PayloadAction<UserFees>) => {
             state.userFees = action.payload
+        },
+        setPositionAssetId: (state, action: PayloadAction<HyperliquidAssetId>) => {
+            state.positionAssetId = action.payload
+        },
+        setPositionUseUsdc: (state, action: PayloadAction<boolean>) => {
+            state.positionUseUsdc = action.payload
+        },
+        setOpenOrders: (state, action: PayloadAction<OpenOrders>) => {
+            state.openOrders = action.payload
         },
     },
     selectors: {
@@ -166,6 +202,9 @@ export const perpSlice = createSlice({
         selectSelectedAssetPrice: (state) => {
             return state.allMids?.mids[state.selectedAssetId]
         },
+        selectSelectedOrder: (state) => {
+            return state.selectedOrder
+        },
     },
 })
 
@@ -179,7 +218,10 @@ export const {
     setCandleInterval, 
     setCandleStartTime, 
     setLastCandleSnapshot, 
+    setLastPositionCandleSnapshot,
+    setPositionCandleSnapshots,
     setActiveAssetCtx,
+    setPositionAssetCtx,
     setHyperunitGenResponse, 
     setApprovedAgent,
     setActiveAssetData,
@@ -189,7 +231,11 @@ export const {
     setOrderSide,
     setOrderType,
     setUserFees,
+    setPositionAssetId,
+    setPositionUseUsdc,
+    setOpenOrders,
+    setSelectedOrder,
 } = perpSlice.actions
-export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice, selectMarginTableByUniverseId } = perpSlice.selectors
+export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice, selectMarginTableByUniverseId, selectSelectedOrder } = perpSlice.selectors
 export const perpReducer = perpSlice.reducer
 export const perpSelectors = perpSlice.selectors

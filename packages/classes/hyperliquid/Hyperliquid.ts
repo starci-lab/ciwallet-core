@@ -111,6 +111,10 @@ export class Hyperliquid {
         return metadatas
     }
 
+    getAssetMetadatas(): Array<HyperliquidMetadata> {
+        return Object.values(map)
+    }
+
     getAssetMetadata(assetId: HyperliquidAssetId): HyperliquidMetadata {
         return map[assetId]
     }
@@ -121,6 +125,25 @@ export class Hyperliquid {
             throw new Error(`Asset with coin ${coin} not found`)
         }
         return this.getAssetMetadata(assetId as HyperliquidAssetId)
+    }
+
+    getAssetIdByCoin(coin: string): HyperliquidAssetId {
+        const assetId = Object.keys(map).find((key) => map[key as HyperliquidAssetId].coin === coin)
+        if (!assetId) {
+            throw new Error(`Asset with coin ${coin} not found`)
+        }
+        return assetId as HyperliquidAssetId
+    }
+    
+    getAssetIdById(id: number): HyperliquidAssetId {
+        const assetId = Object.keys(map).find((key) => map[key as HyperliquidAssetId].assetId === id)
+        if (!assetId) {
+            throw new Error(`Asset with id ${id} not found`)
+        }
+        return assetId as HyperliquidAssetId
+    }
+    getAssetMetadataById(id: number): HyperliquidMetadata {
+        return map[this.getAssetIdById(id)]
     }
 
     public getDepositAssetInfos(

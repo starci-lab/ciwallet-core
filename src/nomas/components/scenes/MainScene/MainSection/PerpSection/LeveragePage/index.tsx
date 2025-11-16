@@ -28,7 +28,7 @@ export const LeveragePage = () => {
     return (
         <>
             <NomasCardHeader
-                title={`${assetMetadata.name} Leverage`}
+                title={`${assetMetadata.coin} Leverage`}
                 showBackButton
                 onBackButtonPress={() => {
                     dispatch(setPerpSectionPage(PerpSectionPage.LongShort))

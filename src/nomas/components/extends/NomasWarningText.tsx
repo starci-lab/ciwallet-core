@@ -1,11 +1,26 @@
-import { WarningIcon } from "@phosphor-icons/react"
-import React, { type PropsWithChildren } from "react"
+import React, { useMemo, type PropsWithChildren } from "react"
 
-export const NomasWarningText = ({ children }: PropsWithChildren) => {
+export interface NomasWarningTextProps extends PropsWithChildren {
+    color?: "danger" | "warning" | "info" | "success" | "muted"
+}
+export const NomasWarningText = ({ children, color = "danger" }: NomasWarningTextProps) => {
+    const colorClass = useMemo(() => {
+        switch (color) {
+        case "danger":
+            return "text-danger"
+        case "warning":
+            return "text-warning"
+        case "info":
+            return "text-info"
+        case "success":
+            return "text-success"
+        case "muted":
+            return "text-muted"
+        default:
+            return "text-danger"
+        }
+    }, [color])
     return (
-        <div className="flex items-center gap-1">
-            <WarningIcon className="w-4 h-4 text-danger" />
-            <div className="text-danger text-xs">{children}</div>
-        </div>
+        <div className={`text-xs ${colorClass}`}>{children}</div>
     )
 }

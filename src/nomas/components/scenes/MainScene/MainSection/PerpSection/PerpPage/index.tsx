@@ -10,7 +10,7 @@ export const PerpPage = () => {
             <PerpHeader />
             <NomasSpacer y={6}/>    
             <PerpBody />
-            <NomasSpacer y={6}/> 
+            <NomasSpacer y={4}/> 
             <PerpTrade />
         </NomasCardBody>
     )

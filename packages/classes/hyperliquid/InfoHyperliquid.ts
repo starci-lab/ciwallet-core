@@ -1,5 +1,5 @@
 import * as hl from "@nktkas/hyperliquid"
-import { HyperliquidAssetId, HyperliquidTransport, type CandleInterval } from "./types"
+import { HyperliquidAssetId, HyperliquidTransport, type CandleInterval, type OpenOrders } from "./types"
 import { getRequestTransport } from "./utils"
 import { Hyperliquid } from "./Hyperliquid"
 import { Network } from "@ciwallet-sdk/types"
@@ -63,13 +63,13 @@ export class InfoHyperliquid {
             clientParams,
             userAddress,
         }: InfoHyperliquidOpenOrdersParams
-    ) {
+    ) : Promise<OpenOrders> {
         const client = this.getInfoClient({ 
             ...clientParams, 
         })
         return await client.openOrders({
             user: userAddress,
-        })
+        }) as OpenOrders
     }
 
     async getActiveAssetData(

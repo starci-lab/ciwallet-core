@@ -5,6 +5,11 @@ import { EyeIcon, EyeClosedIcon } from "@phosphor-icons/react"
 import { NomasWarningText } from "./NomasWarningText"
 import { sanitizeNumericInput } from "@ciwallet-sdk/utils"
 
+export enum NomasInvalidVariant {
+    Danger = "danger",
+    Warning = "warning",
+}
+
 export interface NomasInputProps
   extends Omit<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -23,6 +28,7 @@ export interface NomasInputProps
   postfixIcon?: React.ReactNode
   textAlign?: "left" | "center" | "right"
   containerClassName?: string
+  invalidVariant?: NomasInvalidVariant
 }
 
 export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
@@ -42,6 +48,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
             currency,
             postfixIcon,
             textAlign = "left",
+            invalidVariant = NomasInvalidVariant.Danger,
             ...props
         },
         ref
@@ -58,11 +65,12 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
                         "flex items-center",
                         "h-12",
                         "border bg-input border-border transition-colors",
-                        "focus-within:ring-4 focus-within:ring-input-ring/75 duration-300 ease-out",
+                        "focus-within:ring-4 focus-within:ring-input-ring/50 duration-300 ease-out",
                         "rounded-input",
                         prefixIcon && "pl-3",
                         (isPassword || postfixIcon) && "pr-3",
-                        isInvalid && "border-danger"
+                        isInvalid && invalidVariant === NomasInvalidVariant.Danger && "border-danger focus-within:ring-4 focus-within:ring-danger/50",
+                        isInvalid && invalidVariant === NomasInvalidVariant.Warning && "border-warning focus-within:ring-4 focus-within:ring-warning/50"
                     )}
                 >
                     {/* Prefix Icon */}
@@ -119,7 +127,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
             ))}
                 </div>
                 {isInvalid && errorMessage && (
-                    <NomasWarningText>{errorMessage}</NomasWarningText>
+                    <NomasWarningText color={invalidVariant === NomasInvalidVariant.Warning ? "warning" : "danger"}>{errorMessage}</NomasWarningText>
                 )}
             </div>
         )
