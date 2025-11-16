@@ -221,7 +221,6 @@ export class PetManager {
         }
       }
     }
-    console.log(4534345, this.pets)
   }
 
   /**
@@ -740,7 +739,6 @@ export class PetManager {
         console.log("No poop found at clicked position")
         continue
       }
-      console.log(123123123123, poopFound)
       const poopId = (poopFound as unknown as { poopId: string }).poopId
       if (petData.cleanlinessSystem.cleaningInventory > 0) {
         petData.cleanlinessSystem.cleaningInventory -= 1
@@ -1075,6 +1073,7 @@ export class PetManager {
         fallbackKey
       )
       toy.setScale(0.5)
+      toy.setOrigin(0.5, 1)
       toy.setAlpha(0.9)
       this.sharedDroppedBalls.push(toy)
       this.sharedBallShadows.push(
@@ -1088,12 +1087,13 @@ export class PetManager {
       GamePositioning.getFoodDropY(cameraHeight),
       textureKey
     )
-    const responsiveScale = GamePositioning.getResponsiveBallScale(cameraWidth)
-    const toyScale = responsiveScale * 50
-    toy.setScale(toyScale)
+    // Anchor toy bottom to ground line so it doesn't sink below
+    toy.setOrigin(0.5, 0.5)
+    // Use reasonable scale for toys (larger than ball to be visible)
+    toy.setScale(GAME_LAYOUT.TOY_SCALE)
     toy.setAlpha(0.9)
     // Lưu original scale để có thể resize sau này
-    toy.setData("originalScale", toyScale)
+    toy.setData("originalScale", GAME_LAYOUT.TOY_SCALE)
 
     console.log("🎾 Sprite created:", toy)
     console.log("🎾 Sprite visible:", toy.visible)
@@ -1102,6 +1102,7 @@ export class PetManager {
     console.log("🎾 Sprite scale:", { scaleX: toy.scaleX, scaleY: toy.scaleY })
 
     // Add drop animation effect
+    const toyScale = GAME_LAYOUT.TOY_SCALE
     this.scene.tweens.add({
       targets: toy,
       y: toyFinalY,
@@ -1110,8 +1111,8 @@ export class PetManager {
       onComplete: () => {
         this.scene.tweens.add({
           targets: toy,
-          scaleX: 0.5 * 1.13,
-          scaleY: 0.5 * 0.8,
+          scaleX: toyScale * 1.13,
+          scaleY: toyScale * 0.8,
           duration: 100,
           yoyo: true,
         })
