@@ -114,7 +114,7 @@ export const TokenFunction = () => {
                             <NomasImage src={chain?.iconUrl} className="absolute bottom-0 right-0 z-50 w-5 h-5 rounded-full" />
                         </div>
                         <div className="flex flex-col">
-                            <div className="text-sm text">{token.name}</div>
+                            <div className="text-sm text-text">{token.name}</div>
                             <div className="text-xs text-foreground-500 text-muted">{token.symbol}</div>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ export const TokenFunction = () => {
                         <div>
                             <div className="flex flex-col text-right"></div>
                             <div className="flex flex-col text-right">
-                                <div className="text-sm text">{data}</div>
+                                <div className="text-sm text-text">{data}</div>
                                 <div className="text-xs text-muted">$0</div>
                             </div>
                         </div>

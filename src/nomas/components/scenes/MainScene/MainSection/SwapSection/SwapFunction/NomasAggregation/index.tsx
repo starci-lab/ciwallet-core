@@ -13,7 +13,7 @@ export const NomasAggregation = () => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.NomasAggregation))
                 }
             }
-            icon={<CaretRightIcon /> } 
+            icon={<CaretRightIcon className="w-5 h-5 min-w-5 min-h-5 text-muted"     /> } 
             useGradient
         >
             Nomas Aggregation

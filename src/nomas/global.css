@@ -5,13 +5,15 @@
 :root {
   /* Font */
   --font-sans: "Plus Jakarta Sans Variable", sans-serif;
-  /* Primary text color (white) — used for titles and main content */
-  --text: hsl(0 0% 100%);
-  --text-dark: hsl(0 0% 0%);
-  /* Muted text color (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text */
-  --text-muted: hsl(0 0% 70.2%);
+
+  /* Colors */
+  /* Primary text-textcolor (white) — used for titles and main content */
+  --color-text: hsl(0 0% 100%);
+  --color-text-dark: hsl(0 0% 0%);
+  /* Muted text-textcolor (light gray ~ #B3B3B3) — used for descriptions, placeholders, or less important text-text*/
+  --color-text-muted: hsl(0 0% 70.2%);
   /* Muted background color */
-  --bg-muted: hsl(0 0% 70.2%);
+  --color-muted: hsl(0 0% 70.2%);
   /* Border color */
   --border: hsl(0 0% 29.8%);
   /* Muted text color (dark gray ~ #505050) — used for descriptions, placeholders, or less important text */
@@ -19,33 +21,9 @@
   /* Muted hover text color */
   --text-muted-hover: hsl(0 0% 80%);
   /* Card dark color */
-  --card-dark: hsl(0 0% 6.3%);
+  --color-card-dark: hsl(0 0% 6.3%);
   /* Card dark 2 color */
   --card-dark-2: hsl(0 0% 2.7%);
-  /* Card dark 3 color - #1a1a1a */
-  --card-dark-3: hsl(0 0% 10.2%);
-  /* Card dark 4 color - #2a2a2a */
-  --card-dark-4: hsl(0 0% 16.5%);
-  /* Card dark 5 color - #323232 */
-  --card-dark-5: hsl(0 0% 19.6%);
-  /* Card dark 6 color - #333333 */
-  --card-dark-6: hsl(0 0% 20%);
-  /* Border muted color - rgba(135,135,135,0.25) */
-  --border-muted: hsla(0, 0%, 52.9%, 0.25);
-  /* Accent purple color - #8b5cf6 */
-  --accent-purple: hsl(258 90% 66%);
-  /* Accent cyan color - #06B6D4 */
-  --accent-cyan: hsl(188 94% 42.7%);
-  /* Accent amber color - #F59E0B */
-  --accent-amber: hsl(38 92% 50%);
-  /* Shop item background - rgba(60,60,60,0.26) */
-  --shop-item-bg: hsla(0, 0%, 23.5%, 0.26);
-  /* Shop item border - rgba(0,0,0,0.37) */
-  --shop-item-border: hsla(0, 0%, 0%, 0.37);
-  /* Shop item hover - rgba(80,80,80,0.4) */
-  --shop-item-hover: hsla(0, 0%, 31.4%, 0.4);
-  /* Shop item shadow - inset 0px 3px 5px 0px rgba(0,0,0,0.3) */
-  --shop-item-shadow: inset 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
   /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
   --card-gradient: linear-gradient(
     0deg,
@@ -60,19 +38,19 @@
   /* Card foreground color */
   --card-foreground: hsl(240, 8%, 7%);
   /* Card radius */
-  --card-radius: 32px;
+  --radius-card: 32px;
   /* Switch background color */
-  --bg-switch-background: hsl(0 0% 6.3%);
+  --color-switch-background: hsl(0 0% 6.3%);
   /* Switch thumb color */
-  --bg-switch-thumb: hsl(0 0% 80%);
+  --color-switch-thumb: hsl(0 0% 80%);
   /* Switch thump active color */
-  --bg-switch-background-active: hsl(0 0% 22%);
+  --color-switch-background-active: hsl(0 0% 22%);
   /* Toast background color */
-  --toast-background: hsl(0 0% 20%);
+  --color-toast-background: hsl(0 0% 20%);
   /* Card border color */
-  --card-border: hsla(0 0% 0% / 0.55);
+  --color-border-card: hsla(0 0% 0% / 0.55);
   /* Radius card inner */
-  --card-radius-inner: 24px;
+  --radius-card-inner: 24px;
   /* Card shadow */
   --card-shadow: inset 0 4px 0px 0 rgba(119, 119, 119, 0.5);
   /* Button shadow */
@@ -86,129 +64,108 @@
   /* Button dark hover background color */
   --button-dark-hover-background: hsl(0, 0%, 15.6%);
   /* Button radius */
-  --button-radius: 12px;
+  --radius-button: 12px;
+  /* Skeleton background color */
+  --color-skeleton: hsl(227, 54%, 95%);
+  /* Skeleton radius */
+  --radius-skeleton: 12px;
   /* Input border color */
-  --input-border: hsl(0 0% 22%);
+  --color-input-border: hsl(0 0% 22%);
   /* Input bg color */
-  --input-background: hsl(0 0% 4.7%);
+  --color-input-background: hsl(0 0% 4.7%);
   /* Input radius */
-  --input-radius: 12px;
+  --radius-input: 12px;
   /* Danger color */
-  --primary: hsl(217 91% 60.2%);
+  --color-primary: hsl(217 91% 60.2%);
   /* Danger color */
-  --danger: hsl(359 100% 65.1%);
+  --color-danger: hsl(359 100% 65.1%);
   /* Warning color */
-  --warning: hsl(34 100% 50%);
+  --color-warning: hsl(34 100% 50%);
   /* Success color */
-  --success: hsl(145 100% 39.2%);
+  --color-success: hsl(145 100% 39.2%);
+  /* Input ring color */
+  --color-input-ring: hsl(0 0% 22%);
+  /* Bullish color */
+  --color-bullish: hsl(174 63% 40%);
+  /* Bearish color */
+  --color-bearish: hsl(1 83% 63%);
+  /* Bullish hover color */
+  --color-bullish-hover: hsl(174 55% 48%);
+  /* Bearish hover color */
+  --color-bearish-hover: hsl(1 70% 70%);
+  /* Popover color */
+  --color-popover: hsl(0 0% 10%);
+  /* Popover foreground color */
+  --color-popover-foreground: hsl(0 0% 100%);
 }
 
 @theme {
   /* Font */
   --font-sans: var(--font-sans);
-
   /* Colors */
   --color-text: var(--text);
   --color-text-dark: var(--text-dark);
   --color-text-muted: var(--text-muted);
   --color-text-muted-dark: var(--text-muted-dark);
   --color-border: var(--border);
-  --color-border-muted: var(--border-muted);
   --color-muted: var(--bg-muted);
   --color-card-dark: var(--card-dark);
   --color-card-dark-2: var(--card-dark-2);
-  --color-card-dark-3: var(--card-dark-3);
-  --color-card-dark-4: var(--card-dark-4);
-  --color-card-dark-5: var(--card-dark-5);
-  --color-card-dark-6: var(--card-dark-6);
   --color-card-foreground: var(--card-foreground);
   --color-card-1: var(--bg-card-1);
   --color-card-2: var(--bg-card-2);
 
   /* Switch */
-  --color-switch-background: var(--bg-switch-background);
-  --color-switch-background-active: var(--bg-switch-background-active);
-  --color-switch-thumb: var(--bg-switch-thumb);
-
+  --color-switch-background: var(--color-switch-background);
+  --color-switch-background-active: var(--color-switch-background-active);
+  --color-switch-thumb: var(--color-switch-thumb);
   /* Button */
   --color-button: var(--button-background);
   --color-button-hover: var(--button-hover-background);
   --color-button-dark: var(--button-dark-background);
   --color-button-dark-hover: var(--button-dark-hover-background);
-
   /* Input */
-  --color-input: var(--input-background);
-  --color-input-border: var(--input-border);
-
+  --color-input: var(--color-input-background);
+  --color-input-border: var(--color-input-border);
+  --color-input-ring: var(--color-input-ring);
   /* Semantic */
   --color-primary: var(--primary);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-success: var(--success);
 
-  /* Accents */
-  --color-accent-purple: var(--accent-purple);
-  --color-accent-cyan: var(--accent-cyan);
-  --color-accent-amber: var(--accent-amber);
-
-  /* Shop */
-  --color-shop-item-bg: var(--shop-item-bg);
-  --color-shop-item-border: var(--shop-item-border);
-  --color-shop-item-hover: var(--shop-item-hover);
-
   /* Radii */
-  --radius-card: var(--card-radius);
-  --radius-card-inner: var(--card-radius-inner);
-  --radius-button: var(--button-radius);
-  --radius-input: var(--input-radius);
-
-  /* Shadows */
-  --shadow-card: var(--card-shadow);
-  --shadow-button: var(--button-shadow);
-
-  /* Gradient */
-  --bg-card-gradient: var(--card-gradient);
-  --bg-card-gradient2: var(--card-gradient2);
+  --radius-card: var(--radius-card);
+  --radius-card-inner: var(--radius-card-inner);
+  --radius-input: var(--radius-input);
+  --radius-button: var(--radius-button);
   /* Toast */
-  --bg-toast: var(--toast-background);
+  --color-toast: var(--color-toast-background);
+  /* Skeleton */
+  --color-skeleton: var(--color-skeleton);
+  --radius-skeleton: var(--radius-skeleton);
+  /* Border */
+  --color-border-card: var(--color-border-card);
+
+  /* Colors */
+  --color-bullish: var(--color-bullish);
+  --color-bearish: var(--color-bearish);
+  --color-bullish-hover: var(--color-bullish-hover);
+  --color-bearish-hover: var(--color-bearish-hover);
+  /* Popover */
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
 }
 
 @layer utilities {
   .bg-card-gradient {
-    background-image: var(--card-gradient);
+    background-image: var(--color-card-gradient);
   }
   .bg-card-gradient2 {
-    background-image: var(--card-gradient2);
-  }
-  .radius-card {
-    border-radius: var(--card-radius);
-  }
-  .border-card {
-    border: 1px solid var(--card-border);
+    background-image: var(--color-card-gradient2);
   }
   .shadow-card {
-    box-shadow: var(--card-shadow);
-  }
-  .text-muted {
-    color: var(--text-muted);
-  }
-  .text-muted-hover {
-    color: var(--text-muted);
-  }
-  .text-muted-hover:hover {
-    color: var(--text-muted-hover);
-  }
-  .text {
-    color: var(--color-text);
-  }
-  .text-dark {
-    color: var(--color-text-dark);
-  }
-  .bg-card-foreground {
-    background-color: var(--card-foreground);
-  }
-  .bg-border {
-    background-color: var(--border);
+    box-shadow: var(--color-shadow-card);
   }
   .shadow-button {
     box-shadow: var(--button-shadow);
@@ -269,57 +226,6 @@
   }
   .bg-card-dark-2 {
     background-color: var(--card-dark-2);
-  }
-  .bg-card-dark-3 {
-    background-color: var(--card-dark-3);
-  }
-  .bg-card-dark-4 {
-    background-color: var(--card-dark-4);
-  }
-  .bg-card-dark-5 {
-    background-color: var(--card-dark-5);
-  }
-  .bg-card-dark-6 {
-    background-color: var(--card-dark-6);
-  }
-  .bg-card-dark-6:hover {
-    background-color: hsl(0 0% 22%);
-  }
-  .border-muted {
-    border-color: var(--border-muted);
-  }
-  .bg-accent-purple {
-    background-color: var(--accent-purple);
-  }
-  .text-accent-purple {
-    color: var(--accent-purple);
-  }
-  .border-accent-purple {
-    border-color: var(--accent-purple);
-  }
-  .bg-accent-cyan {
-    background-color: var(--accent-cyan);
-  }
-  .text-accent-cyan {
-    color: var(--accent-cyan);
-  }
-  .bg-accent-amber {
-    background-color: var(--accent-amber);
-  }
-  .text-accent-amber {
-    color: var(--accent-amber);
-  }
-  .bg-shop-item {
-    background-color: var(--shop-item-bg);
-  }
-  .border-shop-item {
-    border-color: var(--shop-item-border);
-  }
-  .bg-shop-item:hover {
-    background-color: var(--shop-item-hover);
-  }
-  .shadow-shop-item {
-    box-shadow: var(--shop-item-shadow);
   }
   .radius-card-inner {
     border-radius: var(--card-radius-inner);

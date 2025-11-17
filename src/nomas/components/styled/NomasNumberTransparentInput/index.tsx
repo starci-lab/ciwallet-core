@@ -17,7 +17,7 @@ export const NomasNumberTransparentInput = (props: NomasInputProps) => {
                 (event) => onValueChange(event.target.value)
             }
             {...props}
-            className={twMerge(props.className, "!bg-transparent text px-0 text-xl text-right focus:outline-none focus:ring-0 border-none")}
+            className={twMerge(props.className, "!bg-transparent text-textpx-0 text-xl text-right focus:outline-none focus:ring-0 border-none")}
         />
     )
 }

@@ -47,7 +47,7 @@ export const HomeSelectorTab = () => {
                 <div className="relative grid grid-cols-3 text-center mb-2">
                     {tabs.slice(0, 3).map((tab) => (
                         <button key={tab.value} className={
-                            twMerge("flex flex-col items-center justify-center gap-1 text-xs text-muted-dark cursor-pointer",
+                            twMerge("flex flex-col items-center justify-center gap-1 text-xs text-text-muted-dark cursor-pointer",
                                 homeSelectorTab === tab.value && "text-muted"
                             )
                         } onClick={() => dispatch(setHomeSelectorTab(tab.value))}>
@@ -63,7 +63,7 @@ export const HomeSelectorTab = () => {
                     {tabs.slice(3, 6).map((tab) => (
                         <button key={tab.value} className={
                             twMerge(
-                                "flex flex-col items-center justify-center gap-1 text-xs text-muted-dark cursor-pointer",
+                                "flex flex-col items-center justify-center gap-1 text-xs text-text-muted-dark cursor-pointer",
                                 homeSelectorTab === tab.value && "text-muted"
                             )
                         } onClick={() => dispatch(setHomeSelectorTab(tab.value))}>

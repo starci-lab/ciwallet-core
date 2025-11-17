@@ -101,8 +101,8 @@ const initialState: HomeSectionSlice = {
     gameFunctionPage: GameFunctionPage.GameSplash,
 }
 
-export const homeSectionSlice = createSlice({
-    name: "homeSection",
+export const homeSlice = createSlice({
+    name: "home",
     initialState,
     reducers: {
         setHomeSelectorTab: (state, action: PayloadAction<HomeSelectorTab>) => {
@@ -173,5 +173,5 @@ export const homeSectionSlice = createSlice({
     },
 })
 
-export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositTokenId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage, setSearchTokenQuery, setSearchSelectedChainId, setSelectedTokenType, setSelectedUnifiedTokenId, setSelectedChainId, setSelectedToken, setGameFunctionPage } = homeSectionSlice.actions
-export const homeSectionReducer = homeSectionSlice.reducer
+export const { setHomeSelectorTab, setPortfolioSelectedChainId, setSelectedTokenId, setVisible, setHomeAction, setSelectedFromAccountId, setDepositSelectedChainId, setDepositTokenId, setDepositFunctionPage, setPortfolioFunctionPage, setExpandTokenDetails, setTokenItems, setWithdrawFunctionPage, setSearchTokenQuery, setSearchSelectedChainId, setSelectedTokenType, setSelectedUnifiedTokenId, setSelectedChainId, setSelectedToken, setGameFunctionPage } = homeSlice.actions
+export const homeReducer = homeSlice.reducer

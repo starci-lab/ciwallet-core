@@ -1,5 +1,5 @@
-import { initMessageListener } from "./messages"
 import { initInjection } from "./overlay"
+import { initListeners } from "./listeners"
 
 console.log("[Nomas] Content script initializing...")
 if (!window.nomasWalletInjected) {
@@ -8,8 +8,8 @@ if (!window.nomasWalletInjected) {
     // Inject overlay UI
     initInjection()
 
-    // Listen to background messages
-    initMessageListener()
+    // Initialize listeners
+    initListeners()
 
     console.log("[Nomas] Content script initialized ✅")
 }

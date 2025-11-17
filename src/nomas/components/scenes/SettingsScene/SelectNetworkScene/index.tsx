@@ -38,13 +38,13 @@ export const SelectNetworkScene = () => {
                                         {
                                             <div
                                                 className={
-                                                    twMerge("p-4 flex items-center gap-2 justify-between radius-button w-full", 
-                                                        isSelected(network) ? "bg-button-dark-nohover border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                                                    twMerge("p-4 flex items-center gap-2 justify-between rounded-button w-full", 
+                                                        isSelected(network) ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                                                 }
                                             >
                                                 <div className="p-0 flex items-center justify-between w-full">
                                                     <div className="flex items-center gap-2 justify-between w-full">
-                                                        <div className="text-sm text">{renderNetworkName(network)}</div>  
+                                                        <div className="text-sm text-text">{renderNetworkName(network)}</div>  
                                                         {isSelected(network) && <CheckIcon className="w-4 h-4" />}
                                                     </div>
                                                 </div>

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant } from "../../../extends"
-import { MyWalletsPage, setMyWalletsPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { MyWalletsPage, setMyWalletsPage, setSelectedAccountId, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { chainManagerObj } from "@/nomas/obj"
 import { AccountCard } from "./AccountCard"
 
@@ -21,13 +21,21 @@ export const SelectAccountPage = () => {
                 }} />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner className="p-0">
-                    <NomasCardBody scrollable scrollHeight={300} className="p-0 flex flex-col gap-2">
-                        {accounts?.accounts.map((account) => (
+                    <NomasCardBody scrollable scrollHeight={300} className="p-4 flex flex-col gap-2">
+                        {accounts?.accounts.map((account, index) => (
                             <AccountCard 
                                 key={account.id} 
                                 accountId={account.id} 
                                 accountAddress={account.accountAddress} 
-                                isSelected
+                                isSelected={
+                                    accounts.selectedAccountIndex ? accounts.selectedAccountIndex === index : index === 0
+                                }
+                                onClick={() => {
+                                    dispatch(setSelectedAccountId({
+                                        platform: selectedPlatform,
+                                        account: account,
+                                    }))
+                                }}
                                 type={account.type}
                                 refId={account.refId}
                             />

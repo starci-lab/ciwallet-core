@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export interface SceneSlice {
   scene: Scene
+  draggable: boolean
 }
 
 export enum Scene {
@@ -15,6 +16,7 @@ export enum Scene {
 const initialState: SceneSlice = {
     // scene: Scene.Init,
     scene: Scene.Init,
+    draggable: true,
 }
 
 export const sceneSlice = createSlice({
@@ -24,9 +26,12 @@ export const sceneSlice = createSlice({
         setScene: (state, action: PayloadAction<Scene>) => {
             state.scene = action.payload
         },
+        setDraggable: (state, action: PayloadAction<boolean>) => {
+            state.draggable = action.payload
+        },
     },
 })
 
-export const { setScene } = sceneSlice.actions
+export const { setScene, setDraggable } = sceneSlice.actions
 
 export const sceneReducer = sceneSlice.reducer

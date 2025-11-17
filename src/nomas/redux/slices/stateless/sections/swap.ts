@@ -68,8 +68,8 @@ const initialState: SwapSectionSlice = {
     tokenOutChainId: ChainId.Monad,
 }
 
-export const swapSectionSlice = createSlice({
-    name: "swapSection",
+export const swapSlice = createSlice({
+    name: "swap",
     initialState,
     reducers: {
         setSwapFunctionPage: (state, action: PayloadAction<SwapFunctionPage>) => {
@@ -96,5 +96,5 @@ export const swapSectionSlice = createSlice({
     },
 })
 
-export const { setSwapFunctionPage, setExpandDetails, setTokenIn, setTokenOut, setTokenInChainId, setTokenOutChainId, setTransactionData } = swapSectionSlice.actions
-export const swapSectionReducer = swapSectionSlice.reducer
+export const { setSwapFunctionPage, setExpandDetails, setTokenIn, setTokenOut, setTokenInChainId, setTokenOutChainId, setTransactionData } = swapSlice.actions
+export const swapReducer = swapSlice.reducer

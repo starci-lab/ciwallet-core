@@ -49,13 +49,13 @@ export const UnifiedTokenCard2 = ({
                             <NomasImage src={token.iconUrl} className="w-10 h-10 rounded-full" />
                         </div>
                         <div className="flex flex-col">
-                            <div className="text-sm text">{token.name}</div>
+                            <div className="text-sm text-text">{token.name}</div>
                             <div className="text-xs text-muted">{token.symbol}</div>
                         </div>
                     </div>
                     {/* Right: balance */}
                     <div className="flex flex-col text-right">
-                        <div className="text-sm text">{totalBalance ?? 0}</div>
+                        <div className="text-sm text-text">{totalBalance ?? 0}</div>
                         <div className="text-xs text-muted">${roundNumber((totalBalance) * (price ?? 0), 5)}</div>
                     </div>
                 </NomasCardBody>

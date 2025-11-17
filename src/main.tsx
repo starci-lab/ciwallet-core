@@ -6,4 +6,4 @@ import { Nomas } from "./nomas"
 import "./nomas/global.css"
 window.Buffer = Buffer
 
-createRoot(document.getElementById("root")!).render(<Nomas />)    
+createRoot(document.getElementById("root")!).render(<Nomas  />)    

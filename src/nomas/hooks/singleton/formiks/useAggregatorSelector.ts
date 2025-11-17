@@ -16,6 +16,7 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
     const swrMutation = useBatchAggregatorSwrMutation()
     const tokenArray = useAppSelector(state => selectTokens(state.persists))
     const selectedAccounts = useAppSelector(state => selectSelectedAccounts(state.persists))
+    
     useEffect(() => {
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {
@@ -23,7 +24,7 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
             const toToken = tokenArray.find(token => token.tokenId === formik.values.tokenOut)
             // throw if we cannot find decimals
             if (!fromToken?.decimals || !toToken?.decimals) {
-                throw new Error("Token decimals not found")
+                return
             }
             const fromSelectedAccount = selectedAccounts[chainIdToPlatform(tokenInChainId)]
             const toSelectedAccount = selectedAccounts[chainIdToPlatform(tokenOutChainId)]

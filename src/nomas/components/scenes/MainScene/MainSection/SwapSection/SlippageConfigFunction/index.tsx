@@ -30,7 +30,7 @@ export const SlippageConfigFunction = () => {
                         onValueChange={(value) => {
                             formik.setFieldValue("slippage", parseFloat(value))
                         }} tabs={slippageMap.map((slippage) => ({ label: slippage.label, value: slippage.value.toString() }))} />
-                    <div className="bg-card-dark radius-card-inner px-4 flex items-center gap-4 h-14 col-span-2">
+                    <div className="bg-card-dark rounded-card-inner px-4 flex items-center gap-4 h-14 col-span-2">
                         <div className="text-sm text-muted">
                                 Custom
                         </div>
@@ -73,7 +73,7 @@ export const SlippageConfigFunction = () => {
                 <NomasSpacer y={4}/>
                 {
                     formik.values.transactionMode === TransactionMode.Default && (
-                        <div className="text-sm text-muted-dark">
+                        <div className="text-sm text-text-muted-dark">
                             Standard gas based on real-time network conditions
                         </div>
                     )

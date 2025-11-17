@@ -29,7 +29,7 @@ export const WithdrawPageComponent = () => {
                 title="Withdraw"
             />
             <NomasCardBody>
-                <div className="bg-card-dark p-4 radius-card-inner">
+                <div className="bg-card-dark p-4 rounded-card-inner">
                     <TooltipTitle title="From" size="sm" className="text" />
                     <NomasSpacer y={2}/>
                     <SelectChainTab 
@@ -82,7 +82,7 @@ export const WithdrawPageComponent = () => {
                             />
                         </div>
                         <NomasSpacer y={4}/>
-                        <div className="flex justify-between items-center bg-card-dark-2 p-2 pr-4 radius-card-inner">
+                        <div className="flex justify-between items-center bg-card-dark-2 p-2 pr-4 rounded-card-inner">
                             <SelectToken
                                 token={token}
                                 chainMetadata={chainManagerObj.getChainById(formik.values.chainId)}

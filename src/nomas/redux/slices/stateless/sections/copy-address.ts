@@ -15,4 +15,4 @@ export const copyAddressSlice = createSlice({
     }
 })
 export const { setFilterValue } = copyAddressSlice.actions
-export const copyAddressSectionReducer = copyAddressSlice.reducer
+export const copyAddressReducer = copyAddressSlice.reducer

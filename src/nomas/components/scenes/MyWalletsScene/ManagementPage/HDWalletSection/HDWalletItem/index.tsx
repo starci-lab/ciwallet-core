@@ -77,7 +77,7 @@ export const HDWalletItem = ({ hdWallet }: HDWalletItemProps) => {
                         className="overflow-hidden"
                     >
                         <NomasSpacer y={2} />
-                        <div className="bg-card-2 radius-card-inner p-4 text-sm">
+                        <div className="bg-card-2 rounded-card-inner p-4 text-sm">
                             {
                                 hdWallet.accounts.map((account) => (
                                     <div key={account.id} className="w-full">

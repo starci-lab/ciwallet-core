@@ -91,7 +91,7 @@ export const TransactionReceiptPage = ({
                         +{transactionData.amount} {toToken?.symbol}
                         </div>
                     </div>
-                    <div className="text-center text-muted text-sm">${roundNumber((prices[toToken.tokenId] ?? 0) *transactionData.amount)}</div>
+                    <div className="text-centertext-text-muted text-sm">${roundNumber((prices[toToken.tokenId] ?? 0) *transactionData.amount)}</div>
                 </div>,
                 details: {
                     "pay": {
@@ -157,7 +157,7 @@ export const TransactionReceiptPage = ({
                     <div className="text-center text-2xl font-bold">
                         +{transactionData.amount} {toToken?.symbol}
                     </div>
-                    <div className="text-center text-muted text-sm">${computePercentage(prices[toToken.tokenId] ?? 0, transactionData.amount)}</div>
+                    <div className="text-centertext-text-muted text-sm">${computePercentage(prices[toToken.tokenId] ?? 0, transactionData.amount)}</div>
                 </div>,
                 details: {},
                 explorerUrl: "",
@@ -193,7 +193,7 @@ export const TransactionReceiptPage = ({
                         -{transactionData.amount} {token?.symbol}
                         </div>
                     </div>
-                    <div className="text-center text-muted text-sm">${roundNumber((prices[token.tokenId] ?? 0) *transactionData.amount)}</div>
+                    <div className="text-centertext-text-muted text-sm">${roundNumber((prices[token.tokenId] ?? 0) *transactionData.amount)}</div>
                 </div>,
                 details: {
                     "sender": {

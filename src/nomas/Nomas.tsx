@@ -1,6 +1,6 @@
 import { SingletonHookProvider } from "./hooks"
 import { ChainId } from "@ciwallet-sdk/types"
-import { ReduxProvider, useAppSelector } from "./redux"
+import { ReduxProvider, useAppDispatch, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
@@ -17,8 +17,15 @@ import { WalletKitProvider } from "@ciwallet-sdk/providers"
 import { twMerge } from "tailwind-merge"
 import { CONTAINER_ID } from "@/nomas/game"
 import { NomasToaster } from "@/nomas/components"
+import { EventEmitter } from "eventemitter3"
+import { useContentBus } from "./hooks"
+import { AnimatePresence } from "framer-motion"
+import { SWRConfig } from "swr"
 
-export const Nomas = () => {
+export interface NomasProps {
+  contentEventBus?: EventEmitter
+}
+export const Nomas = ({ contentEventBus }: NomasProps) => {
     return (
         <WalletKitProvider
             context={{
@@ -33,27 +40,34 @@ export const Nomas = () => {
             }}
         >
             <ReduxProvider>
-                <SingletonHookProvider>
-                    <IconContext.Provider
-                        value={{
-                            className: "h-5 w-5",
-                        }}
-                    >
-                        <div className="font-sans w-full h-full relative text">
-                            <NomasContent />
-                        </div>
-                    </IconContext.Provider>
-                </SingletonHookProvider>
+                <SWRConfig
+                    value={{
+                        provider: () => new Map(),
+                    }}
+                >
+                    <SingletonHookProvider>
+                        <IconContext.Provider
+                            value={{
+                                className: "h-5 w-5",
+                            }}
+                        >
+                            <div className="font-sans w-full h-full relative text-text">
+                                <NomasContent contentEventBus={contentEventBus} />
+                            </div>
+                        </IconContext.Provider>
+                    </SingletonHookProvider>
+                </SWRConfig>
             </ReduxProvider>
         </WalletKitProvider>
     )
 }
 
-const NomasContent = () => {
+const NomasContent = ({ contentEventBus }: NomasProps) => {
     const scene = useAppSelector((state) => state.stateless.scene.scene)
     const isGameMinimized = useAppSelector(
         (state) => state.persists.session.isGameMinimized
     )
+    const draggable = useAppSelector((state) => state.stateless.scene.draggable)
     const gameLoaded = useAppSelector((state) => state.stateless.game.gameLoaded)
     const renderContent = () => {
         switch (scene) {
@@ -69,18 +83,33 @@ const NomasContent = () => {
             return <CopyAddressScene />
         }
     }
+
+    // a hook to listen to content events
+    useContentBus(contentEventBus)
+    const isOverlayVisible = useAppSelector(
+        (state) => state.persists.session.isOverlayVisible
+    )
     return (
         <>
             {/* workers */}
             <Workers />
-            <motion.div
-                drag
-                dragMomentum={false}
-                className="absolute top-10 max-w-[600px] left-10 pointer-events-auto scale-[0.8] origin-top-center max-h-[800px] w-auto overflow-auto radius-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
-            >
-                {renderContent()}
-                <NomasToaster />
-            </motion.div>
+            <AnimatePresence>
+                {isOverlayVisible && (
+                    <motion.div
+                        key="nomas-overlay"
+                        drag={draggable}
+                        dragMomentum={false}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 200 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 120 }}
+                        className="absolute top-10 w-[500px] h-[600px] left-10 pointer-events-auto origin-top-center left-10 pointer-events-auto origin-top-center w-auto overflow-autorounded-card [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                    >
+                        {renderContent()}
+                        <NomasToaster />
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <motion.div
                 initial={{ y: "100%" }}
                 animate={{ y: isGameMinimized ? "100%" : 0 }}

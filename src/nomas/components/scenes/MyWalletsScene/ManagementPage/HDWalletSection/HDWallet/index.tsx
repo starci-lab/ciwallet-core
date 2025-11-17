@@ -3,6 +3,7 @@ import {  useAppDispatch, type HDWallet as HDWalletType, setHdWalletId, setMyWal
 import { CaretRightIcon } from "@phosphor-icons/react"
 import { PressableMotion } from "@/nomas/components"
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
+
 export interface HDWalletProps {
     hdWallet: HDWalletType
 }
@@ -11,7 +12,7 @@ export const HDWallet = ({ hdWallet }: HDWalletProps) => {
     const dispatch = useAppDispatch()
     return (
         <PressableMotion 
-            className="flex items-center justify-between" 
+            className="flex items-center justify-between p-4" 
             onClick={() => {
                 dispatch(setHdWalletId(hdWallet.id))
                 dispatch(setMyWalletsPage(MyWalletsPage.HDWalletDetails))
@@ -24,7 +25,7 @@ export const HDWallet = ({ hdWallet }: HDWalletProps) => {
                         <div className="text-xs text-muted">$0</div>
                     </div>
                 </div>
-                <CaretRightIcon className="size-4" />
+                <CaretRightIcon className="size-4 text-text-muted" />
             </div>
         </PressableMotion>
     )

@@ -24,8 +24,8 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chain, isSelected = false,
         return (
             <div
                 className={
-                    twMerge("p-4 flex items-center gap-2 justify-between radius-button", 
-                        isSelected ? "bg-button-dark-nohover border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                    twMerge("p-4 flex items-center gap-2 justify-between rounded-button", 
+                        isSelected ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                 }
             >
                 <div className="p-0 flex items-center justify-between w-full">
@@ -36,14 +36,14 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chain, isSelected = false,
                                 alt={chain.name}
                                 className="w-10 h-10 rounded-full"
                             />
-                            <div className="text-sm text">{chain.name}</div>  
+                            <div className="text-sm text-text">{chain.name}</div>  
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="text-sm">
                             {`${renderRpcs.length} ${pluralize("endpoint", renderRpcs.length)}`}
                         </div>
-                        <CaretRightIcon className="w-4 h-4" />
+                        <CaretRightIcon className="w-4 h-4 text-text-muted" />
                     </div>
                 </div>
             </div>

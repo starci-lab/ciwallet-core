@@ -44,8 +44,8 @@ export const ChooseNetworkPage = ({ withAllNetworks = false, isSelected, showBac
                 name: "All",
                 component: <div
                     className={
-                        twMerge("px-3 py-2 flex items-center gap-2 justify-between radius-button", 
-                            isSelected("all-network") ? "bg-button-dark-nohover border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
+                        twMerge("px-3 py-2 flex items-center gap-2 justify-between rounded-button", 
+                            isSelected("all-network") ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                     }
                 >
                     <PressableMotion onClick={() => {
@@ -55,7 +55,7 @@ export const ChooseNetworkPage = ({ withAllNetworks = false, isSelected, showBac
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
                                     <GlobeIcon className="w-10 h-10"/>
-                                    <div className="text-sm text">All Networks</div>  
+                                    <div className="text-sm text-text">All Networks</div>  
                                 </div>
                             </div>    
                             <div className="text-xs text-muted">{chainManagerObj.toObject().length} chains</div>

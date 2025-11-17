@@ -14,6 +14,24 @@ export class ChainManager {
             },
         },
         {
+            id: ChainId.Hyperliquid,
+            name: "Hyperliquid",
+            iconUrl: "/assets/chains/hyperliquid.webp",
+            explorerUrl: {
+                [Network.Mainnet]: "https://rpc.hyperliquid.xyz/evm",
+                [Network.Testnet]: "https://rpc.hyperliquid-testnet.xyz/evm",
+            },
+        },
+        {
+            id: ChainId.Arbitrum,
+            name: "Arbitrum",
+            iconUrl: "/assets/chains/arbitrum.png",
+            explorerUrl: {
+                [Network.Mainnet]: "https://arbiscan.io",
+                [Network.Testnet]: "https://sepolia.arbiscan.io/",
+            },
+        },
+        {
             id: ChainId.Aptos,
             name: "Aptos",
             iconUrl: "/assets/chains/aptos.png",
@@ -88,21 +106,30 @@ export class ChainManager {
             },
         },
         {
-            id: ChainId.Arbitrum,
-            name: "Arbitrum",
-            iconUrl: "/assets/chains/arbitrum.png",
-            explorerUrl: {
-                [Network.Mainnet]: "https://arbiscan.io",
-                [Network.Testnet]: "https://arbiscan.io",
-            },
-        },
-        {
             id: ChainId.Base,
             name: "Base",
             iconUrl: "/assets/chains/base.svg",
             explorerUrl: {
                 [Network.Mainnet]: "https://basescan.org",
                 [Network.Testnet]: "https://basescan.org",
+            },
+        },
+        {
+            id: ChainId.Bitcoin,
+            name: "Bitcoin",
+            iconUrl: "/assets/chains/bitcoin.svg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://blockstream.info",
+                [Network.Testnet]: "https://blockstream.info",
+            },
+        },
+        {
+            id: ChainId.Plasma,
+            name: "Plasma",
+            iconUrl: "/assets/chains/plasma.jpg",
+            explorerUrl: {
+                [Network.Mainnet]: "https://plasma.to",
+                [Network.Testnet]: "https://plasma.to",
             },
         },
     ]
@@ -114,6 +141,23 @@ export class ChainManager {
 
     public toObject(): Array<ChainMetadata> {
         return this.chains
+    }
+
+    public getPlatformDescriptions(platform: Platform): string {
+        switch (platform) {
+        case Platform.Evm:
+            return " Uses standard 64-hex private keys (secp256k1), compatible with MetaMask and most EVM wallets."
+        case Platform.Solana:
+            return "Uses 64-byte Ed25519 secret keys (base58 or JSON array), not compatible with EVM keys."
+        case Platform.Sui:
+            return "Uses Ed25519 or Secp256r1 private keys with Sui-specific encoding (0x{...} prefix)."
+        case Platform.Aptos:
+            return "Uses Ed25519 private keys derived from mnemonic or 32-byte hex string."
+        case Platform.Bitcoin:
+            return "Uses 32-byte private keys derived from mnemonic or 32-byte hex string."
+        default:
+            return ""
+        }
     }
 
     public getChainById(id: ChainId): ChainMetadata | undefined {
@@ -185,6 +229,11 @@ export class ChainManager {
                 platform: Platform.Aptos,
                 name: "Aptos Networks",
                 symbol: "Aptos",
+            },
+            {
+                platform: Platform.Bitcoin,
+                name: "Bitcoin Networks",
+                symbol: "Bitcoin",
             },
         ]
     }

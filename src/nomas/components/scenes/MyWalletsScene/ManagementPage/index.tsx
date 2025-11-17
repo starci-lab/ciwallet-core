@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import { MyWalletsManagementTab, MyWalletsPage, setInitialized, setManagementTab, setMyWalletsPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasSpacer, NomasTab } from "../../../extends"
 import { HDWalletSection } from "./HDWalletSection"
+import { ImportedWalletsSection } from "./ImportedWalletsSection"
 export const ManagementPage = () => {
     const dispatch = useAppDispatch()
     const initialized = useAppSelector((state) => state.persists.session.initialized)
@@ -17,7 +18,7 @@ export const ManagementPage = () => {
         case MyWalletsManagementTab.HDWallets:
             return <HDWalletSection />
         case MyWalletsManagementTab.ImportedWallets:
-            return <div>Imported Wallets</div>
+            return <ImportedWalletsSection />
         }
     }
     return (

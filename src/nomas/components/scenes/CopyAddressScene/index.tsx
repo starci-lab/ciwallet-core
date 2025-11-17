@@ -29,6 +29,11 @@ export const CopyAddressScene = () => {
                             filterValue={filterValue}
                             popularItems={[
                                 {
+                                    letter: "B",
+                                    item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Bitcoin),
+                                    key: ChainId.Bitcoin
+                                },
+                                {
                                     letter: "E",
                                     item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Ethereum),
                                     key: ChainId.Ethereum
@@ -64,7 +69,7 @@ export const CopyAddressScene = () => {
                                             <div>
                                                 <div className="text-sm font-medium">{item?.name ?? ""}</div>
                                                 <div className="text-xs text-muted">{shortenAddress(selectedAccounts[platform]?.accountAddress ?? "")}</div>
-                                            </div>
+                                            </div>  
                                         </div>
                                         <Snippet
                                             copyString={selectedAccounts[platform]?.accountAddress ?? ""}

@@ -34,7 +34,7 @@ export const MainScene = () => {
                                 <div className="text-sm">
                                     {renderNetwork()}
                                 </div>
-                                <CaretRightIcon className="w-4 h-4" />
+                                <CaretRightIcon className="w-4 h-4 text-text-muted" />
                             </div>
                         </PressableMotion>
                         <NomasSpacer y={6} />
@@ -46,7 +46,7 @@ export const MainScene = () => {
                                 <div className="text-sm">
                                     {chainLength} chains
                                 </div>
-                                <CaretRightIcon className="w-4 h-4" />
+                                <CaretRightIcon className="w-4 h-4 text-text-muted" />
                             </div>
                         </PressableMotion>
                         <NomasSpacer y={6} />
@@ -58,7 +58,7 @@ export const MainScene = () => {
                                 <div className="text-sm">
                                     {chainLength} chains
                                 </div>
-                                <CaretRightIcon className="w-4 h-4" />
+                                <CaretRightIcon className="w-4 h-4 text-text-muted" />
                             </div>
                         </PressableMotion>
                     </NomasCardBody>
@@ -74,7 +74,7 @@ export const MainScene = () => {
                                 <div className="text-sm">
                             English
                                 </div>
-                                <CaretRightIcon className="w-4 h-4" />
+                                <CaretRightIcon className="w-4 h-4 text-text-muted" />
                             </div>
                         </PressableMotion>
                         <NomasSpacer y={6} />
@@ -86,7 +86,7 @@ export const MainScene = () => {
                                 <div className="text-sm">
                             USD
                                 </div>
-                                <CaretRightIcon className="w-4 h-4" />
+                                <CaretRightIcon className="w-4 h-4 text-text-muted" />
                             </div>
                         </PressableMotion>
                     </NomasCardBody>

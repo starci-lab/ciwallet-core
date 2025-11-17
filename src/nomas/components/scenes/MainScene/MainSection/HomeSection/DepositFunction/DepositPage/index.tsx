@@ -50,7 +50,7 @@ export const DepositPage = () => {
                         <NomasSpacer y={4}/>
                         <QRCode data={account?.accountAddress || ""} />
                         <NomasSpacer y={4}/>
-                        <div className="text-sm text-muted max-w-[240px] break-all text-center">
+                        <div className="text-smtext-text-muted max-w-[240px] break-all text-center">
                             {account?.accountAddress}
                         </div>
                         <NomasSpacer y={4}/>

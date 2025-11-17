@@ -10,6 +10,9 @@ export enum ChainId {
     Fantom = "fantom",
     Arbitrum = "arbitrum",
     Base = "base",
+    Hyperliquid = "hyperliquid",
+    Bitcoin = "bitcoin",
+    Plasma = "plasma",
 }
 
 export enum Network {
@@ -29,6 +32,7 @@ export enum Platform {
     Solana = "solana",
     Sui = "sui",
     Aptos = "aptos",
+    Bitcoin = "bitcoin",
 }
 
 export interface ChainMetadata {

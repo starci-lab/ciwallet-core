@@ -1,5 +1,4 @@
-import { generateMnemonic, mnemonicToSeedSync } from "bip39"
-
+import { generateMnemonic, mnemonicToSeedSync, validateMnemonic, wordlists } from "bip39"
 export class Mnemonic {
     constructor() {}
 
@@ -9,5 +8,13 @@ export class Mnemonic {
 
     toSeed(mnemonic: string) {
         return mnemonicToSeedSync(mnemonic)
+    }
+
+    validateWord(word: string) {
+        return wordlists.english.includes(word.toLowerCase())
+    }
+
+    validateMnemonic(mnemonic: string) {
+        return validateMnemonic(mnemonic)
     }
 }

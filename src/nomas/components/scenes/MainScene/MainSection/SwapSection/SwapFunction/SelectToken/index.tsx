@@ -32,7 +32,7 @@ export const SelectToken = ({ token, chainMetadata, onSelect }: SelectTokenProps
                 />
             </div>
             <div>
-                <div className="text-sm text">{token.name}</div>
+                <div className="text-sm text-text">{token.name}</div>
                 <div className="text-muted text-xs text-left">{token.symbol}</div>
             </div>
         </NomasButton>

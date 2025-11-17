@@ -39,8 +39,8 @@ import { ExplorerId } from "@ciwallet-sdk/classes"
  * Types
  * ----------------------------- */
 export enum PlatformAccountType {
-    HDWallet = "hd-wallet",
-    ImportedWallet = "imported-wallet",
+  HDWallet = "hd-wallet",
+  ImportedWallet = "imported-wallet",
 }
 
 export type Account =
@@ -64,7 +64,7 @@ export type Account =
 
 export interface Accounts {
   accounts: Array<Account>
-  selectedAccountId?: string
+  selectedAccountIndex: number
 }
 
 export interface HDWalletAccount {
@@ -87,7 +87,6 @@ export interface ImportedWallet {
   name: string
 }
 
-
 export interface TokenItem {
   tokenId: TokenId
   accountAddress: string
@@ -101,6 +100,7 @@ export interface SessionSlice {
   hdWallets: Array<HDWallet>
   importedWallets: Array<ImportedWallet>
   accounts: Partial<Record<Platform, Accounts>>
+  platformIndex: Partial<Record<Platform, number>>
   encryptedMnemonic: string
   network: Network
   chainId: ChainId
@@ -115,6 +115,7 @@ export interface SessionSlice {
   explorers: Partial<Record<ChainId, ExplorerId>>
   // game minimized
   isGameMinimized: boolean
+  isOverlayVisible: boolean
 }
 
 /* -----------------------------
@@ -183,7 +184,7 @@ const resolveAccountsFromImportedWallet = async (
         {
             id: `imported-wallet-${uuidv4()}`,
             accountAddress: wallet.accountAddress,
-            privateKey: await encryptionObj.decrypt(wallet.privateKey, password),
+            privateKey,
             type: PlatformAccountType.ImportedWallet,
             platform: importedWallet.platform,
             refId: importedWallet.id,
@@ -195,7 +196,6 @@ export const resolveAccountsThunk = createAsyncThunk<Array<Account>>(
     "accounts/resolveAll",
     async (_, thunkApi): Promise<Array<Account>> => {
         try {
-            console.log("Resolve accounts")
             const state = thunkApi.getState() as RootState
             // Resolve HD wallet accounts
             const hdAccounts = await Promise.all(
@@ -215,6 +215,7 @@ export const resolveAccountsThunk = createAsyncThunk<Array<Account>>(
             // Combine and return
             return [...hdAccounts.flat(), ...importedAccounts.flat()]
         } catch (err: unknown) {
+            console.log(err)
             throw new Error(
                 err instanceof Error ? err.message : "Failed to resolve accounts"
             )
@@ -267,10 +268,10 @@ export const resolveTokensThunk = createAsyncThunk<
 )
 
 export interface UpdateRpcParams {
-    chainId: ChainId
-    network: Network
-    index: number
-    rpc: string
+  chainId: ChainId
+  network: Network
+  index: number
+  rpc: string
 }
 
 /* -----------------------------
@@ -299,6 +300,12 @@ const initialState: SessionSlice = {
         TokenId.SuiTestnetSui,
         TokenId.SuiTestnetUsdc,
     ],
+    platformIndex: {
+        [Platform.Evm]: 0,
+        [Platform.Solana]: 0,
+        [Platform.Sui]: 0,
+        [Platform.Aptos]: 0,
+    },
     trackingUnifiedTokenIds: [UnifiedTokenId.Usdc, UnifiedTokenId.Usdt],
     rpcs: {
         [ChainId.Monad]: {
@@ -326,11 +333,11 @@ const initialState: SessionSlice = {
             [Network.Testnet]: ["https://polygon-testnet.g.alchemy.com/v2/demo"],
         },
         [ChainId.Ethereum]: {
-            [Network.Mainnet]: ["https://eth-mainnet.g.alchemy.com/v2/demo"],
-            [Network.Testnet]: ["https://eth-testnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://eth.llamarpc.com"],
+            [Network.Testnet]: ["https://eth-sepolia.g.alchemy.com/v2/demo"],
         },
         [ChainId.Avalanche]: {
-            [Network.Mainnet]: ["https://avalanche-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://api.zan.top/avax-mainnet/ext/bc/C/rpc"],
             [Network.Testnet]: ["https://avalanche-testnet.g.alchemy.com/v2/demo"],
         },
         [ChainId.Fantom]: {
@@ -338,12 +345,24 @@ const initialState: SessionSlice = {
             [Network.Testnet]: ["https://fantom-testnet.g.alchemy.com/v2/demo"],
         },
         [ChainId.Arbitrum]: {
-            [Network.Mainnet]: ["https://arbitrum-mainnet.g.alchemy.com/v2/demo"],
-            [Network.Testnet]: ["https://arbitrum-testnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://arb1.arbitrum.io/rpc"],
+            [Network.Testnet]: ["https://sepolia-rollup.arbitrum.io/rpc"],
         },
         [ChainId.Base]: {
             [Network.Mainnet]: ["https://base-mainnet.g.alchemy.com/v2/demo"],
             [Network.Testnet]: ["https://base-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Hyperliquid]: {
+            [Network.Mainnet]: ["https://arb-mainnet.g.alchemy.com/v2/demo"],
+            [Network.Testnet]: ["https://arb-testnet.g.alchemy.com/v2/demo"],
+        },
+        [ChainId.Bitcoin]: {
+            [Network.Mainnet]: ["https://bitcoin-rpc.publicnode.com"], // endpoint công cộng cho Bitcoin mainnet :contentReference[oaicite:0]{index=0}
+            [Network.Testnet]: ["https://bitcoin-rpc.publicnode.com"], // sử dụng cùng endpoint hoặc tìm riêng testnet nếu cần
+        },
+        [ChainId.Plasma]: {
+            [Network.Mainnet]: ["https://rpc.plasma.to"], // Plasma mainnet :contentReference[oaicite:1]{index=1}
+            [Network.Testnet]: ["https://testnet-rpc.plasma.to"], // Plasma testnet :contentReference[oaicite:2]{index=2}
         },
     },
     tokens: {
@@ -358,6 +377,9 @@ const initialState: SessionSlice = {
         [ChainId.Fantom]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
         [ChainId.Arbitrum]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
         [ChainId.Base]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Hyperliquid]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Bitcoin]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
+        [ChainId.Plasma]: { [Network.Mainnet]: [], [Network.Testnet]: [] },
     },
     explorers: {
         [ChainId.Monad]: ExplorerId.MonVision,
@@ -373,6 +395,7 @@ const initialState: SessionSlice = {
         [ChainId.Fantom]: ExplorerId.Ftmscan,
     },
     isGameMinimized: false,
+    isOverlayVisible: true,
 }
 /* -----------------------------
  * Slice
@@ -391,6 +414,9 @@ export const sessionSlice = createSlice({
         setEncryptedMnemonic: (state, action: PayloadAction<string>) => {
             state.encryptedMnemonic = action.payload
         },
+        resetImportedWallets: (state) => {
+            state.importedWallets = []
+        },
         setSelectedAccountId: (
             state,
             {
@@ -398,9 +424,13 @@ export const sessionSlice = createSlice({
             }: PayloadAction<SetSelectedAccountIdParams>
         ) => {
             if (!state.accounts[platform]) {
-                state.accounts[platform] = { accounts: [] }
+                state.accounts[platform] = { accounts: [], selectedAccountIndex: 0 }
             }
-      state.accounts[platform]!.selectedAccountId = account.id
+            state.platformIndex[platform] = state.accounts[
+                platform
+            ]!.accounts.findIndex((ac) => ac.id === account.id)
+      state.accounts[platform]!.selectedAccountIndex =
+        state.platformIndex[platform]!
         },
         setNetwork: (state, action: PayloadAction<Network>) => {
             state.network = action.payload
@@ -420,14 +450,24 @@ export const sessionSlice = createSlice({
         addTrackingTokenId: (state, action: PayloadAction<TokenId>) => {
             state.trackingTokenIds.push(action.payload)
         },
-        addTrackingUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
+        addTrackingUnifiedTokenId: (
+            state,
+            action: PayloadAction<UnifiedTokenId>
+        ) => {
             state.trackingUnifiedTokenIds.push(action.payload)
         },
         removeTrackingTokenId: (state, action: PayloadAction<TokenId>) => {
-            state.trackingTokenIds = state.trackingTokenIds.filter((id) => id !== action.payload)
+            state.trackingTokenIds = state.trackingTokenIds.filter(
+                (id) => id !== action.payload
+            )
         },
-        removeTrackingUnifiedTokenId: (state, action: PayloadAction<UnifiedTokenId>) => {
-            state.trackingUnifiedTokenIds = state.trackingUnifiedTokenIds.filter((id) => id !== action.payload)
+        removeTrackingUnifiedTokenId: (
+            state,
+            action: PayloadAction<UnifiedTokenId>
+        ) => {
+            state.trackingUnifiedTokenIds = state.trackingUnifiedTokenIds.filter(
+                (id) => id !== action.payload
+            )
         },
         updateRpc: (state, action: PayloadAction<UpdateRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
@@ -437,9 +477,11 @@ export const sessionSlice = createSlice({
                 }
             }
             if (!state.rpcs[action.payload.chainId]![action.payload.network]) {
-                state.rpcs[action.payload.chainId]![action.payload.network] = []
+        state.rpcs[action.payload.chainId]![action.payload.network] = []
             }
-            state.rpcs[action.payload.chainId]![action.payload.network]![action.payload.index] = action.payload.rpc
+      state.rpcs[action.payload.chainId]![action.payload.network]![
+          action.payload.index
+      ] = action.payload.rpc
         },
         addRpc: (state, action: PayloadAction<AddRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
@@ -458,6 +500,9 @@ export const sessionSlice = createSlice({
         setIsGameMinimized: (state, action: PayloadAction<boolean>) => {
             state.isGameMinimized = action.payload
         },
+        setIsOverlayVisible: (state, action: PayloadAction<boolean>) => {
+            state.isOverlayVisible = action.payload
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(
@@ -466,9 +511,16 @@ export const sessionSlice = createSlice({
                 const accounts = action.payload
                 accounts.forEach((account) => {
                     if (!state.accounts[account.platform]) {
-                        state.accounts[account.platform] = { accounts: [] }
+                        state.accounts[account.platform] = {
+                            accounts: [],
+                            selectedAccountIndex: 0,
+                        }
                     }
-          state.accounts[account.platform]!.accounts.push(account)
+            state.accounts[account.platform]!.accounts.push(account)
+            state.accounts[account.platform]!.selectedAccountIndex =
+            state.accounts[account.platform]!.accounts.findIndex(
+                (ac) => ac.id === account.id
+            )
                 })
             }
         )
@@ -487,10 +539,7 @@ export const sessionSlice = createSlice({
             const platform = chainIdToPlatform(state.chainId)
             const accounts = state.accounts[platform]
             if (!accounts) return null
-            const { selectedAccountId } = accounts
-            if (!selectedAccountId) return accounts.accounts[0]
-            const account = accounts.accounts.find((a) => a.id === selectedAccountId)
-            return account || null
+            return accounts.accounts[accounts.selectedAccountIndex] || null
         },
         selectTokenById: (state, tokenId: TokenId) => {
             const tokens = Object.values(state.tokens)
@@ -505,18 +554,12 @@ export const sessionSlice = createSlice({
             const platform = chainIdToPlatform(chainId)
             const accounts = state.accounts[platform]
             if (!accounts) return null
-            const { selectedAccountId } = accounts
-            if (!selectedAccountId) return accounts.accounts[0]
-            const account = accounts.accounts.find((a) => a.id === selectedAccountId)
-            return account || null
+            return accounts.accounts[accounts.selectedAccountIndex] || null
         },
         selectSelectedAccountByPlatform: (state, platform: Platform) => {
             const accounts = state.accounts[platform]
             if (!accounts) return null
-            const { selectedAccountId } = accounts
-            if (!selectedAccountId) return accounts.accounts[0]
-            const account = accounts.accounts.find((a) => a.id === selectedAccountId)
-            return account || null
+            return accounts.accounts[accounts.selectedAccountIndex] || null
         },
         selectTokensByChainIdAndNetwork: (
             state,
@@ -539,7 +582,8 @@ export const sessionSlice = createSlice({
             const trackingTokens = allTokens.filter((token) => {
                 return (
                     trackingTokenIds.includes(token.tokenId) ||
-                    (token.unifiedTokenId && trackingUnifiedTokenIds.includes(token.unifiedTokenId))
+          (token.unifiedTokenId &&
+            trackingUnifiedTokenIds.includes(token.unifiedTokenId))
                 )
             })
             return trackingTokens.filter((token) => token.network === state.network)
@@ -557,19 +601,22 @@ export const sessionSlice = createSlice({
         selectUnifiedTokensTrackingOnly: (state) => {
             const unifiedTokens = tokenManagerObj.getUnifiedTokens()
             return unifiedTokens.filter((unifiedToken) => {
-                return unifiedToken.unifiedTokenId && state.trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId)
+                return (
+                    unifiedToken.unifiedTokenId &&
+          state.trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId)
+                )
             })
         },
         selectSelectedAccounts: (state): Partial<Record<Platform, Account>> => {
             if (!state.accounts) return {}
             const selected: Partial<Record<Platform, Account>> = {}
-            for (const [platform, { accounts, selectedAccountId }] of Object.entries(
+            for (const [platform, { accounts }] of Object.entries(
                 state.accounts
-            ) as Array<
-        [Platform, { accounts: Array<Account>; selectedAccountId?: string }]
-      >) {
-                const acc = accounts.find((account, index) =>
-                    selectedAccountId ? account.id === selectedAccountId : index === 0
+            ) as Array<[Platform, { accounts: Array<Account> }]>) {
+                const platformIndex = state.platformIndex[platform as Platform]
+                if (platformIndex === undefined) continue
+                const acc = accounts.find((_, index) =>
+                    platformIndex ? index === platformIndex : index === 0
                 )
                 if (acc) selected[platform] = acc
             }
@@ -588,7 +635,9 @@ export const sessionSlice = createSlice({
             return state.hdWallets.find((hdWallet) => hdWallet.id === hdWalletId)
         },
         selectAccountsByHdWalletId: (state, hdWalletId: string) => {
-            return Object.values(state.accounts).flatMap((accounts) => accounts.accounts.filter((account) => account.refId === hdWalletId))
+            return Object.values(state.accounts).flatMap((accounts) =>
+                accounts.accounts.filter((account) => account.refId === hdWalletId)
+            )
         },
     },
 })
@@ -621,14 +670,16 @@ listenerMiddleware.startListening({
         const state = listenerApi.getState() as RootState
         const dispatch = listenerApi.dispatch as AppDispatch
         // logic to retrieve tracking tokens
-        const { trackingUnifiedTokenIds, trackingTokenIds, tokens } = state.persists.session
+        const { trackingUnifiedTokenIds, trackingTokenIds, tokens } =
+      state.persists.session
         const allTokens = Object.values(tokens)
             .flat()
             .flatMap((record) => Object.values(record).flat())
         const trackingTokens = allTokens.filter((token) => {
             return (
                 trackingTokenIds.includes(token.tokenId) ||
-                    (token.unifiedTokenId && trackingUnifiedTokenIds.includes(token.unifiedTokenId))
+        (token.unifiedTokenId &&
+          trackingUnifiedTokenIds.includes(token.unifiedTokenId))
             )
         })
         // subscribe to token prices
@@ -666,6 +717,7 @@ export const {
     addHdWallet,
     addImportedWallet,
     addRpc,
+    resetImportedWallets,
     updateRpc,
     setExplorer,
     addTrackingTokenId,
@@ -673,6 +725,7 @@ export const {
     removeTrackingTokenId,
     removeTrackingUnifiedTokenId,
     setIsGameMinimized,
+    setIsOverlayVisible,
 } = sessionSlice.actions
 
 export const {

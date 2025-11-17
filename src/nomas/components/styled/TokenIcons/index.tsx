@@ -22,6 +22,10 @@ export const TokenIcons = ({ platform }: TokenIconsProps) => {
         return <div className="flex items-center gap-2">
             <RenderTokenIcons chains={chainManagerObj.getChainsByPlatform(platform)} />
         </div>
+    case Platform.Bitcoin:
+        return <div className="flex items-center gap-2">
+            <RenderTokenIcons chains={chainManagerObj.getChainsByPlatform(platform)} />
+        </div>
     default:
         throw new Error(`Unsupported platform: ${platform}`)
     }
@@ -45,7 +49,7 @@ const RenderTokenIcons = ({ chains }: RenderTokenIconsProps) => {
             ))}
 
             {remaining > 0 && (
-                <span className="text-xs text-muted bg-muted/20 w-5 h-5 rounded-full grid place-items-center">+{remaining}</span>
+                <span className="text-xstext-text-muted bg-muted/20 w-5 h-5 rounded-full grid place-items-center">+{remaining}</span>
             )}
         </div>
     )

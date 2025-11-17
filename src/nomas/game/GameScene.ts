@@ -514,10 +514,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Show connection status text in Phaser scene
+   * Show connection status text-textin Phaser scene
    */
   private showConnectionStatus(text: string, color: string = "#ff0000") {
-    // Remove previous status text if exists
+    // Remove previous status text-textif exists
     if (this.connectionStatusText) {
       this.connectionStatusText.destroy()
     }
