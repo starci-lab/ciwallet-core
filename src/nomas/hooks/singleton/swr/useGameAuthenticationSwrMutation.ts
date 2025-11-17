@@ -9,11 +9,12 @@ import { SwrProviderContext } from "./SwrProvider"
 import pRetry from "p-retry"
 
 export const useGameAuthenticationSwrMutationCore = () => {
-    const evmAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
-    const swrMutation = useSWRMutation(
-        "GAME_AUTHENTICATION",
-        async () => {
-            await pRetry(async () => {
+    const evmAccount = useAppSelector((state) =>
+        selectSelectedAccountByPlatform(state.persists, Platform.Evm)
+    )
+    const swrMutation = useSWRMutation("GAME_AUTHENTICATION", async () => {
+        await pRetry(
+            async () => {
                 if (!evmAccount) {
                     throw new Error("EVM account not found")
                 }
@@ -27,10 +28,12 @@ export const useGameAuthenticationSwrMutationCore = () => {
                     signature: signedMessage,
                 })
                 return true
-            }, {
+            },
+            {
                 retries: 3,
-            })
-        })
+            }
+        )
+    })
     return swrMutation
 }
 

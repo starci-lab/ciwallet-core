@@ -1,9 +1,6 @@
-import { DocumentNode, gql } from "@apollo/client"
-import {
-    GraphQLResponse,
-    MutationParams,
-} from "../../types"
+import { type DocumentNode, gql } from "@apollo/client"
 import { noCacheCredentialClient } from "../clients"
+import type { GraphQLResponse, MutationParams } from "../../types"
 
 const mutation1 = gql`
   mutation Refresh {
@@ -24,25 +21,23 @@ export enum MutationRefresh {
 }
 
 export interface MutationRefreshResponse {
-  accessToken: string;
+  accessToken: string
 }
 
 const mutationMap: Record<MutationRefresh, DocumentNode> = {
     [MutationRefresh.Mutation1]: mutation1,
 }
 
-export type MutationRefreshParams = MutationParams<
-  MutationRefresh
->;
+export type MutationRefreshParams = MutationParams<MutationRefresh>
 
 export const mutationRefresh = async ({
     mutation = MutationRefresh.Mutation1,
 }: MutationRefreshParams) => {
     const mutationDocument = mutationMap[mutation]
     // use no cache credential to include http only cookies
-    return await noCacheCredentialClient.mutate<
-    { refresh: GraphQLResponse<MutationRefreshResponse> }
-  >({
+    return await noCacheCredentialClient.mutate<{
+    refresh: GraphQLResponse<MutationRefreshResponse>
+  }>({
       mutation: mutationDocument,
   })
 }

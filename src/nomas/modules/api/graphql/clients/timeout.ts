@@ -1,9 +1,9 @@
-import { publicEnv } from "@/modules/env/public"
+import { envConfig } from "@/nomas/env"
 import { ApolloLink, Observable } from "@apollo/client"
 
 // Custom timeout link
 export const createTimeoutLink = () => {
-    const timeoutMs = publicEnv().graphql.timeout
+    const timeoutMs = envConfig().nomasServer.timeout
     return new ApolloLink((operation, forward) => {
         return new Observable((observer) => {
             const timer = setTimeout(() => {
@@ -11,7 +11,7 @@ export const createTimeoutLink = () => {
                     new Error(`GraphQL request timed out after ${timeoutMs}ms`)
                 )
             }, timeoutMs)
-  
+
             const sub = forward(operation).subscribe({
                 next: (value) => observer.next(value),
                 error: (err) => {
@@ -23,7 +23,7 @@ export const createTimeoutLink = () => {
                     observer.complete()
                 },
             })
-  
+
             return () => {
                 clearTimeout(timer)
                 sub.unsubscribe()

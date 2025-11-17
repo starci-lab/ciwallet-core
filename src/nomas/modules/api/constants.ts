@@ -1,1 +1,1 @@
-export const API_BASE_URL = "https://api.kani.com"
+export const NOMAS_SERVER_BASE_URL = "https://nomas-server.kanibot.xyz"

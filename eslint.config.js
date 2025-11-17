@@ -6,7 +6,15 @@ import { defineConfig } from "eslint/config"
 
 export default defineConfig([
     { ignores: ["dist/**", "node_modules/**", "public/**"] },
-    { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser, parserOptions: { ecmaFeatures: { jsx: true } } } },
+    {
+        files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+        plugins: { js },
+        extends: ["js/recommended"],
+        languageOptions: {
+            globals: globals.browser,
+            parserOptions: { ecmaFeatures: { jsx: true } },
+        },
+    },
     tseslint.configs.recommended,
     pluginReact.configs.flat.recommended,
     {
@@ -21,7 +29,11 @@ export default defineConfig([
             semi: ["error", "never"],
             "@typescript-eslint/no-unused-vars": [
                 "warn",
-                { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }
+                {
+                    argsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
+                    caughtErrorsIgnorePattern: "^_",
+                },
             ],
             "no-case-declarations": "off",
         },

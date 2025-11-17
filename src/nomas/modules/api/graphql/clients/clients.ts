@@ -7,23 +7,30 @@ import { defaultOptions } from "./options"
 // no cache client
 export const noCacheClient = new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from([createRetryLink(), createTimeoutLink(), createHttpLink()]),
+    link: ApolloLink.from([
+        createRetryLink(),
+        createTimeoutLink(),
+        createHttpLink(),
+    ]),
     defaultOptions: defaultOptions,
 })
 
 export const noCacheCredentialClient = new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from(
-        [
-            createRetryLink(), 
-            createTimeoutLink(), 
-            createHttpLink(true)
-        ]),
+    link: ApolloLink.from([
+        createRetryLink(),
+        createTimeoutLink(),
+        createHttpLink(true),
+    ]),
     defaultOptions: defaultOptions,
 })
 
 // client
 export const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from([createRetryLink(), createTimeoutLink(), createHttpLink()]),
+    link: ApolloLink.from([
+        createRetryLink(),
+        createTimeoutLink(),
+        createHttpLink(),
+    ]),
 })
