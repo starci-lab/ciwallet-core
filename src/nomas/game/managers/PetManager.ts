@@ -10,7 +10,7 @@ import {
   ColyseusMessageEvents,
   type PetsStateSyncMessage,
   type BuyPetResponseMessage,
-} from "../../events"
+} from "@/nomas/game/colyseus/events"
 import {
   GamePositioning,
   GAME_MECHANICS,

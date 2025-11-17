@@ -100,7 +100,7 @@
     "@lifi/sdk": "^3.12.11",
     "@metamask/jazzicon": "^2.0.0",
     "@mysten/sui": "^1.29.1",
-    "@nktkas/hyperliquid": "^0.25.8",
+    "@nktkas/hyperliquid": "^0.25.9",
     "@noble/ed25519": "^3.0.0",
     "@phosphor-icons/react": "^2.1.10",
     "@pythnetwork/hermes-client": "^2.0.0",

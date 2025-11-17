@@ -17,7 +17,6 @@ import type { GameRoomState } from "@/nomas/game/schema/ChatSchema"
 import { store } from "@/nomas/redux"
 import {
     ColyseusConnectionEvents,
-    ColyseusActionEvents,
     type ColyseusConnectedEvent,
     type ColyseusDisconnectedEvent,
     type ColyseusErrorEvent,
@@ -128,7 +127,7 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
         } catch (err) {
             const error =
         err instanceof Error ? err : new Error(String(err) || "Unknown error")
-            console.error("❌ [useColyseusConnection] Connection failed:", error)
+            console.error("[useColyseusConnection] Connection failed:", error)
             setError(error)
             setIsConnected(false)
             setRoomId(null)
@@ -150,11 +149,11 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
     const attachRoom = useCallback((room: Room<GameRoomState>) => {
     // Avoid re-attaching if same room
         if (roomRef.current === room) {
-            console.log("ℹ️ [useColyseusConnection] Room already attached")
+            console.log("[useColyseusConnection] Room already attached")
             return
         }
 
-        console.log("🔗 [useColyseusConnection] Attaching room:", room.roomId)
+        console.log("[useColyseusConnection] Attaching room:", room.roomId)
 
         // Update refs and state
         roomRef.current = room
@@ -180,7 +179,7 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
 
         if (room) {
             console.log(
-                "👋 [useColyseusConnection] Disconnecting from room:",
+                "[useColyseusConnection] Disconnecting from room:",
                 room.roomId
             )
 
@@ -211,30 +210,27 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
 
             if (!room) {
                 console.warn(
-                    "⚠️ [useColyseusConnection] Cannot send message - room is null"
+                    "[useColyseusConnection] Cannot send message - room is null"
                 )
                 return
             }
 
             if (!isConnected) {
                 console.warn(
-                    "⚠️ [useColyseusConnection] Cannot send message - not connected"
+                    "[useColyseusConnection] Cannot send message - not connected"
                 )
                 return
             }
 
             try {
-                console.log(`📤 [useColyseusConnection] Sending: ${type}`, data)
+                console.log(`[useColyseusConnection] Sending: ${type}`, data)
                 room.send(type, data)
             } catch (err) {
                 const error =
           err instanceof Error
               ? err
               : new Error(String(err) || "Failed to send message")
-                console.error(
-                    "❌ [useColyseusConnection] Failed to send message:",
-                    error
-                )
+                console.error("[useColyseusConnection] Failed to send message:", error)
                 setError(error)
             }
         },
