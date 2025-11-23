@@ -1,69 +1,68 @@
+import type { GraphQLResponse } from "@/nomas/modules/api/graphql/types"
 import { createNoCacheCredentialAuthClientWithHeaders } from "../clients"
-import type { GraphQLResponse, QueryParams } from "../types"
-import { gql, type DocumentNode } from "@apollo/client"
+import { gql } from "@apollo/client"
 
-const query1 = gql`
-  query StoreItems($request: StoreItemsRequest!) {
-    storeItems(request: $request) {
-      message
-      success
-      error
-      data {
-        items {
-          id
-          name
-          description
-          price
-          image
+// -------------------
+// GQL Queries Object
+// -------------------
+export const StoreItemsQueries = {
+    Query1: gql`
+        query StoreItems($request: StoreItemsRequest!) {
+            storeItems(request: $request) {
+                message
+                success
+                error
+                data {
+                    items {
+                        id
+                        name
+                        description
+                        price
+                        image
+                    }
+                }
+            }
         }
-      }
-    }
-  }
-`
+    `
+} as const
 
+// -------------------
+// Types
+// -------------------
 export interface StoreItemsResponse {
-  items: {
-    id: string
-    name: string
-    description: string
-    price: number
-    image: string
-  }[]
-}
-
-export enum QueryStoreItems {
-  Query1 = "query1",
+    items: {
+        id: string
+        name: string
+        description: string
+        price: number
+        image: string
+    }[]
 }
 
 export interface StoreItemsRequest {
-  id: string
+    id: string
 }
 
-const queryMap: Record<QueryStoreItems, DocumentNode> = {
-    [QueryStoreItems.Query1]: query1,
+// -------------------
+// Function
+// -------------------
+export type QueryStoreItemsParams = {
+    query?: (typeof StoreItemsQueries)[keyof typeof StoreItemsQueries]
+    request: StoreItemsRequest
+    headers: Record<string, string>
 }
-
-export type QueryStoreItemsParams = QueryParams<
-  QueryStoreItems,
-  StoreItemsRequest
->
 
 export const queryStoreItems = async ({
-    query = QueryStoreItems.Query1,
+    query = StoreItemsQueries.Query1,
     request,
-    headers,
+    headers
 }: QueryStoreItemsParams) => {
-    const queryDocument = queryMap[query]
-    // use no cache credential to include http only cookies
-    if (!headers) {
-        throw new Error("Headers are required")
-    }
+    if (!headers) throw new Error("Headers are required")
+
     return await createNoCacheCredentialAuthClientWithHeaders(headers).query<{
-    storeItems: GraphQLResponse<StoreItemsResponse>
-  }>({
-      query: queryDocument,
-      variables: {
-          request,
-      },
-  })
+        storeItems: GraphQLResponse<StoreItemsResponse>
+    }>({
+        query,
+        variables: { request }
+    })
 }

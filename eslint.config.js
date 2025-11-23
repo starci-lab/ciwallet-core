@@ -3,6 +3,7 @@ import globals from "globals"
 import tseslint from "typescript-eslint"
 import pluginReact from "eslint-plugin-react"
 import { defineConfig } from "eslint/config"
+// import prettier from "eslint-plugin-prettier"
 
 export default defineConfig([
     { ignores: ["dist/**", "node_modules/**", "public/**"] },
@@ -12,8 +13,8 @@ export default defineConfig([
         extends: ["js/recommended"],
         languageOptions: {
             globals: globals.browser,
-            parserOptions: { ecmaFeatures: { jsx: true } },
-        },
+            parserOptions: { ecmaFeatures: { jsx: true } }
+        }
     },
     tseslint.configs.recommended,
     pluginReact.configs.flat.recommended,
@@ -32,10 +33,11 @@ export default defineConfig([
                 {
                     argsIgnorePattern: "^_",
                     varsIgnorePattern: "^_",
-                    caughtErrorsIgnorePattern: "^_",
-                },
+                    caughtErrorsIgnorePattern: "^_"
+                }
             ],
-            "no-case-declarations": "off",
-        },
-    },
+            "no-case-declarations": "off"
+            // "prettier/prettier": "error"
+        }
+    }
 ])
