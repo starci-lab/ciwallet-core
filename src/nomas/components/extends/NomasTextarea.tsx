@@ -59,7 +59,7 @@ export const NomasTextarea = React.forwardRef<HTMLTextAreaElement, NomasTextarea
             <div className="flex flex-col gap-2 w-full">
                 <div
                     className={twMerge(
-                        "flex items-start relative border bg-input border-input transition-colors radius-input",
+                        "flex items-start relative border bg-input border-input transition-colors rounded-input",
                         prefixIcon && "pl-3",
                         isPassword && "pr-8",
                         isInvalid && "border-danger",

@@ -4,7 +4,6 @@ import React, { useMemo } from "react"
 import { Platform } from "@ciwallet-sdk/types"
 import { chainManagerObj } from "@/nomas/obj"
 import { ChainCard } from "./ChainCard"
-import { NomasButton, NomasCardFooter } from "../../../extends"
 
 interface RenderedPlatform {
     platform: Platform
@@ -12,7 +11,7 @@ interface RenderedPlatform {
     component: React.ReactNode
 }
 
-export const HDWalletDetailsSection = () => {
+export const HDWalletAccountsPage = () => {
     const hdWalletId = useAppSelector((state) => state.stateless.sections.myWallets.hdWalletId)
     const hdWallet = useAppSelector((state) => selectHdWalletById(state.persists, hdWalletId))
     const dispatch = useAppDispatch()
@@ -37,7 +36,7 @@ export const HDWalletDetailsSection = () => {
                 title={hdWallet?.name} 
                 showBackButton 
                 onBackButtonPress={() => {
-                    dispatch(setMyWalletsPage(MyWalletsPage.Accounts))
+                    dispatch(setMyWalletsPage(MyWalletsPage.HDWalletDetails))
                 }} />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner className="p-0">
@@ -46,11 +45,6 @@ export const HDWalletDetailsSection = () => {
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>
-            <NomasCardFooter>
-                <NomasButton xlSize className="w-full">
-                    Manage Wallet
-                </NomasButton>
-            </NomasCardFooter>
         </NomasCard>
     )
 }

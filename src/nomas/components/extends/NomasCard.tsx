@@ -44,7 +44,7 @@ const cardCva = cva(
                 false: "rounded-card",
             },
             isContainer: {
-                true: "min-w-[400px] w-[400px] max-w-[400px]",
+                true: "min-w-[500px] w-[500px] max-w-[500px]",
                 false: "",
             },
         },
