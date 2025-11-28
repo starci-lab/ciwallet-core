@@ -1,14 +1,13 @@
 import React from "react"
 import { ChooseNetworkPage, NomasCard, NomasCardVariant } from "@/nomas/components"
-import { SwapFunctionPage, TransactionType, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { SwapFunctionPage, TransactionType, selectSelectedAccounts, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { NomasAggregationPage } from "./NomasAggregationFunction"
 import { SwapFunction } from "./SwapFunction"
 import { useSwapFormik } from "@/nomas/hooks"
 import { SelectTokenFunction } from "./SelectTokenFunction"
 import { SlippageConfigFunction } from "./SlippageConfigFunction"
 import { TransactionReceiptPage } from "@/nomas/components"
-import { AggregatorId } from "@ciwallet-sdk/classes"
-import { roundNumber } from "@ciwallet-sdk/utils"
+import { chainIdToPlatform, roundNumber } from "@ciwallet-sdk/utils"
 
 export const SwapSection = () => {
     const swapPage = useAppSelector((state) => state.stateless.sections.swap.swapFunctionPage)
@@ -18,6 +17,9 @@ export const SwapSection = () => {
     const tokens = useAppSelector((state) => state.persists.session.tokens)
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     const prices = useAppSelector((state) => state.stateless.dynamic.prices)
+    const txHash = useAppSelector((state) => state.stateless.sections.swap.txHash)
+    const swapSuccess = useAppSelector((state) => state.stateless.sections.swap.swapSuccess)
+    const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const renderPage = () => {
         switch (swapPage) {
         case SwapFunctionPage.TransactionReceipt:
@@ -25,21 +27,22 @@ export const SwapSection = () => {
                 transactionData={{
                     type: TransactionType.Swap,
                     chainId: formik.values.tokenInChainId,
-                    fromTokenId: formik.values.tokenOut,
-                    toTokenId: formik.values.tokenIn,
-                    fromAddress: "0xa",
-                    toAddress: "0xb",
-                    amount: 100,
-                    aggregatorId: AggregatorId.Madhouse,
-                    txHash: "0x1234567890abcdef",
+                    fromTokenId: formik.values.tokenIn,
+                    toTokenId: formik.values.tokenOut,
+                    fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
+                    toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
+                    fromAmount: Number(formik.values.amountIn),
+                    toAmount: Number(formik.values.amountOut),
+                    aggregatorId: formik.values.bestAggregationId,
+                    txHash,
                 }}
-                success={false}
+                success={swapSuccess}
                 showBackButton={true}
                 onBackButtonPress={() => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
                 onProceedButtonClick={() => {
-                    alert("Proceed")
+                    dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
             />
         case SwapFunctionPage.Swap:

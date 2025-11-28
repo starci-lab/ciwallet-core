@@ -13,7 +13,6 @@ export const NomasAggregationPage = () => {
     const bestAggregationId = swapFormik.values.bestAggregationId
     const tokenManager = tokenManagerObj
     const tokenOut = tokenManager.getTokenById(swapFormik.values.tokenOut)
-    console.log(aggregations)
     return (
         <>
             <NomasCardHeader
@@ -28,36 +27,38 @@ export const NomasAggregationPage = () => {
                 Nomas fetches quotes from multiple aggregators to automatically find the best rate.
                 </div>
                 <NomasSpacer y={4}/>
-                {
-                    aggregations.map((aggregation) => {
-                        const aggregator = aggregatorManagerObj.getAggregatorById(aggregation.aggregator)
-                        return (
-                            <NomasCard key={aggregator?.id} variant={NomasCardVariant.Dark} isInner>
-                                <NomasCardBody className="flex justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <NomasImage 
-                                            className="rounded-full"
-                                            src={aggregator?.logo ?? ""}
-                                        />
-                                        <div className="text-sm">
-                                            <div>{aggregator?.name}</div>
-                                        </div>
-                                        {
-                                            aggregation.aggregator === bestAggregationId && (
-                                                <NomasChip>
+                <NomasCard variant={NomasCardVariant.Dark} isInner>
+                    <NomasCardBody className="gap-4 flex flex-col p-4">
+                        {
+                            aggregations.map((aggregation) => {
+                                const aggregator = aggregatorManagerObj.getAggregatorById(aggregation.aggregator)
+                                return (
+                                    <div key={aggregation.aggregator} className="flex items-center justify-between gap-4 py-1">
+                                        <div className="flex items-center gap-2">
+                                            <NomasImage 
+                                                className="rounded-full w-8 h-8 min-w-8 min-h-8"
+                                                src={aggregator?.logo ?? ""}
+                                            />
+                                            <div className="text-sm">
+                                                <div>{aggregator?.name}</div>
+                                            </div>
+                                            {
+                                                aggregation.aggregator === bestAggregationId && (
+                                                    <NomasChip>
                                                     Best
-                                                </NomasChip>
-                                            )
-                                        }
+                                                    </NomasChip>
+                                                )
+                                            }
+                                        </div>
+                                        <div className="flex items-center gap-2 text-text text-sm">
+                                            <div>{`${aggregation.amountOut} ${tokenOut?.symbol}`}</div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-foreground-500 text-sm">
-                                        <div>{`${aggregation.amountOut} ${tokenOut?.symbol}`}</div>
-                                    </div>
-                                </NomasCardBody>
-                            </NomasCard>
-                        )
-                    })
-                }
+                                )
+                            })
+                        }
+                    </NomasCardBody>
+                </NomasCard>
             </NomasCardBody>
         </> 
     )   

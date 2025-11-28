@@ -16,7 +16,8 @@ export type TransactionData =
     toTokenId: TokenId
     fromAddress: string
     toAddress: string
-    amount: number
+    fromAmount: number
+    toAmount: number
     aggregatorId: AggregatorId
     txHash: string
 } 
@@ -25,7 +26,8 @@ export type TransactionData =
     type: TransactionType.Bridge
     fromTokenId: TokenId
     toTokenId: TokenId
-    amount: number
+    fromAmount: number
+    toAmount: number
     toAddress: string
     txHash: string
 } 
@@ -57,15 +59,19 @@ export interface SwapSectionSlice {
     tokenInChainId: ChainId;
     tokenOutChainId: ChainId;
     transactionData?: TransactionData;
+    txHash: string;
+    swapSuccess: boolean;
 }
 
 const initialState: SwapSectionSlice = {
-    swapFunctionPage: SwapFunctionPage.Swap,
+    swapFunctionPage: SwapFunctionPage.TransactionReceipt,
     expandDetails: false,
     tokenIn: TokenId.MonadTestnetMon,
     tokenOut: TokenId.MonadTestnetMon,
     tokenInChainId: ChainId.Monad,
     tokenOutChainId: ChainId.Monad,
+    txHash: "",
+    swapSuccess: true,
 }
 
 export const swapSlice = createSlice({
@@ -93,8 +99,24 @@ export const swapSlice = createSlice({
         setTransactionData: (state, action: PayloadAction<TransactionData>) => {
             state.transactionData = action.payload
         },
+        setTxHash: (state, action: PayloadAction<string>) => {
+            state.txHash = action.payload
+        },
+        setSwapSuccess: (state, action: PayloadAction<boolean>) => {
+            state.swapSuccess = action.payload
+        },
     },
 })
 
-export const { setSwapFunctionPage, setExpandDetails, setTokenIn, setTokenOut, setTokenInChainId, setTokenOutChainId, setTransactionData } = swapSlice.actions
+export const { 
+    setSwapFunctionPage, 
+    setExpandDetails, 
+    setTokenIn, 
+    setTokenOut, 
+    setTokenInChainId, 
+    setTokenOutChainId, 
+    setTransactionData, 
+    setTxHash, 
+    setSwapSuccess 
+} = swapSlice.actions
 export const swapReducer = swapSlice.reducer

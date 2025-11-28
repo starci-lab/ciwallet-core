@@ -1,13 +1,16 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, Platform, TokenId, type ChainIdWithAllNetwork, Network } from "@ciwallet-sdk/types"
-import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
+import { ChainId, TokenId, type ChainIdWithAllNetwork, Network } from "@ciwallet-sdk/types"
+import { selectSelectedAccounts, useAppSelector } from "@/nomas/redux"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
 import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
 import { aggregatorManagerObj } from "@/nomas/obj"
 import { useBatchAggregatorSwrMutation } from "../mixin"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { setSwapFunctionPage, SwapFunctionPage, setTxHash, setSwapSuccess } from "@/nomas/redux"
+import { useAppDispatch } from "@/nomas/redux"
 
 export interface Aggregation {
     aggregator: AggregatorId;
@@ -90,8 +93,9 @@ export const useSwapFormik = () => {
 export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
+    const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const swrMutation = useBatchAggregatorSwrMutation()
+    const dispatch = useAppDispatch()
         
     useEffect(() => {
         if (network === Network.Mainnet) {
@@ -129,6 +133,7 @@ export const useSwapFormikCore = () => {
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
+            const selectedAccount = selectedAccounts[chainIdToPlatform(values.tokenInChainId)]
             switch (values.bestAggregationId) {
             case AggregatorId.Madhouse: {
                 const response = await aggregatorManagerObj.getAggregatorById(AggregatorId.Madhouse)?.instance.signAndSendTransaction({
@@ -141,7 +146,55 @@ export const useSwapFormikCore = () => {
                     recipientAddress: selectedAccount?.accountAddress ?? "",
                     network,
                 })
-                alert(response?.txHash)
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
+                break
+            }
+            case AggregatorId.Jupiter: {
+                console.log({
+                    serializedTx: swrMutation?.data?.lifi?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                })
+                const response = await aggregatorManagerObj.getAggregatorById(
+                    AggregatorId.Jupiter
+                )?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation?.data?.jupiter?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                })
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
+                break
+            }
+            case AggregatorId.Lifi: {
+                const response = await aggregatorManagerObj.getAggregatorById(
+                    AggregatorId.Lifi
+                )?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation?.data?.lifi?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                })
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
             default: {

@@ -81,17 +81,17 @@ export const TransactionReceiptPage = ({
                 successMessage: `Swap from ${fromToken?.symbol} to ${toToken?.symbol} successfully`,
                 errorMessage: `Swap from ${fromToken?.symbol} to ${toToken?.symbol} failed`,
                 swapTokenSymbol: toToken?.symbol,
-                value: <div className="flex flex-col gap-2">
+                value: <div className="flex flex-col gap-2 items-center">
                     <div className="flex items-center gap-2">
                         <div className="relative">
                             <NomasImage src={toToken?.iconUrl} className="w-8 h-8 rounded-full" />
                             <NomasImage src={chainManagerObj.getChainById(toToken.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-4 h-4 rounded-full" />
                         </div>
                         <div className="text-center text-2xl font-bold">
-                        +{transactionData.amount} {toToken?.symbol}
+                        +{transactionData.toAmount} {toToken?.symbol}
                         </div>
                     </div>
-                    <div className="text-centertext-text-muted text-sm">${roundNumber((prices[toToken.tokenId] ?? 0) *transactionData.amount)}</div>
+                    <div className="text-centertext-text-muted text-sm">${roundNumber((prices[toToken.tokenId] ?? 0) *transactionData.toAmount)}</div>
                 </div>,
                 details: {
                     "pay": {
@@ -99,10 +99,10 @@ export const TransactionReceiptPage = ({
                         value: <div className="flex gap-2 items-center">
                             <div className="relative">
                                 <NomasImage src={fromToken?.iconUrl} className="w-5 h-5 rounded-full" />
-                                <NomasImage src={chainManagerObj.getChainById(fromToken.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-4 h-4 rounded-full" />
+                                <NomasImage src={chainManagerObj.getChainById(fromToken.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-[10px] h-[10px] rounded-full" />
                             </div>
                             <div className="text-sm">
-                                -{transactionData.amount} {fromToken?.symbol}
+                                -{transactionData.fromAmount} {fromToken?.symbol}
                             </div>
                         </div>
                     },
@@ -155,9 +155,9 @@ export const TransactionReceiptPage = ({
                 errorMessage: `Bridge from ${fromToken?.symbol} to ${toToken?.symbol} failed`,
                 value: <div className="flex flex-col gap-2">
                     <div className="text-center text-2xl font-bold">
-                        +{transactionData.amount} {toToken?.symbol}
+                        +{transactionData.toAmount} {toToken?.symbol}
                     </div>
-                    <div className="text-centertext-text-muted text-sm">${computePercentage(prices[toToken.tokenId] ?? 0, transactionData.amount)}</div>
+                    <div className="text-centertext-text-muted text-sm">${computePercentage(prices[toToken.tokenId] ?? 0, transactionData.toAmount)}</div>
                 </div>,
                 details: {},
                 explorerUrl: "",
@@ -243,11 +243,13 @@ export const TransactionReceiptPage = ({
                 <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4 grid place-items-center gap-4">
                     <div className={
                         twMerge(
-                            "rounded-full bg-success w-12 h-12 grid place-items-center",
-                            success ? "bg-success" : "bg-danger"
+                            "rounded-full bg-success w-12 h-12 grid place-items-center mt-6",
+                            success ? "bg-success/20" : "bg-danger/20"
                         )}>
                         {
-                            success ? <CheckIcon weight="bold" className="w-6 h-6"/> : <XIcon weight="bold" className="w-6 h-6"/>
+                            success 
+                                ? <CheckIcon weight="bold" className="size-8 text-success"/> 
+                                : <XIcon weight="bold" className="size-8 text-danger"/>
                         }
                     </div>
                     <div className="text-center text-muted">{success ? configData.successMessage : configData.errorMessage}</div>

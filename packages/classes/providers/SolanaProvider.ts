@@ -11,20 +11,16 @@ import type {
     FetchTokenMetadataResponse,
     IQuery,
 } from "./IQuery"
-
 import {
-    Connection,
-    PublicKey,
-} from "@solana/web3.js"
-
-import {
-    getAccount,
-    getAssociatedTokenAddressSync,
-    TOKEN_PROGRAM_ID,
-    TOKEN_2022_PROGRAM_ID,
-} from "@solana/spl-token"
+    address,
+    createSolanaRpc,
+    type Rpc,
+    type SolanaRpcApi
+} from "@solana/kit"
 import { computeDenomination } from "@ciwallet-sdk/utils"
 import BN from "bn.js"
+import { fetchToken, findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS} from "@solana-program/token"
+import { TOKEN_2022_PROGRAM_ADDRESS, fetchToken as fetchToken2022 } from "@solana-program/token-2022"
 
 export interface SolanaProviderParams {
     chainId: ChainId;
@@ -35,11 +31,11 @@ export interface SolanaProviderParams {
 }
 
 export class SolanaProvider implements IAction, IQuery {
-    private readonly connection: Connection
+    private readonly rpc: Rpc<SolanaRpcApi>
     constructor(
     public readonly params: SolanaProviderParams,
     ) {
-        this.connection = new Connection(this.params.rpcs.at(0)!, "confirmed")
+        this.rpc = createSolanaRpc(this.params.rpcs.at(0)!)
     }
 
     /** Transfer SOL or SPL token */
@@ -66,18 +62,46 @@ export class SolanaProvider implements IAction, IQuery {
         decimals = 9,
         isToken2022 = false,
     }: FetchBalanceParams): Promise<FetchBalanceResponse> {
-        if (!tokenAddress) {
-            const balance = await this.connection.getBalance(new PublicKey(accountAddress))
-            return { amount: computeDenomination(new BN(balance.toString()), decimals).toNumber() }
+        try {
+            if (!tokenAddress) {
+                const balance = await this.rpc.getBalance(address(accountAddress)).send()
+                return { amount: computeDenomination(new BN(balance.value.toString()), decimals).toNumber() }
+            }
+            const mintAddress = address(tokenAddress)
+            const ownerAddress = address(accountAddress)
+            const [ataPublicKey] = await findAssociatedTokenPda(
+                {
+                    mint: mintAddress,
+                    owner: ownerAddress,
+                    tokenProgram:
+            isToken2022
+                ? TOKEN_2022_PROGRAM_ADDRESS
+                : TOKEN_PROGRAM_ADDRESS,
+                }
+            )
+            try {
+                if (isToken2022) {
+                    const token2022 = await fetchToken2022(this.rpc, ataPublicKey)
+                    return {
+                        amount: computeDenomination(new BN(token2022.data.amount.toString()), decimals).toNumber()
+                    }
+                } else {
+                // Standard SPL token account
+                    const tokenAccount = await fetchToken(this.rpc, ataPublicKey)
+                    return {
+                        amount: computeDenomination(new BN(tokenAccount.data.amount.toString()), decimals).toNumber()
+                    }
+                }
+            } catch {
+            // we dont find the ata address, so the balance is 0
+                return {
+                    amount: 0,
+                }
+            }
+        } catch (error) {
+            console.error("fetchBalance error:", error)
+            return { amount: 0 }
         }
-        const ataPublicKey = getAssociatedTokenAddressSync(
-            new PublicKey(tokenAddress), 
-            new PublicKey(accountAddress), 
-            false, 
-            isToken2022 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID
-        )
-        const account = await getAccount(this.connection, ataPublicKey)
-        return { amount: computeDenomination(new BN(account.amount.toString()), decimals).toNumber() }
     }
 
     /** Metadata (not fully supported without Metaplex) */

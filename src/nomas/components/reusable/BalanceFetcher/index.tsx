@@ -18,7 +18,13 @@ export const createBalanceFetcherKey = (tokenId: TokenId, accountAddress: string
     return `${BALANCE_FETCHER_KEY}-${tokenId}-${accountAddress}`
 }
 
-export const BalanceFetcher = ({ tokenId, accountAddress, chainId, isToken2022 }: BalanceFetcherProps) => {
+export const BalanceFetcher = (
+    { 
+        tokenId, 
+        accountAddress, 
+        chainId, 
+        isToken2022
+    }: BalanceFetcherProps) => {
     const { handle } = useBalance()
     const network = useAppSelector((state) => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)

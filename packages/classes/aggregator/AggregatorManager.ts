@@ -2,10 +2,12 @@ import { ChainId, Network } from "@ciwallet-sdk/types"
 import type { IAggregator, QuoteParams, QuoteResponse } from "./IAggregator"
 import { MadhouseAggregator } from "./MadhouseAggregator"
 import { LifiAggregator } from "./LifiAggregator"
+import { JupiterAggregator } from "./JupiterAggregator"
 
 export enum AggregatorId {
     Madhouse = "madhouse",
     Lifi = "lifi",
+    Jupiter = "jupiter",
 }
 
 export enum AggregationMode {
@@ -62,6 +64,16 @@ export class AggregatorManager {
                 mode: AggregationMode.SingleChain,
                 networks: [Network.Testnet],
             },
+            [AggregatorId.Jupiter]: {
+                id: AggregatorId.Jupiter,
+                name: "Jupiter",
+                url: "https://jupiter.ag/",
+                logo: "/assets/aggregators/jupiter.png",
+                instance: new JupiterAggregator(),
+                chain: ChainId.Solana,
+                mode: AggregationMode.SingleChain,
+                networks: [Network.Mainnet],
+            },
             [AggregatorId.Lifi]: {
                 id: AggregatorId.Lifi,
                 name: "Lifi",
@@ -98,31 +110,29 @@ export class AggregatorManager {
         let selectedAggregators: Array<AggregatorData> = []
         // swap within the same chain
         if (params.fromChainId === params.toChainId) {
-            selectedAggregators = this.getAggregators().filter(aggregator => {    
-                return (
-                    // either singlechain and hybrid
-                    aggregator.mode === AggregationMode.SingleChain 
-                    || aggregator.mode === AggregationMode.Hybrid
-                    && aggregator.chains.includes(params.fromChainId)
-                    && aggregator.networks.includes(params.network)
-                )
-            })
+            selectedAggregators = this.getAggregators().filter(
+                aggregator => {    
+                    const isSingleChainSelected = aggregator.mode === AggregationMode.SingleChain && aggregator.chain === params.fromChainId
+                    const isHybridSelected = aggregator.mode === AggregationMode.Hybrid && aggregator.chains.includes(params.fromChainId)
+                    return (isSingleChainSelected || isHybridSelected) && aggregator.networks.includes(params.network)
+                })
         }
         // swap between different chains
         else {
             selectedAggregators = this.getAggregators().filter(aggregator => {
-                return (
-                    aggregator.mode === AggregationMode.CrossChain 
-                    || aggregator.mode === AggregationMode.Hybrid
-                    && aggregator.chains.includes(params.fromChainId)
-                    && aggregator.chains.includes(params.toChainId)
-                )
+                const isCrossChainSelected = aggregator.mode === AggregationMode.CrossChain && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
+                const isHybridSelected = aggregator.mode === AggregationMode.Hybrid && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
+                return (isCrossChainSelected || isHybridSelected) && aggregator.networks.includes(params.network)
             })
         }
         for (const aggregator of selectedAggregators) {
             promises.push((async (): Promise<void> => {
-                const result = await aggregator.instance.quote(params)
-                results[aggregator.id] = result
+                try {
+                    const result = await aggregator.instance.quote(params)
+                    results[aggregator.id] = result
+                } catch (error) {
+                    console.error(error)
+                }
             })())
         }
         await Promise.allSettled(promises)
