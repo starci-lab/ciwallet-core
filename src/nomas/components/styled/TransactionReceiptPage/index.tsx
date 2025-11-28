@@ -78,8 +78,8 @@ export const TransactionReceiptPage = ({
             const explorerName = explorerManagerObj.getExplorerName(explorerId)
             return {
                 name: "Swap",
-                successMessage: `Swap from ${fromToken?.symbol} to ${toToken?.symbol} successfully`,
-                errorMessage: `Swap from ${fromToken?.symbol} to ${toToken?.symbol} failed`,
+                successMessage: "Swap successfully",
+                errorMessage: "Swap failed",
                 swapTokenSymbol: toToken?.symbol,
                 value: <div className="flex flex-col gap-2 items-center">
                     <div className="flex items-center gap-2">
@@ -103,15 +103,6 @@ export const TransactionReceiptPage = ({
                             </div>
                             <div className="text-sm">
                                 -{transactionData.fromAmount} {fromToken?.symbol}
-                            </div>
-                        </div>
-                    },
-                    "chain": {
-                        title: <TooltipTitle title="Chain" size="sm"/>,
-                        value: <div className="flex gap-2 items-center">
-                            <div className="relative flex items-center gap-2">
-                                <NomasImage src={toChainMetadata.iconUrl} className="w-5 h-5 rounded-full" />
-                                <span className="text-sm">{toChainMetadata.name}</span>
                             </div>
                         </div>
                     },
@@ -149,19 +140,69 @@ export const TransactionReceiptPage = ({
             if (!fromToken || !toToken) {
                 throw new Error("Token not found")
             }
+            const aggregator = aggregatorManagerObj.getAggregatorById(transactionData.aggregatorId)
+            if (!aggregator) {
+                throw new Error("Aggregator not found")
+            }
+            const explorerId = explorers[fromToken.chainId]
+            if (!explorerId) {
+                throw new Error("Explorer not found")
+            }
+            const explorerUrl = explorerManagerObj.getTransactionUrl(
+                explorerId,
+                transactionData.txHash,
+                network
+            )
+            const explorerName = explorerManagerObj.getExplorerName(explorerId)
             return {
                 name: "Bridge",
-                successMessage: `Bridge from ${fromToken?.symbol} to ${toToken?.symbol} successfully`,
-                errorMessage: `Bridge from ${fromToken?.symbol} to ${toToken?.symbol} failed`,
-                value: <div className="flex flex-col gap-2">
+                successMessage: "Bridge successfully",
+                errorMessage: "Bridge failed",
+                value: <div className="flex flex-col gap-2 items-center">
                     <div className="text-center text-2xl font-bold">
                         +{transactionData.toAmount} {toToken?.symbol}
                     </div>
                     <div className="text-centertext-text-muted text-sm">${computePercentage(prices[toToken.tokenId] ?? 0, transactionData.toAmount)}</div>
                 </div>,
-                details: {},
-                explorerUrl: "",
-                explorerName: ""
+                details: {
+                    "pay": {
+                        title: <TooltipTitle title="Pay" size="sm"/>,
+                        value: <div className="flex gap-2 items-center">
+                            <div className="relative">
+                                <NomasImage src={fromToken?.iconUrl} className="w-5 h-5 rounded-full" />
+                                <NomasImage src={chainManagerObj.getChainById(fromToken.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-[10px] h-[10px] rounded-full" />
+                            </div>
+                            <div className="text-sm">
+                                -{transactionData.fromAmount} {fromToken?.symbol}
+                            </div>
+                        </div>
+                    },
+                    "provider": {
+                        title: <TooltipTitle title="Provider" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <NomasImage src={aggregator?.logo} className="w-5 h-5 rounded-full" />
+                            <span className="text-sm">{aggregator?.name}</span>
+                        </div>
+                    },
+                    "from": {
+                        title: <TooltipTitle title="Sender" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <div className="text-sm">{shortenAddress(transactionData.fromAddress)}</div>
+                            <Snippet 
+                                copyString={transactionData.fromAddress}
+                            />
+                        </div>
+                    },
+                    "recipient": {
+                        title: <TooltipTitle title="Recipient" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <div className="text-sm">{shortenAddress(transactionData.toAddress)}</div>
+                            <Snippet copyString={transactionData.toAddress} />
+                        </div>
+                    }
+                },
+                explorerUrl,
+                explorerName
             }
         }
         case TransactionType.Withdrawal: {

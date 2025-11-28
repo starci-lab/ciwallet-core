@@ -56,6 +56,8 @@ export interface SignAndSendTransactionParams {
     serializedTx?: string
     privateKey: string
     rpcs: Array<string>
+    // list of rpcs for each chain
+    rpcsMultichain?: Record<ChainId, Array<string>>
     fromChainId: ChainId
     toChainId: ChainId
     senderAddress: string

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { ChooseNetworkPage, NomasCard, NomasCardVariant } from "@/nomas/components"
 import { SwapFunctionPage, TransactionType, selectSelectedAccounts, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { NomasAggregationPage } from "./NomasAggregationFunction"
@@ -20,22 +20,47 @@ export const SwapSection = () => {
     const txHash = useAppSelector((state) => state.stateless.sections.swap.txHash)
     const swapSuccess = useAppSelector((state) => state.stateless.sections.swap.swapSuccess)
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
+    const transactionType = useAppSelector((state) => state.stateless.sections.swap.transactionType)
+
+    const transactionData = useMemo(() => {
+        switch (transactionType) {
+        case TransactionType.Swap:
+            return {
+                type: transactionType,
+                chainId: formik.values.tokenInChainId,
+                fromTokenId: formik.values.tokenIn,
+                toTokenId: formik.values.tokenOut,
+                fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
+                toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
+                fromAmount: Number(formik.values.amountIn),
+                toAmount: Number(formik.values.amountOut),
+                aggregatorId: formik.values.bestAggregationId,
+                txHash,
+            }
+        case TransactionType.Bridge:
+            return {
+                type: transactionType,
+                fromTokenId: formik.values.tokenIn,
+                toTokenId: formik.values.tokenOut,
+                fromChainId: formik.values.tokenInChainId,
+                toChainId: formik.values.tokenOutChainId,
+                fromAmount: Number(formik.values.amountIn),
+                toAmount: Number(formik.values.amountOut),
+                fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
+                toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
+                txHash,
+                aggregatorId: formik.values.bestAggregationId,
+            }
+        default:
+            throw new Error(`Transaction type ${transactionType} not supported`)
+        }
+
+    }, [transactionType, formik.values.tokenInChainId, formik.values.tokenIn, formik.values.tokenOut])
     const renderPage = () => {
         switch (swapPage) {
         case SwapFunctionPage.TransactionReceipt:
             return <TransactionReceiptPage 
-                transactionData={{
-                    type: TransactionType.Swap,
-                    chainId: formik.values.tokenInChainId,
-                    fromTokenId: formik.values.tokenIn,
-                    toTokenId: formik.values.tokenOut,
-                    fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
-                    toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
-                    fromAmount: Number(formik.values.amountIn),
-                    toAmount: Number(formik.values.amountOut),
-                    aggregatorId: formik.values.bestAggregationId,
-                    txHash,
-                }}
+                transactionData={transactionData}
                 success={swapSuccess}
                 showBackButton={true}
                 onBackButtonPress={() => {

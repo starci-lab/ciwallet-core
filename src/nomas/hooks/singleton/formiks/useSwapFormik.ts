@@ -9,7 +9,7 @@ import { useAggregatorSelector } from "./useAggregatorSelector"
 import { aggregatorManagerObj } from "@/nomas/obj"
 import { useBatchAggregatorSwrMutation } from "../mixin"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
-import { setSwapFunctionPage, SwapFunctionPage, setTxHash, setSwapSuccess } from "@/nomas/redux"
+import { setSwapFunctionPage, SwapFunctionPage, setTxHash, setSwapSuccess, setTransactionType, TransactionType } from "@/nomas/redux"
 import { useAppDispatch } from "@/nomas/redux"
 
 export interface Aggregation {
@@ -96,6 +96,10 @@ export const useSwapFormikCore = () => {
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const swrMutation = useBatchAggregatorSwrMutation()
     const dispatch = useAppDispatch()
+    const rpcsMultichain = Object.entries(rpcs).reduce((acc, [chainId, rpcs]) => {
+        acc[chainId as ChainId] = rpcs[network]
+        return acc
+    }, {} as Record<ChainId, Array<string>>)
         
     useEffect(() => {
         if (network === Network.Mainnet) {
@@ -148,6 +152,7 @@ export const useSwapFormikCore = () => {
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(TransactionType.Swap))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
@@ -173,9 +178,11 @@ export const useSwapFormikCore = () => {
                     senderAddress: selectedAccount?.accountAddress ?? "",
                     recipientAddress: selectedAccount?.accountAddress ?? "",
                     network,
+                    rpcsMultichain
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(TransactionType.Swap))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
@@ -185,7 +192,11 @@ export const useSwapFormikCore = () => {
                 )?.instance.signAndSendTransaction({
                     serializedTx: swrMutation?.data?.lifi?.serializedTx ?? "",
                     privateKey: selectedAccount?.privateKey ?? "",
-                    rpcs: rpcs[values.tokenInChainId][network],
+                    rpcs: [],
+                    rpcsMultichain: Object.entries(rpcs).reduce((acc, [chainId, rpcs]) => {
+                        acc[chainId as ChainId] = rpcs[network]
+                        return acc
+                    }, {} as Record<ChainId, Array<string>>),
                     fromChainId: values.tokenInChainId,
                     toChainId: values.tokenOutChainId,
                     senderAddress: selectedAccount?.accountAddress ?? "",
@@ -194,6 +205,7 @@ export const useSwapFormikCore = () => {
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(TransactionType.Bridge))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }

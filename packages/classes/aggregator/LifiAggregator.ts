@@ -1,9 +1,46 @@
-import { createConfig, getQuote, ChainId as LifiChainId } from "@lifi/sdk"
+import { 
+    createConfig, 
+    getQuote, 
+    ChainId as LifiChainId, 
+    type LiFiStep, 
+    getStepTransaction, 
+    convertQuoteToRoute 
+} from "@lifi/sdk"
 import { ChainId, Platform } from "@ciwallet-sdk/types"
-import type { IAggregator, QuoteParams, QuoteResponse } from "./IAggregator"
+import type { 
+    IAggregator, 
+    QuoteParams, 
+    QuoteResponse, 
+    SignAndSendTransactionParams, 
+    SignAndSendTransactionResponse 
+} from "./IAggregator"
 import SuperJSON from "superjson"
-import { chainIdToPlatform, computeDenomination, computeRaw } from "@ciwallet-sdk/utils"
+import { chainIdToPlatform, computeDenomination, computeRaw, httpsToWss } from "@ciwallet-sdk/utils"
 import BN from "bn.js"
+import { 
+    addSignersToTransactionMessage, 
+    appendTransactionMessageInstructions, 
+    assertIsSendableTransaction, 
+    assertIsTransactionWithinSizeLimit,
+    compileTransaction, 
+    createKeyPairFromBytes, 
+    createSignerFromKeyPair, 
+    createSolanaRpc, 
+    createSolanaRpcSubscriptions, 
+    createTransactionMessage, 
+    decompileTransactionMessageFetchingLookupTables, 
+    getBase64Encoder, 
+    getCompiledTransactionMessageDecoder, 
+    getSignatureFromTransaction, 
+    getTransactionDecoder, 
+    isTransactionMessageWithinSizeLimit, 
+    pipe, 
+    sendAndConfirmTransactionFactory, 
+    setTransactionMessageFeePayerSigner, 
+    setTransactionMessageLifetimeUsingBlockhash, 
+    signTransaction 
+} from "@solana/kit"
+import base58 from "bs58"
 
 export interface LifiAggregatorConstructorParams {
     integrator: string;
@@ -82,9 +119,10 @@ export class LifiAggregator implements IAggregator {
             fromAmount: computeRaw(amount, fromTokenDecimals).toString(),
             slippage,
         })
+        console.log(quote)
         return {
             amountOut: computeDenomination(new BN(quote.estimate.toAmount), toTokenDecimals).toNumber(),
-            serializedTx: SuperJSON.stringify(quote.id ?? ""),
+            serializedTx: SuperJSON.stringify(quote),
             routes: [],
             rawRoutes: [
                 {
@@ -94,5 +132,84 @@ export class LifiAggregator implements IAggregator {
                 },
             ]
         }
+    }
+
+    async signAndSendTransaction(
+        {
+            serializedTx,
+            privateKey,
+            rpcs,
+            fromChainId,
+            toChainId,
+            senderAddress,
+            recipientAddress,
+            network,
+            rpcsMultichain,
+        }: SignAndSendTransactionParams
+    ): Promise<SignAndSendTransactionResponse> {
+        const quote = SuperJSON.parse<LiFiStep>(serializedTx ?? "")
+        const route = convertQuoteToRoute(quote)
+        for (const step of route.steps) {
+            const stepTransaction = await getStepTransaction(step)
+            switch (step.action.fromChainId) {
+            case LifiChainId.SOL: {
+                const rpcUrl = rpcsMultichain?.[ChainId.Solana]?.[0] ?? ""
+                const rpc = createSolanaRpc(rpcUrl)
+                const rpcSubscriptions = createSolanaRpcSubscriptions(httpsToWss(rpcUrl))
+                const { value } = await rpc.getLatestBlockhash().send()
+                const serializedTransaction = stepTransaction.transactionRequest?.data ?? ""
+                const swapTransactionBytes = getBase64Encoder().encode(serializedTransaction as string)
+                const swapTransaction = getTransactionDecoder().decode(swapTransactionBytes)
+                const compiledSwapTransactionMessage = getCompiledTransactionMessageDecoder().decode(
+                    swapTransaction.messageBytes,
+                )
+                // we decompile the transaction message
+                const swapTransactionMessage = await decompileTransactionMessageFetchingLookupTables(
+                    compiledSwapTransactionMessage,
+                    rpc
+                )
+                console.log(swapTransactionMessage.instructions)
+                const keyPair = await createKeyPairFromBytes(base58.decode(privateKey))
+                const kitSigner = await createSignerFromKeyPair(keyPair)
+                const transactionMessage = pipe(
+                    createTransactionMessage({ version: 0 }),
+                    (tx) => addSignersToTransactionMessage([kitSigner], tx),
+                    (tx) => setTransactionMessageFeePayerSigner(kitSigner, tx),
+                    (tx) => setTransactionMessageLifetimeUsingBlockhash(value, tx),
+                    (tx) => appendTransactionMessageInstructions(swapTransactionMessage.instructions, tx),
+                )
+                if (!isTransactionMessageWithinSizeLimit(transactionMessage)) {
+                    throw new Error("Transaction message is too large")
+                }
+                const transaction = compileTransaction(transactionMessage)
+                // sign the transaction
+                const signedTransaction = await signTransaction(
+                    [keyPair],
+                    transaction,
+                )
+                assertIsSendableTransaction(signedTransaction)
+                assertIsTransactionWithinSizeLimit(signedTransaction)
+                const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
+                    rpc,
+                    rpcSubscriptions,
+                })
+                const transactionSignature = getSignatureFromTransaction(signedTransaction)
+                await sendAndConfirmTransaction(
+                    signedTransaction, {
+                        commitment: "confirmed",
+                        maxRetries: BigInt(5),
+                    })
+                return {
+                    txHash: transactionSignature.toString(),
+                }
+            }
+                break
+            case LifiChainId.SUI:
+                break
+            }
+        }
+        return {
+            txHash: "",
+        }   
     }
 }
