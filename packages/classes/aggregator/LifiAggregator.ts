@@ -14,7 +14,7 @@ import type {
     SignAndSendTransactionParams, 
     SignAndSendTransactionResponse 
 } from "./IAggregator"
-import SuperJSON from "superjson"
+import { SuperJSON } from "@ciwallet-sdk/utils"
 import { chainIdToPlatform, computeDenomination, computeRaw, httpsToWss } from "@ciwallet-sdk/utils"
 import BN from "bn.js"
 import { 
@@ -92,45 +92,54 @@ export class LifiAggregator implements IAggregator {
             slippage,
         } : QuoteParams
     ): Promise<QuoteResponse> {
-        const zeroAddress = (chainId: ChainId) => {
-            const platform = chainIdToPlatform(chainId)
-            switch (platform) {
-            case Platform.Solana:
-                return ZERO_LIFI_SOLANA_ADDRESS
-            case Platform.Evm:
-                return ZERO_LIFI_EVM_ADDRESS
-            default:
-                throw new Error(`Unsupported chainId: ${chainId}`)
+        try {
+            const zeroAddress = (chainId: ChainId) => {
+                const platform = chainIdToPlatform(chainId)
+                switch (platform) {
+                case Platform.Solana:
+                    return ZERO_LIFI_SOLANA_ADDRESS
+                case Platform.Evm:
+                    return ZERO_LIFI_EVM_ADDRESS
+                default:
+                    throw new Error(`Unsupported chainId: ${chainId}`)
+                }
             }
-        }
-        if (!fromTokenAddress) {
-            fromTokenAddress = zeroAddress(fromChainId)
-        }
-        if (!toTokenAddress) {
-            toTokenAddress = zeroAddress(toChainId)
-        }
-        const quote = await getQuote({
-            fromChain: chainIdToLifiChainId(fromChainId),
-            toChain: chainIdToLifiChainId(toChainId),
-            fromAddress,
-            toAddress,
-            fromToken: fromTokenAddress || ZERO_LIFI_EVM_ADDRESS,
-            toToken: toTokenAddress || ZERO_LIFI_EVM_ADDRESS,
-            fromAmount: computeRaw(amount, fromTokenDecimals).toString(),
-            slippage,
-        })
-        console.log(quote)
-        return {
-            amountOut: computeDenomination(new BN(quote.estimate.toAmount), toTokenDecimals).toNumber(),
-            serializedTx: SuperJSON.stringify(quote),
-            routes: [],
-            rawRoutes: [
-                {
-                    id: quote.toolDetails.key,
-                    name: quote.toolDetails.name,
-                    imageUrl: quote.toolDetails.logoURI,
-                },
-            ]
+            if (!fromTokenAddress) {
+                fromTokenAddress = zeroAddress(fromChainId)
+            }
+            if (!toTokenAddress) {
+                toTokenAddress = zeroAddress(toChainId)
+            }
+            const quote = await getQuote({
+                fromChain: chainIdToLifiChainId(fromChainId),
+                toChain: chainIdToLifiChainId(toChainId),
+                fromAddress,
+                toAddress,
+                fromToken: fromTokenAddress || ZERO_LIFI_EVM_ADDRESS,
+                toToken: toTokenAddress || ZERO_LIFI_EVM_ADDRESS,
+                fromAmount: computeRaw(amount, fromTokenDecimals).toString(),
+                slippage,
+            })
+            return {
+                success: true,
+                amountOut: computeDenomination(new BN(quote.estimate.toAmount), toTokenDecimals).toNumber(),
+                serializedTx: SuperJSON.stringify(quote),
+                routes: [],
+                rawRoutes: [
+                    {
+                        id: quote.toolDetails.key,
+                        name: quote.toolDetails.name,
+                        imageUrl: quote.toolDetails.logoURI,
+                    },
+                ]
+            }
+        } catch {
+            return {
+                success: false,
+                amountOut: 0,
+                routes: [],
+                serializedTx: "",
+            }
         }
     }
 
@@ -138,12 +147,6 @@ export class LifiAggregator implements IAggregator {
         {
             serializedTx,
             privateKey,
-            rpcs,
-            fromChainId,
-            toChainId,
-            senderAddress,
-            recipientAddress,
-            network,
             rpcsMultichain,
         }: SignAndSendTransactionParams
     ): Promise<SignAndSendTransactionResponse> {
@@ -168,7 +171,6 @@ export class LifiAggregator implements IAggregator {
                     compiledSwapTransactionMessage,
                     rpc
                 )
-                console.log(swapTransactionMessage.instructions)
                 const keyPair = await createKeyPairFromBytes(base58.decode(privateKey))
                 const kitSigner = await createSignerFromKeyPair(keyPair)
                 const transactionMessage = pipe(

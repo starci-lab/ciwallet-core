@@ -3,11 +3,13 @@ import type { IAggregator, QuoteParams, QuoteResponse } from "./IAggregator"
 import { MadhouseAggregator } from "./MadhouseAggregator"
 import { LifiAggregator } from "./LifiAggregator"
 import { JupiterAggregator } from "./JupiterAggregator"
+import { CetusAggregator } from "./CetusAggregator"
 
 export enum AggregatorId {
     Madhouse = "madhouse",
     Lifi = "lifi",
     Jupiter = "jupiter",
+    Cetus = "cetus",
 }
 
 export enum AggregationMode {
@@ -87,6 +89,16 @@ export class AggregatorManager {
                 mode: AggregationMode.Hybrid,
                 networks: [Network.Mainnet],
             },
+            [AggregatorId.Cetus]: {
+                id: AggregatorId.Cetus,
+                name: "Cetus",
+                url: "https://cetus.ag/",
+                logo: "/assets/aggregators/cetus.png",
+                instance: new CetusAggregator(),
+                chain: ChainId.Sui,
+                mode: AggregationMode.SingleChain,
+                networks: [Network.Mainnet],
+            },
         }
     }
 
@@ -119,11 +131,12 @@ export class AggregatorManager {
         }
         // swap between different chains
         else {
-            selectedAggregators = this.getAggregators().filter(aggregator => {
-                const isCrossChainSelected = aggregator.mode === AggregationMode.CrossChain && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
-                const isHybridSelected = aggregator.mode === AggregationMode.Hybrid && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
-                return (isCrossChainSelected || isHybridSelected) && aggregator.networks.includes(params.network)
-            })
+            selectedAggregators = this.getAggregators().filter(
+                aggregator => {
+                    const isCrossChainSelected = aggregator.mode === AggregationMode.CrossChain && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
+                    const isHybridSelected = aggregator.mode === AggregationMode.Hybrid && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
+                    return (isCrossChainSelected || isHybridSelected) && aggregator.networks.includes(params.network)
+                })
         }
         for (const aggregator of selectedAggregators) {
             promises.push((async (): Promise<void> => {

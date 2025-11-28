@@ -4,7 +4,7 @@ import Decimal from "decimal.js"
 import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAppSelector } from "@/nomas/redux"
-import { HyperliquidOrderSide, HyperliquidOrderType } from "@ciwallet-sdk/classes"
+import { HyperliquidOrderSide } from "@ciwallet-sdk/classes"
 import { roundNumber } from "@/nomas/utils/math"
 import { useHyperliquidPlaceOrderSwrMutatation } from "../hyperliquid"
 
@@ -31,7 +31,6 @@ export const usePlacePerpOrderFormikCore = () => {
     const orderSide = useAppSelector((state) => state.stateless.sections.perp.orderSide)
     const leverage = useAppSelector((state) => state.stateless.sections.perp.leverage)
     const markPx = useAppSelector((state) => state.stateless.sections.perp.activeAssetCtx?.ctx.markPx ?? 0)
-    const orderType = useAppSelector((state) => state.stateless.sections.perp.orderType)
     const formik = useFormik<PlacePerpOrderFormikValues>({
         initialValues: {
             limitPrice: "0",

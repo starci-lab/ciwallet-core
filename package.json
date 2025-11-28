@@ -90,6 +90,7 @@
     "@apollo/client": "^4.0.9",
     "@aptos-labs/ts-sdk": "^5.1.1",
     "@bitcoinerlab/secp256k1": "^1.2.0",
+    "@cetusprotocol/aggregator-sdk": "^1.4.2",
     "@cfx-kit/wallet-avatar": "^0.0.5",
     "@colyseus/schema": "^3.0.62",
     "@emotion/styled": "^11.14.1",

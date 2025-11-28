@@ -76,6 +76,7 @@ export class JupiterAggregator implements IAggregator {
             amountOut: computeDenomination(new BN(quoteResponse.outAmount.toString()), params.toTokenDecimals).toNumber(),
             serializedTx: swapTransaction,
             routes: [],
+            success: true,
         }
     }
 

@@ -1,4 +1,4 @@
-import type { ChainId, Network, TokenId } from "@ciwallet-sdk/types"
+import type { ChainId, Network } from "@ciwallet-sdk/types"
 import type { ProtocolId } from "./ProtocolManager"
 
 export interface IAggregator {
@@ -39,6 +39,7 @@ export interface RawRoute {
 }
 
 export interface QuoteResponse {
+    success: boolean
     amountOut: number
     routes: Array<Route>
     rawRoutes?: Array<RawRoute>

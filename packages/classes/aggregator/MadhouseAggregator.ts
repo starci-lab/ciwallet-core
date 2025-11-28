@@ -10,7 +10,7 @@ import type {
 import axios, { Axios } from "axios"
 import type { ProtocolId } from "./ProtocolManager"
 import BN from "bn.js"
-import SuperJSON from "superjson"
+import { SuperJSON } from "@ciwallet-sdk/utils"
 import type { SignAndSendTransactionParams } from "./IAggregator"
 import { ethers } from "ethers"
 import { ChainId } from "@ciwallet-sdk/types"
@@ -61,6 +61,7 @@ export class MadhouseAggregator implements IAggregator {
             amountOut: computeDenomination(new BN(amountOut), params.toTokenDecimals).toNumber(),
             routes,
             serializedTx: SuperJSON.stringify(tx),
+            success: true,
         }
     }
 

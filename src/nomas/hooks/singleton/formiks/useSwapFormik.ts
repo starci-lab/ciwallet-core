@@ -186,6 +186,25 @@ export const useSwapFormikCore = () => {
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
+            case AggregatorId.Cetus: {
+                const response = await aggregatorManagerObj.getAggregatorById(
+                    AggregatorId.Cetus
+                )?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation?.data?.cetus?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                })
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(TransactionType.Swap))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
+                break
+            }
             case AggregatorId.Lifi: {
                 const response = await aggregatorManagerObj.getAggregatorById(
                     AggregatorId.Lifi
