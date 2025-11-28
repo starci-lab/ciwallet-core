@@ -9,15 +9,15 @@ import { SwrProviderContext } from "./SwrProvider"
 import pRetry from "p-retry"
 
 export const useGameAuthenticationSwrMutationCore = () => {
-    const evmAccount = useAppSelector((state) =>
-        selectSelectedAccountByPlatform(state.persists, Platform.Evm)
-    )
+    const evmAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
     const swrMutation = useSWRMutation("GAME_AUTHENTICATION", async () => {
         await pRetry(
             async () => {
                 if (!evmAccount) {
                     throw new Error("EVM account not found")
                 }
+                // const response = useGraphQLMutationVerifyMessageSwrMutation()
+
                 const response = await http.get(ROUTES.getMessage)
                 const messageToSign = response.data.message
                 const wallet = new Wallet(evmAccount.privateKey)
@@ -25,12 +25,12 @@ export const useGameAuthenticationSwrMutationCore = () => {
                 await http.post(ROUTES.verify, {
                     message: messageToSign,
                     address: evmAccount.accountAddress,
-                    signature: signedMessage,
+                    signature: signedMessage
                 })
                 return true
             },
             {
-                retries: 3,
+                retries: 3
             }
         )
     })
@@ -40,9 +40,7 @@ export const useGameAuthenticationSwrMutationCore = () => {
 export const useGameAuthenticationSwrMutation = () => {
     const context = useContext(SwrProviderContext)
     if (!context) {
-        throw new Error(
-            "useGameAuthenticationSwr must be used within a SwrProvider"
-        )
+        throw new Error("useGameAuthenticationSwr must be used within a SwrProvider")
     }
     return context.gameAuthenticationSwrMutation
 }

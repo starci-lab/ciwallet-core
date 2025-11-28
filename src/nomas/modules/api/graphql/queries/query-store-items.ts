@@ -2,11 +2,12 @@ import type { GraphQLResponse } from "@/nomas/modules/api/graphql/types"
 import { createNoCacheCredentialAuthClientWithHeaders } from "../clients"
 import { gql } from "@apollo/client"
 
-// -------------------
-// GQL Queries Object
-// -------------------
+export enum QueryStoreItems {
+    ListStoreItem = "ListStoreItem"
+}
+
 export const StoreItemsQueries = {
-    Query1: gql`
+    [QueryStoreItems.ListStoreItem]: gql`
         query StoreItems($request: StoreItemsRequest!) {
             storeItems(request: $request) {
                 message
@@ -26,9 +27,6 @@ export const StoreItemsQueries = {
     `
 } as const
 
-// -------------------
-// Types
-// -------------------
 export interface StoreItemsResponse {
     items: {
         id: string
@@ -43,26 +41,25 @@ export interface StoreItemsRequest {
     id: string
 }
 
-// -------------------
-// Function
-// -------------------
 export type QueryStoreItemsParams = {
-    query?: (typeof StoreItemsQueries)[keyof typeof StoreItemsQueries]
+    query?: QueryStoreItems
     request: StoreItemsRequest
     headers: Record<string, string>
 }
 
 export const queryStoreItems = async ({
-    query = StoreItemsQueries.Query1,
+    query = QueryStoreItems.ListStoreItem,
     request,
     headers
 }: QueryStoreItemsParams) => {
     if (!headers) throw new Error("Headers are required")
+    if (!request) throw new Error("Request is required")
 
+    const queryDocument = StoreItemsQueries[query]
     return await createNoCacheCredentialAuthClientWithHeaders(headers).query<{
         storeItems: GraphQLResponse<StoreItemsResponse>
     }>({
-        query,
+        query: queryDocument,
         variables: { request }
     })
 }

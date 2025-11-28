@@ -1,6 +1,5 @@
 export * from "./auth-clients"
 export * from "./clients"
-export * from "./mutations"
 export * from "./timeout"
 export * from "./retry"
 export * from "./http"
