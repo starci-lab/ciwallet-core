@@ -1,11 +1,9 @@
 import React, { useMemo } from "react"
-import { NomasButton, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasLink, NomasSpacer } from "../../../../../../extends"
-import { DepositFunctionPage, HomeSelectorTab, PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setExpandTokenDetails, setHomeSelectorTab, setPortfolioFunctionPage, setSelectedChainId, setVisible, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasLink, NomasSpacer } from "../../../../../../extends"
+import { DepositFunctionPage, HomeSelectorTab, PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setHomeSelectorTab, setPortfolioFunctionPage, setSelectedChainId, setVisible, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
-import { ExpandToggle, LineChart, PressableMotion, TooltipTitle } from "@/nomas/components"
+import { LineChart, PressableMotion, TooltipTitle } from "@/nomas/components"
 import { ArrowsLeftRightIcon, DownloadSimpleIcon, EyeClosedIcon, EyeIcon, PaperPlaneRightIcon, ShoppingCartIcon } from "@phosphor-icons/react"
-import { motion } from "framer-motion"
-import { AnimatePresence } from "framer-motion"
 import { ChainDetails } from "./ChainDetails"
 import { ChainSlider } from "./ChainSlider"
 import { roundNumber } from "@ciwallet-sdk/utils"
@@ -21,7 +19,6 @@ export const TokenDetailsPage = () => {
     const dispatch = useAppDispatch()
     const name = selectedTokenType === SelectedTokenType.Token ? token?.name : unifiedToken?.name
     const visible = useAppSelector((state) => state.stateless.sections.home.visible)
-    const expandTokenDetails = useAppSelector((state) => state.stateless.sections.home.expandTokenDetails)
     const tokens = useAppSelector((state) => state.persists.session.tokens)
     const prices = useAppSelector((state) => state.stateless.dynamic.prices)
     const unifiedPrices = useAppSelector((state) => state.stateless.dynamic.unifiedPrices)

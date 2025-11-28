@@ -61,7 +61,7 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
     const renderedGlobeChain = (isSelected: boolean) => {
         if (isSelected) {
             return (
-                <div key={globeChain.id} className="px-4 py-1.5 bg-button-nohover rounded-button">
+                <div key={globeChain.id} className="px-4 py-1.5 bg-button rounded-button">
                     <NomasCardBody className="p-0">
                         <div className="flex gap-2 items-center">   
                             {globeChain.icon}
@@ -77,7 +77,7 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
     const renderChain = (chain: RenderedChain, isSelected: boolean) => {
         if (isSelected) {
             return (
-                <div key={chain.id} className="px-4 py-1.5 bg-button-nohover rounded-button">
+                <div key={chain.id} className="px-4 py-1.5 bg-button rounded-button">
                     <NomasCardBody className="p-0">
                         <div className="flex gap-2 items-center">   
                             {chain.icon}

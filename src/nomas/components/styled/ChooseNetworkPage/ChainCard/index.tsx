@@ -20,7 +20,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chain, isSelected = false,
         return (
             <div
                 className={
-                    twMerge("p-4 flex items-center gap-2 justify-between rounded-button", 
+                    twMerge("p-3 flex items-center gap-2 justify-between rounded-button", 
                         isSelected ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                 }
             >
@@ -30,7 +30,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chain, isSelected = false,
                             <NomasImage
                                 src={chain.iconUrl}
                                 alt={chain.name}
-                                className="w-10 h-10 rounded-full"
+                                className="w-8 h-8 rounded-full"
                             />
                             <div className="text-sm text-text">{chain.name}</div>  
                         </div>

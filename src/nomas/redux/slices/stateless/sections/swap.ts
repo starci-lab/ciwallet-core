@@ -66,10 +66,11 @@ export interface SwapSectionSlice {
     txHash: string;
     swapSuccess: boolean;
     transactionType: TransactionType;
+    searchQuery: string;
 }
 
 const initialState: SwapSectionSlice = {
-    swapFunctionPage: SwapFunctionPage.TransactionReceipt,
+    swapFunctionPage: SwapFunctionPage.Swap,
     expandDetails: false,
     tokenIn: TokenId.MonadTestnetMon,
     tokenOut: TokenId.MonadTestnetMon,
@@ -77,7 +78,8 @@ const initialState: SwapSectionSlice = {
     tokenOutChainId: ChainId.Monad,
     txHash: "",
     swapSuccess: true,
-    transactionType: TransactionType.Bridge,
+    transactionType: TransactionType.Swap,
+    searchQuery: "",
 }
 
 export const swapSlice = createSlice({
@@ -114,6 +116,9 @@ export const swapSlice = createSlice({
         setTransactionType: (state, action: PayloadAction<TransactionType>) => {
             state.transactionType = action.payload
         },
+        setSearchQuery: (state, action: PayloadAction<string>) => {
+            state.searchQuery = action.payload
+        },
     },
 })
 
@@ -127,6 +132,7 @@ export const {
     setTransactionData, 
     setTxHash, 
     setSwapSuccess, 
-    setTransactionType
+    setTransactionType,
+    setSearchQuery
 } = swapSlice.actions
 export const swapReducer = swapSlice.reducer

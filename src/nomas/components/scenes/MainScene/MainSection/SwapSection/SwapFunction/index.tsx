@@ -23,13 +23,13 @@ import { SlippageConfig } from "./SlippageConfig"
 import { NomasAggregation } from "./NomasAggregation"
 import { roundNumber, slippageAdjustment } from "@ciwallet-sdk/utils"
 import { useSwapFormik } from "@/nomas/hooks"
-import { AutoRouter } from "./AutoRouter"
 import { selectTokensByChainIdAndNetwork, setExpandDetails, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { aggregatorManagerObj, chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 import { SwapFunctionPage, setSwapFunctionPage } from "@/nomas/redux"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 import { RefreshProgressRing } from "./RefreshProgressRing"
+import Decimal from "decimal.js"
 
 export const SwapFunction = () => {
     const expandDetails = useAppSelector((state) => state.stateless.sections.swap.expandDetails)
@@ -49,14 +49,27 @@ export const SwapFunction = () => {
     useEffect(() => {
         swapFormik.setFieldValue("balanceOut", balances[swapFormik.values.tokenOut] ?? 0)
     }, [prices])
-
     const tokenOutPrice = useMemo(() => prices[swapFormik.values.tokenOut] ?? 0, [prices])
     const tokenInPrice = useMemo(() => prices[swapFormik.values.tokenIn] ?? 0, [prices])
-
     const expectedPythPrice = useMemo(() => {
         if (tokenInPrice === 0 || tokenOutPrice === 0) return 0
-        return roundNumber(tokenOutPrice / tokenInPrice)
+        return roundNumber(new Decimal(tokenInPrice).div(new Decimal(tokenOutPrice)).toNumber())
     }, [tokenOutPrice, tokenInPrice])
+    const expectedQuotePrice = useMemo(() => {
+        if (expectedPythPrice === 0) return 0
+        const amountOut = new Decimal(swapFormik.values.amountOut)
+        const amountIn = new Decimal(swapFormik.values.amountIn)
+        return roundNumber(amountOut.div(amountIn).toNumber())
+    }, [
+        expectedPythPrice, 
+        swapFormik.values.amountOut, 
+        swapFormik.values.amountIn
+    ])
+    const difference = useMemo(() => {
+        if (expectedQuotePrice === 0) return 0
+        const difference = roundNumber(new Decimal(expectedQuotePrice).minus(new Decimal(expectedPythPrice)).toNumber())
+        return new Decimal(difference).div(new Decimal(expectedPythPrice)).toNumber()
+    }, [expectedQuotePrice, expectedPythPrice])
 
     const bestAggregation = useMemo(() => {
         return aggregatorManagerObj.getAggregatorById(swapFormik.values.bestAggregationId)
@@ -154,7 +167,7 @@ export const SwapFunction = () => {
                                             )
                                         }
                                     />
-                                    <div className="text-xs text-righttext-text-muted text-foreground-500">
+                                    <div className="text-xs text-right text-text-muted text-foreground-500">
                       ${roundNumber((prices[swapFormik.values.tokenIn] ?? 0) * Number(swapFormik.values.amountIn))}
                                     </div>
                                 </div>
@@ -217,6 +230,7 @@ export const SwapFunction = () => {
                         </div>
                         <NomasSpacer y={4} />
                         <NomasButton
+                            isLoading={swapFormik.isSubmitting || swapFormik.values.quoting}
                             xlSize
                             className="w-full"
                             onClick={() => {
@@ -230,10 +244,10 @@ export const SwapFunction = () => {
                         >
                             {(() => {
                                 if (swapFormik.values.quoting) {
-                                    return "Quoting..."
+                                    return "Quoting"
                                 }
                                 if (swapFormik.isSubmitting) {
-                                    return "Swapping..."
+                                    return "Swapping"
                                 }
                                 if (swapFormik.errors.amountIn) {
                                     return `Insufficient ${tokenManagerObj.getTokenById(swapFormik.values.tokenIn)?.symbol ?? ""} Balance`
@@ -286,7 +300,7 @@ export const SwapFunction = () => {
                                             size="xs"
                                         />
                                         <div className="flex items-center gap-1">
-                                            <div className={twMerge("text-xs", expectedPythPrice > 1 ? "text-success" : "text-danger")}>{expectedPythPrice > 1 ? `${roundNumber((expectedPythPrice - 1) * 100)}% better than` : `${roundNumber((1 - expectedPythPrice) * 100)}% worse than`}</div>
+                                            <div className={twMerge("text-xs", difference > 0 ? "text-success" : "text-danger")}>{difference > 0 ? `${roundNumber(difference * 100)}% better than` : `${roundNumber((1 - difference) * 100)}% worse than`}</div>
                                             <PythIcon className="w-4 h-4" />
                                         </div>
                                     </div>
@@ -308,20 +322,14 @@ export const SwapFunction = () => {
                                         />
                                         <div className="flex items-center gap-1">
                                             <NomasImage
-                                                src={bestAggregation?.logo ?? ""}
+                                                src={
+                                                    bestAggregation?.logo ?? ""
+                                                }
+                                                alt={bestAggregation?.name ?? ""}
                                                 className="w-4 h-4 rounded-full"
                                             />
                                             <div className="text-xs">{bestAggregation?.name ?? ""}</div>
                                         </div>
-                                    </div>
-                                    <NomasSpacer y={4} />
-                                    <div className="flex justify-between">
-                                        <TooltipTitle
-                                            title="Protocols"
-                                            size="xs"
-                                            tooltip="The protocols that will be used to swap the tokens."
-                                        />
-                                        <AutoRouter />
                                     </div>
                                 </motion.div>
                             )}

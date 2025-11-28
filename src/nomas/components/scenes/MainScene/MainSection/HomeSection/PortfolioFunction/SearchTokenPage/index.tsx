@@ -1,7 +1,6 @@
 import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasInput, NomasSpacer, SelectChainTab, SelectChainTabVariant, TokenCard, UnifiedTokenCard } from "@/nomas/components"
 import { tokenManagerObj } from "@/nomas/obj"
-import { addTrackingTokenId, addTrackingUnifiedTokenId, PortfolioFunctionPage, removeTrackingTokenId, removeTrackingUnifiedTokenId, selectTokens, setPortfolioFunctionPage, setSearchSelectedChainId, setSearchTokenQuery, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { ChainId } from "@ciwallet-sdk/types"
+import { addTrackingTokenId, addTrackingUnifiedTokenId, PortfolioFunctionPage, removeTrackingTokenId, removeTrackingUnifiedTokenId, selectTokens, setPortfolioFunctionPage, setSearchTokenQuery, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import React, { useMemo } from "react"
 
 export const SearchTokenPage = () => {
@@ -13,13 +12,21 @@ export const SearchTokenPage = () => {
     const unifiedTokens = useMemo(() => tokenManagerObj.getUnifiedTokens(), [])
     const filteredTokenArray = useMemo(() => {
         return tokenArray.filter((token) => {
-            return token.name.toLowerCase().includes(searchTokenQuery.toLowerCase()) || token.symbol.toLowerCase().includes(searchTokenQuery.toLowerCase()) || token.address?.toLowerCase()?.includes(searchTokenQuery.toLowerCase())
+            const filteredTokens = token.name.toLowerCase().includes(searchTokenQuery.toLowerCase()) || token.symbol.toLowerCase().includes(searchTokenQuery.toLowerCase()) || token.address?.toLowerCase()?.includes(searchTokenQuery.toLowerCase())
+            if (searchSelectedChainId === "all-network") {
+                return filteredTokens
+            }
+            return filteredTokens && token.chainId === searchSelectedChainId
         })
     }, [tokenArray, searchTokenQuery])
     const filteredUnifiedTokenArray = useMemo(() => {
-        return unifiedTokens.filter((unifiedToken) => {
+        const _unifiedTokens = unifiedTokens.filter((unifiedToken) => {
             return unifiedToken.name.toLowerCase().includes(searchTokenQuery.toLowerCase()) || unifiedToken.symbol.toLowerCase().includes(searchTokenQuery.toLowerCase())
         })
+        if (searchSelectedChainId === "all-network") {
+            return _unifiedTokens
+        }
+        return []
     }, [unifiedTokens, searchTokenQuery])
     const trackingTokenIds = useAppSelector((state) => state.persists.session.trackingTokenIds)
     const trackingUnifiedTokenIds = useAppSelector((state) => state.persists.session.trackingUnifiedTokenIds)
@@ -39,7 +46,7 @@ export const SearchTokenPage = () => {
                         variant={SelectChainTabVariant.Dark}
                         isSelected={(chainId) => chainId === searchSelectedChainId}
                         onClick={() => {
-                            dispatch(setSearchSelectedChainId(searchSelectedChainId === "all-network" ? ChainId.Monad : "all-network"))
+                            dispatch(setPortfolioFunctionPage(PortfolioFunctionPage.ChooseNetwork))
                         }}
                     />
                     <NomasSpacer y={4}/>
@@ -50,11 +57,12 @@ export const SearchTokenPage = () => {
                         }}
                         value={searchTokenQuery}
                     />
-                    <NomasSpacer y={4}/>
-                    <NomasCard variant={NomasCardVariant.Dark} isInner>
-                        <NomasCardBody className="p-0">
+                    <NomasSpacer y={4} />
+                    <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4">
+                        <NomasCardBody className="gap-4 flex flex-col p-0" scrollable scrollHeight={300}>
                             {filteredUnifiedTokenArray.map((unifiedToken) => (
                                 <UnifiedTokenCard 
+                                    className="p-0 py-1"
                                     isPressable
                                     isPinned={trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId) ?? false}
                                     key={unifiedToken.unifiedTokenId}
@@ -69,6 +77,7 @@ export const SearchTokenPage = () => {
                             ))}
                             {filteredTokenArray.map((token) => (
                                 <TokenCard 
+                                    className="p-0 py-1"
                                     isPressable
                                     isPinned={trackingTokenIds.includes(token.tokenId) ?? false}
                                     key={token.tokenId}

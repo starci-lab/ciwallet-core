@@ -23,7 +23,7 @@ export const ChainSlider = () => {
             <motion.div
                 className="flex gap-4 cursor-grab active:cursor-grabbing"
                 drag="x"
-                dragConstraints={{ left: -500, right: 0 }}
+                dragConstraints={{ left: -1200, right: 0 }}
                 dragElastic={0.15} 
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
@@ -37,7 +37,7 @@ export const ChainSlider = () => {
                             onClick={() => {
                                 dispatch(setSelectedChainId(item.id))
                             }}
-                            className="flex flex-col items-center min-w-[64px]"
+                            className="flex flex-col items-center px-4"
                         >
                             <div className={
                                 twMerge("text-smtext-text-muted mt-1 h-8 relative", isSelected && "text")

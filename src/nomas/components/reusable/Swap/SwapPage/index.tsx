@@ -297,10 +297,10 @@ export const SwapPage = () => {
                             >
                                 {(() => {
                                     if (swapFormik.values.quoting) {
-                                        return "Quoting..."
+                                        return "Quoting"
                                     }
                                     if (swapFormik.isSubmitting) {
-                                        return "Swapping..."
+                                        return "Swapping"
                                     }
                                     if (swapFormik.errors.amountIn) {
                                         return `Insufficient ${tokenInEntity?.symbol} Balance`

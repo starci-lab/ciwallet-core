@@ -63,7 +63,7 @@ export const CopyAddressScene = () => {
                             renderItem={({ item }) => {
                                 const platform = chainIdToPlatform(item?.id ?? ChainId.Ethereum)
                                 return (
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between py-1">
                                         <div className="flex items-center gap-2">
                                             <NomasImage src={item?.iconUrl ?? ""} className="w-10 h-10 rounded-full" />
                                             <div>

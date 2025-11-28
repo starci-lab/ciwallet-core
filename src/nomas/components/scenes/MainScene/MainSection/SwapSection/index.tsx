@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { ChooseNetworkPage, NomasCard, NomasCardVariant } from "@/nomas/components"
-import { SwapFunctionPage, TransactionType, selectSelectedAccounts, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { SwapFunctionPage, TransactionType, selectSelectedAccounts, setSearchQuery, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { NomasAggregationPage } from "./NomasAggregationFunction"
 import { SwapFunction } from "./SwapFunction"
 import { useSwapFormik } from "@/nomas/hooks"
@@ -21,7 +21,7 @@ export const SwapSection = () => {
     const swapSuccess = useAppSelector((state) => state.stateless.sections.swap.swapSuccess)
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const transactionType = useAppSelector((state) => state.stateless.sections.swap.transactionType)
-
+    const searchQuery = useAppSelector((state) => state.stateless.sections.swap.searchQuery)
     const transactionData = useMemo(() => {
         switch (transactionType) {
         case TransactionType.Swap:
@@ -88,6 +88,10 @@ export const SwapSection = () => {
                     formik.setFieldValue("searchSelectedChainId", chainId)
                     dispatch(setSwapFunctionPage(SwapFunctionPage.SelectToken))
                 }}
+                onSearchQueryChange={(query) => {
+                    dispatch(setSearchQuery(query))
+                }}
+                searchQuery={searchQuery}
                 onBackButtonPress={() => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}

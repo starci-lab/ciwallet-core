@@ -4,6 +4,7 @@ const path = require("path")
 const CopyPlugin = require("copy-webpack-plugin")
 const webpack = require("webpack")
 const Dotenv = require("dotenv-webpack")
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 module.exports = {
     mode: "production",
@@ -49,7 +50,7 @@ module.exports = {
             stream: require.resolve("stream-browserify"),
             assert: require.resolve("assert"),
             util: require.resolve("util"),
-            buffer: require.resolve("buffer"),
+            buffer: require.resolve("buffer/"),
         },
     },
     module: {
@@ -88,6 +89,7 @@ module.exports = {
         ],
     },
     plugins: [
+        new NodePolyfillPlugin(),
         new Dotenv({
             path: ".env", // hoặc .env.development, .env.production
         }),

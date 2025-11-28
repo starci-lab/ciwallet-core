@@ -39,83 +39,83 @@ import { ExplorerId } from "@ciwallet-sdk/classes"
  * Types
  * ----------------------------- */
 export enum PlatformAccountType {
-  HDWallet = "hd-wallet",
-  ImportedWallet = "imported-wallet",
+    HDWallet = "hd-wallet",
+    ImportedWallet = "imported-wallet",
 }
 
 export type Account =
-  | {
-      id: string
-      accountAddress: string
-      privateKey: string
-      type: PlatformAccountType.HDWallet
-      platform: Platform
-      index: number
-      refId: string
+    | {
+        id: string
+        accountAddress: string
+        privateKey: string
+        type: PlatformAccountType.HDWallet
+        platform: Platform
+        index: number
+        refId: string
     }
-  | {
-      id: string
-      accountAddress: string
-      privateKey: string
-      type: PlatformAccountType.ImportedWallet
-      platform: Platform
-      refId: string
+    | {
+        id: string
+        accountAddress: string
+        privateKey: string
+        type: PlatformAccountType.ImportedWallet
+        platform: Platform
+        refId: string
     }
 
 export interface Accounts {
-  accounts: Array<Account>
-  selectedAccountIndex: number
+    accounts: Array<Account>
+    selectedAccountIndex: number
 }
 
 export interface HDWalletAccount {
-  id: string
-  name: string
-  index: number
+    id: string
+    name: string
+    index: number
 }
 export interface HDWallet {
-  id: string
-  encryptedMnemonic: string
-  accounts: Array<HDWalletAccount>
-  isDefault: boolean
-  name: string
+    id: string
+    encryptedMnemonic: string
+    accounts: Array<HDWalletAccount>
+    isDefault: boolean
+    name: string
 }
 
 export interface ImportedWallet {
-  id: string
-  platform: Platform
-  encryptedPrivateKey: string
-  name: string
+    id: string
+    platform: Platform
+    encryptedPrivateKey: string
+    name: string
 }
 
 export interface TokenItem {
-  tokenId: TokenId
-  accountAddress: string
-  chainId: ChainId
-  network: Network
-  isToken2022?: boolean
+    tokenId: TokenId
+    accountAddress: string
+    chainId: ChainId
+    network: Network
+    isToken2022?: boolean
 }
 
 export type SelectedChainId = ChainId | "overview"
 export interface SessionSlice {
-  hdWallets: Array<HDWallet>
-  importedWallets: Array<ImportedWallet>
-  accounts: Partial<Record<Platform, Accounts>>
-  platformIndex: Partial<Record<Platform, number>>
-  encryptedMnemonic: string
-  network: Network
-  chainId: ChainId
-  initialized: boolean
-  password: string
-  rpcs: Record<ChainId, Record<Network, Array<string>>>
-  importedTokens: Partial<Record<ChainId, Record<Network, Array<Token>>>>
-  tokens: Record<ChainId, Record<Network, Array<Token>>>
-  // tracking token ids and unified token ids
-  trackingTokenIds: Array<TokenId>
-  trackingUnifiedTokenIds: Array<UnifiedTokenId>
-  explorers: Partial<Record<ChainId, ExplorerId>>
-  // game minimized
-  isGameMinimized: boolean
-  isOverlayVisible: boolean
+    hdWallets: Array<HDWallet>
+    importedWallets: Array<ImportedWallet>
+    accounts: Partial<Record<Platform, Accounts>>
+    platformIndex: Partial<Record<Platform, number>>
+    encryptedMnemonic: string
+    network: Network
+    chainId: ChainId
+    initialized: boolean
+    password: string
+    rpcs: Record<ChainId, Record<Network, Array<string>>>
+    importedTokens: Partial<Record<ChainId, Record<Network, Array<Token>>>>
+    tokens: Record<ChainId, Record<Network, Array<Token>>>
+    // tracking token ids and unified token ids
+    trackingTokenIds: Array<TokenId>
+    trackingUnifiedTokenIds: Array<UnifiedTokenId>
+    explorers: Partial<Record<ChainId, ExplorerId>>
+    // game minimized
+    isGameMinimized: boolean
+    isOverlayVisible: boolean
 }
 
 /* -----------------------------
@@ -224,7 +224,7 @@ export const resolveAccountsThunk = createAsyncThunk<Array<Account>>(
 )
 
 export const resolveTokensThunk = createAsyncThunk<
-  Record<ChainId, Record<Network, Array<Token>>>
+    Record<ChainId, Record<Network, Array<Token>>>
 >(
     "tokens/resolveAll",
     async (
@@ -234,8 +234,8 @@ export const resolveTokensThunk = createAsyncThunk<
         try {
             const state = thunkApi.getState() as RootState
             const results: Partial<
-        Record<ChainId, Partial<Record<Network, Array<Token>>>>
-      > = {}
+                Record<ChainId, Partial<Record<Network, Array<Token>>>>
+            > = {}
             const _importedTokens = lodash.cloneDeep(
                 state.persists.session.importedTokens
             )
@@ -254,7 +254,7 @@ export const resolveTokensThunk = createAsyncThunk<
                             [Network.Testnet]: [],
                         }
                     }
-          results[chainId]![network] = [...defaultTokens, ...extraTokens]
+                    results[chainId]![network] = [...defaultTokens, ...extraTokens]
                 }
             }
             return results as Record<ChainId, Record<Network, Array<Token>>>
@@ -268,10 +268,10 @@ export const resolveTokensThunk = createAsyncThunk<
 )
 
 export interface UpdateRpcParams {
-  chainId: ChainId
-  network: Network
-  index: number
-  rpc: string
+    chainId: ChainId
+    network: Network
+    index: number
+    rpc: string
 }
 
 /* -----------------------------
@@ -401,8 +401,8 @@ const initialState: SessionSlice = {
  * Slice
  * ----------------------------- */
 export interface SetExplorerParams {
-  chainId: ChainId
-  explorerId: ExplorerId
+    chainId: ChainId
+    explorerId: ExplorerId
 }
 export const sessionSlice = createSlice({
     name: "session",
@@ -429,8 +429,8 @@ export const sessionSlice = createSlice({
             state.platformIndex[platform] = state.accounts[
                 platform
             ]!.accounts.findIndex((ac) => ac.id === account.id)
-      state.accounts[platform]!.selectedAccountIndex =
-        state.platformIndex[platform]!
+            state.accounts[platform]!.selectedAccountIndex =
+                state.platformIndex[platform]!
         },
         setNetwork: (state, action: PayloadAction<Network>) => {
             state.network = action.payload
@@ -477,11 +477,11 @@ export const sessionSlice = createSlice({
                 }
             }
             if (!state.rpcs[action.payload.chainId]![action.payload.network]) {
-        state.rpcs[action.payload.chainId]![action.payload.network] = []
+                state.rpcs[action.payload.chainId]![action.payload.network] = []
             }
-      state.rpcs[action.payload.chainId]![action.payload.network]![
-          action.payload.index
-      ] = action.payload.rpc
+            state.rpcs[action.payload.chainId]![action.payload.network]![
+                action.payload.index
+            ] = action.payload.rpc
         },
         addRpc: (state, action: PayloadAction<AddRpcParams>) => {
             if (!state.rpcs[action.payload.chainId]) {
@@ -490,9 +490,9 @@ export const sessionSlice = createSlice({
                     [Network.Testnet]: [],
                 }
             }
-      state.rpcs[action.payload.chainId]![action.payload.network]!.push(
-          action.payload.rpc
-      )
+            state.rpcs[action.payload.chainId]![action.payload.network]!.push(
+                action.payload.rpc
+            )
         },
         setExplorer: (state, action: PayloadAction<SetExplorerParams>) => {
             state.explorers[action.payload.chainId] = action.payload.explorerId
@@ -516,11 +516,11 @@ export const sessionSlice = createSlice({
                             selectedAccountIndex: 0,
                         }
                     }
-            state.accounts[account.platform]!.accounts.push(account)
-            state.accounts[account.platform]!.selectedAccountIndex =
-            state.accounts[account.platform]!.accounts.findIndex(
-                (ac) => ac.id === account.id
-            )
+                    state.accounts[account.platform]!.accounts.push(account)
+                    state.accounts[account.platform]!.selectedAccountIndex =
+                        state.accounts[account.platform]!.accounts.findIndex(
+                            (ac) => ac.id === account.id
+                        )
                 })
             }
         )
@@ -582,8 +582,8 @@ export const sessionSlice = createSlice({
             const trackingTokens = allTokens.filter((token) => {
                 return (
                     trackingTokenIds.includes(token.tokenId) ||
-          (token.unifiedTokenId &&
-            trackingUnifiedTokenIds.includes(token.unifiedTokenId))
+                    (token.unifiedTokenId &&
+                        trackingUnifiedTokenIds.includes(token.unifiedTokenId))
                 )
             })
             return trackingTokens.filter((token) => token.network === state.network)
@@ -603,7 +603,7 @@ export const sessionSlice = createSlice({
             return unifiedTokens.filter((unifiedToken) => {
                 return (
                     unifiedToken.unifiedTokenId &&
-          state.trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId)
+                    state.trackingUnifiedTokenIds.includes(unifiedToken.unifiedTokenId)
                 )
             })
         },
@@ -646,14 +646,14 @@ export const sessionSlice = createSlice({
  * Types and Exports
  * ----------------------------- */
 export interface AddRpcParams {
-  chainId: ChainId
-  network: Network
-  rpc: string
+    chainId: ChainId
+    network: Network
+    rpc: string
 }
 
 export interface SetSelectedAccountIdParams {
-  platform: Platform
-  account: Account
+    platform: Platform
+    account: Account
 }
 
 export const sessionReducer = persistReducer(
@@ -671,26 +671,35 @@ listenerMiddleware.startListening({
         const dispatch = listenerApi.dispatch as AppDispatch
         // logic to retrieve tracking tokens
         const { trackingUnifiedTokenIds, trackingTokenIds, tokens } =
-      state.persists.session
+            state.persists.session
         const allTokens = Object.values(tokens)
             .flat()
             .flatMap((record) => Object.values(record).flat())
         const trackingTokens = allTokens.filter((token) => {
             return (
-                trackingTokenIds.includes(token.tokenId) ||
-        (token.unifiedTokenId &&
-          trackingUnifiedTokenIds.includes(token.unifiedTokenId))
+                (
+                    trackingTokenIds.includes(token.tokenId)
+                    && !token.unifiedTokenId
+                    && token.network === state.persists.session.network
+                )
+                ||
+                (
+                    token.unifiedTokenId &&
+                    trackingUnifiedTokenIds.includes(token.unifiedTokenId) 
+                    && token.network === state.persists.session.network
+                )
             )
         })
         // subscribe to token prices
-        await subscribeToPythUpdates(trackingTokens, (tokenId, price) => {
-            dispatch(
-                setPrice({
-                    tokenId,
-                    price,
-                })
-            )
-        })
+        await subscribeToPythUpdates(
+            trackingTokens, (tokenId, price) => {
+                dispatch(
+                    setPrice({
+                        tokenId,
+                        price,
+                    })
+                )
+            })
         // subscribe to unified token prices
         const unifiedTokens = tokenManagerObj.getUnifiedTokens()
         await subscribeToUnifiedPythUpdates(
