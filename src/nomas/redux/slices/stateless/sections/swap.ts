@@ -1,4 +1,4 @@
-import type { AggregatorId } from "@ciwallet-sdk/classes"
+import { type AggregatorId } from "@ciwallet-sdk/classes"
 import { ChainId, TokenId } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
@@ -6,6 +6,7 @@ export enum TransactionType {
     Withdrawal = "withdrawal",
     Swap = "swap",
     Bridge = "bridge",
+    Deposit = "deposit",
 }
 
 export type TransactionData = 
@@ -41,6 +42,14 @@ export type TransactionData =
     chainId: ChainId
     fromAddress: string
     toAddress: string
+    tokenId: TokenId
+    amount: number
+    txHash: string
+}
+| 
+{
+    type: TransactionType.Deposit
+    chainId: ChainId
     tokenId: TokenId
     amount: number
     txHash: string

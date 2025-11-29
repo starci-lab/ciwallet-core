@@ -6,6 +6,7 @@ import { TokenId, TokenType } from "@ciwallet-sdk/types"
 import { useHyperliquidDepositFormik } from "@/nomas/hooks"
 import Decimal from "decimal.js"
 import { roundNumber } from "@ciwallet-sdk/utils"
+import { twMerge } from "tailwind-merge"
 
 export const SelectAsset = () => {
     const dispatch = useAppDispatch()
@@ -62,6 +63,7 @@ export const SelectAsset = () => {
                             </div>
                         </NomasButton>
                         <NomasNumberTransparentInput
+                            className={twMerge(formik.errors.amount && formik.touched.amount && "!text-danger")}
                             value={formik.values.amount.toString()}
                             onValueChange={(value) => {
                                 formik.setFieldValue("amount", value)

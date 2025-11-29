@@ -12,11 +12,9 @@ import { ChooseNetworkPage, TransactionReceiptPage } from "@/nomas/components"
 import { useTransferFormik } from "@/nomas/hooks"
 import { WithdrawPageComponent } from "./WithdrawPage"
 import { SelectTokenPage } from "./SelectTokenPage"
-import { TokenId } from "@/nomas/data/tokens/types"
-import { ChainId, TokenType } from "@ciwallet-sdk/types"
+import { TokenType } from "@ciwallet-sdk/types"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { chainManagerObj } from "@/nomas/obj"
-import Decimal from "decimal.js"
 
 export const WithdrawFunction = () => {
     const withdrawFunctionPage = useAppSelector((state) => state.stateless.sections.home.withdrawFunctionPage)
@@ -25,7 +23,6 @@ export const WithdrawFunction = () => {
     const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const network = useAppSelector((state) => state.persists.session.network)
-    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     const renderPage = () => {
         switch (withdrawFunctionPage) {
         case WithdrawFunctionPage.ChooseNetwork:

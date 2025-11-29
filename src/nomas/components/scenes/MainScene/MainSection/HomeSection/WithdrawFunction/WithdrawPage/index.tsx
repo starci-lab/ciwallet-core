@@ -1,5 +1,5 @@
 import { DepositFunctionPage, HomeSelectorTab, WithdrawFunctionPage, selectTokenByIdNullable, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setHomeSelectorTab, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { Action, NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasCardVariant, NomasInput, NomasLink, NomasNumberTransparentInput, NomasSpacer, SelectChainTabVariant } from "@/nomas/components"
+import { Action, NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasCardVariant, NomasInput, NomasLink, NomasNumberTransparentInput, NomasSpacer, SelectChainTabVariant   } from "@/nomas/components"
 import { SelectChainTab, TooltipTitle, Wallet } from "@/nomas/components"
 import { useEffect } from "react"
 import { useTransferFormik } from "@/nomas/hooks"
@@ -8,6 +8,7 @@ import { SelectToken } from "./SelectToken"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 import { ChainId, TokenId, TokenType } from "@ciwallet-sdk/types"
 import Decimal from "decimal.js"
+import { twMerge } from "tailwind-merge"
 
 
 export const WithdrawPageComponent = () => {
@@ -31,7 +32,7 @@ export const WithdrawPageComponent = () => {
                 title="Withdraw"
             />
             <NomasCardBody>
-                <div className="bg-card-dark p-4 rounded-card-inner">
+                <div className="bg-card-dark p-4 rounded-card-inner border border-border-card">
                     <TooltipTitle title="From" size="sm" className="text" />
                     <NomasSpacer y={2}/>
                     <SelectChainTab 
@@ -96,6 +97,7 @@ export const WithdrawPageComponent = () => {
                             />
                             <div>
                                 <NomasNumberTransparentInput
+                                    className={twMerge(formik.errors.amount && formik.touched.amount && "!text-danger")}
                                     value={formik.values.amount.toString()}
                                     onValueChange={(value) => {
                                         formik.setFieldValue("amount", value)
@@ -149,7 +151,18 @@ export const WithdrawPageComponent = () => {
                         onClick={() => {
                             formik.submitForm()
                         }}>
-                        {!formik.values.isEnoughGasBalance && gasToken ? "Insufficient gas balance" : "Send"}
+                        {(() => {
+                            if (new Decimal(formik.values.amount).gt(new Decimal(balances[formik.values.tokenId ?? TokenId.MonadTestnetMon] ?? 0))) {
+                                return `Insufficient ${tokenManagerObj.getTokenById(formik.values.tokenId)?.symbol ?? ""} Balance`
+                            }
+                            if (formik.isSubmitting) {
+                                return "Sending"
+                            }
+                            if (formik.values.isEnoughGasBalance) {
+                                return "Send"
+                            }
+                            return "Insufficient gas balance"
+                        })()}
                     </NomasButton>
                     {
                         !formik.values.isEnoughGasBalance && gasToken && (() => {

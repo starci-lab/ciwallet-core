@@ -97,7 +97,7 @@ export const SwapFunction = () => {
                 </div>
                 <NomasSpacer y={4} />
                 <div className="items-center -space-y-2 flex flex-col">
-                    <div className="bg-card-dark rounded-card-inner w-full p-4">
+                    <div className="bg-card-dark rounded-card-inner w-full p-4 border border-border-card">
                         <div className="flex items-center justify-between">
                             <div className="text-xs text-text">You Pay</div>
                             <Wallet
@@ -150,6 +150,7 @@ export const SwapFunction = () => {
                                 />
                                 <div>
                                     <NomasNumberTransparentInput
+                                        className={twMerge(swapFormik.errors.amountIn && swapFormik.touched.amountIn && "!text-danger")}
                                         value={swapFormik.values.amountIn}
                                         onValueChange={(value) => {
                                             swapFormik.setFieldValue("amountIn", value)
@@ -196,7 +197,7 @@ export const SwapFunction = () => {
                     >
                         <ArrowsLeftRightIcon className="w-5 h-5 min-w-5 min-h-5 text-muted" />
                     </NomasButtonIcon>
-                    <div className="bg-card-dark rounded-card-inner w-full p-4">
+                    <div className="bg-card-dark rounded-card-inner w-full p-4 border border-border-card">
                         <div className="flex items-center justify-between">
                             <div className="text-xs text-text">You Receive</div>
                             <Wallet disableFocus balance={swapFormik.values.balanceOut} />

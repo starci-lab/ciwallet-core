@@ -159,12 +159,6 @@ export const TransactionReceiptPage = ({
                 transactionData.txHash,
                 network
             )
-            console.log("explorerUrl", explorerUrl)
-            console.log({
-                explorerId,
-                txHash: transactionData.txHash,
-                network,
-            })
             const explorerName = explorerManagerObj.getExplorerName(explorerId)
             return {
                 name: "Bridge",
@@ -265,6 +259,50 @@ export const TransactionReceiptPage = ({
                             <Snippet copyString={transactionData.toAddress} />
                         </div>
                     },
+                    "chain": {
+                        title: <TooltipTitle title="Chain" size="sm"/>,
+                        value: <div className="flex items-center gap-2">
+                            <NomasImage src={chainManagerObj.getChainById(token.chainId)?.iconUrl} className="w-5 h-5 rounded-full" />
+                            <span className="text-sm">{chainManagerObj.getChainById(token.chainId)?.name}</span>
+                        </div>
+                    }
+                },
+                explorerUrl,
+                explorerName
+            }
+        }
+        case TransactionType.Deposit: {
+            const token = tokens.find((token) => token.tokenId === transactionData.tokenId)
+            if (!token) {
+                throw new Error("Token not found")
+            }
+            const explorerId = explorers[token.chainId]
+            if (!explorerId) {
+                throw new Error("Explorer not found")
+            }
+            const explorerUrl = explorerManagerObj.getTransactionUrl(
+                explorerId,
+                transactionData.txHash,
+                network
+            )
+            const explorerName = explorerManagerObj.getExplorerName(explorerId)
+            return {
+                name: "Deposit",
+                successMessage: "Deposit successfully",
+                errorMessage: "Deposit failed",
+                value: <div className="flex flex-col gap-2 justify-center items-center">
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <NomasImage src={token?.iconUrl} className="w-8 h-8 rounded-full" />
+                            <NomasImage src={chainManagerObj.getChainById(token.chainId)?.iconUrl} className="absolute bottom-0 right-0 z-50 w-4 h-4 rounded-full" />
+                        </div>
+                        <div className="text-center text-2xl font-bold">
+                        -{transactionData.amount} {token?.symbol}
+                        </div>
+                    </div>
+                    <div className="text-centertext-text-muted text-sm">${roundNumber((prices[token.tokenId] ?? 0) *transactionData.amount)}</div>
+                </div>,
+                details: {
                     "chain": {
                         title: <TooltipTitle title="Chain" size="sm"/>,
                         value: <div className="flex items-center gap-2">
