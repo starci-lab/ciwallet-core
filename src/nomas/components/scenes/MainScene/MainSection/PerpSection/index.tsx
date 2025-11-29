@@ -14,6 +14,7 @@ import { TakeProfitStopLossPage } from "./TakeProfitStopLossPage"
 import { PositionPage } from "./PositionPage"
 import { ClosePositionConfirmationPage } from "./ClosePositionConfirmationPage"
 import { OrderPage } from "./OrderPage"
+import { SelectAssetDepositPage } from "./SelectAssetDepositPage"
 
 export const PerpSection = () => {
     const perpSectionPage = useAppSelector((state) => state.stateless.sections.perp.perpSectionPage)   
@@ -43,6 +44,8 @@ export const PerpSection = () => {
             return <ClosePositionConfirmationPage />
         case PerpSectionPage.Order:
             return <OrderPage />
+        case PerpSectionPage.SelectAssetDeposit:
+            return <SelectAssetDepositPage />
         }
     }
     return <NomasCard 

@@ -1,33 +1,42 @@
 import { PerpSectionPage, setPerpSectionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import React, { useMemo } from "react"
-import { chainManagerObj, hyperliquidObj } from "@/nomas/obj"
+import { chainManagerObj, hyperliquidObj, tokenManagerObj } from "@/nomas/obj"
 import { NomasCardBody, NomasCard, NomasImage, NomasCardVariant, TooltipTitle, NomasSpacer, NomasButton, Wallet, Action, NomasNumberTransparentInput } from "@/nomas/components"
-import { TokenId } from "@ciwallet-sdk/types"
+import { TokenId, TokenType } from "@ciwallet-sdk/types"
 import { useHyperliquidDepositFormik } from "@/nomas/hooks"
+import Decimal from "decimal.js"
+import { roundNumber } from "@ciwallet-sdk/utils"
 
 export const SelectAsset = () => {
     const dispatch = useAppDispatch()
-    const hyperliquidDepositFormik = useHyperliquidDepositFormik()
-    const depositAssetInfo = useMemo(() => hyperliquidObj.getDepositAssetInfoByAsset(hyperliquidDepositFormik.values.asset), [hyperliquidDepositFormik.values.asset])
+    const formik = useHyperliquidDepositFormik()
+    const depositAssetInfo = useMemo(() => hyperliquidObj.getDepositAssetInfoByAsset(formik.values.asset), [formik.values.asset])
     const chainMetadata = useMemo(() => chainManagerObj.getChainById(depositAssetInfo.refs[0].chainId), [depositAssetInfo.refs[0].chainId])
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
-    const ref = useMemo(() => hyperliquidObj.getDepositAssetInfoByAsset(hyperliquidDepositFormik.values.asset).refs.find((ref) => ref.chainId === hyperliquidDepositFormik.values.chainId), [hyperliquidDepositFormik.values.asset, hyperliquidDepositFormik.values.chainId])
+    const ref = useMemo(() => hyperliquidObj.getDepositAssetInfoByAsset(formik.values.asset).refs.find((ref) => ref.chainId === formik.values.chainId), [formik.values.asset, formik.values.chainId])
+    
     return (    
         <NomasCard isInner variant={NomasCardVariant.Dark}>
             <NomasCardBody className="p-4">
                 <div className="flex items-center justify-between">
                     <TooltipTitle title="Asset" size="xs" className="text"/>
                     <Wallet 
+                        isFocused={formik.values.amountFocused}
                         balance={balances[ref?.tokenId ?? TokenId.MonadMainnetMon] ?? 0}
                         onAction={(action: Action) => {
+                            const token = tokenManagerObj.getTokenById(ref?.tokenId ?? TokenId.MonadMainnetMon)
+                            if (!token) return
+                            const isTokenNative = token.type === TokenType.Native
+                            const chainMetadata = chainManagerObj.getChainById(token.chainId)
+                            const maxBalanceIn = new Decimal(balances[token.tokenId] ?? 0).minus(isTokenNative ? chainMetadata?.minimumGasRequired ?? 0 : 0).toNumber()
                             if (action === Action.Max) {
-                                dispatch(setPerpSectionPage(PerpSectionPage.SelectAsset))
+                                formik.setFieldValue("amount", roundNumber(maxBalanceIn).toString())
                             }
                             if (action === Action.TwentyFivePercent) {
-                                dispatch(setPerpSectionPage(PerpSectionPage.SelectAsset))
+                                formik.setFieldValue("amount", roundNumber(new Decimal(maxBalanceIn).mul(0.25).toNumber()).toString())
                             }
                             if (action === Action.FiftyPercent) {
-                                dispatch(setPerpSectionPage(PerpSectionPage.SelectAsset))
+                                formik.setFieldValue("amount", roundNumber(new Decimal(maxBalanceIn).mul(0.5).toNumber()).toString())
                             }
                         }}
                     />
@@ -38,7 +47,7 @@ export const SelectAsset = () => {
                         <NomasButton
                             className="h-12"
                             onClick={() => {
-                                dispatch(setPerpSectionPage(PerpSectionPage.SelectAsset))
+                                dispatch(setPerpSectionPage(PerpSectionPage.SelectAssetDeposit))
                             }}
                         >
                             <div className="flex items-center gap-2 h-12">
@@ -53,22 +62,19 @@ export const SelectAsset = () => {
                             </div>
                         </NomasButton>
                         <NomasNumberTransparentInput
-                            value={hyperliquidDepositFormik.values.amount.toString()}
+                            value={formik.values.amount.toString()}
                             onValueChange={(value) => {
-                                hyperliquidDepositFormik.setFieldValue("amount", value)
+                                formik.setFieldValue("amount", value)
                             }}
                             onFocus={() => {
-                                hyperliquidDepositFormik.setFieldValue("amountFocused", true)
+                                formik.setFieldValue("amountFocused", true)
                             }}
                             onBlur={() => {
-                                hyperliquidDepositFormik.setFieldValue("amountFocused", false)
-                                hyperliquidDepositFormik.setFieldTouched("amount")
+                                formik.setFieldValue("amountFocused", false)
+                                formik.setFieldTouched("amount")
                             }}
                             isInvalid={
-                                !!(
-                                    hyperliquidDepositFormik.touched.amount &&
-                                hyperliquidDepositFormik.errors.amount
-                                )
+                                !formik.isValid
                             }
                         />
                     </div>

@@ -85,7 +85,7 @@ export class AggregatorManager {
                     apiKey: this.params.lifi.apiKey,
                     integrator: this.params.lifi.integrator,
                 }),
-                chains: [ChainId.Solana, ChainId.Sui],
+                chains: [ChainId.Solana, ChainId.Sui, ChainId.Arbitrum  ],
                 mode: AggregationMode.Hybrid,
                 networks: [Network.Mainnet],
             },

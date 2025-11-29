@@ -8,10 +8,19 @@ import {
     TooltipTitle,
     NomasCardFooter,
     NomasButton,
+    NomasLink,
 } from "@/nomas/components"
 import {
+    DepositFunctionPage,
+    HomeSelectorTab,
+    HomeTab,
     PerpSectionPage,
     selectSelectedAccountByPlatform,
+    setDepositFunctionPage,
+    setDepositSelectedChainId,
+    setDepositTokenId,
+    setHomeSelectorTab,
+    setHomeTab,
     setPerpSectionPage,
     useAppDispatch,
     useAppSelector,
@@ -20,6 +29,7 @@ import { ChainId, Platform } from "@ciwallet-sdk/types"
 import { useHyperliquidDepositFormik, useHyperunitGenerateAddressSwrMutation } from "@/nomas/hooks"
 import { shortenAddress } from "@ciwallet-sdk/utils"
 import { SelectAsset } from "./SelectAsset"
+import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 
 export const DepositPage = () => {
     const dispatch = useAppDispatch()
@@ -28,7 +38,7 @@ export const DepositPage = () => {
     const hyperunitGenResponse = useAppSelector(
         (state) => state.stateless.sections.perp.hyperunitGenResponse
     )
-    const hyperliquidDepositFormik = useHyperliquidDepositFormik()
+    const formik = useHyperliquidDepositFormik()
     // your destination account address
     const destinationAccount = useAppSelector((state) =>
         selectSelectedAccountByPlatform(
@@ -40,9 +50,9 @@ export const DepositPage = () => {
     useEffect(() => {
         const handleEffect = async () => {
             await hyperunitGenerateAddressSwrMutation.trigger({
-                sourceChain: hyperliquidDepositFormik.values.chainId,
+                sourceChain: formik.values.chainId,
                 destinationChain: ChainId.Hyperliquid,
-                asset: hyperliquidDepositFormik.values.asset,
+                asset: formik.values.asset,
                 destinationAddress: destinationAccount?.accountAddress || "",
                 network,
             }, {
@@ -51,8 +61,8 @@ export const DepositPage = () => {
         }
         handleEffect()
     }, [
-        hyperliquidDepositFormik.values.asset,
-        hyperliquidDepositFormik.values.chainId,
+        formik.values.asset,
+        formik.values.chainId,
         destinationAccount?.accountAddress,
     ])
     return (
@@ -67,7 +77,7 @@ export const DepositPage = () => {
             <NomasCardBody>
                 <NomasSpacer y={2} />
                 <SelectAsset />  
-                {hyperliquidDepositFormik.values.chainId !== ChainId.Arbitrum && (
+                {formik.values.chainId !== ChainId.Arbitrum && (
                     <>
                         <NomasSpacer y={4} />
                         <div className="flex items-center justify-between">
@@ -79,13 +89,13 @@ export const DepositPage = () => {
                                 >
                                     <div className="text-sm text-text">
                                         {shortenAddress(
-                                            hyperunitGenResponse[hyperliquidDepositFormik.values.asset]?.address || ""
+                                            hyperunitGenResponse[formik.values.asset]?.address || ""
                                         )}
                                     </div>
                                 </NomasSkeleton>
                                 <Snippet
                                     copyString={
-                                        hyperunitGenResponse[hyperliquidDepositFormik.values.asset]?.address || ""
+                                        hyperunitGenResponse[formik.values.asset]?.address || ""
                                     }
                                 />
                             </div>
@@ -94,17 +104,45 @@ export const DepositPage = () => {
                 )}
             </NomasCardBody>
             <NomasCardFooter>
-                <NomasButton
-                    className="w-full"
-                    xlSize
-                    disabled={!hyperliquidDepositFormik.isValid}
-                    isLoading={hyperliquidDepositFormik.isSubmitting}
-                    onClick={() => {
-                        hyperliquidDepositFormik.submitForm()
-                    }}
-                >
-                    Deposit
-                </NomasButton>
+                <div className="w-full">
+                    <NomasButton
+                        className="w-full"
+                        xlSize
+                        isDisabled={!formik.isValid}
+                        isLoading={formik.isSubmitting}
+                        onClick={() => {
+                            formik.submitForm()
+                        }}
+                    >
+                        {formik.values.isEnoughGasBalance ? "Deposit" : "Insufficient Gas Balance"}
+                    </NomasButton>
+                    {
+                        !formik.values.isEnoughGasBalance && formik.values.gasTokenId && (() => {
+                            const gasToken = tokenManagerObj.getTokenById(formik.values.gasTokenId)
+                            if (!gasToken) return
+                            const chainMetadata = chainManagerObj.getChainById(gasToken.chainId)
+                            return (
+                                <>
+                                    <NomasSpacer y={4}/>
+                                    <div className="flex items-center gap-1">
+                                        <div className="text-muted text-xs">You need to have at least {chainMetadata?.minimumGasRequired} {gasToken.symbol} to cover the gas fee.</div>
+                                        <NomasLink 
+                                            onPress={() => {
+                                                dispatch(setHomeTab(HomeTab.Home))
+                                                dispatch(setHomeSelectorTab(HomeSelectorTab.Deposit))
+                                                dispatch(setDepositSelectedChainId(gasToken?.chainId ?? ChainId.Monad))
+                                                dispatch(setDepositTokenId(formik.values.gasTokenId))
+                                                dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
+                                            }}
+                                            className="text-xs text-primary"
+                                        >
+                                    Deposit
+                                        </NomasLink>
+                                    </div>    
+                                </>
+                            )
+                        })()}
+                </div>
             </NomasCardFooter>
         </>
     )

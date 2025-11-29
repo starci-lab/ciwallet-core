@@ -1,11 +1,13 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import { WithdrawFunctionPage, selectSelectedAccounts, selectTokens, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { Platform, TokenId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
 import { useTransfer } from "@ciwallet-sdk/hooks"
 import { isValidAddress } from "@ciwallet-sdk/utils"
+import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
+import Decimal from "decimal.js"
 
 // -------------------------------------
 // Formik Values Interface
@@ -134,5 +136,16 @@ export const useTransferFormikCore = () => {
             }
         },
     })
+    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
+    useEffect(() => {
+        if (!formik.values.gasTokenId) return
+        const gasToken = tokenManagerObj.getTokenById(formik.values.gasTokenId)
+        if (!gasToken) return
+        const chainMetadata = chainManagerObj.getChainById(gasToken.chainId)
+        formik.setFieldValue("isEnoughGasBalance",
+            new Decimal(balances[gasToken.tokenId] ?? 0)
+                .gte(chainMetadata?.minimumGasRequired ?? 0)
+        )
+    }, [balances, formik.values.gasTokenId])
     return formik
 }

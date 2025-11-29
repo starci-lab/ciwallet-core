@@ -1,10 +1,10 @@
-import { selectSelectedAccounts, selectTokensTracking, useAppSelector } from "@/nomas/redux"
+import { selectSelectedAccounts, selectTokens, useAppSelector } from "@/nomas/redux"
 import { BalanceFetcher } from "../../reusable"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
 export const BalanceWorker = () => {
     // retrieve all tokens
-    const tokens = useAppSelector((state) => selectTokensTracking(state.persists))
+    const tokens = useAppSelector((state) => selectTokens(state.persists))
     const accounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     // if token changes, we need to fetch the balance for the new token
     return (

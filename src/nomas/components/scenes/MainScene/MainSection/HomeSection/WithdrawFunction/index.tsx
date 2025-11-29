@@ -57,9 +57,6 @@ export const WithdrawFunction = () => {
                                 && _token.type === TokenType.Native
                             )
                             formik.setFieldValue("gasTokenId", gasToken?.tokenId)
-                            const chainMetadata = chainManagerObj.getChainById(gasToken?.chainId ?? ChainId.Monad)
-                            formik.setFieldValue("platform", chainIdToPlatform(token.chainId))
-                            formik.setFieldValue("isEnoughGasBalance", new Decimal(balances[gasToken?.tokenId ?? TokenId.MonadTestnetMon] ?? 0).gte(chainMetadata?.minimumGasRequired ?? 0))
                         } else {
                             formik.setFieldValue("tokenId", undefined)
                         }

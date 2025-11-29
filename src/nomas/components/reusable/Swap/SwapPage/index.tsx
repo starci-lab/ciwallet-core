@@ -296,6 +296,9 @@ export const SwapPage = () => {
                                 }
                             >
                                 {(() => {
+                                    if (!swapFormik.values.tokenIn) {
+                                        return "Select Token In"
+                                    }
                                     if (swapFormik.values.quoting) {
                                         return "Quoting"
                                     }

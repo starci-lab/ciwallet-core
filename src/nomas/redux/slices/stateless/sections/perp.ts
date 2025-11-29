@@ -21,6 +21,7 @@ export enum PerpSectionPage {
     Perp = "perp",
     Deposit = "deposit",
     SelectAsset = "select-asset",
+    SelectAssetDeposit = "select-asset-deposit",
     SourceChain = "source-chain",
     MarginMode = "margin-mode",
     Leverage = "leverage",

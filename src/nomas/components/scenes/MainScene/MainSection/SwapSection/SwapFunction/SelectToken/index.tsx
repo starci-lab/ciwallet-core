@@ -12,7 +12,11 @@ export interface SelectTokenProps {
 export const SelectToken = ({ token, chainMetadata, onSelect }: SelectTokenProps) => {
     if (!token) {
         return (
-            <NomasButton className="h-12" startIcon={<QuestionIcon className="w-8 h-8" />} onClick={() => onSelect()}>
+            <NomasButton 
+                className="h-12"
+                startIcon={<QuestionIcon className="w-8 h-8" />} 
+                onClick={() => onSelect()}
+            >
                 Select
             </NomasButton>
         )

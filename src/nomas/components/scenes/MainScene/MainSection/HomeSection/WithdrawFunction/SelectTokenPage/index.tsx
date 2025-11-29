@@ -20,9 +20,7 @@ import { NomasSpacer } from "@/nomas/components"
 import { useTransferFormik } from "@/nomas/hooks/singleton"
 import { SelectChainTab } from "@/nomas/components"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
-import { ChainId, Platform, TokenId, TokenType } from "@ciwallet-sdk/types"
-import Decimal from "decimal.js"
-import { chainManagerObj } from "@/nomas/obj"
+import { Platform, TokenType } from "@ciwallet-sdk/types"
 
 export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()
@@ -93,9 +91,6 @@ export const SelectTokenPage = () => {
                                                 && _token.type === TokenType.Native
                                             )
                                             formik.setFieldValue("gasTokenId", gasToken?.tokenId)
-                                            formik.setFieldValue("platform", chainIdToPlatform(token.chainId))
-                                            const chainMetadata = chainManagerObj.getChainById(gasToken?.chainId ?? ChainId.Monad)
-                                            formik.setFieldValue("isEnoughGasBalance", new Decimal(balances[gasToken?.tokenId ?? TokenId.MonadTestnetMon] ?? 0).gte(chainMetadata?.minimumGasRequired ?? 0))
                                             dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.Withdraw))
                                         }}
                                         key={token.tokenId}

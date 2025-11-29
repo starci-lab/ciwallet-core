@@ -5,15 +5,15 @@ import { useEffect } from "react"
 import { useTransferFormik } from "@/nomas/hooks"
 import { roundNumber } from "@ciwallet-sdk/utils"
 import { SelectToken } from "./SelectToken"
-import { chainManagerObj } from "@/nomas/obj"
-import { ChainId } from "@ciwallet-sdk/types"
+import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
+import { ChainId, TokenId, TokenType } from "@ciwallet-sdk/types"
+import Decimal from "decimal.js"
 
 
 export const WithdrawPageComponent = () => {
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     const formik = useTransferFormik()
     const token = useAppSelector((state) => selectTokenByIdNullable(state.persists, formik.values.tokenId))
-    const maxBalanceIn = formik.values.balance - 0.01
     // we need to set the from address and encrypted private key
     useEffect(() => {
         formik.setFieldValue("tokenAddress", token?.address)
@@ -52,20 +52,22 @@ export const WithdrawPageComponent = () => {
                                     balance={balances[token.tokenId] ?? 0}
                                     onAction={
                                         (action: Action) => {
+                                            const token = tokenManagerObj.getTokenById(formik.values.tokenId)
+                                            if (!token) return
+                                            const isTokenNative = token.type === TokenType.Native
+                                            const chainMetadata = chainManagerObj.getChainById(token.chainId)
+                                            const maxBalanceIn = new Decimal(balances[token.tokenId ?? TokenId.MonadTestnetMon] ?? 0).minus(isTokenNative ? chainMetadata?.minimumGasRequired ?? 0 : 0).toNumber()
                                             if (action === Action.Max) {
                                                 formik.setFieldValue(
                                                     "amount",
-                                                    roundNumber(balances[token.tokenId] ?? 0).toString()
+                                                    roundNumber(maxBalanceIn).toString()
                                                 )
                                             }
                                             if (action === Action.TwentyFivePercent) {
                                                 formik.setFieldValue(
                                                     "amount",
                                                     roundNumber(
-                                                        Math.min(
-                                                            (balances[token.tokenId] ?? 0) * 0.25,
-                                                            maxBalanceIn
-                                                        ),
+                                                        new Decimal(maxBalanceIn).mul(0.25).toNumber(),
                                                         5
                                                     ).toString()
                                                 )
@@ -74,10 +76,7 @@ export const WithdrawPageComponent = () => {
                                                 formik.setFieldValue(
                                                     "amount",
                                                     roundNumber(
-                                                        Math.min(
-                                                            (balances[token.tokenId] ?? 0) * 0.5,
-                                                            maxBalanceIn
-                                                        ),
+                                                        new Decimal(maxBalanceIn).mul(0.5).toNumber(),
                                                         5
                                                     ).toString()
                                                 )

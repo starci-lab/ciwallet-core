@@ -24,7 +24,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chain, isSelected = false,
         return (
             <div
                 className={
-                    twMerge("p-4 flex items-center gap-2 justify-between rounded-button", 
+                    twMerge("p-0 py-1 flex items-center gap-2 justify-between rounded-button", 
                         isSelected ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
                 }
             >

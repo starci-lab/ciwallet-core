@@ -18,6 +18,7 @@ export const subscribeToPythUpdates = async (
         acc[chunkIndex].push(pythId)
         return acc
     }, [] as Array<Array<string>>)
+    console.log("chunks", chunks)
     for (const chunk of chunks) {
         const connection = new HermesClient("https://hermes.pyth.network", {}) // See Hermes endpoints section below for other endpoints
         const stream = await connection.getPriceUpdatesStream(chunk)

@@ -1,16 +1,17 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, TokenId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
-import { selectSelectedAccounts, useAppSelector } from "@/nomas/redux"
+import { ChainId, TokenId, TokenType, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
+import { selectSelectedAccounts, selectTokens, useAppSelector } from "@/nomas/redux"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
-import { aggregatorManagerObj } from "@/nomas/obj"
+import { aggregatorManagerObj, chainManagerObj } from "@/nomas/obj"
 import { useBatchAggregatorSwrMutation } from "../mixin"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { setSwapFunctionPage, SwapFunctionPage, setTxHash, setSwapSuccess, setTransactionType, TransactionType } from "@/nomas/redux"
 import { useAppDispatch } from "@/nomas/redux"
+import Decimal from "decimal.js"
 
 export interface Aggregation {
     aggregator: AggregatorId;
@@ -44,6 +45,8 @@ export interface SwapFormikValues {
     protocols: Array<ProtocolData>;
     mevProtection: boolean;
     transactionMode: TransactionMode;
+    gasTokenId: TokenId | undefined;
+    isEnoughGasBalance: boolean;
 }
 
 const swapValidationSchema = Yup.object({
@@ -96,6 +99,7 @@ export const useSwapFormikCore = () => {
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const swrMutation = useBatchAggregatorSwrMutation()
     const dispatch = useAppDispatch()
+    const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const rpcsMultichain = Object.entries(rpcs).reduce((acc, [chainId, rpcs]) => {
         acc[chainId as ChainId] = rpcs[network]
         return acc
@@ -124,6 +128,8 @@ export const useSwapFormikCore = () => {
             refreshKey: 0,
             transactionMode: TransactionMode.Default,
             mevProtection: false,
+            gasTokenId: undefined,
+            isEnoughGasBalance: false,
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
@@ -217,5 +223,23 @@ export const useSwapFormikCore = () => {
     })
     // aggregator selector
     useAggregatorSelector(formik)
+    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
+    useEffect(() => {
+        if (!formik.values.tokenIn) return
+        const token = tokenArray.find((token) => token.tokenId === formik.values.tokenIn)
+        if (!token) return
+        const gasToken = tokenArray.find((_token) =>
+            _token.chainId === token.chainId 
+        && _token.network === network
+        && _token.type === TokenType.Native
+        )
+        if (!gasToken) return
+        const chainMetadata = chainManagerObj.getChainById(gasToken.chainId)
+        formik.setFieldValue("gasTokenId", gasToken.tokenId)
+        formik.setFieldValue("isEnoughGasBalance",
+            new Decimal(balances[gasToken.tokenId] ?? 0)
+                .gte(chainMetadata?.minimumGasRequired ?? 0)
+        )
+    }, [balances, formik.values.tokenIn])
     return formik
 }

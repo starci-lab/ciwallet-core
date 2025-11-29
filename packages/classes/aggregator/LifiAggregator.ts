@@ -56,6 +56,8 @@ export const chainIdToLifiChainId = (chainId: ChainId): LifiChainId => {
         return LifiChainId.SUI
     case ChainId.Solana:
         return LifiChainId.SOL
+    case ChainId.Arbitrum:
+        return LifiChainId.ARB
     case ChainId.Aptos:
         throw new Error(`Unsupported chainId: ${chainId}`)
     case ChainId.Monad:
@@ -97,6 +99,18 @@ export class LifiAggregator implements IAggregator {
         } : QuoteParams
     ): Promise<QuoteResponse> {
         try {
+            console.log({ 
+                fromTokenAddress, 
+                toTokenAddress, 
+                fromTokenDecimals,
+                amount, 
+                fromChainId, 
+                toChainId, 
+                fromAddress,
+                toTokenDecimals,
+                toAddress,
+                slippage,
+            })
             const zeroAddress = (chainId: ChainId) => {
                 const platform = chainIdToPlatform(chainId)
                 switch (platform) {

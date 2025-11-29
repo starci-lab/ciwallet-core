@@ -677,29 +677,10 @@ listenerMiddleware.startListening({
         const state = listenerApi.getState() as RootState
         const dispatch = listenerApi.dispatch as AppDispatch
         // logic to retrieve tracking tokens
-        const { trackingUnifiedTokenIds, trackingTokenIds, tokens } =
-            state.persists.session
-        const allTokens = Object.values(tokens)
-            .flat()
-            .flatMap((record) => Object.values(record).flat())
-        const trackingTokens = allTokens.filter((token) => {
-            return (
-                (
-                    trackingTokenIds.includes(token.tokenId)
-                    && !token.unifiedTokenId
-                    && token.network === state.persists.session.network
-                )
-                ||
-                (
-                    token.unifiedTokenId &&
-                    trackingUnifiedTokenIds.includes(token.unifiedTokenId) 
-                    && token.network === state.persists.session.network
-                )
-            )
-        })
+        const tokens = selectTokens(state.persists)
         // subscribe to token prices
         await subscribeToPythUpdates(
-            trackingTokens, (tokenId, price) => {
+            tokens, (tokenId, price) => {
                 dispatch(
                     setPrice({
                         tokenId,
@@ -707,16 +688,13 @@ listenerMiddleware.startListening({
                     })
                 )
             })
-        // subscribe to unified token prices
+
         const unifiedTokens = tokenManagerObj.getUnifiedTokens()
         await subscribeToUnifiedPythUpdates(
             unifiedTokens,
             (unifiedTokenId, price) => {
                 dispatch(
-                    setUnifiedPrice({
-                        unifiedTokenId,
-                        price,
-                    })
+                    setUnifiedPrice({ unifiedTokenId, price })
                 )
             }
         )
