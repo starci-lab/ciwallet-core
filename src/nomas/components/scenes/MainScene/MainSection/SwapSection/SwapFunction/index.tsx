@@ -43,14 +43,18 @@ export const SwapFunction = () => {
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     const slippage = swapFormik.values.slippage
     useEffect(() => {
+        if (!swapFormik.values.tokenIn) return
         swapFormik.setFieldValue("balanceIn", balances[swapFormik.values.tokenIn] ?? 0)
     }, [balances])
 
     useEffect(() => {
+        if (!swapFormik.values.tokenIn) return
+        if (!swapFormik.values.tokenOut) return
         swapFormik.setFieldValue("balanceOut", balances[swapFormik.values.tokenOut] ?? 0)
     }, [prices])
-    const tokenOutPrice = useMemo(() => prices[swapFormik.values.tokenOut] ?? 0, [prices])
-    const tokenInPrice = useMemo(() => prices[swapFormik.values.tokenIn] ?? 0, [prices])
+
+    const tokenOutPrice = useMemo(() => swapFormik.values.tokenOut ? prices[swapFormik.values.tokenOut] ?? 0 : 0, [prices])
+    const tokenInPrice = useMemo(() => swapFormik.values.tokenIn ? prices[swapFormik.values.tokenIn] ?? 0 : 0, [prices])
     const expectedPythPrice = useMemo(() => {
         if (tokenInPrice === 0 || tokenOutPrice === 0) return 0
         return roundNumber(new Decimal(tokenInPrice).div(new Decimal(tokenOutPrice)).toNumber())
@@ -168,7 +172,7 @@ export const SwapFunction = () => {
                                         }
                                     />
                                     <div className="text-xs text-right text-text-muted text-foreground-500">
-                      ${roundNumber((prices[swapFormik.values.tokenIn] ?? 0) * Number(swapFormik.values.amountIn))}
+                      ${roundNumber((swapFormik.values.tokenIn ? prices[swapFormik.values.tokenIn] ?? 0 : 0) * Number(swapFormik.values.amountIn))}
                                     </div>
                                 </div>
                             </div>
@@ -221,7 +225,7 @@ export const SwapFunction = () => {
                                                 {swapFormik.values.amountOut}
                                             </div>
                                             <div className="text-xs text-right text-muted">
-                          ${roundNumber((prices[swapFormik.values.tokenOut] ?? 0) * Number(swapFormik.values.amountOut))}
+                          ${roundNumber((swapFormik.values.tokenOut ? prices[swapFormik.values.tokenOut] ?? 0 : 0) * Number(swapFormik.values.amountOut))}
                                             </div>
                                         </div>
                                     )}

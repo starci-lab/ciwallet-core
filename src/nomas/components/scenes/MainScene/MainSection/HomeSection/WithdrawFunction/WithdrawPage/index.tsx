@@ -1,4 +1,4 @@
-import { DepositFunctionPage, HomeSelectorTab, WithdrawFunctionPage, selectTokenById, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setHomeSelectorTab, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { DepositFunctionPage, HomeSelectorTab, WithdrawFunctionPage, selectTokenByIdNullable, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setHomeSelectorTab, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { Action, NomasButton, NomasCard, NomasCardBody, NomasCardFooter, NomasCardHeader, NomasCardVariant, NomasInput, NomasLink, NomasNumberTransparentInput, NomasSpacer, SelectChainTabVariant } from "@/nomas/components"
 import { SelectChainTab, TooltipTitle, Wallet } from "@/nomas/components"
 import { useEffect } from "react"
@@ -6,12 +6,13 @@ import { useTransferFormik } from "@/nomas/hooks"
 import { roundNumber } from "@ciwallet-sdk/utils"
 import { SelectToken } from "./SelectToken"
 import { chainManagerObj } from "@/nomas/obj"
+import { ChainId } from "@ciwallet-sdk/types"
 
 
 export const WithdrawPageComponent = () => {
     const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     const formik = useTransferFormik()
-    const token = useAppSelector((state) => selectTokenById(state.persists, formik.values.tokenId))
+    const token = useAppSelector((state) => selectTokenByIdNullable(state.persists, formik.values.tokenId))
     const maxBalanceIn = formik.values.balance - 0.01
     // we need to set the from address and encrypted private key
     useEffect(() => {
@@ -19,10 +20,11 @@ export const WithdrawPageComponent = () => {
     }, [token])
     // we need to set the balance
     useEffect(() => {
+        if (!formik.values.tokenId) return
         formik.setFieldValue("balance", balances[formik.values.tokenId] ?? 0)
     }, [balances, formik.values.tokenId])
     const dispatch = useAppDispatch()
-    const gasToken = useAppSelector((state) => selectTokenById(state.persists, formik.values.gasTokenId))
+    const gasToken = useAppSelector((state) => selectTokenByIdNullable(state.persists, formik.values.gasTokenId))
     return (
         <>
             <NomasCardHeader
@@ -38,54 +40,57 @@ export const WithdrawPageComponent = () => {
                         onClick={() => {
                             dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.ChooseNetwork))
                         }}
+                        withAllNetworks={true}
                     />
                     <NomasSpacer y={4}/>
                     <div>
                         <div className="flex justify-between items-center">
                             <TooltipTitle title="Assets" size="sm" className="text"/>
-                            <Wallet
-                                isFocused={formik.values.amountFocused}
-                                balance={balances[token.tokenId] ?? 0}
-                                onAction={
-                                    (action: Action) => {
-                                        if (action === Action.Max) {
-                                            formik.setFieldValue(
-                                                "amount",
-                                                roundNumber(balances[token.tokenId] ?? 0).toString()
-                                            )
-                                        }
-                                        if (action === Action.TwentyFivePercent) {
-                                            formik.setFieldValue(
-                                                "amount",
-                                                roundNumber(
-                                                    Math.min(
-                                                        (balances[token.tokenId] ?? 0) * 0.25,
-                                                        maxBalanceIn
-                                                    ),
-                                                    5
-                                                ).toString()
-                                            )
-                                        }
-                                        if (action === Action.FiftyPercent) {
-                                            formik.setFieldValue(
-                                                "amount",
-                                                roundNumber(
-                                                    Math.min(
-                                                        (balances[token.tokenId] ?? 0) * 0.5,
-                                                        maxBalanceIn
-                                                    ),
-                                                    5
-                                                ).toString()
-                                            )
-                                        }
-                                    }}
-                            />
+                            {token && (
+                                <Wallet
+                                    isFocused={formik.values.amountFocused}
+                                    balance={balances[token.tokenId] ?? 0}
+                                    onAction={
+                                        (action: Action) => {
+                                            if (action === Action.Max) {
+                                                formik.setFieldValue(
+                                                    "amount",
+                                                    roundNumber(balances[token.tokenId] ?? 0).toString()
+                                                )
+                                            }
+                                            if (action === Action.TwentyFivePercent) {
+                                                formik.setFieldValue(
+                                                    "amount",
+                                                    roundNumber(
+                                                        Math.min(
+                                                            (balances[token.tokenId] ?? 0) * 0.25,
+                                                            maxBalanceIn
+                                                        ),
+                                                        5
+                                                    ).toString()
+                                                )
+                                            }
+                                            if (action === Action.FiftyPercent) {
+                                                formik.setFieldValue(
+                                                    "amount",
+                                                    roundNumber(
+                                                        Math.min(
+                                                            (balances[token.tokenId] ?? 0) * 0.5,
+                                                            maxBalanceIn
+                                                        ),
+                                                        5
+                                                    ).toString()
+                                                )
+                                            }
+                                        }}
+                                />
+                            )}
                         </div>
                         <NomasSpacer y={4}/>
                         <div className="flex justify-between items-center bg-card-dark-2 p-2 pr-4 rounded-card-inner">
                             <SelectToken
                                 token={token}
-                                chainMetadata={chainManagerObj.getChainById(formik.values.chainId)}
+                                chainMetadata={token ? chainManagerObj.getChainById(token.chainId) : undefined}
                                 onSelect={() => {
                                     dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.SelectToken))
                                 }}
@@ -145,28 +150,31 @@ export const WithdrawPageComponent = () => {
                         onClick={() => {
                             formik.submitForm()
                         }}>
-                    Send
+                        {!formik.values.isEnoughGasBalance && gasToken ? "Insufficient gas balance" : "Send"}
                     </NomasButton>
                     {
-                        !formik.values.isEnoughGasBalance &&
-                        <>
-                            <NomasSpacer y={4}/>
-                            <div className="flex items-center gap-1">
-                                <div className="text-muted text-xs">You need to have at least 0.1 {gasToken?.symbol} to cover the gas fee.</div>
-                                <NomasLink 
-                                    onPress={() => {
-                                        dispatch(setHomeSelectorTab(HomeSelectorTab.Deposit))
-                                        dispatch(setDepositSelectedChainId(formik.values.chainId))
-                                        dispatch(setDepositTokenId(formik.values.gasTokenId))
-                                        dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
-                                    }}
-                                    className="text-xs text-primary"
-                                >
+                        !formik.values.isEnoughGasBalance && gasToken && (() => {
+                            const chainMetadata = chainManagerObj.getChainById(gasToken?.chainId ?? ChainId.Monad)
+                            return (
+                                <>
+                                    <NomasSpacer y={4}/>
+                                    <div className="flex items-center gap-1">
+                                        <div className="text-muted text-xs">You need to have at least {chainMetadata?.minimumGasRequired} {gasToken?.symbol} to cover the gas fee.</div>
+                                        <NomasLink 
+                                            onPress={() => {
+                                                dispatch(setHomeSelectorTab(HomeSelectorTab.Deposit))
+                                                dispatch(setDepositSelectedChainId(gasToken?.chainId ?? ChainId.Monad))
+                                                dispatch(setDepositTokenId(formik.values.gasTokenId))
+                                                dispatch(setDepositFunctionPage(DepositFunctionPage.Deposit))
+                                            }}
+                                            className="text-xs text-primary"
+                                        >
                                     Deposit
-                                </NomasLink>
-                            </div>    
-                        </>
-                    }
+                                        </NomasLink>
+                                    </div>    
+                                </>
+                            )
+                        })()}
                 </div>
             </NomasCardFooter>
         </>

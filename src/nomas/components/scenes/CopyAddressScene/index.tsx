@@ -1,6 +1,23 @@
 import React, { useMemo } from "react"
-import { AlphabetList, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasInput, NomasSpacer, Snippet } from "@/nomas/components"
-import { Scene, selectSelectedAccounts, setScene, setFilterValue, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { 
+    AlphabetList, 
+    NomasCard, 
+    NomasCardBody, 
+    NomasCardHeader, 
+    NomasCardVariant, 
+    NomasImage, 
+    NomasInput, 
+    NomasSpacer, 
+    Snippet 
+} from "@/nomas/components"
+import {
+    Scene,
+    selectSelectedAccounts, 
+    setScene, 
+    setFilterValue,
+    useAppDispatch, 
+    useAppSelector
+} from "@/nomas/redux"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react"
 import { chainManagerObj } from "@/nomas/obj"
 import { chainIdToPlatform, shortenAddress } from "@ciwallet-sdk/utils"

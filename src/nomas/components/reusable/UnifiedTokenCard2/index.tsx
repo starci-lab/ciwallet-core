@@ -55,7 +55,7 @@ export const UnifiedTokenCard2 = ({
                     </div>
                     {/* Right: balance */}
                     <div className="flex flex-col text-right">
-                        <div className="text-sm text-text">{totalBalance ?? 0}</div>
+                        <div className="text-sm text-text">{roundNumber(totalBalance ?? 0, 5)}</div>
                         <div className="text-xs text-muted">${roundNumber((totalBalance) * (price ?? 0), 5)}</div>
                     </div>
                 </NomasCardBody>

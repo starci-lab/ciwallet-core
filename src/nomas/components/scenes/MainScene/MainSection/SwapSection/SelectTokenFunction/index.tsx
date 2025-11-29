@@ -5,6 +5,7 @@ import {
     NomasCardHeader,
     NomasCardVariant,
     NomasInput,
+    NotFound,
     TokenCard2,
 } from "@/nomas/components"
 import {
@@ -70,7 +71,7 @@ export const SelectTokenFunction = () => {
                 <NomasSpacer y={4}/>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
                     <NomasCardBody className="gap-2 p-0" scrollable scrollHeight={300}>
-                        {filteredTokenArray.map((token) => (
+                        {filteredTokenArray.length ? filteredTokenArray.map((token) => (
                             <TokenCard2 
                                 isPressable
                                 onClick={() => {
@@ -93,7 +94,7 @@ export const SelectTokenFunction = () => {
                                 accountAddress={selectedAccount?.accountAddress ?? ""}
                                 network={network}
                             />
-                        ))}
+                        )) : <NotFound title="No tokens found" />}
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>

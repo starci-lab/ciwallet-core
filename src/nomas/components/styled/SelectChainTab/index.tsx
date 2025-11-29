@@ -44,10 +44,10 @@ export const SelectChainTab = ({ isSelected, onClick, variant = SelectChainTabVa
         return foundIndex !== -1 ? foundIndex : 0
     }, [isSelected, renderedChains])
     const endChainIndex = useMemo(() => {
-        return Math.min(chainIndex + (withAllNetworks ? 5 : 6), renderedChains.length)
+        return Math.min(chainIndex + (withAllNetworks ? 4 : 5), renderedChains.length)
     }, [chainIndex])
     const startChainIndex = useMemo(() => {
-        return Math.max(endChainIndex - (withAllNetworks ? 5 : 6), 0)
+        return Math.max(endChainIndex - (withAllNetworks ? 4 : 5), 0)
     }, [endChainIndex])
 
     const globeChain = useMemo(() => {

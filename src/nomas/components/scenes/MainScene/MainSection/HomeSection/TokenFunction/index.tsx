@@ -95,7 +95,7 @@ export const TokenFunction = () => {
                                 <div className="flex flex-col items-center justify-center">
                                     {action.icon}
                                     <NomasSpacer y={2}/>
-                                    <div className="text-muted text-sm">{action.title}</div>
+                                    <div className="!text-text text-sm">{action.title}</div>
                                 </div>
                             </NomasCardBody>
                         </NomasCard>

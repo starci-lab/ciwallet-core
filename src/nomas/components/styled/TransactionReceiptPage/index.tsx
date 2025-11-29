@@ -76,6 +76,12 @@ export const TransactionReceiptPage = ({
                 network
             )
             const explorerName = explorerManagerObj.getExplorerName(explorerId)
+            console.log("explorerUrl", explorerUrl)
+            console.log({
+                explorerId,
+                txHash: transactionData.txHash,
+                network,
+            })
             return {
                 name: "Swap",
                 successMessage: "Swap successfully",
@@ -153,6 +159,12 @@ export const TransactionReceiptPage = ({
                 transactionData.txHash,
                 network
             )
+            console.log("explorerUrl", explorerUrl)
+            console.log({
+                explorerId,
+                txHash: transactionData.txHash,
+                network,
+            })
             const explorerName = explorerManagerObj.getExplorerName(explorerId)
             return {
                 name: "Bridge",
@@ -222,9 +234,9 @@ export const TransactionReceiptPage = ({
             const explorerName = explorerManagerObj.getExplorerName(explorerId)
             return {
                 name: "Withdrawal",
-                successMessage: `Withdraw ${token?.symbol} successfully`,
-                errorMessage: `Withdraw ${token?.symbol} failed`,
-                value: <div className="flex flex-col gap-2">
+                successMessage: "Withdraw successfully",
+                errorMessage: "Withdraw failed",
+                value: <div className="flex flex-col gap-2 justify-center items-center">
                     <div className="flex items-center gap-2">
                         <div className="relative">
                             <NomasImage src={token?.iconUrl} className="w-8 h-8 rounded-full" />

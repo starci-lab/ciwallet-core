@@ -1,9 +1,9 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, TokenId, type ChainIdWithAllNetwork, Network } from "@ciwallet-sdk/types"
+import { ChainId, TokenId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
 import { selectSelectedAccounts, useAppSelector } from "@/nomas/redux"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
 import { aggregatorManagerObj } from "@/nomas/obj"
@@ -25,8 +25,8 @@ export enum TransactionMode {
 export interface SwapFormikValues {
     balanceIn: number;
     balanceOut: number;
-    tokenIn: TokenId;
-    tokenOut: TokenId;
+    tokenIn?: TokenId;
+    tokenOut?: TokenId;
     tokenInChainId: ChainId;
     tokenOutChainId: ChainId;
     isInput: boolean;
@@ -100,16 +100,6 @@ export const useSwapFormikCore = () => {
         acc[chainId as ChainId] = rpcs[network]
         return acc
     }, {} as Record<ChainId, Array<string>>)
-        
-    useEffect(() => {
-        if (network === Network.Mainnet) {
-            formik.setFieldValue("tokenIn", TokenId.MonadMainnetUsdc)
-            formik.setFieldValue("tokenOut", TokenId.MonadMainnetMon)
-        } else {
-            formik.setFieldValue("tokenIn", TokenId.MonadTestnetUsdc)
-            formik.setFieldValue("tokenOut", TokenId.MonadTestnetUsdc)
-        }
-    }, [network])
     
     const formik = useFormik<SwapFormikValues>({
         initialValues: {
@@ -117,8 +107,8 @@ export const useSwapFormikCore = () => {
             searchTokenQuery: "",
             balanceIn: 0,
             balanceOut: 0,
-            tokenIn: TokenId.MonadTestnetUsdc,
-            tokenOut: TokenId.MonadTestnetMon,
+            tokenIn: undefined,
+            tokenOut: undefined,
             tokenInChainId: ChainId.Monad,
             tokenOutChainId: ChainId.Monad,
             isInput: true,
@@ -137,6 +127,7 @@ export const useSwapFormikCore = () => {
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
+            const isBridge = values.tokenInChainId !== values.tokenOutChainId
             const selectedAccount = selectedAccounts[chainIdToPlatform(values.tokenInChainId)]
             switch (values.bestAggregationId) {
             case AggregatorId.Madhouse: {
@@ -152,21 +143,11 @@ export const useSwapFormikCore = () => {
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
-                dispatch(setTransactionType(TransactionType.Swap))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
             case AggregatorId.Jupiter: {
-                console.log({
-                    serializedTx: swrMutation?.data?.lifi?.serializedTx ?? "",
-                    privateKey: selectedAccount?.privateKey ?? "",
-                    rpcs: rpcs[values.tokenInChainId][network],
-                    fromChainId: values.tokenInChainId,
-                    toChainId: values.tokenOutChainId,
-                    senderAddress: selectedAccount?.accountAddress ?? "",
-                    recipientAddress: selectedAccount?.accountAddress ?? "",
-                    network,
-                })
                 const response = await aggregatorManagerObj.getAggregatorById(
                     AggregatorId.Jupiter
                 )?.instance.signAndSendTransaction({
@@ -182,7 +163,7 @@ export const useSwapFormikCore = () => {
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
-                dispatch(setTransactionType(TransactionType.Swap))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
@@ -201,7 +182,7 @@ export const useSwapFormikCore = () => {
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
-                dispatch(setTransactionType(TransactionType.Swap))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
@@ -224,7 +205,7 @@ export const useSwapFormikCore = () => {
                 })
                 dispatch(setSwapSuccess(true))
                 dispatch(setTxHash(response?.txHash ?? ""))
-                dispatch(setTransactionType(TransactionType.Bridge))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
                 dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }

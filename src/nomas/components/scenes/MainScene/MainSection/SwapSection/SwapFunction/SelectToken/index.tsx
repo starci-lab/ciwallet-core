@@ -1,6 +1,7 @@
 import React from "react"
 import { type ChainMetadata, type Token } from "@ciwallet-sdk/types"
 import { NomasButton, NomasImage } from "@/nomas/components"
+import { QuestionIcon } from "@phosphor-icons/react"
 
 export interface SelectTokenProps {
   token?: Token;
@@ -11,8 +12,8 @@ export interface SelectTokenProps {
 export const SelectToken = ({ token, chainMetadata, onSelect }: SelectTokenProps) => {
     if (!token) {
         return (
-            <NomasButton onClick={() => onSelect()}>
-                Select Token
+            <NomasButton className="h-12" startIcon={<QuestionIcon className="w-8 h-8" />} onClick={() => onSelect()}>
+                Select
             </NomasButton>
         )
     }

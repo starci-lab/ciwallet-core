@@ -2,9 +2,8 @@ import React from "react"
 import { NomasCard, NomasCardBody, NomasCardVariant, NomasImage } from "../../extends"
 import { ChainId, Network, type Token } from "@ciwallet-sdk/types"
 import { chainManagerObj } from "@/nomas/obj"
-import { selectSelectedAccounts, useAppSelector } from "@/nomas/redux"
-import { chainIdToPlatform, roundNumber } from "@ciwallet-sdk/utils"
-import { BalanceFetcher } from "../BalanceFetcher"
+import { useAppSelector } from "@/nomas/redux"
+import { roundNumber } from "@ciwallet-sdk/utils"
 import { PressableMotion } from "../../styled"
 
 export interface TokenCard2Props {   
@@ -48,7 +47,7 @@ export const TokenCard2 = ({
         
                     {/* Right: balance */}
                     <div className="flex flex-col text-right">
-                        <div className="text-sm text-text">{balance ?? 0}</div>
+                        <div className="text-sm text-text">{roundNumber(balance ?? 0, 5)}</div>
                         <div className="text-xs text-foreground-500 text-muted">${roundNumber((balance ?? 0) * (price ?? 0), 5)}</div>
                     </div>
                 </NomasCardBody>

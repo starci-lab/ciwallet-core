@@ -41,6 +41,9 @@ import {
     signTransaction 
 } from "@solana/kit"
 import base58 from "bs58"
+import { Transaction } from "@mysten/sui/transactions"
+import { SuiClient } from "@mysten/sui/client"
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519"
 
 export interface LifiAggregatorConstructorParams {
     integrator: string;
@@ -66,6 +69,7 @@ const ZERO_LIFI_EVM_ADDRESS = "0x0000000000000000000000000000000000000000"
 const ZERO_LIFI_SOLANA_ADDRESS = "11111111111111111111111111111111"
 
 export class LifiAggregator implements IAggregator {
+
     constructor(
         {
             integrator,
@@ -205,13 +209,25 @@ export class LifiAggregator implements IAggregator {
                     txHash: transactionSignature.toString(),
                 }
             }
-                break
-            case LifiChainId.SUI:
-                break
+            case LifiChainId.SUI: {
+                try {
+                    const client = new SuiClient({ url: rpcsMultichain?.[ChainId.Sui]?.[0] ?? "" })
+                    const txb = Transaction.from(stepTransaction.transactionRequest?.data || "")
+                    const keypair = Ed25519Keypair.fromSecretKey(privateKey)
+                    const result = await client.signAndExecuteTransaction({
+                        transaction: txb,
+                        signer: keypair,
+                    })
+                    return {
+                        txHash: result.digest,
+                    }
+                } catch (error) {
+                    console.error(error)
+                    throw error
+                }
+            }
             }
         }
-        return {
-            txHash: "",
-        }   
+        throw new Error("No transaction found")
     }
 }

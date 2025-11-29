@@ -1,6 +1,7 @@
 import React, { useMemo } from "react"
 import { Alphabet } from "@konfirm/alphabet"
 import { NomasSpacer } from "../../extends"
+import { NotFound } from "../../styled"
 
 export interface AlphabetItem<T> {
     letter: string
@@ -67,24 +68,29 @@ export const AlphabetList = <T,>({
     }
 
     return (
-        <div className="flex flex-col gap-6">
-            {/* Popular section */}
-            {popularItems?.length > 0 && filterValue.length === 0 && (
-                <div>
-                    <div className="text-sm text-muted">{popularTitle}</div>
-                    <NomasSpacer y={4} />
-                    <div className="flex flex-col gap-4">
-                        {popularItems.map((item) => (
-                            <React.Fragment key={item.key}>{renderItem(item)}</React.Fragment>
-                        ))}
-                    </div>
-                </div>
-            )}
+        <> {filteredItems.length ? 
+            (
+                <div className="flex flex-col gap-6">
+                    {/* Popular section */}
+                    {popularItems?.length > 0 && filterValue.length === 0 && (
+                        <div>
+                            <div className="text-sm text-muted">{popularTitle}</div>
+                            <NomasSpacer y={4} />
+                            <div className="flex flex-col gap-4">
+                                {popularItems.map((item) => (
+                                    <React.Fragment key={item.key}>{renderItem(item)}</React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-            {/* Filtered results */}
-            {filterValue.length > 0
-                ? renderByFilterValue()
-                : letters.map((letter) => renderLetter(letter))}
-        </div>
+                    {/* Filtered results */}
+                    {filterValue.length > 0
+                        ? renderByFilterValue()
+                        : letters.map((letter) => renderLetter(letter))}
+                </div>
+            )
+            : <NotFound title="No items found" />}
+        </>
     )
 }

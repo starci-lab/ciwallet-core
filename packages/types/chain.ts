@@ -43,7 +43,8 @@ export interface ChainMetadata {
     explorerUrl: {
         [Network.Mainnet]: string;
         [Network.Testnet]: string;
-    }
+    },
+    minimumGasRequired: number;
 }
 
 export interface PlatformMetadata {

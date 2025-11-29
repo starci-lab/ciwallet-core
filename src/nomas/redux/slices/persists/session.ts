@@ -549,6 +549,13 @@ export const sessionSlice = createSlice({
             if (!token) throw new Error(`Token with id ${tokenId} not found`)
             return token
         },
+        selectTokenByIdNullable: (state, tokenId?: TokenId) => {
+            const tokens = Object.values(state.tokens)
+                .flat()
+                .flatMap((record) => Object.values(record).flat())
+            const token = tokens.find((token) => token.tokenId === tokenId)
+            return token || undefined
+        },
         selectSelectedAccountByChainId: (state) => {
             const chainId = state.chainId
             const platform = chainIdToPlatform(chainId)
@@ -747,6 +754,7 @@ export const {
     selectNonUnifiedTokensTrackingOnly,
     selectUnifiedTokensTrackingOnly,
     selectTokenById,
+    selectTokenByIdNullable,
     selectSelectedAccounts,
     selectTokensByUnifiedTokenId,
     selectHdWalletById,

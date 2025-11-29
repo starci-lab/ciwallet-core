@@ -12,6 +12,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://testnet.monadexplorer.com/",
                 [Network.Testnet]: "https://testnet.monadexplorer.com/",
             },
+            minimumGasRequired: 0.01,
         },
         {
             id: ChainId.Hyperliquid,
@@ -21,6 +22,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://rpc.hyperliquid.xyz/evm",
                 [Network.Testnet]: "https://rpc.hyperliquid-testnet.xyz/evm",
             },
+            minimumGasRequired: 0, // HL không dùng gas
         },
         {
             id: ChainId.Arbitrum,
@@ -30,6 +32,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://arbiscan.io",
                 [Network.Testnet]: "https://sepolia.arbiscan.io/",
             },
+            minimumGasRequired: 0.0002,
         },
         {
             id: ChainId.Aptos,
@@ -40,6 +43,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://aptos.network",
                 [Network.Testnet]: "https://aptos.network",
             },
+            minimumGasRequired: 0.01,
         },
         {
             id: ChainId.Sui,
@@ -50,6 +54,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://sui.network",
                 [Network.Testnet]: "https://sui.network",
             },
+            minimumGasRequired: 0.01,
         },
         {
             id: ChainId.Solana,
@@ -59,6 +64,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://solana.network",
                 [Network.Testnet]: "https://solana.network",
             },
+            minimumGasRequired: 0.0001,
         },
         {
             id: ChainId.Bsc,
@@ -68,6 +74,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://bsc.network",
                 [Network.Testnet]: "https://bsc.network",
             },
+            minimumGasRequired: 0.001,
         },
         {
             id: ChainId.Polygon,
@@ -77,6 +84,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://polygon.network",
                 [Network.Testnet]: "https://polygon.network",
             },
+            minimumGasRequired: 1, // 1 MATIC
         },
         {
             id: ChainId.Ethereum,
@@ -86,6 +94,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://etherscan.io",
                 [Network.Testnet]: "https://etherscan.io",
             },
+            minimumGasRequired: 0.003,
         },
         {
             id: ChainId.Avalanche,
@@ -95,6 +104,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://snowtrace.io",
                 [Network.Testnet]: "https://snowtrace.io",
             },
+            minimumGasRequired: 0.02,
         },
         {
             id: ChainId.Fantom,
@@ -104,6 +114,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://ftmscan.com",
                 [Network.Testnet]: "https://ftmscan.com",
             },
+            minimumGasRequired: 1, // 1 FTM
         },
         {
             id: ChainId.Base,
@@ -113,6 +124,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://basescan.org",
                 [Network.Testnet]: "https://basescan.org",
             },
+            minimumGasRequired: 0.0002,
         },
         {
             id: ChainId.Bitcoin,
@@ -122,6 +134,7 @@ export class ChainManager {
                 [Network.Mainnet]: "https://blockstream.info",
                 [Network.Testnet]: "https://blockstream.info",
             },
+            minimumGasRequired: 0, // Bitcoin không có gas
         },
         {
             id: ChainId.Plasma,
@@ -131,8 +144,10 @@ export class ChainManager {
                 [Network.Mainnet]: "https://plasma.to",
                 [Network.Testnet]: "https://plasma.to",
             },
+            minimumGasRequired: 0.001,
         },
     ]
+
     private chains: Array<ChainMetadata> = []
 
     constructor() {
@@ -192,7 +207,6 @@ export class ChainManager {
     }) {
         const { chainId, iconUrl, iconInvertedUrl } = options
 
-        // If a specific chainId is provided → update only that chain
         if (chainId) {
             const chain = this.getChainById(chainId)
             if (!chain) return
@@ -201,7 +215,6 @@ export class ChainManager {
             return
         }
 
-        // If no chainId provided → apply updates globally for all chains
         for (const chain of this.chains) {
             if (iconUrl) chain.iconUrl = iconUrl
             if (iconInvertedUrl) chain.iconInvertedUrl = iconInvertedUrl
@@ -210,31 +223,11 @@ export class ChainManager {
 
     public getPlatformMetadatas(): Array<PlatformMetadata> {
         return [
-            {
-                platform: Platform.Evm,
-                name: "EVM Networks",
-                symbol: "EVM",
-            },
-            {
-                platform: Platform.Solana,
-                name: "Solana Networks",
-                symbol: "Solana",
-            },
-            {
-                platform: Platform.Sui,
-                name: "Sui Networks",
-                symbol: "Sui",
-            },
-            {
-                platform: Platform.Aptos,
-                name: "Aptos Networks",
-                symbol: "Aptos",
-            },
-            {
-                platform: Platform.Bitcoin,
-                name: "Bitcoin Networks",
-                symbol: "Bitcoin",
-            },
+            { platform: Platform.Evm, name: "EVM Networks", symbol: "EVM" },
+            { platform: Platform.Solana, name: "Solana Networks", symbol: "Solana" },
+            { platform: Platform.Sui, name: "Sui Networks", symbol: "Sui" },
+            { platform: Platform.Aptos, name: "Aptos Networks", symbol: "Aptos" },
+            { platform: Platform.Bitcoin, name: "Bitcoin Networks", symbol: "Bitcoin" },
         ]
     }
 

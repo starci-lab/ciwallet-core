@@ -7,29 +7,26 @@ import { useSwapFormik } from "@/nomas/hooks"
 import { SelectTokenFunction } from "./SelectTokenFunction"
 import { SlippageConfigFunction } from "./SlippageConfigFunction"
 import { TransactionReceiptPage } from "@/nomas/components"
-import { chainIdToPlatform, roundNumber } from "@ciwallet-sdk/utils"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { TokenId } from "@ciwallet-sdk/types"
 
 export const SwapSection = () => {
     const swapPage = useAppSelector((state) => state.stateless.sections.swap.swapFunctionPage)
     const dispatch = useAppDispatch()
     const formik = useSwapFormik()
-    const network = useAppSelector((state) => state.persists.session.network)
-    const tokens = useAppSelector((state) => state.persists.session.tokens)
-    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
-    const prices = useAppSelector((state) => state.stateless.dynamic.prices)
-    const txHash = useAppSelector((state) => state.stateless.sections.swap.txHash)
     const swapSuccess = useAppSelector((state) => state.stateless.sections.swap.swapSuccess)
     const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const transactionType = useAppSelector((state) => state.stateless.sections.swap.transactionType)
     const searchQuery = useAppSelector((state) => state.stateless.sections.swap.searchQuery)
+    const txHash = useAppSelector((state) => state.stateless.sections.swap.txHash)
     const transactionData = useMemo(() => {
         switch (transactionType) {
         case TransactionType.Swap:
             return {
                 type: transactionType,
                 chainId: formik.values.tokenInChainId,
-                fromTokenId: formik.values.tokenIn,
-                toTokenId: formik.values.tokenOut,
+                fromTokenId: formik.values.tokenIn ?? TokenId.MonadTestnetMon,
+                toTokenId: formik.values.tokenOut ?? TokenId.MonadTestnetMon,
                 fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
                 toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
                 fromAmount: Number(formik.values.amountIn),
@@ -40,8 +37,8 @@ export const SwapSection = () => {
         case TransactionType.Bridge:
             return {
                 type: transactionType,
-                fromTokenId: formik.values.tokenIn,
-                toTokenId: formik.values.tokenOut,
+                fromTokenId: formik.values.tokenIn ?? TokenId.MonadTestnetMon,
+                toTokenId: formik.values.tokenOut ?? TokenId.MonadTestnetMon,
                 fromChainId: formik.values.tokenInChainId,
                 toChainId: formik.values.tokenOutChainId,
                 fromAmount: Number(formik.values.amountIn),
@@ -55,7 +52,7 @@ export const SwapSection = () => {
             throw new Error(`Transaction type ${transactionType} not supported`)
         }
 
-    }, [transactionType, formik.values.tokenInChainId, formik.values.tokenIn, formik.values.tokenOut])
+    }, [transactionType, formik.values, txHash])
     const renderPage = () => {
         switch (swapPage) {
         case SwapFunctionPage.TransactionReceipt:
@@ -64,9 +61,11 @@ export const SwapSection = () => {
                 success={swapSuccess}
                 showBackButton={true}
                 onBackButtonPress={() => {
+                    formik.resetForm()
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
                 onProceedButtonClick={() => {
+                    formik.resetForm()
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
             />
@@ -95,18 +94,6 @@ export const SwapSection = () => {
                 onBackButtonPress={() => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
-                endContent={
-                    (chainId) => {
-                        if (chainId === "all-network") {
-                            throw new Error("All networks not supported")
-                        }
-                        const chainTokens = tokens[chainId][network]
-                        const totalValue = chainTokens.reduce(
-                            (acc: number, token) => acc + (balances[token.tokenId] ?? 0) * (prices[token.tokenId] ?? 0), 0)
-                        return (
-                            <div className="text-sm">${roundNumber(totalValue)}</div>
-                        )
-                    }}
             />
         }
     }

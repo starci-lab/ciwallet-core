@@ -1,25 +1,25 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { useContext, useEffect, useMemo } from "react"
+import { useContext } from "react"
 import { FormikContext } from "./FormikProvider"
-import { WithdrawFunctionPage, selectSelectedAccountByPlatform, selectTokens, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
-import { ChainId, Platform, TokenId, TokenType } from "@ciwallet-sdk/types"
+import { WithdrawFunctionPage, selectSelectedAccounts, selectTokens, setWithdrawFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { Platform, TokenId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
 import { useTransfer } from "@ciwallet-sdk/hooks"
-import { chainIdToPlatform, isValidAddress } from "@ciwallet-sdk/utils"
+import { isValidAddress } from "@ciwallet-sdk/utils"
 
 // -------------------------------------
 // Formik Values Interface
 // -------------------------------------
 export interface TransferFormikValues {
-  chainId: ChainId
+  chainId: ChainIdWithAllNetwork
   toAddress: string
   amount: number
   txHash: string
-  gasTokenId: TokenId
+  platform?: Platform
+  gasTokenId: TokenId | undefined
   isEnoughGasBalance: boolean
-  tokenId: TokenId
+  tokenId: TokenId | undefined
   balance: number
-  privateKey: string
   amountFocused: boolean
   searchTokenQuery: string
 }
@@ -33,8 +33,7 @@ const validationSchema = Yup.object({
     toAddress: Yup.string()
         .required("Recipient address is required")
         .test("is-valid-address", function (value) {
-            const { chainId } = this.parent
-            const platform = chainIdToPlatform(chainId)
+            const { platform } = this.parent
             const messages = {
                 evm: "Invalid EVM address",
                 solana: "Invalid Solana address",
@@ -58,13 +57,13 @@ const validationSchema = Yup.object({
                 break
             }
             if (!valid) {
-                return this.createError({ message: messages[platform] || "Invalid recipient address" })
+                return this.createError({ message: messages[platform as keyof typeof messages] || "Invalid recipient address" })
             }
             return true
         }),
     isEnoughGasBalance: Yup.boolean()
         .required("Is enough gas balance is required")
-        .oneOf([true], "You need to have at least 0.1 MON to cover the gas fee"),
+        .oneOf([true], "You need to have at least 0.01 {gasTokenSymbol} to cover the gas fee."),
     amount: Yup.number()
         .required("Amount is required")
         .positive("Amount must be greater than 0")
@@ -96,35 +95,38 @@ export const useTransferFormikCore = () => {
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
     const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const { handle } = useTransfer()
+    const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const dispatch = useAppDispatch()
     const formik = useFormik<TransferFormikValues>({
         initialValues: {
             isEnoughGasBalance: false,
-            gasTokenId: TokenId.MonadTestnetMon,
-            chainId: ChainId.Monad,
+            gasTokenId: undefined,
+            chainId: "all-network",
             toAddress: "",
             amount: 0,
-            tokenId: TokenId.MonadTestnetMon,
+            tokenId: undefined,
             balance: 0,
-            privateKey: "",
             amountFocused: false,
             searchTokenQuery: "",
             txHash: "",
+            platform: undefined,
         },
         validationSchema,
         onSubmit: async (values) => {
             try {
+                const selectedAccount = selectedAccounts[values.platform ?? Platform.Evm]
+                const token = tokenArray.find((token) => token.tokenId === values.tokenId)
+                if (!token) return
                 const result = await handle({
-                    chainId: formik.values.chainId,
+                    chainId: token.chainId,
                     network,
                     decimals: tokenArray.find((token) => token.tokenId === values.tokenId)?.decimals ?? 18,
                     toAddress: values.toAddress,
                     amount: values.amount,
                     tokenAddress: tokenArray.find((token) => token.tokenId === values.tokenId)?.address ?? "",
-                    rpcs: rpcs[formik.values.chainId][network],
-                    privateKey: values.privateKey,
+                    rpcs: rpcs[token.chainId][network],
+                    privateKey: selectedAccount?.privateKey ?? "",
                 })
-                console.log("Transfer result:", result)
                 formik.setFieldValue("txHash", result.txHash)
                 dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.TransactionReceipt))
             } catch (error) {
@@ -132,24 +134,5 @@ export const useTransferFormikCore = () => {
             }
         },
     })
-    // we need to set the private key from the selected account
-    const selectedAccount = useAppSelector((state) => 
-        selectSelectedAccountByPlatform(
-            state.persists, 
-            chainIdToPlatform(formik.values.chainId))
-    )
-    useEffect(() => {
-        if (!selectedAccount) return
-        formik.setFieldValue("privateKey", selectedAccount.privateKey)
-    }, [selectedAccount])
-    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
-    const gasTokenId = useMemo(() => {
-        return tokenArray.find((token) => token.chainId === formik.values.chainId && token.network === network && token.type === TokenType.Native)?.tokenId
-    }, [tokenArray, formik.values.chainId, network])
-    
-    useEffect(() => {
-        if (!gasTokenId) return
-        formik.setFieldValue("isEnoughGasBalance", (balances[gasTokenId] ?? 0) >= 0.1)
-    }, [gasTokenId, balances])
     return formik
 }
