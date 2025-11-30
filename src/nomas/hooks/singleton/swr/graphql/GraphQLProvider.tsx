@@ -1,19 +1,25 @@
 import { createContext, type PropsWithChildren } from "react"
 import { useGraphQLQueryGetListStoreItems } from "./queries/useGraphQLQueryGetListStoreItems"
 import { useGraphQLMutationVerifyMessageSwrMutation } from "@/nomas/hooks/singleton/swr/graphql/mutations"
+import { useGraphQLQueryRequestSignature } from "./queries/useGraphQLQueryRequestSignature"
+import { useGraphQLQueryGetListPets } from "./queries/useGraphQLQueryPets"
 
 export interface GraphQLContextType {
-  getListStoreItems: ReturnType<typeof useGraphQLQueryGetListStoreItems>
-  verifyMessage: ReturnType<typeof useGraphQLMutationVerifyMessageSwrMutation>
+    getListStoreItems: ReturnType<typeof useGraphQLQueryGetListStoreItems>
+    getListPets: ReturnType<typeof useGraphQLQueryGetListPets>
+    verifyMessage: ReturnType<typeof useGraphQLMutationVerifyMessageSwrMutation>
+    requestSignature: ReturnType<typeof useGraphQLQueryRequestSignature>
 }
 
 export const GraphQLContext = createContext<GraphQLContextType | null>(null)
 
 export const GraphQLProvider = ({ children }: PropsWithChildren) => {
     const getListStoreItems = useGraphQLQueryGetListStoreItems()
+    const getListPets = useGraphQLQueryGetListPets()
     const verifyMessage = useGraphQLMutationVerifyMessageSwrMutation()
+    const requestSignature = useGraphQLQueryRequestSignature()
     return (
-        <GraphQLContext.Provider value={{ getListStoreItems, verifyMessage }}>
+        <GraphQLContext.Provider value={{ getListStoreItems, getListPets, verifyMessage, requestSignature }}>
             {children}
         </GraphQLContext.Provider>
     )

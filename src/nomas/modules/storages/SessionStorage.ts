@@ -1,4 +1,4 @@
-import superjson from "@ciwallet-sdk/utils/superjson"
+import superjson from "superjson"
 
 // session storage interface to manage session storage
 export class SessionStorage {
@@ -19,5 +19,5 @@ export class SessionStorage {
 
 export enum SessionStorageKey {
     AccessToken = "accessToken",
-    TemporaryAccessToken = "temporaryAccessToken",
+    TemporaryAccessToken = "temporaryAccessToken"
 }

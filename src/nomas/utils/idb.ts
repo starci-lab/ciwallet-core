@@ -4,7 +4,7 @@ const db = await openDB("nomas-db", 1, {
     upgrade(database) {
         database.createObjectStore("auth")
         database.createObjectStore("pets")
-    },
+    }
 })
 
 export const AuthDB = {
@@ -31,11 +31,15 @@ export const AuthDB = {
         await db.delete("auth", "refresh_token")
         await db.delete("auth", "address_wallet")
     },
+    isAuthenticated: async (): Promise<boolean> => {
+        const accessToken = await db.get("auth", "access_token")
+        return !!accessToken
+    }
 }
 
 export const PetsDB = {
     setPoopCount: async (petId: string, poopCount: number) => {
-        return await db.put("pets", poopCount,"poop_count_"+ petId)
+        return await db.put("pets", poopCount, "poop_count_" + petId)
     },
     getPoopCount: async (petId: string): Promise<number> => {
         return (await db.get("pets", "poop_count_" + petId)) || 0
@@ -45,5 +49,5 @@ export const PetsDB = {
     },
     clearPoopCount: async (petId: string) => {
         await db.delete("pets", "poop_count_" + petId)
-    },
+    }
 }

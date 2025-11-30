@@ -5,7 +5,7 @@ import { SwrProvider } from "./swr"
 import { ColyseusProvider } from "./colyseus"
 import { PhaserProvider } from "./phaser"
 import { HyperliquidProvider } from "./hyperliquid"
-import { GraphQLProvider } from "./graphql"
+import { GraphQLProvider } from "./swr/graphql"
 
 export const SingletonHookProvider = ({ children }: PropsWithChildren) => {
     return (

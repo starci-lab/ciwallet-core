@@ -1,5 +1,5 @@
 import type { GraphQLResponse } from "@/nomas/modules/api/graphql/types"
-import { createNoCacheCredentialAuthClientWithHeaders } from "../clients"
+import { authClient } from "../clients"
 import { gql } from "@apollo/client"
 
 export enum QueryStoreItems {
@@ -8,33 +8,48 @@ export enum QueryStoreItems {
 
 export const StoreItemsQueries = {
     [QueryStoreItems.ListStoreItem]: gql`
-        query StoreItems($request: StoreItemsRequest!) {
-            storeItems(request: $request) {
+        query GameStoreItems {
+            gameStoreItems {
                 message
                 success
                 error
                 data {
-                    items {
-                        id
-                        name
-                        description
-                        price
-                        image
-                    }
+                    displayId
+                    name
+                    type
+                    description
+                    costNom
+                    effectHunger
+                    effectHappiness
+                    effectCleanliness
+                    effectDuration
+                    createdAt
+                    updatedAt
                 }
             }
         }
     `
 } as const
 
+export type StoreItemType = "food" | "toy" | "clean" | "furniture" | "background" | "pet"
+
+export interface StoreItem {
+    id: string
+    displayId: string
+    name: string
+    type: StoreItemType
+    description?: string
+    costNom: number
+    effectHunger?: number
+    effectHappiness?: number
+    effectCleanliness?: number
+    effectDuration?: number
+    createdAt: string
+    updatedAt: string
+}
+
 export interface StoreItemsResponse {
-    items: {
-        id: string
-        name: string
-        description: string
-        price: number
-        image: string
-    }[]
+    items: StoreItem[]
 }
 
 export interface StoreItemsRequest {
@@ -43,23 +58,15 @@ export interface StoreItemsRequest {
 
 export type QueryStoreItemsParams = {
     query?: QueryStoreItems
-    request: StoreItemsRequest
-    headers: Record<string, string>
 }
 
-export const queryStoreItems = async ({
-    query = QueryStoreItems.ListStoreItem,
-    request,
-    headers
-}: QueryStoreItemsParams) => {
-    if (!headers) throw new Error("Headers are required")
-    if (!request) throw new Error("Request is required")
-
+export const queryStoreItems = async ({ query = QueryStoreItems.ListStoreItem }: QueryStoreItemsParams = {}) => {
     const queryDocument = StoreItemsQueries[query]
-    return await createNoCacheCredentialAuthClientWithHeaders(headers).query<{
-        storeItems: GraphQLResponse<StoreItemsResponse>
+
+    return await authClient.query<{
+        gameStoreItems: GraphQLResponse<StoreItem[]>
     }>({
         query: queryDocument,
-        variables: { request }
+        fetchPolicy: "no-cache"
     })
 }

@@ -1,145 +1,140 @@
-import http from "@/nomas/utils/http"
-import type {
-    StoreApiResponse,
-    ResponseItemDto,
-    ResponsePetTypeDto,
-} from "@/types/api"
+import { queryPets, queryStoreItems, type StoreItem } from "@/nomas/modules"
 
 export interface GameConfig {
-  food: {
-    items: FoodItem[]
-    defaultPrice: number
-  }
-  cleaning: {
-    items: CleaningItem[]
-    defaultPrice: number
-  }
-  toys: {
-    items: ToyItem[]
-    defaultPrice: number
-  }
-  pets: {
-    items: PetItem[]
-    defaultPrice: number
-  }
-  backgrounds: {
-    items: BackgroundItem[]
-    defaultPrice: number
-  }
-  furniture: {
-    items: FurnitureItem[]
-    defaultPrice: number
-  }
-  economy: {
-    initialTokens: number
-    hungerDecreaseRate: number
-  }
-  gameplay: {
-    foodDespawnTime: number
-    maxFoodInventory: number
-    maxCleaningInventory: number
-    maxToyInventory: number
-  }
+    food: {
+        items: FoodItem[]
+        defaultPrice: number
+    }
+    cleaning: {
+        items: CleaningItem[]
+        defaultPrice: number
+    }
+    toys: {
+        items: ToyItem[]
+        defaultPrice: number
+    }
+    pets: {
+        items: PetItem[]
+        defaultPrice: number
+    }
+    backgrounds: {
+        items: BackgroundItem[]
+        defaultPrice: number
+    }
+    furniture: {
+        items: FurnitureItem[]
+        defaultPrice: number
+    }
+    economy: {
+        initialTokens: number
+        hungerDecreaseRate: number
+    }
+    gameplay: {
+        foodDespawnTime: number
+        maxFoodInventory: number
+        maxCleaningInventory: number
+        maxToyInventory: number
+    }
 }
 
 export interface FoodItem {
-  id: string
-  name: string
-  cost_nom: number
-  hungerRestore: number
-  texture: string
-  image_url?: string
-  rarity?: "common" | "rare" | "epic"
+    id: string
+    name: string
+    cost_nom: number
+    hungerRestore: number
+    texture: string
+    image_url?: string
+    rarity?: "common" | "rare" | "epic"
 }
 
 export interface CleaningItem {
-  id: string
-  name: string
-  cost_nom: number
-  cleanlinessRestore: number
-  texture: string
-  image_url?: string
-  rarity?: "common" | "rare" | "epic"
+    id: string
+    name: string
+    cost_nom: number
+    cleanlinessRestore: number
+    texture: string
+    image_url?: string
+    rarity?: "common" | "rare" | "epic"
 }
 
 export interface ToyItem {
-  id: string
-  name: string
-  cost_nom: number
-  happinessRestore: number
-  texture: string
-  image_url?: string
-  rarity?: "common" | "rare" | "epic"
+    id: string
+    name: string
+    cost_nom: number
+    happinessRestore: number
+    texture: string
+    image_url?: string
+    rarity?: "common" | "rare" | "epic"
 }
 
 export interface PetItem {
-  id: string
-  name: string
-  cost_nom: number
-  description: string
-  texture: string
-  image_url?: string
-  rarity?: "common" | "rare" | "epic"
-  species: string
+    id: string
+    name: string
+    cost_nom: number
+    description: string
+    texture: string
+    image_url?: string
+    rarity?: "common" | "rare" | "epic"
+    species: string
 }
 
 export interface BackgroundItem {
-  id: string
-  name: string
-  cost_nom: number
-  description: string
-  texture: string
-  image_url?: string
-  rarity?: "common" | "rare" | "epic"
-  theme: string
+    id: string
+    name: string
+    cost_nom: number
+    description: string
+    texture: string
+    image_url?: string
+    rarity?: "common" | "rare" | "epic"
+    theme: string
 }
 
 export interface FurnitureItem {
-  id: string
-  name: string
-  cost_nom: number
-  description: string
-  texture: string
-  image_url?: string
-  rarity?: "common" | "rare" | "epic"
+    id: string
+    name: string
+    cost_nom: number
+    description: string
+    texture: string
+    image_url?: string
+    rarity?: "common" | "rare" | "epic"
 }
 
 // Default local config (fallback)
 export const DEFAULT_GAME_CONFIG: GameConfig = {
     food: {
         items: [],
-        defaultPrice: 10,
+        defaultPrice: 10
     },
     cleaning: {
         items: [],
-        defaultPrice: 10,
+        defaultPrice: 10
     },
     toys: {
         items: [],
-        defaultPrice: 17,
+        defaultPrice: 17
     },
     pets: {
         items: [],
-        defaultPrice: 50,
+        defaultPrice: 50
     },
     backgrounds: {
         items: [],
-        defaultPrice: 30,
+        defaultPrice: 30
     },
     furniture: {
         items: [],
-        defaultPrice: 0,
+        defaultPrice: 0
     },
     economy: {
         initialTokens: 100,
-        hungerDecreaseRate: 2,
+        hungerDecreaseRate: 2
     },
     gameplay: {
         foodDespawnTime: 20000,
         maxFoodInventory: 10,
         maxCleaningInventory: 5,
-        maxToyInventory: 5,
-    },
+        maxToyInventory: 5
+    }
 }
 
 class GameConfigManager {
@@ -147,117 +142,133 @@ class GameConfigManager {
     private isLoaded = false
 
     async loadConfig(): Promise<GameConfig> {
-        console.log("🔄 Starting loadConfig...")
+        console.log("Starting loadConfig...")
         try {
-            console.log("📞 Calling API /store-item...")
-            const response = await http.get<StoreApiResponse>("/store-item")
-            console.log("📥 Loaded game config from API:", response.data)
+            console.log("Calling API /store-item...")
+            const response = await queryStoreItems()
+            const petResponse = await queryPets()
+            console.log("Loaded game config from API:", response.data)
 
-            const { food, toy, clean, background, pet, furniture } = response.data
+            const items = response.data?.gameStoreItems?.data ?? []
+            const pets = petResponse.data?.gamePets?.data ?? []
 
-            const foodItems: FoodItem[] = food.map((item: ResponseItemDto) => ({
-                id: item._id,
-                name: item.name,
-                cost_nom: item.cost_nom,
-                hungerRestore: item.effect?.hunger ?? 15,
-                texture: item.name.toLowerCase().replace(/ /g, "_"),
-                image_url: item.image_url,
-                rarity: "common",
-            }))
+            if (!items || !pets) {
+                throw new Error("No store items or pets data returned")
+            }
 
-            const cleaningItems: CleaningItem[] = clean.map(
-                (item: ResponseItemDto) => ({
-                    id: item._id,
+            const foodItems: FoodItem[] = items
+                .filter((item) => item.type === "food")
+                .map((item: StoreItem) => ({
+                    id: item.id || item.dis,
                     name: item.name,
-                    cost_nom: item.cost_nom,
-                    cleanlinessRestore: item.effect?.cleanliness ?? 15,
-                    texture: item.name.toLowerCase().replace(/ /g, "_"),
-                    image_url: item.image_url,
-                    rarity: "common",
-                })
-            )
+                    cost_nom: item.costNom,
+                    hungerRestore: item.effectHunger ?? 15,
+                    texture: item.displayId || item.name.toLowerCase().replace(/ /g, "_"),
+                    image_url: undefined,
+                    rarity: "common"
+                }))
 
-            const toyItems: ToyItem[] = toy.map((item: ResponseItemDto) => ({
-                id: item._id,
-                name: item.name,
-                cost_nom: item.cost_nom,
-                happinessRestore: item.effect?.happiness ?? 15,
-                texture: item.name.toLowerCase().replace(/ /g, "_"),
-                image_url: item.image_url,
-                rarity: "common",
-            }))
-
-            const backgroundItems: BackgroundItem[] = background.map(
-                (item: ResponseItemDto) => ({
-                    id: item._id,
+            const cleaningItems: CleaningItem[] = items
+                .filter((item) => item.type === "clean")
+                .map((item: StoreItem) => ({
+                    id: item.id,
                     name: item.name,
-                    cost_nom: item.cost_nom,
-                    description: item.description,
-                    texture: item.name.toLowerCase().replace(/ /g, "_"),
-                    image_url: item.image_url,
-                    theme: "default", // Placeholder
-                    rarity: "common",
-                })
-            )
+                    cost_nom: item.costNom,
+                    cleanlinessRestore: item.effectCleanliness ?? 15,
+                    texture: item.displayId || item.name.toLowerCase().replace(/ /g, "_"),
+                    image_url: undefined,
+                    rarity: "common"
+                }))
 
-            const furnitureItems: FurnitureItem[] = furniture.map(
-                (item: ResponseItemDto) => ({
-                    id: item._id,
+            const toyItems: ToyItem[] = items
+                .filter((item) => item.type === "toy")
+                .map((item: StoreItem) => ({
+                    id: item.id,
                     name: item.name,
-                    cost_nom: item.cost_nom,
-                    description: item.description,
-                    texture: item.name.toLowerCase().replace(/ /g, "_"),
-                    image_url: item.image_url,
-                    rarity: "common",
-                })
-            )
+                    cost_nom: item.costNom,
+                    happinessRestore: item.effectHappiness ?? 15,
+                    texture: item.displayId || item.name.toLowerCase().replace(/ /g, "_"),
+                    image_url: undefined,
+                    rarity: "common"
+                }))
 
-            const petItems: PetItem[] = pet.map((item: ResponsePetTypeDto) => ({
-                id: item._id,
+            const backgroundItems: BackgroundItem[] = items
+                .filter((item) => item.type === "background")
+                .map((item: StoreItem) => ({
+                    id: item.id,
+                    name: item.name,
+                    cost_nom: item.costNom,
+                    description: item.description || "",
+                    texture: item.displayId || item.name.toLowerCase().replace(/ /g, "_"),
+                    image_url: undefined,
+                    theme: "default",
+                    rarity: "common"
+                }))
+
+            const furnitureItems: FurnitureItem[] = items
+                .filter((item) => item.type === "furniture")
+                .map((item: StoreItem) => ({
+                    id: item.id,
+                    name: item.name,
+                    cost_nom: item.costNom,
+                    description: item.description || "",
+                    texture: item.displayId || item.name.toLowerCase().replace(/ /g, "_"),
+                    image_url: undefined,
+                    rarity: "common"
+                }))
+
+            // const petItems: PetItem[] = pet.map((item: ResponsePetTypeDto) => ({
+            //     id: item._id,
+            //     name: item.name,
+            //     cost_nom: Number((item as ResponsePetTypeDto).cost_nom ?? 0),
+            //     description: item.description ?? "",
+            //     texture: item.name.toLowerCase().replace(/ /g, "_"),
+            //     image_url: item.image_url,
+            //     species: item.name,
+            //     rarity: "common"
+            // }))
+            const petItems: PetItem[] = pets.map((item) => ({
+                id: item.id,
                 name: item.name,
-                cost_nom: Number((item as ResponsePetTypeDto).cost_nom ?? 0),
-                description: item.description ?? "",
-                texture: item.name.toLowerCase().replace(/ /g, "_"),
-                image_url: item.image_url,
+                cost_nom: item.costNom,
+                description: item.description || "",
+                texture: item.displayId || item.name.toLowerCase().replace(/ /g, "_"),
+                image_url: undefined,
                 species: item.name,
-                rarity: "common",
+                rarity: "common"
             }))
 
             const serverConfig: Partial<GameConfig> = {
                 food: {
                     items: foodItems,
-                    defaultPrice: foodItems[0]?.cost_nom || this.config.food.defaultPrice,
+                    defaultPrice: foodItems[0]?.cost_nom || this.config.food.defaultPrice
                 },
                 cleaning: {
                     items: cleaningItems,
-                    defaultPrice:
-            cleaningItems[0]?.cost_nom || this.config.cleaning.defaultPrice,
+                    defaultPrice: cleaningItems[0]?.cost_nom || this.config.cleaning.defaultPrice
                 },
                 toys: {
                     items: toyItems,
-                    defaultPrice: toyItems[0]?.cost_nom || this.config.toys.defaultPrice,
+                    defaultPrice: toyItems[0]?.cost_nom || this.config.toys.defaultPrice
                 },
                 backgrounds: {
                     items: backgroundItems,
-                    defaultPrice:
-            backgroundItems[0]?.cost_nom ||
-            this.config.backgrounds.defaultPrice,
+                    defaultPrice: backgroundItems[0]?.cost_nom || this.config.backgrounds.defaultPrice
                 },
                 furniture: {
                     items: furnitureItems,
-                    defaultPrice:
-            furnitureItems[0]?.cost_nom || this.config.furniture.defaultPrice,
+                    defaultPrice: furnitureItems[0]?.cost_nom || this.config.furniture.defaultPrice
                 },
                 pets: {
                     items: petItems,
-                    defaultPrice: petItems[0]?.cost_nom || this.config.pets.defaultPrice,
-                },
+                    defaultPrice: petItems[0]?.cost_nom || this.config.pets.defaultPrice
+                }
             }
 
             this.config = { ...DEFAULT_GAME_CONFIG, ...serverConfig }
-            console.log("✅ Game config loaded and processed from API.")
+            console.log("Game config loaded and processed from API.")
         } catch (error) {
-            console.log("⚠️ Using default game config (API error):", error)
+            console.log("Using default game config (API error):", error)
         }
 
         this.isLoaded = true
@@ -278,9 +289,7 @@ class GameConfigManager {
     }
 
     getCleaningPrice(cleaningId: string = "brush"): number {
-        const cleaningItem = this.config.cleaning.items.find(
-            (item) => item.id === cleaningId
-        )
+        const cleaningItem = this.config.cleaning.items.find((item) => item.id === cleaningId)
         return cleaningItem?.cost_nom || this.config.cleaning.defaultPrice
     }
 
@@ -315,16 +324,12 @@ class GameConfigManager {
     }
 
     getBackgroundPrice(backgroundId: string = "forest"): number {
-        const backgroundItem = this.config.backgrounds.items.find(
-            (item) => item.id === backgroundId
-        )
+        const backgroundItem = this.config.backgrounds.items.find((item) => item.id === backgroundId)
         return backgroundItem?.cost_nom || this.config.backgrounds.defaultPrice
     }
 
     getBackgroundItem(backgroundId: string): BackgroundItem | undefined {
-        return this.config.backgrounds.items.find(
-            (item) => item.id === backgroundId
-        )
+        return this.config.backgrounds.items.find((item) => item.id === backgroundId)
     }
 
     getBackgroundItems(): { [key: string]: BackgroundItem } {
@@ -377,7 +382,7 @@ class GameConfigManager {
 
     // Debug method to log current food items
     logFoodItems(): void {
-        console.log("🍔 Current Food Items Configuration:")
+        console.log("Current Food Items Configuration:")
         console.log("================================")
         this.config.food.items.forEach((item, index) => {
             console.log(`${index + 1}. ${item.name}`)

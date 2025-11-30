@@ -4,64 +4,73 @@ import type { GraphQLResponse, MutationParams } from "../types"
 import { noCacheCredentialClient } from "../clients"
 
 const mutation1 = gql`
-  mutation VerifyMessage($request: VerifyMessageRequest!) {
-    verifyMessage(request: $request) {
-      message
-      success
-      error
-      data {
-        accessToken
-        refreshToken
-        walletAddress
-      }
+    mutation VerifyMessage($input: VerifyMessageInput!) {
+        verifyMessage(input: $input) {
+            success
+            message
+            error
+            data {
+                accessToken
+                refreshToken {
+                    token
+                    expiredAt
+                }
+            }
+        }
     }
-  }
 `
 
 export enum MutationVerifyMessage {
-  Mutation1 = "mutation1",
+    Mutation1 = "mutation1"
 }
 
-export interface VerifyMessageRequest {
-  message: string
-  address: string
-  signature: string
+export enum Platform {
+    Evm = "evm",
+    Solana = "solana",
+    Sui = "sui",
+    Aptos = "aptos"
+}
+
+export interface VerifyMessageInput {
+    message: string
+    address: string
+    signedMessage: string
+    platform: "evm" | "solana" | "sui" | "aptos"
 }
 
 export interface VerifyMessageResponse {
-  accessToken: string
-  refreshToken: string
-  walletAddress: string
+    accessToken: string
+    refreshToken: {
+        token: string
+        expiredAt: string | null
+    }
 }
 
 const mutationMap: Record<MutationVerifyMessage, DocumentNode> = {
-    [MutationVerifyMessage.Mutation1]: mutation1,
+    [MutationVerifyMessage.Mutation1]: mutation1
 }
 
-export type MutationVerifyMessageParams = MutationParams<
-  MutationVerifyMessage,
-  VerifyMessageRequest
->
+export type MutationVerifyMessageParams = MutationParams<MutationVerifyMessage, VerifyMessageInput>
 
 export const mutationVerifyMessage = async ({
     mutation = MutationVerifyMessage.Mutation1,
-    request,
+    request
 }: MutationVerifyMessageParams) => {
     if (!request) {
         throw new Error("Request is required")
     }
-    if (!request.message || !request.address || !request.signature) {
-        throw new Error("Message, address, and signature are required")
+    if (!request.message || !request.address || !request.signedMessage || !request.platform) {
+        throw new Error("Message, address, signedMessage, and platform are required")
     }
 
     const mutationDocument = mutationMap[mutation]
-    // Use noCacheCredentialClient to include http-only cookies
+
     return await noCacheCredentialClient.mutate<{
-    verifyMessage: GraphQLResponse<VerifyMessageResponse>
-  }>({
-      mutation: mutationDocument,
-      variables: {
-          request,
-      },
-  })
+        verifyMessage: GraphQLResponse<VerifyMessageResponse>
+    }>({
+        mutation: mutationDocument,
+        variables: {
+            input: request
+        }
+    })
 }

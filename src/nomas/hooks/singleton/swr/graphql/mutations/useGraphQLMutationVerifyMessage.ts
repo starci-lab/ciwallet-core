@@ -6,22 +6,19 @@ import type { UseSWRMutation } from "../../types"
 import {
     mutationVerifyMessage,
     type MutationVerifyMessageParams,
-    type VerifyMessageResponse,
+    type VerifyMessageResponse
 } from "@/nomas/modules/api"
+import { AuthDB } from "@/nomas/utils/idb"
 
-export type UseGraphQLMutationVerifyMessageMutationArgs =
-  MutationVerifyMessageParams
+export type UseGraphQLMutationVerifyMessageMutationArgs = MutationVerifyMessageParams
 
 export const useGraphQLMutationVerifyMessageSwrMutation = (): UseSWRMutation<
-  VerifyMessageResponse,
-  UseGraphQLMutationVerifyMessageMutationArgs
+    VerifyMessageResponse,
+    UseGraphQLMutationVerifyMessageMutationArgs
 > => {
     const swrMutation = useSWRMutation(
         v4(),
-        async (
-            _: string,
-            extraArgs: { arg: UseGraphQLMutationVerifyMessageMutationArgs }
-        ) => {
+        async (_: string, extraArgs: { arg: UseGraphQLMutationVerifyMessageMutationArgs }) => {
             const params = { ...extraArgs.arg }
             const result = await mutationVerifyMessage(params)
             const verifyMessageResult = result.data?.verifyMessage?.data
@@ -30,11 +27,17 @@ export const useGraphQLMutationVerifyMessageSwrMutation = (): UseSWRMutation<
                 throw new Error("No data returned from verify message mutation")
             }
 
+            // save access token and refresh token to idb
+            await Promise.all([
+                AuthDB.setAccessToken(verifyMessageResult.accessToken),
+                AuthDB.setRefreshToken(verifyMessageResult.refreshToken.token)
+            ])
+
             return verifyMessageResult
         }
     )
 
     return {
-        swrMutation,
+        swrMutation
     }
 }
