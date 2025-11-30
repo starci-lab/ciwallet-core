@@ -117,6 +117,9 @@ export interface SessionSlice {
     // game minimized
     isGameMinimized: boolean
     isOverlayVisible: boolean
+    triggerAnchoredKey: number
+    posX: number
+    posY: number
 }
 
 /* -----------------------------
@@ -283,7 +286,7 @@ const initialState: SessionSlice = {
     hdWallets: [],
     importedWallets: [],
     encryptedMnemonic: "",
-    network: Network.Testnet,
+    network: Network.Mainnet,
     chainId: ChainId.Monad,
     initialized: false,
     password: "",
@@ -398,6 +401,9 @@ const initialState: SessionSlice = {
     },
     isGameMinimized: false,
     isOverlayVisible: true,
+    triggerAnchoredKey: 0,
+    posX: 0,
+    posY: 0,
 }
 /* -----------------------------
  * Slice
@@ -507,6 +513,15 @@ export const sessionSlice = createSlice({
         },
         setSessionPassword: (state, action: PayloadAction<string>) => {
             state.sessionPassword = action.payload
+        },
+        triggerAnchored: (state) => {
+            state.triggerAnchoredKey++
+        },
+        setPosX: (state, action: PayloadAction<number>) => {
+            state.posX = action.payload
+        },
+        setPosY: (state, action: PayloadAction<number>) => {
+            state.posY = action.payload
         },
     },
     extraReducers: (builder) => {
@@ -671,7 +686,7 @@ export interface SetSelectedAccountIdParams {
 export const sessionReducer = persistReducer(
     getStorageConfig({
         // we do not put password in blacklist because we want to persist it
-        blacklist: ["password", "accounts", "tokens"],
+        blacklist: ["password", "accounts", "tokens", "triggerAnchoredKey", "posX", "posY"],
     }),
     sessionSlice.reducer
 )
@@ -727,6 +742,9 @@ export const {
     setIsGameMinimized,
     setIsOverlayVisible,
     setSessionPassword,
+    triggerAnchored,
+    setPosX,
+    setPosY,
 } = sessionSlice.actions
 
 export const {
