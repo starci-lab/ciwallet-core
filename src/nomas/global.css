@@ -4,7 +4,7 @@
 :host, :root {
   /* Font */
   --font-sans: "Plus Jakarta Sans Variable", sans-serif;
-
+  --font-sans-extension: "Plus Jakarta Sans", sans-serif;
   /* Colors */
   /* Primary text-textcolor (white) — used for titles and main content */
   --color-text: hsl(0 0% 100%);

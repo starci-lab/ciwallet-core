@@ -1,6 +1,6 @@
 import { SingletonHookProvider } from "./hooks"
 import { ChainId } from "@ciwallet-sdk/types"
-import { ReduxProvider, useAppDispatch, useAppSelector } from "./redux"
+import { ReduxProvider, useAppSelector } from "./redux"
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
@@ -39,7 +39,7 @@ export const Nomas = ({ contentEventBus }: NomasProps) => {
                 },
             }}
         >
-            <ReduxProvider>
+            <ReduxProvider loading={<></>}>
                 <SWRConfig value={{
                     provider: () => new Map()
                 }}>

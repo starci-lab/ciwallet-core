@@ -70,7 +70,7 @@ module.exports = {
                 },
             },
             {
-                test: /global\.css$/,
+                test: [/global\.css$/, /property\.css$/],
                 use: [
                     {
                         loader: "css-loader",
@@ -83,7 +83,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                exclude: /global\.css$/,
+                exclude: [/global\.css$/, /property\.css$/],
                 use: ["style-loader", "css-loader", "postcss-loader"],
             },
         ],

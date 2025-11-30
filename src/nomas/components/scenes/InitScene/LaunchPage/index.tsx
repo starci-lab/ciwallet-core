@@ -21,9 +21,9 @@ export const LaunchPage = () => {
                     <div className="text-4xl font-extrabold tracking-tight text-muted">Nomas Wallet</div>
                     <div className="mt-2 text-sm text-muted">Simple - Seamless - Synergy</div>
                 </div>
-                <NomasSpacer y={4} />
+                <NomasSpacer y={6} />
                 <NomasButton
-                    className="w-full justify-between gap-4"
+                    className="w-full justify-between gap-4 h-16 font-bold"
                     endIcon={
                         <img src={assetsConfig().app.rocket} alt="Rocket" className="w-10 h-10" />
                     }
@@ -34,14 +34,14 @@ export const LaunchPage = () => {
                 >
                     Rocket Launch
                 </NomasButton>
-                <NomasSpacer y={4} />
+                <NomasSpacer y={6} />
                 <div className="w-full text-start flex px-6 justify-between">
                     <div className="flex items-center gap-1 text-xs">
-                        <NomasLink>I already have a wallet</NomasLink>
+                        <NomasLink className="text-text-muted">I already have a wallet</NomasLink>
                         <DownloadSimpleIcon className="w-4 h-4 text-muted" />
                     </div>
                     <div className="flex items-center gap-1 text-xs">
-                        <NomasLink>Backup from cloud</NomasLink>
+                        <NomasLink className="text-text-muted">Backup from cloud</NomasLink>
                         <CloudArrowUpIcon className="w-4 h-4 text-muted" />
                     </div>
                 </div>

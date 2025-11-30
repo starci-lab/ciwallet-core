@@ -102,6 +102,7 @@ export interface SessionSlice {
     accounts: Partial<Record<Platform, Accounts>>
     platformIndex: Partial<Record<Platform, number>>
     encryptedMnemonic: string
+    sessionPassword: string
     network: Network
     chainId: ChainId
     initialized: boolean
@@ -286,6 +287,7 @@ const initialState: SessionSlice = {
     chainId: ChainId.Monad,
     initialized: false,
     password: "",
+    sessionPassword: "",
     importedTokens: {},
     trackingTokenIds: [
         TokenId.MonadTestnetMon,
@@ -309,15 +311,15 @@ const initialState: SessionSlice = {
     trackingUnifiedTokenIds: [UnifiedTokenId.Usdc, UnifiedTokenId.Usdt],
     rpcs: {
         [ChainId.Monad]: {
-            [Network.Mainnet]: ["https://testnet-rpc.monad.xyz"],
+            [Network.Mainnet]: ["https://rpc.monad.xyz"],
             [Network.Testnet]: ["https://testnet-rpc.monad.xyz"],
         },
         [ChainId.Solana]: {
-            [Network.Mainnet]: ["https://api.devnet.solana.com"],
+            [Network.Mainnet]: ["https://mainnet.helius-rpc.com/?api-key=195f7f46-73d5-46df-989e-9d743bf3caad"],
             [Network.Testnet]: ["https://api.devnet.solana.com"],
         },
         [ChainId.Sui]: {
-            [Network.Mainnet]: ["https://fullnode.testnet.sui.io:443"],
+            [Network.Mainnet]: ["https://fullnode.mainnet.sui.io:443"],
             [Network.Testnet]: ["https://fullnode.testnet.sui.io:443"],
         },
         [ChainId.Aptos]: {
@@ -325,8 +327,8 @@ const initialState: SessionSlice = {
             [Network.Testnet]: ["https://fullnode.testnet.aptoslabs.com/v1"],
         },
         [ChainId.Bsc]: {
-            [Network.Mainnet]: ["https://bsc-mainnet.g.alchemy.com/v2/demo"],
-            [Network.Testnet]: ["https://bsc-testnet.g.alchemy.com/v2/demo"],
+            [Network.Mainnet]: ["https://binance-smart-chain-public.nodies.app"],
+            [Network.Testnet]: ["https://bsc-testnet-rpc.publicnode.com"],
         },
         [ChainId.Polygon]: {
             [Network.Mainnet]: ["https://polygon-mainnet.g.alchemy.com/v2/demo"],
@@ -503,6 +505,9 @@ export const sessionSlice = createSlice({
         setIsOverlayVisible: (state, action: PayloadAction<boolean>) => {
             state.isOverlayVisible = action.payload
         },
+        setSessionPassword: (state, action: PayloadAction<string>) => {
+            state.sessionPassword = action.payload
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(
@@ -665,6 +670,7 @@ export interface SetSelectedAccountIdParams {
 
 export const sessionReducer = persistReducer(
     getStorageConfig({
+        // we do not put password in blacklist because we want to persist it
         blacklist: ["password", "accounts", "tokens"],
     }),
     sessionSlice.reducer
@@ -720,6 +726,7 @@ export const {
     removeTrackingUnifiedTokenId,
     setIsGameMinimized,
     setIsOverlayVisible,
+    setSessionPassword,
 } = sessionSlice.actions
 
 export const {

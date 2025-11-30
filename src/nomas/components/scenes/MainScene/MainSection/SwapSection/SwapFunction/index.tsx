@@ -150,7 +150,6 @@ export const SwapFunction = () => {
                                 />
                                 <div>
                                     <NomasNumberTransparentInput
-                                        className={twMerge(swapFormik.errors.amountIn && swapFormik.touched.amountIn && "!text-danger")}
                                         value={swapFormik.values.amountIn}
                                         onValueChange={(value) => {
                                             swapFormik.setFieldValue("amountIn", value)

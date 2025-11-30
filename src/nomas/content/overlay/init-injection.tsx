@@ -1,6 +1,6 @@
 import React from "react"
 import { createRoot, type Root } from "react-dom/client"
-import { createOverlayContainer, createShadowRoot, injectTailwindToShadow } from "./dom"
+import { createOverlayContainer, createShadowRoot, injectFontToDocument, injectTailwindToShadow } from "./dom"
 import { getSpecialWebAppConfig } from "./special-web-apps"
 import { OverlayRoot } from "./OverlayRoot" // React component for the overlay UI
 
@@ -25,13 +25,15 @@ export const initInjection = () => {
     // Retrieve configuration (injectDelay, margins, etc.) based on the current hostname
     const { injectDelay } = getSpecialWebAppConfig(window.location.hostname)
 
-    setTimeout(() => {
+    setTimeout(async () => {
         // If body is not yet available, retry later
         if (!document.body) return initInjection()
         console.log("[Nomas] HTML5 Body is available")
         // 1. Create a fixed container in the DOM for the overlay
         const container = createOverlayContainer()
         console.log("[Nomas] Container created")
+        await injectFontToDocument()
+        console.log("[Nomas] Font injected")
         // 2. Attach a Shadow DOM to this container to isolate styles & markup
         shadowRoot = createShadowRoot(container)
         console.log("[Nomas] Shadow root created")

@@ -8,7 +8,6 @@ import { SelectToken } from "./SelectToken"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
 import { ChainId, TokenId, TokenType } from "@ciwallet-sdk/types"
 import Decimal from "decimal.js"
-import { twMerge } from "tailwind-merge"
 
 
 export const WithdrawPageComponent = () => {
@@ -97,7 +96,6 @@ export const WithdrawPageComponent = () => {
                             />
                             <div>
                                 <NomasNumberTransparentInput
-                                    className={twMerge(formik.errors.amount && formik.touched.amount && "!text-danger")}
                                     value={formik.values.amount.toString()}
                                     onValueChange={(value) => {
                                         formik.setFieldValue("amount", value)

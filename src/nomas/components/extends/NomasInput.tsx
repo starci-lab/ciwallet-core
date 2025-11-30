@@ -29,6 +29,7 @@ export interface NomasInputProps
   textAlign?: "left" | "center" | "right"
   containerClassName?: string
   invalidVariant?: NomasInvalidVariant
+  warningClassName?: string
 }
 
 export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
@@ -49,6 +50,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
             postfixIcon,
             textAlign = "left",
             invalidVariant = NomasInvalidVariant.Danger,
+            warningClassName,
             ...props
         },
         ref
@@ -127,7 +129,7 @@ export const NomasInput = React.forwardRef<HTMLInputElement, NomasInputProps>(
             ))}
                 </div>
                 {isInvalid && errorMessage && (
-                    <NomasWarningText color={invalidVariant === NomasInvalidVariant.Warning ? "warning" : "danger"}>{errorMessage}</NomasWarningText>
+                    <NomasWarningText  color={invalidVariant === NomasInvalidVariant.Warning ? "warning" : "danger"} className={warningClassName}>{errorMessage}</NomasWarningText>
                 )}
             </div>
         )

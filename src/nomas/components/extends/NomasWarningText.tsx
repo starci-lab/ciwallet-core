@@ -1,9 +1,11 @@
 import React, { useMemo, type PropsWithChildren } from "react"
+import { twMerge } from "tailwind-merge"
 
 export interface NomasWarningTextProps extends PropsWithChildren {
     color?: "danger" | "warning" | "info" | "success" | "muted"
+    className?: string
 }
-export const NomasWarningText = ({ children, color = "danger" }: NomasWarningTextProps) => {
+export const NomasWarningText = ({ children, color = "danger", className }: NomasWarningTextProps) => {
     const colorClass = useMemo(() => {
         switch (color) {
         case "danger":
@@ -21,6 +23,6 @@ export const NomasWarningText = ({ children, color = "danger" }: NomasWarningTex
         }
     }, [color])
     return (
-        <div className={`text-xs ${colorClass}`}>{children}</div>
+        <div className={twMerge(`text-xs ${colorClass}`, className)}>{children}</div>
     )
 }
