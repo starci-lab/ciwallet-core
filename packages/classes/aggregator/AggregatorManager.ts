@@ -102,6 +102,12 @@ export class AggregatorManager {
         }
     }
 
+    public injectIconUrl({ aggregatorId, iconUrl }: InjectIconUrlParams) {
+        const aggregator = this.aggregators[aggregatorId]
+        if (!aggregator) return
+        aggregator.logo = iconUrl
+    }
+
     public toObject(): Partial<Record<AggregatorId, AggregatorData>> {
         return this.aggregators
     }
@@ -151,4 +157,9 @@ export class AggregatorManager {
         await Promise.allSettled(promises)
         return results
     }
+}
+
+export interface InjectIconUrlParams {
+    aggregatorId: AggregatorId
+    iconUrl: string
 }

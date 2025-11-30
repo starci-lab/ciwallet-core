@@ -640,14 +640,14 @@ export class TokenManager {
         )
     }
 
-    public injectIconUrl(options: {
-        chainId?: ChainId
-        network?: Network
-        tokenId?: TokenId
-        iconUrl: string
-    }) {
-        const { chainId, network, tokenId, iconUrl } = options
-    
+    public injectUnifiedIconUrl({ unifiedTokenId, iconUrl }: InjectUnifiedIconUrlParams) {
+        const unifiedToken = this.unifiedTokens.find((unifiedToken) => unifiedToken.unifiedTokenId === unifiedTokenId)
+        if (!unifiedToken) return
+        unifiedToken.iconUrl = iconUrl
+    }
+
+    public injectIconUrl(
+        { chainId, network, tokenId, iconUrl }: InjectIconUrlParams) {
         // If a specific tokenId is provided → find that token across all chains/networks and update its iconUrl
         if (tokenId) {
             for (const chain of Object.keys(this.tokens) as Array<ChainId>) {
@@ -688,4 +688,16 @@ export class TokenManager {
             }
         }
     }
+}
+
+export interface InjectIconUrlParams {
+    chainId?: ChainId
+    network?: Network
+    tokenId?: TokenId
+    iconUrl: string
+}
+
+export interface InjectUnifiedIconUrlParams {
+    unifiedTokenId: UnifiedTokenId
+    iconUrl: string
 }
