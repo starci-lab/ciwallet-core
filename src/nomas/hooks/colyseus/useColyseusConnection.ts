@@ -21,6 +21,11 @@ import {
     type ColyseusDisconnectedEvent,
     type ColyseusErrorEvent
 } from "@/nomas/game/colyseus/events"
+import { AuthDB } from "@/nomas/utils/idb"
+import {
+    mutationEphemeralColyseusFn,
+    type RequestColyseusEphemeralJwtInput
+} from "@/nomas/modules/api/graphql/mutations/mutation-ephemeral-colyseus"
 
 /**
  * Connection state interface
@@ -80,22 +85,47 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
             // User state (tokens, inventory, etc.) will be fetched from server after connection
             const userState = store.getState().stateless.user
             const addressWallet = userState.addressWallet
+            // const [message, signature, publicKey] = await Promise.all([
+            //     AuthDB.getMessage(),
+            //     AuthDB.getSignature(),
+            //     AuthDB.getPublicKey()
+            // ])
 
-            if (!addressWallet) {
-                throw new Error("Address wallet not found - cannot connect to Colyseus")
-            }
+            // if (!addressWallet || !message || !signature || !publicKey) {
+            //     throw new Error("Message, signature, or public key not found - cannot connect to Colyseus")
+            // }
 
-            console.log("🔄 [useColyseusConnection] Connecting with addressWallet:", addressWallet)
+            // const requestColyseusEphemeralJwtInput: RequestColyseusEphemeralJwtInput = {
+            //     publicKey: publicKey,
+            //     accountAddress: addressWallet,
+            //     signature: signature,
+            //     message: message,
+            //     platform: "evm"
+            // }
+
+            // const requestColyseusEphemeralJwtResult = await mutationEphemeralColyseusFn({
+            //     request: requestColyseusEphemeralJwtInput
+            // })
+
+            // const jwt = requestColyseusEphemeralJwtResult.data?.requestColyseusEphemeralJwt?.data?.jwt
+            // if (!jwt) {
+            //     throw new Error("JWT not found - cannot connect to Colyseus")
+            // }
+
+            // console.log("🔄 [useColyseusConnection] Connecting with addressWallet:", addressWallet)
 
             // Create client
             const client = new Client(backendUrl)
             clientRef.current = client
 
+            const accessToken = await AuthDB.getAccessToken()
+            client.auth.token = accessToken
             // Connect to room
-            const room = await client.joinOrCreate<GameRoomState>("single_player", {
-                name: "Pet Game",
-                addressWallet: addressWallet
+            const room = await client.joinOrCreate<GameRoomState>("game", {
+                userAddress: addressWallet
             })
+
+            console.log("room12312312312", room)
 
             // Update refs and state
             roomRef.current = room
