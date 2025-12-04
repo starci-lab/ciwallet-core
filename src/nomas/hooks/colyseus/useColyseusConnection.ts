@@ -125,8 +125,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
                 userAddress: addressWallet
             })
 
-            console.log("room12312312312", room)
-
             // Update refs and state
             roomRef.current = room
             setRoomId(room.roomId)
