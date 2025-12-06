@@ -149,6 +149,7 @@ export class PetManager {
         }
 
         // Create or update pets from server
+        // TODO: HANDLE againt this function
         for (const serverPet of serverPets) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const pet: any = serverPet
@@ -156,7 +157,6 @@ export class PetManager {
             if (!petId) {
                 continue
             }
-
             const existingPet = this.pets.get(petId)
 
             if (existingPet) {
@@ -180,7 +180,7 @@ export class PetManager {
                 // Create new pet
                 const x = pet.x || pet.positionX || 400
                 const y = pet.y || pet.positionY || 300
-                const petType = pet.petType
+                const petType = pet.type.displayId
 
                 this.createPet(petId, x, y, petType)
 
@@ -782,7 +782,7 @@ export class PetManager {
 
         // Create timer to auto-despawn food after 20s
         const despawnTimer = this.scene.time.delayedCall(20000, () => {
-            const currentFoodIndex = this.sharedDroppedFood.indexOf(food as any)
+            const currentFoodIndex = this.sharedDroppedFood.indexOf(food as unknown)
             if (currentFoodIndex !== -1) {
                 this.removeSharedFoodAtIndex(currentFoodIndex)
                 console.log("Shared food auto-despawned after 20 seconds")
