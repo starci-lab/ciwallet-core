@@ -28,7 +28,7 @@ const MESSAGE_TO_EVENT_MAP: Record<string, string> = {
     cleaned_pet_response: ColyseusMessageEvents.CleanedPetResponse,
     create_poop_response: ColyseusMessageEvents.CreatePoopResponse,
     player_state_sync: ColyseusMessageEvents.PlayerStateSync,
-    "player-state-response": ColyseusMessageEvents.PlayerStateSync, // Map player-state-response to PlayerStateSync
+    player_state_response: ColyseusMessageEvents.PlayerStateSync, // Map player-state-response to PlayerStateSync
     pets_state_sync: ColyseusMessageEvents.PetsStateSync,
     pets_state_response: ColyseusMessageEvents.PetsStateSync, // Map pets_state_response to PetsStateSync (backend compatibility)
     buy_pet_response: ColyseusMessageEvents.BuyPetResponse,
