@@ -259,8 +259,10 @@ class GameConfigManager {
         return foodItem?.costNom || this.config.food.defaultPrice
     }
 
+    // TODO: HANDLE ID
     getFoodItem(foodId: string): FoodItem | undefined {
-        return this.config.food.items.find((item) => item.id === foodId)
+        console.log("getFoodItem", foodId, this.config.food.items)
+        return this.config.food.items.find((item) => item.displayId.toLocaleLowerCase() === foodId)
     }
 
     getCleaningPrice(cleaningId: string = "brush"): number {

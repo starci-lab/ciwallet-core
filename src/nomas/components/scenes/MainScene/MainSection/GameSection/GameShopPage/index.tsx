@@ -115,7 +115,7 @@ export const GameShopPage = () => {
             const petType = (item as PetItem).texture || item.name
             eventBus.emit(ShopEvents.BuyPet, {
                 petType,
-                petId: String((item as PetItem).id),
+                petId: String((item as PetItem).id || (item as PetItem).displayId.toLocaleLowerCase()),
                 petName: item.name
             })
             return
@@ -125,7 +125,7 @@ export const GameShopPage = () => {
             const cursorUrl = getItemImageSrc("food", item)
             eventBus.emit(ShopEvents.StartPlacing, {
                 itemType: "food",
-                itemId: String((item as FoodItem).id),
+                itemId: String((item as FoodItem).id || (item as FoodItem).displayId.toLocaleLowerCase()),
                 itemName: item.name,
                 cursorUrl
             })
@@ -136,7 +136,7 @@ export const GameShopPage = () => {
             const cursorUrl = getItemImageSrc("toy", item)
             eventBus.emit(ShopEvents.StartPlacing, {
                 itemType: "toy",
-                itemId: String((item as ToyItem).id),
+                itemId: String((item as ToyItem).id || (item as ToyItem).displayId.toLocaleLowerCase()),
                 itemName: item.name,
                 cursorUrl
             })
@@ -151,7 +151,9 @@ export const GameShopPage = () => {
                 (resizedUrl) => {
                     eventBus.emit(ShopEvents.StartPlacing, {
                         itemType: "clean",
-                        itemId: String((item as CleaningItem).id),
+                        itemId: String(
+                            (item as CleaningItem).id || (item as CleaningItem).displayId.toLocaleLowerCase()
+                        ),
                         itemName: item.name,
                         cursorUrl: resizedUrl
                     })

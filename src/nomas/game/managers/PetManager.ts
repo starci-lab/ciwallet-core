@@ -722,7 +722,7 @@ export class PetManager {
     }
 
     // Drop food to shared pool that all pets can eat
-    private dropSharedFood(x: number, _y?: number, foodId: string = "hamburger"): void {
+    private async dropSharedFood(x: number, _y?: number, foodId: string = "hamburger"): Promise<void> {
         // Food drops onto the same ground line pets stand on, to ensure reachability
         const cameraHeight = this.scene.cameras.main.height
         const cameraWidth = this.scene.cameras.main.width
@@ -736,19 +736,59 @@ export class PetManager {
 
         // Get the correct texture key from food item
         const foodItem = gameConfigManager.getFoodItem(foodId)
-        const textureKey = foodItem?.texture || foodId
+        let textureKey = foodItem?.texture || foodId
+
+        // Fallback mapping for common food items if texture not found
+        const textureFallbackMap: { [key: string]: string } = {
+            hamburger: "hamburger",
+            hambuger: "hamburger", // Handle typo
+            bone: "bone",
+            apple: "apple",
+            coke: "coke",
+            cake: "cake",
+            icecream: "icecream",
+            watermelon: "watermelon"
+        }
+
+        // Check if texture exists in scene, if not use fallback
+        if (!this.scene.textures.exists(textureKey)) {
+            const fallbackKey = textureFallbackMap[textureKey.toLowerCase()]
+            if (fallbackKey && this.scene.textures.exists(fallbackKey)) {
+                console.warn(`⚠️ Texture '${textureKey}' not found, using fallback '${fallbackKey}'`)
+                textureKey = fallbackKey
+            } else {
+                console.error(
+                    `❌ Texture '${textureKey}' not found! Available textures:`,
+                    Object.keys(this.scene.textures.list)
+                )
+                // Use hamburger as ultimate fallback
+                textureKey = "hamburger"
+            }
+        }
 
         console.log(
-            `🍔 Dropping food: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${foodFinalY}, foodId=${foodId}, textureKey=${textureKey}`
+            `🍔 Dropping food: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${foodFinalY}, foodId=${foodId}, textureKey=${textureKey}, textureExists=${this.scene.textures.exists(textureKey)}`
         )
 
         const foodDropStartY = GamePositioning.getFoodDropY(cameraHeight)
-        const food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
+
+        // Create food sprite with error handling
+        let food: Phaser.GameObjects.Image
+        try {
+            food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
+            console.log(`✅ Food sprite created successfully with texture '${textureKey}'`)
+        } catch (error) {
+            console.error(`❌ Failed to create food sprite with texture '${textureKey}':`, error)
+            // Try with hamburger as fallback
+            food = this.scene.add.image(clampedX, foodDropStartY, "hamburger")
+            console.log("🔄 Using hamburger as fallback texture")
+        }
 
         const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
 
         food.setScale(responsiveScale)
         food.setAlpha(0.9)
+        food.setDepth(100) // Ensure food is visible above background
 
         // Add drop animation effect
         this.scene.tweens.add({
@@ -777,7 +817,7 @@ export class PetManager {
             ease: "Power2.easeOut"
         })
 
-        this.sharedDroppedFood.push(food as any)
+        this.sharedDroppedFood.push(food as unknown)
         this.sharedFoodShadows.push(shadow)
 
         // Create timer to auto-despawn food after 20s
@@ -924,7 +964,7 @@ export class PetManager {
     }
 
     // Drop shared toy for all pets to chase
-    private dropSharedToy(x: number, _y?: number, toyId: string = "ball"): void {
+    private async dropSharedToy(x: number, _y?: number, toyId: string = "ball"): Promise<void> {
         // Check if scene is ready and assets are loaded
         if (!this.scene.textures || this.scene.textures.list.length === 0) {
             console.error("❌ Scene textures not ready yet!")
@@ -941,33 +981,43 @@ export class PetManager {
         // Get the correct texture key from toy item
         const toyItem = gameConfigManager.getToyItem(toyId)
 
-        // If we have a toy item from config, use its texture
+        // Texture mapping for known toys
+        const textureMap: { [key: string]: string } = {
+            ball: "ball",
+            daruma: "daruma",
+            teddy: "tedy",
+            tedy: "tedy",
+            football: "football",
+            game: "game"
+        }
+
+        // Priority: toyItem.texture > textureMap > toyId
         let textureKey = toyId // fallback to toyId
         if (toyItem && toyItem.texture) {
             textureKey = toyItem.texture
         } else {
-            // Hardcode texture mapping for known toys (fallback)
-            const textureMap: { [key: string]: string } = {
-                ball: "ball",
-                daruma: "daruma",
-                teddy: "tedy",
-                tedy: "tedy",
-                football: "football",
-                game: "game"
+            textureKey = textureMap[toyId.toLowerCase()] || toyId
+        }
+
+        // Check if texture exists, if not use fallback
+        if (!this.scene.textures.exists(textureKey)) {
+            const fallbackKey = textureMap[textureKey.toLowerCase()]
+            if (fallbackKey && this.scene.textures.exists(fallbackKey)) {
+                console.warn(`⚠️ Toy texture '${textureKey}' not found, using fallback '${fallbackKey}'`)
+                textureKey = fallbackKey
+            } else {
+                console.error(
+                    `❌ Toy texture '${textureKey}' not found! Available textures:`,
+                    Object.keys(this.scene.textures.list)
+                )
+                // Use ball as ultimate fallback
+                textureKey = "ball"
             }
-            textureKey = textureMap[toyId] || toyId
         }
 
         console.log(
-            `🎾 Dropping toy: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${toyFinalY}, toyId=${toyId}, textureKey=${textureKey}`
+            `🎾 Dropping toy: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${toyFinalY}, toyId=${toyId}, textureKey=${textureKey}, textureExists=${this.scene.textures.exists(textureKey)}`
         )
-        console.log("🔍 Debug: toyId from shop=", toyId)
-        console.log("🔍 Debug: toyItem=", toyItem)
-        console.log("🔍 Debug: toyItem.texture=", toyItem?.texture)
-        console.log("🔍 Debug: final textureKey=", textureKey)
-        console.log("🔍 Debug: Available textures:", Object.keys(this.scene.textures.list))
-        console.log(`🔍 Debug: Looking for texture: '${textureKey}'`)
-        console.log("🔍 Debug: Texture exists:", this.scene.textures.exists(textureKey))
 
         // Check if texture exists before creating sprite
         if (!this.scene.textures.exists(textureKey)) {
@@ -987,20 +1037,35 @@ export class PetManager {
             return
         }
 
-        const toy = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), textureKey)
+        // Create toy sprite with error handling
+        let toy: Phaser.GameObjects.Sprite
+        try {
+            toy = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), textureKey)
+            console.log(`✅ Toy sprite created successfully with texture '${textureKey}'`)
+        } catch (error) {
+            console.error(`❌ Failed to create toy sprite with texture '${textureKey}':`, error)
+            // Try with ball as fallback
+            toy = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), "ball")
+            console.log("🔄 Using ball as fallback texture")
+        }
+
         // Anchor toy bottom to ground line so it doesn't sink below
         toy.setOrigin(0.5, 0.5)
         // Use reasonable scale for toys (larger than ball to be visible)
         toy.setScale(GAME_LAYOUT.TOY_SCALE)
         toy.setAlpha(0.9)
+        toy.setDepth(100) // Ensure toy is visible above background
         // Lưu original scale để có thể resize sau này
         toy.setData("originalScale", GAME_LAYOUT.TOY_SCALE)
 
-        console.log("🎾 Sprite created:", toy)
-        console.log("🎾 Sprite visible:", toy.visible)
-        console.log("🎾 Sprite texture:", toy.texture?.key)
-        console.log("🎾 Sprite position:", { x: toy.x, y: toy.y })
-        console.log("🎾 Sprite scale:", { scaleX: toy.scaleX, scaleY: toy.scaleY })
+        console.log("🎾 Toy sprite details:", {
+            visible: toy.visible,
+            texture: toy.texture?.key,
+            position: { x: toy.x, y: toy.y },
+            scale: { scaleX: toy.scaleX, scaleY: toy.scaleY },
+            depth: toy.depth,
+            alpha: toy.alpha
+        })
 
         // Add drop animation effect
         const toyScale = GAME_LAYOUT.TOY_SCALE
