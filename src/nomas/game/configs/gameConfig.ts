@@ -126,28 +126,11 @@ class GameConfigManager {
     private isLoaded = false
 
     async loadConfig(): Promise<GameConfig> {
-        console.log("Starting loadConfig...")
         try {
-            console.log("Calling GraphQL queries...")
-
             const [storeResponse, petResponse] = await Promise.all([queryStoreItems(), queryPets()])
-
-            console.log("Store items response:", storeResponse.data)
-            console.log("Pets response:", petResponse.data)
 
             const items = storeResponse.data?.gameStoreItems?.data ?? []
             const pets = petResponse.data?.gamePets?.data ?? []
-
-            console.log("Items count:", items.length)
-            console.log("Pets count:", pets.length)
-
-            if (items.length === 0) {
-                console.warn("No store items returned from API!")
-            }
-
-            if (pets.length === 0) {
-                console.warn("No pets returned from API!")
-            }
 
             const foodItems: FoodItem[] = items
                 .filter((item) => item.type === "food")
@@ -237,13 +220,9 @@ class GameConfigManager {
                 }
             }
 
-            console.log("Server config:", serverConfig)
-
             this.config = { ...DEFAULT_GAME_CONFIG, ...serverConfig }
-            console.log("Game config loaded successfully!")
         } catch (error) {
             console.error("Error loading game config:", error)
-            console.log("Using default game config")
         }
 
         this.isLoaded = true
@@ -259,9 +238,7 @@ class GameConfigManager {
         return foodItem?.costNom || this.config.food.defaultPrice
     }
 
-    // TODO: HANDLE ID
     getFoodItem(foodId: string): FoodItem | undefined {
-        console.log("getFoodItem", foodId, this.config.food.items)
         return this.config.food.items.find((item) => item.displayId === foodId)
     }
 
@@ -280,7 +257,6 @@ class GameConfigManager {
     }
 
     getToyItem(toyId: string): ToyItem | undefined {
-        console.log("getToyItem", toyId, this.config.toys.items)
         return this.config.toys.items.find((item) => item.displayId.toLocaleLowerCase() === toyId.toLocaleLowerCase())
     }
 

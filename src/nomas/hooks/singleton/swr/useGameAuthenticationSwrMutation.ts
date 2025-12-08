@@ -25,15 +25,14 @@ export const useGameAuthenticationSwrMutationCore = () => {
                 }
                 // request signature message from server
                 const signatureData = await requestSignature.swrMutation.trigger({
-                    platform: "evm"
+                    platform: Platform.Evm
                 })
-                console.log("Message to sign:", signatureData)
-                const verifyResult = await verifyMessage.swrMutation.trigger({
+                await verifyMessage.swrMutation.trigger({
                     request: {
                         message: signatureData.message.replaceAll("\\", ""),
                         address: signatureData.accountAddress,
                         signedMessage: signatureData.signature,
-                        platform: "evm"
+                        platform: Platform.Evm
                     }
                 })
                 Promise.all([
@@ -42,8 +41,6 @@ export const useGameAuthenticationSwrMutationCore = () => {
                     AuthDB.setSignature(signatureData.signature),
                     AuthDB.setPublicKey(signatureData.publicKey)
                 ])
-                console.log("Authentication successful!")
-                console.log("Access Token:", verifyResult)
                 return true
             },
             {
