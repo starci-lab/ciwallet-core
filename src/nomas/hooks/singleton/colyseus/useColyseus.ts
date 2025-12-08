@@ -4,6 +4,12 @@ import { ColyseusContext } from "./ColyseusProvider"
 import { envConfig } from "@/nomas/env"
 import type { GameRoomState } from "./schemas"
 import pRetry from "p-retry"
+import { store } from "@/nomas/redux"
+
+export type RoomOptions = {
+    name?: string
+    addressWallet?: string
+}
 
 export const useColyseusCore = () => {
     // to get the client instance
@@ -11,35 +17,32 @@ export const useColyseusCore = () => {
     // ref to the current room
     const roomRef = useRef<Room<GameRoomState> | null>(null)
     // method to allow user to join or create a room
-    const joinOrCreateRoom = useCallback(
-        async (roomName: string, options: Record<string, unknown> = {}) => {
-            try {
-                const room = await pRetry(
-                    async () => {
-                        return await clientRef.current?.joinOrCreate(roomName, options)
-                        // return await clientRef.current.join(roomName, {
-                        //   name: "Pet Game",
-                        //   addressWallet: store.getState().stateless.user.addressWallet,
-                        // })
-                    },
-                    {
-                        retries: 3,
-                    }
-                )
-                // if room is found, set the room ref
-                if (room) {
-                    roomRef.current = room
+    const joinOrCreateRoom = useCallback(async (roomName: string, options: RoomOptions) => {
+        try {
+            const room = await pRetry(
+                async () => {
+                    // return await clientRef.current?.joinOrCreate(roomName, options)
+                    return await clientRef.current.join(roomName, {
+                        name: options.name,
+                        addressWallet: store.getState().stateless.user.addressWallet
+                    })
+                },
+                {
+                    retries: 3
                 }
-            } catch (error) {
-                // todo: handle error by showing a toast notification
-                console.error("Error joining or creating room:", error)
+            )
+            // if room is found, set the room ref
+            if (room) {
+                roomRef.current = room
             }
-        },
-        []
-    )
+        } catch (error) {
+            // todo: handle error by showing a toast notification
+            console.error("Error joining or creating room:", error)
+        }
+    }, [])
     return {
         client: clientRef.current,
-        joinOrCreateRoom,
+        joinOrCreateRoom
     }
 }
 

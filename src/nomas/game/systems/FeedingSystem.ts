@@ -9,7 +9,7 @@ export const HungerState = {
     Full: "full",
     Normal: "normal",
     Hungry: "hungry",
-    Starving: "starving",
+    Starving: "starving"
 } as const
 export type HungerState = (typeof HungerState)[keyof typeof HungerState]
 
@@ -40,7 +40,7 @@ export class FeedingSystem {
         this.scene = scene
         this.pet = pet
         this.petId = petId
-    // Note: colyseusService singleton is used directly, no need to store client reference
+        // Note: colyseusService singleton is used directly, no need to store client reference
     }
 
     // ===== UPDATE LOOP =====
@@ -72,16 +72,12 @@ export class FeedingSystem {
         const foodPrice = food.cost_nom
 
         if (colyseusService.isConnected()) {
-            console.log(
-                "🌐 Checking tokens before sending purchase request to server"
-            )
+            console.log("🌐 Checking tokens before sending purchase request to server")
 
             // Check if player has enough tokens before sending to server
             const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < foodPrice) {
-                console.log(
-                    `❌ Not enough tokens: need ${foodPrice}, have ${currentTokens}`
-                )
+                console.log(`❌ Not enough tokens: need ${foodPrice}, have ${currentTokens}`)
                 return false
             }
 
@@ -109,24 +105,19 @@ export class FeedingSystem {
     // ===== FOOD EATING =====
 
     /**
-   * Triggers the eating process for the pet.
-   * This function updates the pet's hunger, changes its activity,
-   * and sends a message to the server if connected.
-   * @param foodType The type of food being eaten, to determine hunger recovery.
-   */
+     * Triggers the eating process for the pet.
+     * This function updates the pet's hunger, changes its activity,
+     * and sends a message to the server if connected.
+     * @param foodType The type of food being eaten, to determine hunger recovery.
+     */
     public triggerEat(foodType: string = "hamburger"): void {
         const foodItem = gameConfigManager.getFoodItem(foodType)
-        const recovery =
-      foodItem?.hungerRestore ?? GAME_MECHANICS.HUNGER_RESTORE_AMOUNT
+        const recovery = foodItem?.hungerRestore ?? GAME_MECHANICS.HUNGER_RESTORE_AMOUNT
 
         const oldHunger = this.hungerLevel
         this.hungerLevel = Math.min(100, this.hungerLevel + recovery)
 
-        console.log(
-            `📈 Pet ${this.petId} hunger: ${oldHunger.toFixed(
-                1
-            )} → ${this.hungerLevel.toFixed(1)}`
-        )
+        console.log(`📈 Pet ${this.petId} hunger: ${oldHunger.toFixed(1)} → ${this.hungerLevel.toFixed(1)}`)
 
         // Send eaten food event to server if connected
         if (colyseusService.isConnected()) {
@@ -134,7 +125,7 @@ export class FeedingSystem {
             colyseusService.eatedFood({
                 hunger_level: this.hungerLevel,
                 pet_id: this.petId,
-                owner_id: userStore.addressWallet || "unknown",
+                owner_id: userStore.addressWallet || "unknown"
             })
             console.log(`📤 Sent 'eated_food' to server for pet ${this.petId}`)
         }
@@ -152,6 +143,6 @@ export class FeedingSystem {
     }
 
     cleanup() {
-    // No more dropped food to clean up in this system
+        // No more dropped food to clean up in this system
     }
 }

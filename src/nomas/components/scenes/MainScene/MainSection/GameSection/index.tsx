@@ -6,15 +6,10 @@ import { GameShopPage } from "./GameShopPage"
 import { GameHomePage } from "./GameHomePage"
 import { eventBus } from "@/nomas/game/event-bus"
 import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
-import {
-    HomeEvents,
-    type OpenHomeWithPetPayload,
-} from "@/nomas/game/events/home/HomeEvents"
+import { HomeEvents, type OpenHomeWithPetPayload } from "@/nomas/game/events/home/HomeEvents"
 
 export const GameSection = () => {
-    const gameFunctionPage = useAppSelector(
-        (state) => state.stateless.sections.home.gameFunctionPage
-    )
+    const gameFunctionPage = useAppSelector((state) => state.stateless.sections.home.gameFunctionPage)
     const [isShopOpen, setIsShopOpen] = useState(false)
     const [isHomeOpen, setIsHomeOpen] = useState(false)
 

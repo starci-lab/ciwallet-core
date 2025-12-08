@@ -131,7 +131,7 @@ export interface BuyPetResponseMessage {
   message: string
   // currentTokens: number
   data: {
-    currentTokens: number
+    tokens: number
     pets?: PetData[]
   }
 }

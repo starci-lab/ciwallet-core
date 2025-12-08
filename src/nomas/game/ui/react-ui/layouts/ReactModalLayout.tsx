@@ -25,13 +25,13 @@ export function ReactModalLayout({
   const balance = useAppSelector((state) => state.stateless.user.nomToken)
 
   return (
-    <div className="w-full max-w-md h-full max-h-[600px] bg-[#1a1a1a] rounded-2xl overflow-hidden flex flex-col mx-auto">
+    <div className="w-full max-w-md h-full max-h-[600px] bg-card-dark-3 rounded-2xl overflow-hidden flex flex-col mx-auto">
       {/* Header */}
-      <div className="relative bg-[#2a2a2a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)]">
+      <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted">
         {/* Back Button */}
         <button
           onClick={onClose}
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-[#323232] rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-card-dark-5 rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-[hsl(0,0%,22.7%)] transition-colors"
         >
           <svg
             className="w-3.5 h-3.5 text-gray-300"
@@ -64,7 +64,7 @@ export function ReactModalLayout({
 
       {/* Balance Section (optional) */}
       {showBalance && (
-        <div className="bg-[#2a2a2a] px-2 py-1 border-b border-[rgba(135,135,135,0.25)]">
+        <div className="bg-card-dark-4 px-2 py-1 border-b border-muted">
           <div className="flex items-center justify-between gap-1.5">
             <div className="flex items-center gap-2">
               <div>

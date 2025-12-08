@@ -210,12 +210,12 @@ export function TasksTab() {
             key={task.id}
             onClick={task.action}
             disabled={task.completed}
-            className={`w-full bg-[#2a2a2a] rounded-lg p-2.5 flex items-center justify-between transition-all ${
-              task.completed ? "opacity-60" : "hover:bg-[#333] active:scale-98"
+            className={`w-full bg-card-dark-4 rounded-lg p-2.5 flex items-center justify-between transition-all ${
+              task.completed ? "opacity-60" : "hover:bg-card-dark-6 active:scale-98"
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 bg-[#1a1a1a] rounded-lg flex items-center justify-center text-lg">
+              <div className="w-10 h-10 bg-card-dark-3 rounded-lg flex items-center justify-center text-lg">
                 {task.icon}
               </div>
               <div className="text-left">

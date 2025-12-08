@@ -27,12 +27,13 @@ const MESSAGE_TO_EVENT_MAP: Record<string, string> = {
     cleaned_pet_response: ColyseusMessageEvents.CleanedPetResponse,
     create_poop_response: ColyseusMessageEvents.CreatePoopResponse,
     player_state_sync: ColyseusMessageEvents.PlayerStateSync,
-    "player-state-response": ColyseusMessageEvents.PlayerStateSync, // Map player-state-response to PlayerStateSync
+    player_state_response: ColyseusMessageEvents.PlayerStateSync, // Map player-state-response to PlayerStateSync
     pets_state_sync: ColyseusMessageEvents.PetsStateSync,
+    pets_state_response: ColyseusMessageEvents.PetsStateSync, // Map pets_state_response to PetsStateSync (backend compatibility)
     buy_pet_response: ColyseusMessageEvents.BuyPetResponse,
     welcome: ColyseusMessageEvents.Welcome,
     poop_created: ColyseusMessageEvents.PoopCreated,
-    action_response: ColyseusMessageEvents.ActionResponse,
+    action_response: ColyseusMessageEvents.ActionResponse
 }
 
 /**
@@ -49,36 +50,27 @@ const MESSAGE_TO_EVENT_MAP: Record<string, string> = {
 export const useColyseusMessages = (room: Room<GameRoomState> | null): void => {
     useEffect(() => {
         if (!room) {
-            console.log(
-                "ℹ️ [useColyseusMessages] No room - skipping message listener setup"
-            )
             return
         }
 
         /**
-     * Handle incoming messages from server
-     */
+         * Handle incoming messages from server
+         */
         const handleMessage = (type: string | number, message: unknown) => {
             const messageType = String(type)
-            console.log(`📨 [useColyseusMessages] Received: ${messageType}`, message)
 
             // Map message type to event name
-            const eventName =
-        MESSAGE_TO_EVENT_MAP[messageType] || `colyseus:message:${messageType}`
+            const eventName = MESSAGE_TO_EVENT_MAP[messageType] || `colyseus:message:${messageType}`
 
             // Emit typed event
             eventBus.emit(eventName, message)
-            console.log(`📤 [useColyseusMessages] Emitted event: ${eventName}`)
         }
 
         // Set up wildcard message listener
         room.onMessage("*", handleMessage)
 
-        console.log("✅ [useColyseusMessages] Message listeners set up")
-
         // Cleanup on unmount or room change
         return () => {
-            console.log("🧹 [useColyseusMessages] Cleaning up message listeners")
             // Note: Colyseus doesn't have removeAllListeners, but removing the room reference
             // will prevent new messages. The room.offMessage API may not be available,
             // so we rely on room cleanup when component unmounts.

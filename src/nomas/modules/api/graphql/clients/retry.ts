@@ -1,19 +1,19 @@
-
+import { envConfig } from "@/nomas/env"
 import { RetryLink } from "@apollo/client/link/retry"
 
 // retry link
 export const createRetryLink = () => {
     return new RetryLink({
         delay: {
-            initial: 1000,
-            max: 10000,
-            jitter: true
+            initial: envConfig().nomasServer.initialRetryDelay,
+            max: envConfig().nomasServer.maxRetryDelay,
+            jitter: true,
         },
         attempts: {
-            max: 3,
+            max: envConfig().nomasServer.maxRetry,
             retryIf: (error) => {
                 return !!error
-            }
-        }
+            },
+        },
     })
 }

@@ -1,33 +1,25 @@
 import { AuthDB } from "@/nomas/utils/idb"
-import {
-    createAsyncThunk,
-    createSlice,
-    type PayloadAction,
-} from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export interface UserSlice {
-  addressWallet: string
-  nomToken: number
-  isAuthenticated: boolean
+    addressWallet: string
+    nomToken: number
+    isAuthenticated: boolean
 }
 
 const initialState: UserSlice = {
     addressWallet: "",
     nomToken: 10000,
-    isAuthenticated: false,
+    isAuthenticated: false
 }
 
-export const loadUserFromStorage = createAsyncThunk(
-    "user/loadFromStorage",
-    async () => {
-        const addressWallet = await AuthDB.getAddressWallet()
-        console.log("addressWallet", addressWallet)
-        return {
-            addressWallet,
-            isAuthenticated: Boolean(addressWallet),
-        }
+export const loadUserFromStorage = createAsyncThunk("user/loadFromStorage", async () => {
+    const addressWallet = await AuthDB.getAddressWallet()
+    return {
+        addressWallet,
+        isAuthenticated: Boolean(addressWallet)
     }
-)
+})
 
 export const userSlice = createSlice({
     name: "user",
@@ -50,22 +42,16 @@ export const userSlice = createSlice({
         },
         setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
             state.isAuthenticated = action.payload
-        },
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(loadUserFromStorage.fulfilled, (state, action) => {
             state.addressWallet = action.payload.addressWallet
             state.isAuthenticated = action.payload.isAuthenticated
         })
-    },
+    }
 })
 
 export const userReducer = userSlice.reducer
 
-export const {
-    setAddressWallet,
-    setNomToken,
-    spendToken,
-    setIsAuthenticated,
-    addToken,
-} = userSlice.actions
+export const { setAddressWallet, setNomToken, spendToken, setIsAuthenticated, addToken } = userSlice.actions

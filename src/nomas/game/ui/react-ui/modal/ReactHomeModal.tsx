@@ -81,7 +81,7 @@ export function ReactHomeModal({
       titleLogo={true}
     >
       {/* Tabs */}
-      <div className="bg-[#1a1a1a] px-3 py-2 border-b border-[rgba(135,135,135,0.25)]">
+      <div className="bg-card-dark-3 px-3 py-2 border-b border-muted">
         <div className="flex gap-3 justify-center">
           {[
             { key: "farm", label: "Farm" },

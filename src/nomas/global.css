@@ -1,7 +1,9 @@
 @import "tailwindcss";
+
 @import "@fontsource-variable/plus-jakarta-sans/index.css";
 
-:host, :root {
+:host,
+:root {
   /* Font */
   --font-sans: "Plus Jakarta Sans Variable", sans-serif;
   --font-sans-extension: "Plus Jakarta Sans", sans-serif;
@@ -18,16 +20,24 @@
   /* Muted text-textcolor (dark gray ~ #505050) — used for descriptions, placeholders, or less important text-text*/
   --color-text-muted-dark: hsl(0 0% 29.8%);
   /* Muted hover text-textcolor */
-  --color-text-muted-hover:hsl(0 0% 80%);
+  --color-text-muted-hover: hsl(0 0% 80%);
   /* Card dark color */
   --color-card-dark: hsl(0 0% 6.3%);
   /* Card dark 2 color */
-  --color-card-dark-2: hsl(0 0% 2.7%); 
+  --color-card-dark-2: hsl(0 0% 2.7%);
   /* Card gradient: dark gray (#121212) -> slightly lighter gray (#272727) */
-  --color-card-gradient: linear-gradient(0deg, hsl(0, 0%, 16%) 0%, hsl(0, 0%, 8%) 100%);
-  --color-card-gradient2: linear-gradient(0deg, hsl(0, 0%, 10%) 0%, hsl(0, 0%, 3%) 100%);
+  --color-card-gradient: linear-gradient(
+    0deg,
+    hsl(0, 0%, 16%) 0%,
+    hsl(0, 0%, 8%) 100%
+  );
+  --color-card-gradient2: linear-gradient(
+    0deg,
+    hsl(0, 0%, 10%) 0%,
+    hsl(0, 0%, 3%) 100%
+  );
   /* Card foreground color */
-  --color-card-foreground: 	hsl(240, 8%, 7%);
+  --color-card-foreground: hsl(240, 8%, 7%);
   /* Card radius */
   --radius-card: 32px;
   /* Switch background color */
@@ -43,19 +53,17 @@
   /* Radius card inner */
   --radius-card-inner: 24px;
   /* Card shadow */
-  --color-shadow-card: 
-    inset 0 4px 0px 0 rgba(119, 119, 119, 0.5);
+  --color-shadow-card: inset 0 4px 0px 0 rgba(119, 119, 119, 0.5);
   /* Button shadow */
-  --color-shadow-button: 
-    inset 0 1px 0px 0 rgba(119, 119, 119, 0.5);
+  --color-shadow-button: inset 0 1px 0px 0 rgba(119, 119, 119, 0.5);
   /* Button background color */
-  --button-background: 	hsl(0, 0%, 20%);
+  --button-background: hsl(0, 0%, 20%);
   /* Button hover background color */
   --button-hover-background: hsl(0 0% 25%);
   /* Button dark background color */
-  --button-dark-background: 	hsl(0, 0%, 11%);
+  --button-dark-background: hsl(0, 0%, 11%);
   /* Button dark hover background color */
-  --button-dark-hover-background: 	hsl(0, 0%, 15.6%);
+  --button-dark-hover-background: hsl(0, 0%, 15.6%);
   /* Button radius */
   --radius-button: 12px;
   /* Skeleton background color */
@@ -79,9 +87,9 @@
   /* Input ring color */
   --color-input-ring: hsl(0 0% 22%);
   /* Bullish color */
-  --color-bullish: 	hsl(174 63% 40%);
+  --color-bullish: hsl(174 63% 40%);
   /* Bearish color */
-  --color-bearish: 	hsl(1 83% 63%);
+  --color-bearish: hsl(1 83% 63%);
   /* Bullish hover color */
   --color-bullish-hover: hsl(174 55% 48%);
   /* Bearish hover color */
@@ -90,11 +98,37 @@
   --color-popover: hsl(0 0% 10%);
   /* Popover foreground color */
   --color-popover-foreground: hsl(0 0% 100%);
+  /* Card dark 3 color - #1a1a1a */
+  --card-dark-3: hsl(0 0% 10.2%);
+  /* Card dark 4 color - #2a2a2a */
+  --card-dark-4: hsl(0 0% 16.5%);
+  /* Card dark 5 color - #323232 */
+  --card-dark-5: hsl(0 0% 19.6%);
+  /* Card dark 6 color - #333333 */
+  --card-dark-6: hsl(0 0% 20%);
+  /* Border muted color - rgba(135,135,135,0.25) */
+  --border-muted: hsla(0, 0%, 52.9%, 0.25);
+  /* Accent purple color - #8b5cf6 */
+  --accent-purple: hsl(258 90% 66%);
+  /* Accent cyan color - #06B6D4 */
+  --accent-cyan: hsl(188 94% 42.7%);
+  /* Accent amber color - #F59E0B */
+  --accent-amber: hsl(38 92% 50%);
+  /* Shop item background - rgba(60,60,60,0.26) */
+  --shop-item-bg: hsla(0, 0%, 23.5%, 0.26);
+  /* Shop item border - rgba(0,0,0,0.37) */
+  --shop-item-border: hsla(0, 0%, 0%, 0.37);
+  /* Shop item hover - rgba(80,80,80,0.4) */
+  --shop-item-hover: hsla(0, 0%, 31.4%, 0.4);
+  /* Shop item shadow - inset 0px 3px 5px 0px rgba(0,0,0,0.3) */
+  --shop-item-shadow: inset 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
 }
 
 @theme {
   /* Font */
+
   --font-sans: var(--font-sans);
+
   /* Colors */
   --color-text: var(--color-text);
   --color-text-dark: var(--color-text-dark);
@@ -107,44 +141,88 @@
   --color-card-foreground: var(--color-card-foreground);
   --color-card-1: var(--color-card-1);
   --color-card-2: var(--color-card-2);
+
   /* Switch */
+
   --color-switch-background: var(--color-switch-background);
+
   --color-switch-background-active: var(--color-switch-background-active);
+
   --color-switch-thumb: var(--color-switch-thumb);
+
   /* Button */
+
   --color-button: var(--button-background);
+
   --color-button-hover: var(--button-hover-background);
+
   --color-button-dark: var(--button-dark-background);
+
   --color-button-dark-hover: var(--button-dark-hover-background);
+
   /* Input */
+
   --color-input: var(--color-input-background);
+
   --color-input-border: var(--color-input-border);
+
   --color-input-ring: var(--color-input-ring);
+
   /* Semantic */
+
+  /* Accents */
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-amber: var(--accent-amber);
+
+  /* Shop */
+  --color-shop-item-bg: var(--shop-item-bg);
+  --color-shop-item-border: var(--shop-item-border);
+  --color-shop-item-hover: var(--shop-item-hover);
+
   --color-primary: var(--color-primary);
   --color-danger: var(--color-danger);
   --color-warning: var(--color-warning);
   --color-success: var(--color-success);
+
   /* Radii */
+
   --radius-card: var(--radius-card);
+
   --radius-card-inner: var(--radius-card-inner);
+
   --radius-input: var(--radius-input);
+
   --radius-button: var(--radius-button);
+
   /* Toast */
+
   --color-toast: var(--color-toast-background);
+
   /* Skeleton */
+
   --color-skeleton: var(--color-skeleton);
+
   --radius-skeleton: var(--radius-skeleton);
+
   /* Border */
+
   --color-border-card: var(--color-border-card);
 
   /* Colors */
+
   --color-bullish: var(--color-bullish);
+
   --color-bearish: var(--color-bearish);
+
   --color-bullish-hover: var(--color-bullish-hover);
+
   --color-bearish-hover: var(--color-bearish-hover);
+
   /* Popover */
+
   --color-popover: var(--color-popover);
+
   --color-popover-foreground: var(--color-popover-foreground);
 }
 
@@ -152,12 +230,15 @@
   .bg-card-gradient {
     background-image: var(--color-card-gradient);
   }
+
   .bg-card-gradient2 {
     background-image: var(--color-card-gradient2);
   }
+
   .shadow-card {
     box-shadow: var(--color-shadow-card);
   }
+
   .shadow-button {
     box-shadow: var(--color-shadow-button);
   }
@@ -165,8 +246,10 @@
 
 .hide-scrollbar {
   scrollbar-width: none;
+
   -ms-overflow-style: none;
 }
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }

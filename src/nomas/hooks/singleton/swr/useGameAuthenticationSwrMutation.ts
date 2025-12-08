@@ -1,45 +1,60 @@
 import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
 import useSWRMutation from "swr/mutation"
 import { Platform } from "@ciwallet-sdk/types"
-import http from "@/nomas/utils/http"
-import { ROUTES } from "@/nomas/constants/route"
-import { Wallet } from "ethers"
 import { useContext } from "react"
 import { SwrProviderContext } from "./SwrProvider"
 import pRetry from "p-retry"
+import { GraphQLContext } from "./graphql"
+import { AuthDB } from "@/nomas/utils/idb"
 
 export const useGameAuthenticationSwrMutationCore = () => {
     const evmAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
-    const swrMutation = useSWRMutation(
-        "GAME_AUTHENTICATION",
-        async () => {
-            await pRetry(async () => {
+    const graphqlContext = useContext(GraphQLContext)
+
+    if (!graphqlContext) {
+        throw new Error("GraphQLContext not found")
+    }
+
+    const { requestSignature, verifyMessage } = graphqlContext
+
+    const swrMutation = useSWRMutation("GAME_AUTHENTICATION", async () => {
+        await pRetry(
+            async () => {
                 if (!evmAccount) {
                     throw new Error("EVM account not found")
                 }
-                const response = await http.get(ROUTES.getMessage)
-                const messageToSign = response.data.message
-                const wallet = new Wallet(evmAccount.privateKey)
-                const signedMessage = await wallet.signMessage(messageToSign || "")
-                await http.post(ROUTES.verify, {
-                    message: messageToSign,
-                    address: evmAccount.accountAddress,
-                    signature: signedMessage,
+                // request signature message from server
+                const signatureData = await requestSignature.swrMutation.trigger({
+                    platform: Platform.Evm
                 })
+                await verifyMessage.swrMutation.trigger({
+                    request: {
+                        message: signatureData.message.replaceAll("\\", ""),
+                        address: signatureData.accountAddress,
+                        signedMessage: signatureData.signature,
+                        platform: Platform.Evm
+                    }
+                })
+                Promise.all([
+                    AuthDB.setAddressWallet(signatureData.accountAddress),
+                    AuthDB.setMessage(signatureData.message.replaceAll("\\", "")),
+                    AuthDB.setSignature(signatureData.signature),
+                    AuthDB.setPublicKey(signatureData.publicKey)
+                ])
                 return true
-            }, {
-                retries: 3,
-            })
-        })
+            },
+            {
+                retries: 3
+            }
+        )
+    })
     return swrMutation
 }
 
 export const useGameAuthenticationSwrMutation = () => {
     const context = useContext(SwrProviderContext)
     if (!context) {
-        throw new Error(
-            "useGameAuthenticationSwr must be used within a SwrProvider"
-        )
+        throw new Error("useGameAuthenticationSwr must be used within a SwrProvider")
     }
     return context.gameAuthenticationSwrMutation
 }

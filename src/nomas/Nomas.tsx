@@ -3,14 +3,7 @@ import { ReduxProvider, setPosX, setPosY, useAppDispatch, useAppSelector } from 
 import { IconContext } from "@phosphor-icons/react"
 import { Scene } from "@/nomas/redux"
 import "./global.css"
-import {
-    InitScene,
-    MainScene,
-    MyWalletsScene,
-    SettingsScene,
-    CopyAddressScene,
-    Workers,
-} from "@/nomas/components"
+import { InitScene, MainScene, MyWalletsScene, SettingsScene, CopyAddressScene, Workers } from "@/nomas/components"
 import { motion, useDragControls, useMotionValue } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 import { CONTAINER_ID } from "@/nomas/game"
@@ -29,13 +22,15 @@ export interface NomasProps {
 export const Nomas = ({ contentEventBus }: NomasProps) => {
     return (
         <ReduxProvider loading={<></>}>
-            <SWRConfig value={{
-                provider: () => new Map()
-            }}>
+            <SWRConfig
+                value={{
+                    provider: () => new Map()
+                }}
+            >
                 <SingletonHookProvider>
                     <IconContext.Provider
                         value={{
-                            className: "h-5 w-5",
+                            className: "h-5 w-5"
                         }}
                     >
                         <div className="font-sans w-full h-full relative text-text">
@@ -51,16 +46,10 @@ export const Nomas = ({ contentEventBus }: NomasProps) => {
 export const NomasContent = ({ contentEventBus }: NomasProps) => {
     const scene = useAppSelector((state) => state.stateless.scene.scene)
     const draggable = useAppSelector((state) => state.stateless.scene.draggable)
-    const isGameMinimized = useAppSelector(
-        (state) => state.persists.session.isGameMinimized
-    )
-    const triggerAnchoredKey = useAppSelector(
-        (state) => state.persists.session.triggerAnchoredKey
-    )
+    const isGameMinimized = useAppSelector((state) => state.persists.session.isGameMinimized)
+    const triggerAnchoredKey = useAppSelector((state) => state.persists.session.triggerAnchoredKey)
     const gameLoaded = useAppSelector((state) => state.stateless.game.gameLoaded)
-    const isOverlayVisible = useAppSelector(
-        (state) => state.persists.session.isOverlayVisible
-    )
+    const isOverlayVisible = useAppSelector((state) => state.persists.session.isOverlayVisible)
     const dispatch = useAppDispatch()
     const defaultPosX = -100
     const defaultPosY = 50
@@ -71,8 +60,7 @@ export const NomasContent = ({ contentEventBus }: NomasProps) => {
     const posY = useAppSelector((state) => state.persists.session.posY)
     // Motion values bound to transform
     // Khi triggerAnchoredKey đổi → reset vị trí
-    useEffect(() => {
-    }, [posX, posY])
+    useEffect(() => {}, [posX, posY])
     // Khi Redux posX/posY thay đổi → sync vào motionValue
     useEffect(() => {
         dispatch(setPosX(defaultPosX))
@@ -97,45 +85,43 @@ export const NomasContent = ({ contentEventBus }: NomasProps) => {
 
     // Listen to inter-tab content bus
     useContentBus(contentEventBus)
-
     return (
         <>
             <Workers />
             <AnimatePresence>
-                {
-                    isOverlayVisible && (
-                        <motion.div
-                            key="nomas-overlay"
-                            drag={draggable}
-                            dragControls={controls}
-                            onPointerDown={event => controls.start(event)}
-                            dragListener={false}
-                            dragMomentum={false}
-                            style={{ scale: 0.75, touchAction: "none" }}
-                            initial={{ opacity: 0, x: 100 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 200 }}
-                            transition={{ type: "spring", damping: 20, stiffness: 120 }}
-                            className="
+                {isOverlayVisible && (
+                    <motion.div
+                        key="nomas-overlay"
+                        drag={draggable}
+                        dragControls={controls}
+                        onPointerDown={(event) => controls.start(event)}
+                        dragListener={false}
+                        dragMomentum={false}
+                        style={{ scale: 0.75, touchAction: "none" }}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 200 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 120 }}
+                        className="
                             absolute
                             pointer-events-auto
                             origin-top-center
-                            hide-scrollbar 
+                            hide-scrollbar
                             will-change-transform
                             w-[500px]
                             max-h-[750px]
                             overflow-y-auto
                             rounded-card
-                            [&::-webkit-scrollbar]:hidden 
+                            [&::-webkit-scrollbar]:hidden
                             [-ms-overflow-style:'none']
                             [scrollbar-width:'none']
                             overflow-x-hidden
                         "
-                        >
-                            {renderContent()}
-                            <NomasToaster />
-                        </motion.div>
-                    )}
+                    >
+                        {renderContent()}
+                        <NomasToaster />
+                    </motion.div>
+                )}
             </AnimatePresence>
 
             {/* Bottom game container */}
@@ -145,7 +131,7 @@ export const NomasContent = ({ contentEventBus }: NomasProps) => {
                 transition={{
                     type: "spring",
                     stiffness: 140,
-                    damping: 20,
+                    damping: 20
                 }}
                 className={twMerge(
                     "fixed bottom-0 left-0 w-screen z-[9999] border-none bg-transparent pointer-events-auto isolate",

@@ -15,63 +15,58 @@ function normalizePetName(petName: string): string {
         Chog: "Chog",
         chog: "Chog",
         Ghost: "Ghost",
-        ghost: "Ghost",
+        ghost: "Ghost"
     }
 
     return nameMappings[petName] || petName
 }
 
 export interface AssetPathConfig {
-  basePath?: string
-  category: string
-  itemName: string
-  extension?: string
-  variant?: string
+    basePath?: string
+    category: string
+    itemName: string
+    extension?: string
+    variant?: string
 }
 
 /**
  * Generate asset path based on category and item properties
  */
 export function generateAssetPath(config: AssetPathConfig): string {
-    const {
-        basePath = "assets/game/",
-        category,
-        itemName,
-        extension = "png",
-        variant,
-    } = config
+    const { basePath = "assets/game/", category, itemName, extension = "png", variant } = config
 
     // Handle different category patterns
     switch (category.toLowerCase()) {
     case "food":
-        return `${basePath}food/${itemName}.${extension}`
+        return `${basePath}food/${itemName.toLowerCase()}.${extension}`
 
     case "toy":
     case "toys":
-        return `${basePath}toy/${itemName}.${extension}`
+        return `${basePath}toy/${itemName.toLowerCase()}.${extension}`
 
     case "clean":
     case "cleaning":
-        return `${basePath}clean/${itemName}.${extension}`
+        return `${basePath}clean/${itemName.toLowerCase()}.${extension}`
 
     case "pets":
     case "pet":
         // For pets, we need to handle different species and variants
         const petVariant = variant || "idle"
+        console.log("petVariant:", petVariant)
         // Normalize pet name to match folder structure
         const normalizedPetName = normalizePetName(itemName)
-        return `${basePath}pets/${normalizedPetName}/${normalizedPetName}_${petVariant}.${extension}`
+        return `${basePath}${normalizedPetName}/${normalizedPetName.toLowerCase()}.${extension}`
 
     case "backgrounds":
     case "background":
-        return `${basePath}backgrounds/${itemName}.${extension}`
+        return `${basePath}backgrounds/${itemName.toLowerCase()}-bg.${extension}`
 
     case "furniture":
         // Default furniture icon
-        return `${basePath}effects/coin.${extension}`
+        return `${basePath}effects/coin.${extension.toLowerCase()}`
 
     default:
-        return `${basePath}${category}/${itemName}.${extension}`
+        return `${basePath}${category}/${itemName.toLowerCase()}.${extension}`
     }
 }
 
@@ -105,7 +100,7 @@ export function parseBackendImageUrl(imageUrl: string): string {
         category,
         itemName,
         variant,
-        extension: fileName.split(".").pop() || "png",
+        extension: fileName.split(".").pop() || "png"
     })
 }
 
@@ -115,11 +110,11 @@ export function parseBackendImageUrl(imageUrl: string): string {
 export function getShopItemAssetPath(
     category: string,
     item: {
-    texture?: string
-    name?: string
-    image_url?: string
-    species?: string
-  }
+        texture?: string
+        name?: string
+        image_url?: string
+        species?: string
+    }
 ): string {
     // Priority 1: Use image_url from backend if available
     if (item.image_url) {
@@ -133,7 +128,7 @@ export function getShopItemAssetPath(
     const generatedPath = generateAssetPath({
         category,
         itemName,
-        variant: category === "pets" ? "idle" : undefined,
+        variant: category === "pets" ? "idle" : undefined
     })
 
     // Priority 3: Fallback for missing assets
@@ -154,7 +149,7 @@ function getFallbackAssetPath(category: string, _itemName: string): string {
         clean: "assets/images/effects/coin.png",
         background: "assets/images/backgrounds/forest-bg.png",
         backgrounds: "assets/images/backgrounds/forest-bg.png",
-        furniture: "assets/images/effects/coin.png",
+        furniture: "assets/images/effects/coin.png"
     }
 
     return fallbackMappings[category] || "assets/images/effects/coin.png"
@@ -171,7 +166,7 @@ export const ASSET_PATHS = {
     PETS: "assets/images/pets/",
     BACKGROUNDS: "assets/images/backgrounds/",
     EFFECTS: "assets/images/effects/",
-    UI: "assets/images/ui/",
+    UI: "assets/images/ui/"
 } as const
 
 /**
@@ -183,5 +178,22 @@ export const PET_VARIANTS = {
     SLEEP: "sleep",
     EAT: "eat",
     CHEW: "chew",
-    IDLEPLAY: "idleplay",
+    IDLEPLAY: "idleplay"
 } as const
+
+/**
+ * Generate asset URL from displayId (simplified version)
+ * @param displayId - The display ID from API (e.g., "chog", "apple", "ball")
+ * @param type - Asset type
+ * @returns Full path to asset
+ */
+export const getAssetUrlFromDisplayId = (
+    displayId: string,
+    type: "pet" | "food" | "toy" | "clean" | "background" | "furniture"
+): string => {
+    return generateAssetPath({
+        category: type,
+        itemName: displayId,
+        variant: type === "pet" ? "idle" : undefined
+    })
+}
