@@ -30,7 +30,7 @@ export const SlippageConfigFunction = () => {
                         onValueChange={(value) => {
                             formik.setFieldValue("slippage", parseFloat(value))
                         }} tabs={slippageMap.map((slippage) => ({ label: slippage.label, value: slippage.value.toString() }))} />
-                    <div className="bg-card-dark rounded-card-inner px-4 flex items-center gap-4 h-14 col-span-2">
+                    <div className="bg-card-dark rounded-card-inner px-4 flex items-center gap-4 h-[52px] col-span-2">
                         <div className="text-sm text-muted">
                                 Custom
                         </div>

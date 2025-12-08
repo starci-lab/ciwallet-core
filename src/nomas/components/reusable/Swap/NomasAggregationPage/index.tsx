@@ -1,5 +1,5 @@
 import React from "react"
-import { NomasAvatar, NomasCard, NomasCardBody, NomasCardHeader, NomasChip } from "@/nomas/components"
+import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasChip, NomasImage } from "@/nomas/components"
 import { setSwapPage, SwapPage, useAppDispatch } from "@/nomas/redux"
 import { useSwapFormik } from "@/nomas/hooks/singleton"
 import { NomasSpacer } from "@/nomas/components"
@@ -25,38 +25,36 @@ export const NomasAggregationPage = () => {
             />
             <NomasCardBody>
                 <div className="text-sm text-foreground-500">
-                Nomas fetches quotes from multiple aggregators to automatically find the best rate.
+        Nomas fetches quotes from multiple aggregators and automatically selects the best rate.
                 </div>
                 <NomasSpacer y={4}/>
-                {
-                    aggregations.map((aggregation) => {
-                        const aggregator = aggregatorManager.getAggregatorById(aggregation.aggregator)
-                        return (
-                            <NomasCard key={aggregator?.id} className="bg-default w-full">
-                                <NomasCardBody className="flex-row justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <NomasAvatar 
-                                            avatarUrl={aggregator?.logo ?? ""}
-                                        />
-                                        <div className="text-sm">
-                                            <div>{aggregator?.name}</div>
-                                        </div>
-                                        {
-                                            aggregation.aggregator === bestAggregationId && (
-                                                <NomasChip color="primary">
-                                                    Best
+                <NomasCard variant={NomasCardVariant.Dark}>
+                    <NomasCardBody className="p-4">
+                        {
+                            aggregations.map((aggregation) => {
+                                const aggregator = aggregatorManager.getAggregatorById(aggregation.aggregator)
+                                return (
+                                    <div key={aggregator?.id} className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <NomasImage src={aggregator?.logo ?? ""} />
+                                            <div className="text-sm">{aggregator?.name}</div>
+
+                                            {aggregation.aggregator === bestAggregationId && (
+                                                <NomasChip>
+                                        Best
                                                 </NomasChip>
-                                            )
-                                        }
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2 text-foreground-500 text-sm">
+                                            <div>{`${aggregation.amountOut} ${tokenOut?.symbol}`}</div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-foreground-500 text-sm">
-                                        <div>{`${aggregation.amountOut} ${tokenOut?.symbol}`}</div>
-                                    </div>
-                                </NomasCardBody>
-                            </NomasCard>
-                        )
-                    })
-                }
+                                )
+                            })
+                        }
+                    </NomasCardBody>
+                </NomasCard>
             </NomasCardBody>
         </> 
     )   

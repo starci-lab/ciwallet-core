@@ -16,7 +16,7 @@ import {
     useAppSelector
 } from "@/nomas/redux"
 import { hyperliquidObj } from "@/nomas/obj"
-import { twMerge } from "tailwind-merge"
+import { CheckCircleIcon } from "@phosphor-icons/react"
 
 export const SelectAssetPage = () => {
     const dispatch = useAppDispatch()
@@ -33,7 +33,7 @@ export const SelectAssetPage = () => {
             />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
-                    <NomasCardBody className="p-4">
+                    <NomasCardBody className="p-4 gap-4 flex flex-col" scrollable scrollHeight={300}>
                         {
                             perpMetas.map((perpMeta) => {   
                                 try {
@@ -42,13 +42,7 @@ export const SelectAssetPage = () => {
                                     return (
                                         <PressableMotion
                                             key={perpMeta.name}
-                                            className={
-                                                twMerge("p-4 flex items-center gap-2 justify-between rounded-button w-full", 
-                                                    hyperliquidObj.getAssetIdByCoin(perpMeta.name) === selectedAssetId 
-                                                        ? "py-4 bg-button-dark border-border-card shadow-button" 
-                                                        : "bg-card-foreground transition-colors !shadow-none"
-                                                )                                          
-                                            }
+                                            className="py-1 flex items-center gap-2 justify-between rounded-button w-full"
                                             onClick={
                                                 () => {
                                                     const assetId = hyperliquidObj.getAssetIdByCoin(perpMeta.name)
@@ -61,6 +55,11 @@ export const SelectAssetPage = () => {
                                                 <NomasImage src={selectedAssetMetadata.imageUrl} className="w-10 h-10 rounded-full" />
                                                 <div className="text-sm">{selectedAssetMetadata.name}</div>
                                             </div>
+                                            {
+                                                selectedAssetId === hyperliquidObj.getAssetIdByCoin(perpMeta.name) ? (
+                                                    <CheckCircleIcon className="w-5 h-5" weight="fill"/>
+                                                ) : null
+                                            }
                                         </PressableMotion>
                                     )
                                 } catch{

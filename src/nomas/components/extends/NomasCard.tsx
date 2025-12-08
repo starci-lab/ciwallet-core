@@ -33,8 +33,8 @@ const cardCva = cva(
     {
         variants: {
             variant: {
-                gradient: "bg-card-gradient border-border-border-card", // gradient variant
-                gradient2: "bg-card-gradient2 border-border-border-card", // gradient2 variant
+                gradient: "bg-card-gradient border-border-card", // gradient variant
+                gradient2: "bg-card-gradient2 border-border-card", // gradient2 variant
                 transparent: "bg-transparent border-none !shadow-none !border-none", // transparent variant
                 dark: "border-border-card bg-card-dark !shadow-none", // dark variant
                 button: "bg-button shadow-button rounded-button cursor-pointer border-none", // button variant
@@ -44,7 +44,7 @@ const cardCva = cva(
                 false: "rounded-card",
             },
             isContainer: {
-                true: "min-w-[400px] w-[400px] max-w-[400px]",
+                true: "min-w-[500px] w-[500px] max-w-[500px]",
                 false: "",
             },
         },
@@ -107,7 +107,7 @@ export const NomasCardHeader = React.forwardRef<
                 {/* Center: title & description */}
                 <div className="flex-1 text-center">
                     {title && (
-                        <CardTitle className="text-lg font-semiboldtext-text-muted flex items-center gap-2 justify-center">
+                        <CardTitle className="text-lg font-semibold text-text-muted flex items-center gap-2 justify-center">
                             {startIcon}
                             {title}
                         </CardTitle>

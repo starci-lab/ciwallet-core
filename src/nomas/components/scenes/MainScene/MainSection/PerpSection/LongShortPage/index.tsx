@@ -131,9 +131,9 @@ export const LongShortPage = () => {
                 }}
             />
             <NomasCardBody> 
-                <NomasCard variant={NomasCardVariant.Dark} isInner>
-                    <NomasCardBody className="p-4 flex items-center justify-between gap-4">
-                        <div className="flex justify-start flex-1">
+                <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex justify-start flex-1">  
                             <PressableMotion
                                 onClick={() => {
                                     dispatch(setPerpSectionPage(PerpSectionPage.MarginMode))
@@ -172,7 +172,7 @@ export const LongShortPage = () => {
                                 <CaretRightIcon className="size-3 text-text-muted" />
                             </PressableMotion>
                         </div>
-                    </NomasCardBody>
+                    </div>
                 </NomasCard>
                 <NomasSpacer y={4} />
                 <NomasCard variant={NomasCardVariant.Dark} isInner>

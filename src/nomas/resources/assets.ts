@@ -31,6 +31,15 @@ export const assetsConfig = () => {
             solana: getUrl("/assets/tokens/solana.png"),
             sui: getUrl("/assets/tokens/sui.jpeg"),
             usdc: getUrl("/assets/tokens/usdc.svg"),
+            eth: getUrl("/assets/tokens/ethereum.png"),
+            btc: getUrl("/assets/tokens/bitcoin.svg"),
+            xpl: getUrl("/assets/tokens/xpl.jpg"),
+            usdt: getUrl("/assets/tokens/usdt.svg"),
+            "2z": getUrl("/assets/tokens/2z.svg"),
+            bonk: getUrl("/assets/tokens/bonk.svg"),
+            fartcoin: getUrl("/assets/tokens/fartcoin.svg"),
+            pump: getUrl("/assets/tokens/pump.svg"),
+            spx: getUrl("/assets/tokens/spx.svg"),
         },
         hyperliquid: {
             logo: getUrl("/assets/hyperliquid/logo.svg"),
@@ -39,6 +48,18 @@ export const assetsConfig = () => {
             sol: getUrl("/assets/hyperliquid/sol.svg"),
         },
         chains: {
+            hyperliquid: {
+                iconUrl: getUrl("/assets/chains/hyperliquid.webp"),
+                iconInvertedUrl: getUrl("/assets/chains/hyperliquid.webp"),
+            },
+            bitcoin: {
+                iconUrl: getUrl("/assets/chains/bitcoin.svg"),
+                iconInvertedUrl: getUrl("/assets/chains/bitcoin.svg"),
+            },
+            plasma: {
+                iconUrl: getUrl("/assets/chains/plasma.jpg"),
+                iconInvertedUrl: getUrl("/assets/chains/plasma.jpg"),
+            },
             bsc: {
                 iconUrl: getUrl("/assets/chains/bsc.svg"),
                 iconInvertedUrl: getUrl("/assets/chains/bsc.svg"),
@@ -83,6 +104,20 @@ export const assetsConfig = () => {
                 iconUrl: getUrl("/assets/chains/sui.jpeg"),
                 iconInvertedUrl: getUrl("/assets/chains/sui.jpeg"),
             }
+        },
+        aggregator: {
+            madhouse: {
+                logo: getUrl("/assets/aggregators/madhouse.webp"),
+            },
+            jupiter: {
+                logo: getUrl("/assets/aggregators/jupiter.png"),
+            },
+            lifi: {
+                logo: getUrl("/assets/aggregators/lifi.png"),
+            },
+            cetus: {
+                logo: getUrl("/assets/aggregators/cetus.png"),
+            },
         },
         mixin: {
             pyth: {

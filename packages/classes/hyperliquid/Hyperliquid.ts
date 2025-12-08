@@ -283,6 +283,25 @@ export class Hyperliquid {
         return data
     }
 
+    public injectDepositAssetIconUrl({ 
+        asset, 
+        iconUrl
+    }: InjectDepositAssetIconUrlParams) {
+        const assetInfo = this.getDepositAssetInfoByAsset(asset)
+        if (!assetInfo) return
+        assetInfo.iconUrl = iconUrl
+    }
+
+    public injectAssetIconUrl({
+        assetId,
+        iconUrl
+    }: InjectAssetIconUrlParams) {
+        const assetInfo = this.getAssetMetadata(assetId)
+        if (!assetInfo) return
+        assetInfo.imageUrl = iconUrl
+    }
+    
+
     public getDepositAssetInfoByAsset(
         asset: HyperliquidDepositAsset
     ): HyperliquidDepositAssetInfo {
@@ -299,4 +318,14 @@ export interface ApproveAgentParams {
 
 export interface ApproveAgentResponse {
     status: string
+}
+
+export interface InjectDepositAssetIconUrlParams {
+    asset: HyperliquidDepositAsset
+    iconUrl: string
+}
+
+export interface InjectAssetIconUrlParams {
+    assetId: HyperliquidAssetId
+    iconUrl: string
 }

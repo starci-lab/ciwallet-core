@@ -5,6 +5,7 @@ import {
     NomasCardHeader,
     NomasCardVariant,
     NomasInput,
+    NotFound,
     TokenCard2,
 } from "@/nomas/components"
 import {
@@ -19,6 +20,7 @@ import { NomasSpacer } from "@/nomas/components"
 import { useTransferFormik } from "@/nomas/hooks/singleton"
 import { SelectChainTab } from "@/nomas/components"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { Platform, TokenType } from "@ciwallet-sdk/types"
 
 export const SelectTokenPage = () => {
     const dispatch = useAppDispatch()
@@ -26,16 +28,28 @@ export const SelectTokenPage = () => {
     const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const filteredTokenArray = useMemo(() => {
         return tokenArray.filter((token) => {
-            return token.name.toLowerCase().includes(formik.values.searchTokenQuery.toLowerCase()) 
-            || token.symbol.toLowerCase().includes(formik.values.searchTokenQuery.toLowerCase()) 
-            || token.address?.toLowerCase()?.includes(formik.values.searchTokenQuery.toLowerCase())
+            const filteredTokens = (
+                token.name.toLowerCase().includes(formik.values.searchTokenQuery.toLowerCase()) 
+                || token.symbol.toLowerCase().includes(formik.values.searchTokenQuery.toLowerCase()) 
+                || token.address?.toLowerCase()?.includes(formik.values.searchTokenQuery.toLowerCase())
+            )
+            if (formik.values.chainId === "all-network") {
+                return filteredTokens
+            }
+            return filteredTokens && token.chainId === formik.values.chainId
         })
     }, [tokenArray, formik.values.searchTokenQuery])
-    const platform = useMemo(()     => {
-        return chainIdToPlatform(formik.values.chainId)
-    }, [formik.values.chainId])
-    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, platform))
+
+    const platform = useMemo(() => {
+        if (!formik.values.tokenId) return undefined
+        const token = tokenArray.find((token) => token.tokenId === formik.values.tokenId)
+        if (!token) return undefined
+        return chainIdToPlatform(token.chainId)
+    }, [formik.values.tokenId, tokenArray])
+
+    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, platform ?? Platform.Evm))
     const network = useAppSelector((state) => state.persists.session.network)
+    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
     return (
         <>
             <NomasCardHeader
@@ -63,21 +77,30 @@ export const SelectTokenPage = () => {
                 />
                 <NomasSpacer y={4}/>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
-                    <NomasCardBody className="gap-2 p-0">
-                        {filteredTokenArray.map((token) => (
-                            <TokenCard2 
-                                isPressable
-                                onClick={() => {
-                                    formik.setFieldValue("tokenId", token.tokenId)
-                                    dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.Withdraw))
-                                }}
-                                key={token.tokenId}
-                                token={token}
-                                chainId={formik.values.chainId}
-                                accountAddress={selectedAccount?.accountAddress ?? ""}
-                                network={network}
-                            />
-                        ))}
+                    <NomasCardBody className="gap-2 p-0" scrollable scrollHeight={300}>
+                        {
+                            filteredTokenArray.length ?
+                                filteredTokenArray.map((token) => (
+                                    <TokenCard2 
+                                        isPressable
+                                        onClick={() => {
+                                            formik.setFieldValue("tokenId", token.tokenId)
+                                            const gasToken = tokenArray.find((_token) => 
+                                                _token.chainId === token.chainId
+                                                && _token.network === network 
+                                                && _token.type === TokenType.Native
+                                            )
+                                            formik.setFieldValue("gasTokenId", gasToken?.tokenId)
+                                            dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.Withdraw))
+                                        }}
+                                        key={token.tokenId}
+                                        token={token}
+                                        chainId={token.chainId}
+                                        accountAddress={selectedAccount?.accountAddress ?? ""}
+                                        network={network}
+                                    />
+                                )) 
+                                : <NotFound title="No tokens found" />}
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>

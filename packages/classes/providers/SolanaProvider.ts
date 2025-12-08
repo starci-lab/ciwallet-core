@@ -11,21 +11,50 @@ import type {
     FetchTokenMetadataResponse,
     IQuery,
 } from "./IQuery"
-
 import {
-    Connection,
-    PublicKey,
-} from "@solana/web3.js"
-
-import {
-    getAccount,
-    getAssociatedTokenAddressSync,
-    TOKEN_PROGRAM_ID,
-    TOKEN_2022_PROGRAM_ID,
-} from "@solana/spl-token"
-import { computeDenomination } from "@ciwallet-sdk/utils"
+    address,
+    createSignerFromKeyPair,
+    createSolanaRpc,
+    createSolanaRpcSubscriptions,
+    type Rpc,
+    type RpcSubscriptions,
+    type SolanaRpcApi,
+    type SolanaRpcSubscriptionsApi,
+    createKeyPairFromBytes,
+    pipe,
+    createTransactionMessage,
+    addSignersToTransactionMessage,
+    setTransactionMessageFeePayerSigner,
+    setTransactionMessageLifetimeUsingBlockhash,
+    appendTransactionMessageInstructions,
+    createNoopSigner,
+    isTransactionMessageWithinSizeLimit,
+    compileTransaction,
+    signTransaction,
+    assertIsSendableTransaction,
+    assertIsTransactionWithinSizeLimit,
+    sendAndConfirmTransactionFactory,
+    getSignatureFromTransaction,
+    fetchEncodedAccount,
+    type Instruction,
+} from "@solana/kit"
+import { computeDenomination, computeRaw, httpsToWss } from "@ciwallet-sdk/utils"
 import BN from "bn.js"
-
+import { 
+    fetchToken, 
+    findAssociatedTokenPda, 
+    TOKEN_PROGRAM_ADDRESS, 
+    getCreateAssociatedTokenInstruction,
+    getTransferInstruction
+} from "@solana-program/token"
+import { 
+    TOKEN_2022_PROGRAM_ADDRESS, 
+    fetchToken as fetchToken2022, 
+    getCreateAssociatedTokenInstruction as getCreateAssociatedToken2022Instruction,
+    getTransferInstruction as getTransfer2022Instruction
+} from "@solana-program/token-2022"
+import { getTransferSolInstruction } from "@solana-program/system"
+import base58 from "bs58"
 export interface SolanaProviderParams {
     chainId: ChainId;
     network: Network;
@@ -35,11 +64,15 @@ export interface SolanaProviderParams {
 }
 
 export class SolanaProvider implements IAction, IQuery {
-    private readonly connection: Connection
+    private readonly rpc: Rpc<SolanaRpcApi>
+    private readonly rpcSubscriptions: RpcSubscriptions<SolanaRpcSubscriptionsApi>
+    private readonly privateKey?: string
     constructor(
     public readonly params: SolanaProviderParams,
     ) {
-        this.connection = new Connection(this.params.rpcs.at(0)!, "confirmed")
+        this.rpc = createSolanaRpc(this.params.rpcs.at(0)!)
+        this.rpcSubscriptions = createSolanaRpcSubscriptions(httpsToWss(this.params.rpcs.at(0)!))
+        this.privateKey = this.params.privateKey
     }
 
     /** Transfer SOL or SPL token */
@@ -48,15 +81,114 @@ export class SolanaProvider implements IAction, IQuery {
         toAddress,
         tokenAddress,
         decimals = 9,
+        isToken2022 = false,
     }: TransferParams): Promise<TransferResponse> {
-        throw new Error("Transfer not implemented for Solana", {
-            cause: {
-                amount,
-                toAddress,
-                tokenAddress,
-                decimals,
-            },
+        const keyPair = await createKeyPairFromBytes(base58.decode(this.privateKey ?? ""))
+        const kitSigner = await createSignerFromKeyPair(keyPair)
+        const { value: latestBlockhash } = await this.rpc.getLatestBlockhash().send()
+        if (!tokenAddress) {
+            const transactionMessage = pipe(
+                createTransactionMessage({ version: 0 }),
+                (tx) => addSignersToTransactionMessage([kitSigner], tx),
+                (tx) => setTransactionMessageFeePayerSigner(kitSigner, tx),
+                (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+                (tx) => appendTransactionMessageInstructions([
+                    getTransferSolInstruction({
+                        source: createNoopSigner(kitSigner.address),
+                        destination: address(toAddress),
+                        amount: BigInt(computeRaw(amount, decimals).toString()),
+                    })
+                ], tx),
+            )
+            if (!isTransactionMessageWithinSizeLimit(transactionMessage)) {
+                throw new Error("Transaction message is too large")
+            }
+            const transaction = compileTransaction(transactionMessage)
+            // sign the transaction
+            const signedTransaction = await signTransaction(
+                [keyPair],
+                transaction,
+            )
+            assertIsSendableTransaction(signedTransaction)
+            assertIsTransactionWithinSizeLimit(signedTransaction)
+            const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
+                rpc: this.rpc,
+                rpcSubscriptions: this.rpcSubscriptions,
+            })
+            const transactionSignature = getSignatureFromTransaction(signedTransaction)
+            await sendAndConfirmTransaction(
+                signedTransaction, {
+                    commitment: "confirmed",
+                    maxRetries: BigInt(5),
+                })
+            return { txHash: transactionSignature.toString() }
+        }
+        const instructions: Array<Instruction> = []
+        const mintAddress = address(tokenAddress)
+        const ownerAddress = kitSigner.address
+        const [sourceAta] = await findAssociatedTokenPda(
+            {
+                mint: mintAddress,
+                owner: ownerAddress,
+                tokenProgram: isToken2022 ? TOKEN_2022_PROGRAM_ADDRESS : TOKEN_PROGRAM_ADDRESS,
+            }
+        )
+        const [destinationAta] = await findAssociatedTokenPda(
+            {
+                mint: mintAddress,
+                owner: address(toAddress),
+                tokenProgram: isToken2022 ? TOKEN_2022_PROGRAM_ADDRESS : TOKEN_PROGRAM_ADDRESS,
+            }
+        )
+        const maybeAtaAccount = await fetchEncodedAccount(this.rpc, destinationAta)
+        if (!maybeAtaAccount.exists) {
+            const _getCreateAssociatedTokenInstruction = isToken2022 
+                ? getCreateAssociatedToken2022Instruction 
+                : getCreateAssociatedTokenInstruction
+            instructions.push(_getCreateAssociatedTokenInstruction({
+                mint: mintAddress,
+                owner: address(toAddress),
+                ata: destinationAta,
+                payer: createNoopSigner(kitSigner.address),
+            }))
+        }
+
+        const _getTransferInstruction = isToken2022 ? getTransfer2022Instruction : getTransferInstruction
+        instructions.push(_getTransferInstruction({
+            source: sourceAta,
+            destination: destinationAta,
+            amount: BigInt(computeRaw(amount, decimals).toString()),
+            authority: createNoopSigner(kitSigner.address),
+        }))
+        const transactionMessage = pipe(
+            createTransactionMessage({ version: 0 }),
+            (tx) => addSignersToTransactionMessage([kitSigner], tx),
+            (tx) => setTransactionMessageFeePayerSigner(kitSigner, tx),
+            (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+            (tx) => appendTransactionMessageInstructions(instructions, tx),
+        )
+        if (!isTransactionMessageWithinSizeLimit(transactionMessage)) {
+            throw new Error("Transaction message is too large")
+        }
+        const transaction = compileTransaction(transactionMessage)
+        // sign the transaction
+        const signedTransaction = await signTransaction(
+            [keyPair],
+            transaction,
+        )
+        assertIsSendableTransaction(signedTransaction)
+        assertIsTransactionWithinSizeLimit(signedTransaction)
+        const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
+            rpc: this.rpc,
+            rpcSubscriptions: this.rpcSubscriptions,
         })
+        const transactionSignature = getSignatureFromTransaction(signedTransaction)
+        await sendAndConfirmTransaction(
+            signedTransaction, {
+                commitment: "confirmed",
+                maxRetries: BigInt(5),
+            })
+        return { txHash: transactionSignature.toString() }
     }
 
     /** Fetch balance of SOL or SPL token */
@@ -66,18 +198,46 @@ export class SolanaProvider implements IAction, IQuery {
         decimals = 9,
         isToken2022 = false,
     }: FetchBalanceParams): Promise<FetchBalanceResponse> {
-        if (!tokenAddress) {
-            const balance = await this.connection.getBalance(new PublicKey(accountAddress))
-            return { amount: computeDenomination(new BN(balance.toString()), decimals).toNumber() }
+        try {
+            if (!tokenAddress) {
+                const balance = await this.rpc.getBalance(address(accountAddress)).send()
+                return { amount: computeDenomination(new BN(balance.value.toString()), decimals).toNumber() }
+            }
+            const mintAddress = address(tokenAddress)
+            const ownerAddress = address(accountAddress)
+            const [ataPublicKey] = await findAssociatedTokenPda(
+                {
+                    mint: mintAddress,
+                    owner: ownerAddress,
+                    tokenProgram:
+            isToken2022
+                ? TOKEN_2022_PROGRAM_ADDRESS
+                : TOKEN_PROGRAM_ADDRESS,
+                }
+            )
+            try {
+                if (isToken2022) {
+                    const token2022 = await fetchToken2022(this.rpc, ataPublicKey)
+                    return {
+                        amount: computeDenomination(new BN(token2022.data.amount.toString()), decimals).toNumber()
+                    }
+                } else {
+                // Standard SPL token account
+                    const tokenAccount = await fetchToken(this.rpc, ataPublicKey)
+                    return {
+                        amount: computeDenomination(new BN(tokenAccount.data.amount.toString()), decimals).toNumber()
+                    }
+                }
+            } catch {
+            // we dont find the ata address, so the balance is 0
+                return {
+                    amount: 0,
+                }
+            }
+        } catch (error) {
+            console.error("fetchBalance error:", error)
+            return { amount: 0 }
         }
-        const ataPublicKey = getAssociatedTokenAddressSync(
-            new PublicKey(tokenAddress), 
-            new PublicKey(accountAddress), 
-            false, 
-            isToken2022 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID
-        )
-        const account = await getAccount(this.connection, ataPublicKey)
-        return { amount: computeDenomination(new BN(account.amount.toString()), decimals).toNumber() }
     }
 
     /** Metadata (not fully supported without Metaplex) */

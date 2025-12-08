@@ -1,4 +1,4 @@
-import type { AggregatorId } from "@ciwallet-sdk/classes"
+import { type AggregatorId } from "@ciwallet-sdk/classes"
 import { ChainId, TokenId } from "@ciwallet-sdk/types"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
@@ -6,6 +6,7 @@ export enum TransactionType {
     Withdrawal = "withdrawal",
     Swap = "swap",
     Bridge = "bridge",
+    Deposit = "deposit",
 }
 
 export type TransactionData = 
@@ -16,7 +17,8 @@ export type TransactionData =
     toTokenId: TokenId
     fromAddress: string
     toAddress: string
-    amount: number
+    fromAmount: number
+    toAmount: number
     aggregatorId: AggregatorId
     txHash: string
 } 
@@ -25,8 +27,13 @@ export type TransactionData =
     type: TransactionType.Bridge
     fromTokenId: TokenId
     toTokenId: TokenId
-    amount: number
+    fromChainId: ChainId
+    toChainId: ChainId
+    fromAddress: string
     toAddress: string
+    fromAmount: number
+    toAmount: number
+    aggregatorId: AggregatorId
     txHash: string
 } 
 | 
@@ -35,6 +42,14 @@ export type TransactionData =
     chainId: ChainId
     fromAddress: string
     toAddress: string
+    tokenId: TokenId
+    amount: number
+    txHash: string
+}
+| 
+{
+    type: TransactionType.Deposit
+    chainId: ChainId
     tokenId: TokenId
     amount: number
     txHash: string
@@ -57,6 +72,10 @@ export interface SwapSectionSlice {
     tokenInChainId: ChainId;
     tokenOutChainId: ChainId;
     transactionData?: TransactionData;
+    txHash: string;
+    swapSuccess: boolean;
+    transactionType: TransactionType;
+    searchQuery: string;
 }
 
 const initialState: SwapSectionSlice = {
@@ -66,6 +85,10 @@ const initialState: SwapSectionSlice = {
     tokenOut: TokenId.MonadTestnetMon,
     tokenInChainId: ChainId.Monad,
     tokenOutChainId: ChainId.Monad,
+    txHash: "",
+    swapSuccess: true,
+    transactionType: TransactionType.Swap,
+    searchQuery: "",
 }
 
 export const swapSlice = createSlice({
@@ -93,8 +116,32 @@ export const swapSlice = createSlice({
         setTransactionData: (state, action: PayloadAction<TransactionData>) => {
             state.transactionData = action.payload
         },
+        setTxHash: (state, action: PayloadAction<string>) => {
+            state.txHash = action.payload
+        },
+        setSwapSuccess: (state, action: PayloadAction<boolean>) => {
+            state.swapSuccess = action.payload
+        },
+        setTransactionType: (state, action: PayloadAction<TransactionType>) => {
+            state.transactionType = action.payload
+        },
+        setSearchQuery: (state, action: PayloadAction<string>) => {
+            state.searchQuery = action.payload
+        },
     },
 })
 
-export const { setSwapFunctionPage, setExpandDetails, setTokenIn, setTokenOut, setTokenInChainId, setTokenOutChainId, setTransactionData } = swapSlice.actions
+export const { 
+    setSwapFunctionPage, 
+    setExpandDetails, 
+    setTokenIn, 
+    setTokenOut, 
+    setTokenInChainId, 
+    setTokenOutChainId, 
+    setTransactionData, 
+    setTxHash, 
+    setSwapSuccess, 
+    setTransactionType,
+    setSearchQuery
+} = swapSlice.actions
 export const swapReducer = swapSlice.reducer

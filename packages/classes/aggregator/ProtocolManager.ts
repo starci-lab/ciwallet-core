@@ -153,7 +153,7 @@ export class ProtocolManager {
     }
 
     public getBestQuote(
-        params: Record<AggregatorId, QuoteResponse>
+        params: Partial<Record<AggregatorId, QuoteResponse>>
     ): BestQuote | null {
         const entries = Object.entries(params) as Array<[AggregatorId, QuoteResponse]>
         if (entries.length === 0) return null

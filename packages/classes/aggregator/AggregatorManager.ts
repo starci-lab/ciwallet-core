@@ -2,10 +2,14 @@ import { ChainId, Network } from "@ciwallet-sdk/types"
 import type { IAggregator, QuoteParams, QuoteResponse } from "./IAggregator"
 import { MadhouseAggregator } from "./MadhouseAggregator"
 import { LifiAggregator } from "./LifiAggregator"
+import { JupiterAggregator } from "./JupiterAggregator"
+import { CetusAggregator } from "./CetusAggregator"
 
 export enum AggregatorId {
     Madhouse = "madhouse",
     Lifi = "lifi",
+    Jupiter = "jupiter",
+    Cetus = "cetus",
 }
 
 export enum AggregationMode {
@@ -62,6 +66,16 @@ export class AggregatorManager {
                 mode: AggregationMode.SingleChain,
                 networks: [Network.Testnet],
             },
+            [AggregatorId.Jupiter]: {
+                id: AggregatorId.Jupiter,
+                name: "Jupiter",
+                url: "https://jupiter.ag/",
+                logo: "/assets/aggregators/jupiter.png",
+                instance: new JupiterAggregator(),
+                chain: ChainId.Solana,
+                mode: AggregationMode.SingleChain,
+                networks: [Network.Mainnet],
+            },
             [AggregatorId.Lifi]: {
                 id: AggregatorId.Lifi,
                 name: "Lifi",
@@ -71,11 +85,27 @@ export class AggregatorManager {
                     apiKey: this.params.lifi.apiKey,
                     integrator: this.params.lifi.integrator,
                 }),
-                chains: [ChainId.Solana, ChainId.Sui],
+                chains: [ChainId.Solana, ChainId.Sui, ChainId.Arbitrum  ],
                 mode: AggregationMode.Hybrid,
                 networks: [Network.Mainnet],
             },
+            [AggregatorId.Cetus]: {
+                id: AggregatorId.Cetus,
+                name: "Cetus",
+                url: "https://cetus.ag/",
+                logo: "/assets/aggregators/cetus.png",
+                instance: new CetusAggregator(),
+                chain: ChainId.Sui,
+                mode: AggregationMode.SingleChain,
+                networks: [Network.Mainnet],
+            },
         }
+    }
+
+    public injectIconUrl({ aggregatorId, iconUrl }: InjectIconUrlParams) {
+        const aggregator = this.aggregators[aggregatorId]
+        if (!aggregator) return
+        aggregator.logo = iconUrl
     }
 
     public toObject(): Partial<Record<AggregatorId, AggregatorData>> {
@@ -98,34 +128,38 @@ export class AggregatorManager {
         let selectedAggregators: Array<AggregatorData> = []
         // swap within the same chain
         if (params.fromChainId === params.toChainId) {
-            selectedAggregators = this.getAggregators().filter(aggregator => {    
-                return (
-                    // either singlechain and hybrid
-                    aggregator.mode === AggregationMode.SingleChain 
-                    || aggregator.mode === AggregationMode.Hybrid
-                    && aggregator.chains.includes(params.fromChainId)
-                    && aggregator.networks.includes(params.network)
-                )
-            })
+            selectedAggregators = this.getAggregators().filter(
+                aggregator => {    
+                    const isSingleChainSelected = aggregator.mode === AggregationMode.SingleChain && aggregator.chain === params.fromChainId
+                    const isHybridSelected = aggregator.mode === AggregationMode.Hybrid && aggregator.chains.includes(params.fromChainId)
+                    return (isSingleChainSelected || isHybridSelected) && aggregator.networks.includes(params.network)
+                })
         }
         // swap between different chains
         else {
-            selectedAggregators = this.getAggregators().filter(aggregator => {
-                return (
-                    aggregator.mode === AggregationMode.CrossChain 
-                    || aggregator.mode === AggregationMode.Hybrid
-                    && aggregator.chains.includes(params.fromChainId)
-                    && aggregator.chains.includes(params.toChainId)
-                )
-            })
+            selectedAggregators = this.getAggregators().filter(
+                aggregator => {
+                    const isCrossChainSelected = aggregator.mode === AggregationMode.CrossChain && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
+                    const isHybridSelected = aggregator.mode === AggregationMode.Hybrid && aggregator.chains.includes(params.fromChainId) && aggregator.chains.includes(params.toChainId)
+                    return (isCrossChainSelected || isHybridSelected) && aggregator.networks.includes(params.network)
+                })
         }
         for (const aggregator of selectedAggregators) {
             promises.push((async (): Promise<void> => {
-                const result = await aggregator.instance.quote(params)
-                results[aggregator.id] = result
+                try {
+                    const result = await aggregator.instance.quote(params)
+                    results[aggregator.id] = result
+                } catch (error) {
+                    console.error(error)
+                }
             })())
         }
         await Promise.allSettled(promises)
         return results
     }
+}
+
+export interface InjectIconUrlParams {
+    aggregatorId: AggregatorId
+    iconUrl: string
 }

@@ -18,6 +18,8 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
     const selectedAccounts = useAppSelector(state => selectSelectedAccounts(state.persists))
     
     useEffect(() => {
+        // don't quote if we are submitting
+        if (formik.isSubmitting) return
         const abortController = new AbortController()
         const debounceFn = setTimeout(async () => {
             const fromToken = tokenArray.find(token => token.tokenId === formik.values.tokenIn)
@@ -32,7 +34,7 @@ export const useAggregatorSelector = (formik: FormikProps<SwapFormikValues>) => 
                 throw new Error("From or to selected account not found")
             }
             try {
-                if (new Decimal(formik.values.amountIn).gt(0) && formik.values.isInput) {
+                if (new Decimal(formik.values.amountIn || 0).gt(0) && formik.values.isInput) {
                     // display quoting
                     formik.setFieldValue("quoting", true)
                     const results = await swrMutation.trigger({

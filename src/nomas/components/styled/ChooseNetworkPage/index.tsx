@@ -1,11 +1,14 @@
 import React, { useMemo } from "react"
-import { type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
-import { NomasCardHeader, NomasCardBody, NomasCard, NomasCardVariant } from "../../extends"
+import { ChainId, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
+import { NomasCardHeader, NomasCardBody, NomasCardVariant, NomasInput, NomasCard, NomasSpacer } from "../../extends"
 import { chainManagerObj } from "@/nomas/obj"
-import { ChainCard } from "./ChainCard"
-import { GlobeIcon } from "@phosphor-icons/react"
-import { twMerge } from "tailwind-merge"
+import { NomasImage } from "../../extends"
+import { AlphabetList } from "../../reusable"
+import { selectSelectedAccounts, useAppSelector } from "@/nomas/redux"
+import { chainIdToPlatform, shortenAddress } from "@ciwallet-sdk/utils"
+import { CheckCircleIcon, GlobeIcon } from "@phosphor-icons/react"
 import { PressableMotion } from "../PressableMotion"
+import { twMerge } from "tailwind-merge"
 
 export interface ChooseNetworkPageProps {
     withAllNetworks?: boolean
@@ -15,57 +18,23 @@ export interface ChooseNetworkPageProps {
     endContent?: (chainId: ChainIdWithAllNetwork) => React.ReactNode
     isPressable?: boolean
     onPress?: (chainId: ChainIdWithAllNetwork) => void
+    onSearchQueryChange?: (query: string) => void
+    searchQuery?: string
 }
 
-interface RenderedChain {
-    id: ChainIdWithAllNetwork
-    name: string
-    component: React.ReactNode
-}
-
-export const ChooseNetworkPage = ({ withAllNetworks = false, isSelected, showBackButton, onBackButtonPress, endContent, isPressable, onPress }: ChooseNetworkPageProps) => {  
-    const renderedChains = useMemo(() => {
-        const chains: Array<RenderedChain> = chainManagerObj.toObject().map((chain) => {
-            return {
-                id: chain.id,
-                name: chain.name,
-                component: <ChainCard
-                    isPressable={isPressable}
-                    onPress={() => onPress?.(chain.id)}
-                    key={chain.id}
-                    chain={chain}
-                    isSelected={isSelected(chain.id)}
-                />,
-            }
-        })
-        if (withAllNetworks) {
-            chains.unshift({
-                id: "all-network",
-                name: "All",
-                component: <div
-                    className={
-                        twMerge("px-3 py-2 flex items-center gap-2 justify-between rounded-button", 
-                            isSelected("all-network") ? "bg-button-dark border-border-card shadow-button" : "bg-card-foreground transition-colors !shadow-none")
-                    }
-                >
-                    <PressableMotion onClick={() => {
-                        onPress?.("all-network")
-                    }} className="w-full">
-                        <div className="p-0 flex items-center justify-between w-full">
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                    <GlobeIcon className="w-10 h-10"/>
-                                    <div className="text-sm text-text">All Networks</div>  
-                                </div>
-                            </div>    
-                            <div className="text-xs text-muted">{chainManagerObj.toObject().length} chains</div>
-                        </div>
-                    </PressableMotion>
-                </div>,
-            })
-        }
-        return chains
-    }, [withAllNetworks, isSelected, isPressable, onPress, endContent])
+export const ChooseNetworkPage = ({ 
+    withAllNetworks = false, 
+    isSelected, 
+    showBackButton, 
+    onBackButtonPress,
+    onPress,
+    onSearchQueryChange,
+    searchQuery
+}: ChooseNetworkPageProps) => {  
+    const chainMetadatas = useMemo(() => {
+        return chainManagerObj.toObject()
+    }, [])
+    const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     return (
         <>
             <NomasCardHeader
@@ -74,9 +43,105 @@ export const ChooseNetworkPage = ({ withAllNetworks = false, isSelected, showBac
                 onBackButtonPress={onBackButtonPress}
             />
             <NomasCardBody>
+                <NomasInput
+                    placeholder="Search network by name or id"
+                    onValueChange={(value) => {
+                        onSearchQueryChange?.(value)
+                    }}
+                    value={searchQuery}
+                />
+                <NomasSpacer y={4}/>
                 <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4" >
                     <NomasCardBody scrollable className="p-0 flex flex-col gap-2">
-                        {renderedChains.map((chain) => chain.component)}
+                        { 
+                            withAllNetworks && !searchQuery && (
+                                <>
+                                    <PressableMotion onClick={() => {
+                                        onPress?.("all-network")
+                                    }} className={
+                                        twMerge("py-1 flex items-center gap-2 justify-between rounded-button")
+                                    }>
+                                        <div className="flex items-center justify-between w-full">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <GlobeIcon className="w-10 h-10"/>
+                                                    <div>
+                                                        <div className="text-sm text-text">All Networks</div> 
+                                                        <div className="text-xs text-muted">{chainManagerObj.toObject().length} chains</div> 
+                                                    </div>
+                                                </div>
+                                            </div>    
+                                            {
+                                                isSelected("all-network") && (
+                                                    <CheckCircleIcon className="w-5 h-5" weight="fill"/>
+                                                )
+                                            }
+                                        </div>
+                                    </PressableMotion>
+                                    <NomasSpacer y={6}/>
+                                </>
+                            )
+                        }
+                        <AlphabetList
+                            filterValue={searchQuery ?? ""}
+                            popularItems={[
+                                {
+                                    letter: "B",
+                                    item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Bitcoin),
+                                    key: ChainId.Bitcoin
+                                },
+                                {
+                                    letter: "E",
+                                    item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Ethereum),
+                                    key: ChainId.Ethereum
+                                },
+                                {
+                                    letter: "S",
+                                    item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Solana),
+                                    key: ChainId.Solana
+                                },
+                                {
+                                    letter: "S",
+                                    item: chainMetadatas.find((chainMetadata) => chainMetadata.id === ChainId.Sui),
+                                    key: ChainId.Sui
+                                }
+                            ]}
+                            popularTitle="Popular Networks"
+                            items={
+                                Object.entries(chainMetadatas).map(([_, chainMetadata]) => (
+                                    { 
+                                        letter: chainMetadata.id.charAt(0).toUpperCase(), 
+                                        item: chainMetadata, 
+                                        key: chainMetadata.id 
+                                    }
+                                )
+                                )
+                            }
+                            renderItem={({ item }) => {
+                                const platform = chainIdToPlatform(item?.id ?? ChainId.Ethereum)
+                                return (
+                                    <PressableMotion onClick={() => {
+                                        onPress?.(item?.id ?? ChainId.Ethereum)
+                                    }} className="flex items-center justify-between py-1">
+                                        <div className="flex items-center gap-2">
+                                            <NomasImage src={item?.iconUrl ?? ""} className="w-10 h-10 rounded-full" />
+                                            <div>
+                                                <div className="text-sm font-medium">{item?.name ?? ""}</div>
+                                                <div className="text-xs text-muted">{shortenAddress(selectedAccounts[platform]?.accountAddress ?? "")}</div>
+                                            </div>  
+                                        </div>
+                                        {
+                                            isSelected(item?.id ?? ChainId.Ethereum) && (
+                                                <CheckCircleIcon className="w-5 h-5" weight="fill"/>
+                                            )
+                                        }
+                                    </PressableMotion>)}
+                            }
+                            onFilter={(item) => {
+                                return (item?.name?.toLowerCase().includes(searchQuery?.toLowerCase() ?? "") ?? false)
+                                || (item?.id?.toLowerCase().includes(searchQuery?.toLowerCase() ?? "") ?? false)
+                            }}
+                        />
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>

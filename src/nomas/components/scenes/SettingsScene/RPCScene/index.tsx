@@ -39,7 +39,7 @@ export const RPCScene = () => {
             }} />
             <NomasCardBody>
                 <NomasCard variant={NomasCardVariant.Dark} isInner className="p-4">
-                    <NomasCardBody className="p-0 flex flex-col gap-2">
+                    <NomasCardBody className="p-0 flex flex-col gap-4" scrollable scrollHeight={300}>
                         {renderedChains.map((chain) => chain.component)}
                     </NomasCardBody>
                 </NomasCard>

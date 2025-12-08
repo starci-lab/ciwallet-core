@@ -1,6 +1,23 @@
 import React, { useMemo } from "react"
-import { AlphabetList, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasInput, NomasSpacer, Snippet } from "@/nomas/components"
-import { Scene, selectSelectedAccounts, setScene, setFilterValue, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { 
+    AlphabetList, 
+    NomasCard, 
+    NomasCardBody, 
+    NomasCardHeader, 
+    NomasCardVariant, 
+    NomasImage, 
+    NomasInput, 
+    NomasSpacer, 
+    Snippet 
+} from "@/nomas/components"
+import {
+    Scene,
+    selectSelectedAccounts, 
+    setScene, 
+    setFilterValue,
+    useAppDispatch, 
+    useAppSelector
+} from "@/nomas/redux"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react"
 import { chainManagerObj } from "@/nomas/obj"
 import { chainIdToPlatform, shortenAddress } from "@ciwallet-sdk/utils"
@@ -63,7 +80,7 @@ export const CopyAddressScene = () => {
                             renderItem={({ item }) => {
                                 const platform = chainIdToPlatform(item?.id ?? ChainId.Ethereum)
                                 return (
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between py-1">
                                         <div className="flex items-center gap-2">
                                             <NomasImage src={item?.iconUrl ?? ""} className="w-10 h-10 rounded-full" />
                                             <div>

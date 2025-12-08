@@ -1,5 +1,7 @@
 // src/content/overlay/overlay.dom.ts
 import tailwindStyles from "../../global.css"
+import tailwindProperty from "../../property.css"
+import browser from "webextension-polyfill"
 /**
  * Creates the fixed container element that will host the Shadow DOM.
  * This container is appended directly to <body> of the host page.
@@ -18,11 +20,11 @@ export const createOverlayContainer = (): HTMLDivElement => {
         pointerEvents: "none", // let clicks pass through except inside overlay
         backgroundColor: "transparent",
     })
-  
+
     document.body.appendChild(container)
     return container
 }
-  
+
 /**
    * Attaches and returns a Shadow DOM to the container.
    * We use 'open' mode so we can inspect it in DevTools if needed.
@@ -32,7 +34,19 @@ export const createShadowRoot = (container: HTMLDivElement): ShadowRoot => {
 }
 
 export const injectTailwindToShadow = (shadow: ShadowRoot) => {
-    const sheet = new CSSStyleSheet()
-    sheet.replaceSync(tailwindStyles.toString())
-    shadow.adoptedStyleSheets = [sheet]
+    const propertyStyle = new CSSStyleSheet()
+    propertyStyle.replaceSync(tailwindProperty.toString())
+    const stylesStyle = new CSSStyleSheet()
+    stylesStyle.replaceSync(tailwindStyles.toString())
+    shadow.adoptedStyleSheets = [propertyStyle, stylesStyle]
+}
+
+export const injectFontToDocument = async () => {
+    const font = new FontFace(
+        "Plus Jakarta Sans Variable", 
+        `url(${browser.runtime.getURL("assets/fonts/plus-jakarta-variable.ttf")}) format("truetype")`
+    )
+    document.fonts.add(font)
+    await font.load()
+    return font
 }

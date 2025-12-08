@@ -1,45 +1,72 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { ChooseNetworkPage, NomasCard, NomasCardVariant } from "@/nomas/components"
-import { SwapFunctionPage, TransactionType, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { SwapFunctionPage, TransactionType, selectSelectedAccounts, setSearchQuery, setSwapFunctionPage, useAppDispatch, useAppSelector } from "@/nomas/redux"
 import { NomasAggregationPage } from "./NomasAggregationFunction"
 import { SwapFunction } from "./SwapFunction"
 import { useSwapFormik } from "@/nomas/hooks"
 import { SelectTokenFunction } from "./SelectTokenFunction"
 import { SlippageConfigFunction } from "./SlippageConfigFunction"
 import { TransactionReceiptPage } from "@/nomas/components"
-import { AggregatorId } from "@ciwallet-sdk/classes"
-import { roundNumber } from "@ciwallet-sdk/utils"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { TokenId } from "@ciwallet-sdk/types"
 
 export const SwapSection = () => {
     const swapPage = useAppSelector((state) => state.stateless.sections.swap.swapFunctionPage)
     const dispatch = useAppDispatch()
     const formik = useSwapFormik()
-    const network = useAppSelector((state) => state.persists.session.network)
-    const tokens = useAppSelector((state) => state.persists.session.tokens)
-    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
-    const prices = useAppSelector((state) => state.stateless.dynamic.prices)
+    const swapSuccess = useAppSelector((state) => state.stateless.sections.swap.swapSuccess)
+    const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
+    const transactionType = useAppSelector((state) => state.stateless.sections.swap.transactionType)
+    const searchQuery = useAppSelector((state) => state.stateless.sections.swap.searchQuery)
+    const txHash = useAppSelector((state) => state.stateless.sections.swap.txHash)
+    const transactionData = useMemo(() => {
+        switch (transactionType) {
+        case TransactionType.Swap:
+            return {
+                type: transactionType,
+                chainId: formik.values.tokenInChainId,
+                fromTokenId: formik.values.tokenIn ?? TokenId.MonadTestnetMon,
+                toTokenId: formik.values.tokenOut ?? TokenId.MonadTestnetMon,
+                fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
+                toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
+                fromAmount: Number(formik.values.amountIn),
+                toAmount: Number(formik.values.amountOut),
+                aggregatorId: formik.values.bestAggregationId,
+                txHash,
+            }
+        case TransactionType.Bridge:
+            return {
+                type: transactionType,
+                fromTokenId: formik.values.tokenIn ?? TokenId.MonadTestnetMon,
+                toTokenId: formik.values.tokenOut ?? TokenId.MonadTestnetMon,
+                fromChainId: formik.values.tokenInChainId,
+                toChainId: formik.values.tokenOutChainId,
+                fromAmount: Number(formik.values.amountIn),
+                toAmount: Number(formik.values.amountOut),
+                fromAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenInChainId)]?.accountAddress ?? "",
+                toAddress: selectedAccounts[chainIdToPlatform(formik.values.tokenOutChainId)]?.accountAddress ?? "",
+                txHash,
+                aggregatorId: formik.values.bestAggregationId,
+            }
+        default:
+            throw new Error(`Transaction type ${transactionType} not supported`)
+        }
+
+    }, [transactionType, formik.values, txHash])
     const renderPage = () => {
         switch (swapPage) {
         case SwapFunctionPage.TransactionReceipt:
             return <TransactionReceiptPage 
-                transactionData={{
-                    type: TransactionType.Swap,
-                    chainId: formik.values.tokenInChainId,
-                    fromTokenId: formik.values.tokenOut,
-                    toTokenId: formik.values.tokenIn,
-                    fromAddress: "0xa",
-                    toAddress: "0xb",
-                    amount: 100,
-                    aggregatorId: AggregatorId.Madhouse,
-                    txHash: "0x1234567890abcdef",
-                }}
-                success={false}
+                transactionData={transactionData}
+                success={swapSuccess}
                 showBackButton={true}
                 onBackButtonPress={() => {
+                    formik.resetForm()
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
                 onProceedButtonClick={() => {
-                    alert("Proceed")
+                    formik.resetForm()
+                    dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
             />
         case SwapFunctionPage.Swap:
@@ -60,21 +87,13 @@ export const SwapSection = () => {
                     formik.setFieldValue("searchSelectedChainId", chainId)
                     dispatch(setSwapFunctionPage(SwapFunctionPage.SelectToken))
                 }}
+                onSearchQueryChange={(query) => {
+                    dispatch(setSearchQuery(query))
+                }}
+                searchQuery={searchQuery}
                 onBackButtonPress={() => {
                     dispatch(setSwapFunctionPage(SwapFunctionPage.Swap))
                 }}
-                endContent={
-                    (chainId) => {
-                        if (chainId === "all-network") {
-                            throw new Error("All networks not supported")
-                        }
-                        const chainTokens = tokens[chainId][network]
-                        const totalValue = chainTokens.reduce(
-                            (acc: number, token) => acc + (balances[token.tokenId] ?? 0) * (prices[token.tokenId] ?? 0), 0)
-                        return (
-                            <div className="text-sm">${roundNumber(totalValue)}</div>
-                        )
-                    }}
             />
         }
     }

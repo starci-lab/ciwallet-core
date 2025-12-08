@@ -8,6 +8,7 @@ import {
     resolveTokensThunk,
     setPassword,
     setScene,
+    setSessionPassword,
     useAppDispatch,
     useAppSelector,
 } from "@/nomas/redux"
@@ -72,7 +73,6 @@ export const useInputPasswordFormikCore = () => {
     const encryptedMnemonic = useAppSelector(
         (state) => state.persists.session.encryptedMnemonic
     )
-
     const formik = useFormik<InputPasswordFormikValues>({
         initialValues: {
             password: "",
@@ -80,16 +80,18 @@ export const useInputPasswordFormikCore = () => {
         },
         validationSchema,
         onSubmit: async (values, { setFieldError }) => {
+            const password = values.password
             try {
-                console.log("Input password formik onSubmit")
                 if (!encryptedMnemonic) {
                     setFieldError("password", "No encrypted mnemonic found")
                     return
                 }
                 // 1. Try decrypt mnemonic with password
-                await encryptionObj.decrypt(encryptedMnemonic, values.password)
+                await encryptionObj.decrypt(encryptedMnemonic, password)
+                // If pass this, set session password
+                dispatch(setSessionPassword(password))
                 // 2. Save password + redirect scene
-                dispatch(setPassword(values.password))
+                dispatch(setPassword(password))
                 // 3. Set thunk to resolve accounts
                 const accountsResultAction = await dispatch(resolveAccountsThunk())
                 // 4. Update tokens

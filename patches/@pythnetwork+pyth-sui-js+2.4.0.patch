@@ -1,0 +1,46 @@
+diff --git a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.cjs b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.cjs
+index d8f038b..7fa2266 100644
+--- a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.cjs
++++ b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.cjs
+@@ -8,7 +8,7 @@ Object.defineProperty(exports, "SuiPriceServiceConnection", {
+         return SuiPriceServiceConnection;
+     }
+ });
+-const _nodebuffer = require("node:buffer");
++const _nodebuffer = require("buffer");
+ const _hermesclient = require("@pythnetwork/hermes-client");
+ class SuiPriceServiceConnection extends _hermesclient.HermesClient {
+     /**
+diff --git a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.d.ts b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.d.ts
+index 6e0de21..544f489 100644
+--- a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.d.ts
++++ b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/SuiPriceServiceConnection.d.ts
+@@ -1,4 +1,4 @@
+-import { Buffer } from "node:buffer";
++import { Buffer } from "buffer";
+ import type { HexString } from "@pythnetwork/hermes-client";
+ import { HermesClient } from "@pythnetwork/hermes-client";
+ export declare class SuiPriceServiceConnection extends HermesClient {
+diff --git a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.cjs b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.cjs
+index 0db94f9..f260dc1 100644
+--- a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.cjs
++++ b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.cjs
+@@ -8,7 +8,7 @@ Object.defineProperty(exports, "SuiPythClient", {
+         return SuiPythClient;
+     }
+ });
+-const _nodebuffer = require("node:buffer");
++const _nodebuffer = require("buffer");
+ const _bcs = require("@mysten/sui/bcs");
+ const _utils = require("@mysten/sui/utils");
+ const MAX_ARGUMENT_SIZE = 16 * 1024;
+diff --git a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.d.ts b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.d.ts
+index e362a99..ea2422f 100644
+--- a/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.d.ts
++++ b/node_modules/@pythnetwork/pyth-sui-js/dist/cjs/client.d.ts
+@@ -1,4 +1,4 @@
+-import { Buffer } from "node:buffer";
++import { Buffer } from "buffer";
+ import { SuiClient } from "@mysten/sui/client";
+ import { Transaction } from "@mysten/sui/transactions";
+ import type { HexString } from "@pythnetwork/hermes-client";

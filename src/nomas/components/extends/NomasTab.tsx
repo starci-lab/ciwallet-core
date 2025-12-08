@@ -18,7 +18,7 @@ export interface NomasTabProps extends WithClassName {
 
 export const NomasTab = ({ value, onValueChange, tabs, className }: NomasTabProps) => {
     return (
-        <Tabs value={value} onValueChange={onValueChange} className={twMerge("p-2 w-full bg-card-dark border-border-card rounded-card-inner", className)}>
+        <Tabs value={value} onValueChange={onValueChange} className={twMerge("p-2 w-full bg-card-dark border-border-card rounded-card-inner h-fit", className)}>
             <TabsList className="gap-2 flex w-full bg-transparent">
                 {tabs.map((tab) => (
                     <TabsTrigger key={tab.value} value={tab.value} 

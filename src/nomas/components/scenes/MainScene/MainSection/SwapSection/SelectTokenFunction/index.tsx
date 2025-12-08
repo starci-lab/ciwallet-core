@@ -5,6 +5,7 @@ import {
     NomasCardHeader,
     NomasCardVariant,
     NomasInput,
+    NotFound,
     TokenCard2,
 } from "@/nomas/components"
 import {
@@ -25,12 +26,18 @@ export const SelectTokenFunction = () => {
     const swapFormik = useSwapFormik()
     const tokenArray = useAppSelector((state) => selectTokens(state.persists))
     const filteredTokenArray = useMemo(() => {
-        return tokenArray.filter((token) => {
+        const tokensAfterFilter = tokenArray.filter((token) => {
             return token.name.toLowerCase().includes(swapFormik.values.searchTokenQuery.toLowerCase()) 
             || token.symbol.toLowerCase().includes(swapFormik.values.searchTokenQuery.toLowerCase()) 
             || token.address?.toLowerCase()?.includes(swapFormik.values.searchTokenQuery.toLowerCase())
         })
-    }, [tokenArray, swapFormik.values.searchTokenQuery])
+        if (swapFormik.values.searchSelectedChainId === "all-network") {
+            return tokensAfterFilter
+        }
+        return tokensAfterFilter.filter((token) => {
+            return token.chainId === swapFormik.values.searchSelectedChainId
+        })
+    }, [tokenArray, swapFormik.values.searchTokenQuery, swapFormik.values.searchSelectedChainId])
     const platform = useMemo(()     => {
         return chainIdToPlatform(swapFormik.values.tokenInChainId)
     }, [swapFormik.values.tokenInChainId])
@@ -64,7 +71,7 @@ export const SelectTokenFunction = () => {
                 <NomasSpacer y={4}/>
                 <NomasCard variant={NomasCardVariant.Dark} isInner>
                     <NomasCardBody className="gap-2 p-0" scrollable scrollHeight={300}>
-                        {filteredTokenArray.map((token) => (
+                        {filteredTokenArray.length ? filteredTokenArray.map((token) => (
                             <TokenCard2 
                                 isPressable
                                 onClick={() => {
@@ -87,7 +94,7 @@ export const SelectTokenFunction = () => {
                                 accountAddress={selectedAccount?.accountAddress ?? ""}
                                 network={network}
                             />
-                        ))}
+                        )) : <NotFound title="No tokens found" />}
                     </NomasCardBody>
                 </NomasCard>
             </NomasCardBody>

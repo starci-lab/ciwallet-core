@@ -18,9 +18,11 @@ import { hyperliquidObj } from "@/nomas/obj"
 import type { ElementOf } from "@ciwallet-sdk/types"
 
 export enum PerpSectionPage {
+    TransactionReceipt = "transaction-receipt",
     Perp = "perp",
     Deposit = "deposit",
     SelectAsset = "select-asset",
+    SelectAssetDeposit = "select-asset-deposit",
     SourceChain = "source-chain",
     MarginMode = "margin-mode",
     Leverage = "leverage",
@@ -48,6 +50,11 @@ export interface HyperunitGenResponse {
     },
 }
 
+export enum PerpDepositTab {
+    Deposit = "deposit",
+    Withdraw = "withdraw",
+}
+
 export interface PerpSlice {
     tab: PerpTab;
     perpSectionPage: PerpSectionPage;
@@ -73,6 +80,9 @@ export interface PerpSlice {
     positionUseUsdc: boolean;
     openOrders: OpenOrders;
     selectedOrder?: ElementOf<OpenOrders>;
+    depositTxHash?: string;
+    depositSuccess: boolean;
+    depositTab: PerpDepositTab;
 }
 
 export interface SetHyperunitGenResponseParam {
@@ -98,6 +108,9 @@ const initialState: PerpSlice = {
     positionCandleSnapshots: [],
     positionUseUsdc: false,
     openOrders: [],
+    depositTxHash: undefined,
+    depositSuccess: false,
+    depositTab: PerpDepositTab.Deposit,
 }
 
 export const perpSlice = createSlice({
@@ -182,6 +195,15 @@ export const perpSlice = createSlice({
         setOpenOrders: (state, action: PayloadAction<OpenOrders>) => {
             state.openOrders = action.payload
         },
+        setDepositTxHash: (state, action: PayloadAction<string>) => {
+            state.depositTxHash = action.payload
+        },
+        setDepositSuccess: (state, action: PayloadAction<boolean>) => {
+            state.depositSuccess = action.payload
+        },
+        setDepositTab: (state, action: PayloadAction<PerpDepositTab>) => {
+            state.depositTab = action.payload
+        },
     },
     selectors: {
         selectPerpUniverses: (state) => {
@@ -235,6 +257,9 @@ export const {
     setPositionUseUsdc,
     setOpenOrders,
     setSelectedOrder,
+    setDepositTxHash,
+    setDepositSuccess,
+    setDepositTab,
 } = perpSlice.actions
 export const { selectPerpUniverses, selectPerpUniverseById, selectSelectedAssetPrice, selectMarginTableByUniverseId, selectSelectedOrder } = perpSlice.selectors
 export const perpReducer = perpSlice.reducer

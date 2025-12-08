@@ -1,4 +1,4 @@
-import { EvmProvider, SolanaProvider } from "@ciwallet-sdk/classes"
+import { EvmProvider, SolanaProvider, SuiProvider } from "@ciwallet-sdk/classes"
 import { Platform, type BaseParams } from "@ciwallet-sdk/types"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 
@@ -32,6 +32,14 @@ export const useTransfer = () => {
             })
         case Platform.Solana:
             return new SolanaProvider({ chainId, network, privateKey, rpcs }).transfer({
+                tokenAddress,
+                toAddress,
+                amount,
+                decimals,
+                isToken2022: false,
+            })
+        case Platform.Sui:
+            return new SuiProvider({ chainId, network, privateKey, rpcs }).transfer({
                 tokenAddress,
                 toAddress,
                 amount,

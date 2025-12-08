@@ -1,15 +1,14 @@
 import React, { useMemo } from "react"
-import { NomasButton, NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasLink, NomasSpacer } from "../../../../../../extends"
-import { DepositFunctionPage, HomeSelectorTab, PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setExpandTokenDetails, setHomeSelectorTab, setPortfolioFunctionPage, setSelectedChainId, setVisible, useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { NomasCard, NomasCardBody, NomasCardHeader, NomasCardVariant, NomasImage, NomasLink, NomasSpacer } from "../../../../../../extends"
+import { DepositFunctionPage, HomeSelectorTab, PortfolioFunctionPage, SelectedTokenType, selectTokenById, selectTokens, setDepositFunctionPage, setDepositSelectedChainId, setDepositTokenId, setHomeSelectorTab, setPortfolioFunctionPage, setSelectedChainId, setVisible, setWithdrawFunctionPage, useAppDispatch, useAppSelector, WithdrawFunctionPage } from "@/nomas/redux"
 import { chainManagerObj, tokenManagerObj } from "@/nomas/obj"
-import { ExpandToggle, LineChart, PressableMotion, TooltipTitle } from "@/nomas/components"
+import { LineChart, PressableMotion, TooltipTitle } from "@/nomas/components"
 import { ArrowsLeftRightIcon, DownloadSimpleIcon, EyeClosedIcon, EyeIcon, PaperPlaneRightIcon, ShoppingCartIcon } from "@phosphor-icons/react"
-import { motion } from "framer-motion"
-import { AnimatePresence } from "framer-motion"
 import { ChainDetails } from "./ChainDetails"
 import { ChainSlider } from "./ChainSlider"
 import { roundNumber } from "@ciwallet-sdk/utils"
 import { TokenId } from "@ciwallet-sdk/types"
+import { useTransferFormik } from "@/nomas/hooks"
 
 export const TokenDetailsPage = () => {
     const selectedTokenType = useAppSelector((state) => state.stateless.sections.home.selectedTokenType)
@@ -21,7 +20,6 @@ export const TokenDetailsPage = () => {
     const dispatch = useAppDispatch()
     const name = selectedTokenType === SelectedTokenType.Token ? token?.name : unifiedToken?.name
     const visible = useAppSelector((state) => state.stateless.sections.home.visible)
-    const expandTokenDetails = useAppSelector((state) => state.stateless.sections.home.expandTokenDetails)
     const tokens = useAppSelector((state) => state.persists.session.tokens)
     const prices = useAppSelector((state) => state.stateless.dynamic.prices)
     const unifiedPrices = useAppSelector((state) => state.stateless.dynamic.unifiedPrices)
@@ -53,12 +51,15 @@ export const TokenDetailsPage = () => {
         }
         return tokenItems.find((tokenItem) => tokenItem.chainId === selectedChainId)?.tokenId
     }, [selectedTokenType, tokenItems, selectedChainId])
+    const formik = useTransferFormik()
     const actions = [
         {
             icon: <PaperPlaneRightIcon className="w-6 h-6 min-w-6 min-h-6" />,
             title: "Transfer",
             onPress: () => {
-                console.log("transfer")
+                dispatch(setHomeSelectorTab(HomeSelectorTab.Withdraw))
+                dispatch(setWithdrawFunctionPage(WithdrawFunctionPage.Withdraw))
+                formik.setFieldValue("tokenId", depositTokenId ?? TokenId.MonadTestnetMon)
             }
         },
         {
@@ -178,7 +179,8 @@ export const TokenDetailsPage = () => {
                                                 <PressableMotion key={action.title} onClick={action.onPress}>
                                                     <div className="flex flex-col items-center justify-center h-fit !p-4 shadow-nonetext-text-muted cursor-pointer">
                                                         {action.icon}
-                                                        <div className="text-muted text-sm">{action.title}</div>
+                                                        <NomasSpacer y={1}/>
+                                                        <div className=" text-sm">{action.title}</div>
                                                     </div>
                                                 </PressableMotion>
                                             )

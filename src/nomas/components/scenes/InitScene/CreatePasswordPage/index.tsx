@@ -14,6 +14,7 @@ import {
 } from "../../../extends"
 import { PasswordStrength, useCreatePasswordFormik } from "@/nomas/hooks"
 import { useAppDispatch, setInitPage, InitPage } from "@/nomas/redux"
+import { TooltipTitle } from "@/nomas/components"
 
 export const CreatePasswordPage = () => {
     const formik = useCreatePasswordFormik()
@@ -36,52 +37,58 @@ export const CreatePasswordPage = () => {
             isContainer
         >
             <NomasCardHeader showBackButton onBackButtonPress={() => dispatch(setInitPage(InitPage.Launch))} title="Create Password" />
-            <NomasCardBody className="flex flex-col items-center">
-                <NomasInput
-                    isPassword
-                    label="Password"
-                    placeholder="Enter your password"
-                    isRequired
-                    value={formik.values.password}
-                    onValueChange={formik.handleChange("password")}
-                    onBlur={formik.handleBlur("password")}
-                />
-                <NomasSpacer y={4} />
-                <NomasInput
-                    label="Confirm Password"
-                    placeholder="Enter your password again"
-                    isPassword
-                    isRequired
-                    value={formik.values.confirmPassword}
-                    onValueChange={formik.handleChange("confirmPassword")}
-                    onBlur={formik.handleBlur("confirmPassword")}
-                />
-                <NomasSpacer y={4} />
-                <div className="w-full text-start">
-                    {
-                        formik.values.confirmPassword && formik.errors.confirmPassword ? (
-                            <NomasWarningText>{formik.errors.confirmPassword}</NomasWarningText>
-                        ) : (
-                            <div className="w-full text-start flex items-center gap-1">
-                                <div className="text-xstext-text-muted font-bold">Password Strength:</div>
-                                {renderStrength()}
-                            </div>
-                        )
-                    }
-                </div>   
-                <NomasSpacer y={4} />
-                <div className="flex items-center gap-2 w-full text-start">
-                    <NomasCheckbox 
-                        checked={formik.values.agreeToTerms}
-                        onCheckedChange={(checked) => formik.setFieldValue("agreeToTerms", checked)}
+            <NomasCardBody>
+                <div className="bg-card-dark rounded-card-inner p-4 border border-border-card">
+                    <TooltipTitle title="Password" size="xs" />
+                    <NomasSpacer y={2} />
+                    <NomasInput
+                        isPassword
+                        label="Password"
+                        placeholder="Enter your password"
+                        isRequired
+                        value={formik.values.password}
+                        onValueChange={formik.handleChange("password")}
+                        onBlur={formik.handleBlur("password")}
                     />
-                    <div className="text-xstext-text-muted flex flex-wrap items-center gap-1">
+                    <NomasSpacer y={4} />
+                    <TooltipTitle title="Confirm Password" size="xs" />
+                    <NomasSpacer y={2} />
+                    <NomasInput
+                        label="Confirm Password"
+                        placeholder="Enter your password again"
+                        isPassword
+                        isRequired
+                        value={formik.values.confirmPassword}
+                        onValueChange={formik.handleChange("confirmPassword")}
+                        onBlur={formik.handleBlur("confirmPassword")}
+                    />
+                    <NomasSpacer y={4} />
+                    <div className="w-full text-start">
+                        {
+                            formik.values.confirmPassword && formik.errors.confirmPassword ? (
+                                <NomasWarningText>{formik.errors.confirmPassword}</NomasWarningText>
+                            ) : (
+                                <div className="w-full text-start flex items-center gap-1">
+                                    <div className="text-xstext-text-muted font-bold text-xs">Password Strength:</div>
+                                    {renderStrength()}
+                                </div>
+                            )
+                        }
+                    </div> 
+                    <NomasSpacer y={4} />
+                    <div className="flex items-center gap-2 w-full text-start">
+                        <NomasCheckbox 
+                            checked={formik.values.agreeToTerms}
+                            onCheckedChange={(checked) => formik.setFieldValue("agreeToTerms", checked)}
+                        />
+                        <div className="text-xs text-text-muted flex flex-wrap items-center gap-1">
   I agree to the 
-                        <NomasLink underline>Terms of Service</NomasLink>
+                            <NomasLink underline>Terms of Service</NomasLink>
   and 
-                        <NomasLink>Privacy Policy</NomasLink>
+                            <NomasLink>Privacy Policy</NomasLink>
+                        </div>
                     </div>
-                </div>
+                </div>  
             </NomasCardBody>
             <NomasCardFooter>
                 <NomasButton 

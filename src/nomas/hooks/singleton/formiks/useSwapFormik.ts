@@ -1,13 +1,17 @@
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { ChainId, Platform, TokenId, type ChainIdWithAllNetwork, Network } from "@ciwallet-sdk/types"
-import { selectSelectedAccountByPlatform, useAppSelector } from "@/nomas/redux"
+import { ChainId, TokenId, TokenType, type ChainIdWithAllNetwork } from "@ciwallet-sdk/types"
+import { selectSelectedAccounts, selectTokens, useAppSelector } from "@/nomas/redux"
 import { AggregatorId, type ProtocolData } from "@ciwallet-sdk/classes"
 import { useContext, useEffect } from "react"
 import { FormikContext } from "./FormikProvider"
 import { useAggregatorSelector } from "./useAggregatorSelector"
-import { aggregatorManagerObj } from "@/nomas/obj"
+import { aggregatorManagerObj, chainManagerObj } from "@/nomas/obj"
 import { useBatchAggregatorSwrMutation } from "../mixin"
+import { chainIdToPlatform } from "@ciwallet-sdk/utils"
+import { setSwapFunctionPage, SwapFunctionPage, setTxHash, setSwapSuccess, setTransactionType, TransactionType } from "@/nomas/redux"
+import { useAppDispatch } from "@/nomas/redux"
+import Decimal from "decimal.js"
 
 export interface Aggregation {
     aggregator: AggregatorId;
@@ -22,8 +26,8 @@ export enum TransactionMode {
 export interface SwapFormikValues {
     balanceIn: number;
     balanceOut: number;
-    tokenIn: TokenId;
-    tokenOut: TokenId;
+    tokenIn?: TokenId;
+    tokenOut?: TokenId;
     tokenInChainId: ChainId;
     tokenOutChainId: ChainId;
     isInput: boolean;
@@ -41,6 +45,8 @@ export interface SwapFormikValues {
     protocols: Array<ProtocolData>;
     mevProtection: boolean;
     transactionMode: TransactionMode;
+    gasTokenId: TokenId | undefined;
+    isEnoughGasBalance: boolean;
 }
 
 const swapValidationSchema = Yup.object({
@@ -90,18 +96,14 @@ export const useSwapFormik = () => {
 export const useSwapFormikCore = () => {
     const network = useAppSelector((state) => state.persists.session.network)
     const rpcs = useAppSelector((state) => state.persists.session.rpcs)
-    const selectedAccount = useAppSelector((state) => selectSelectedAccountByPlatform(state.persists, Platform.Evm))
+    const selectedAccounts = useAppSelector((state) => selectSelectedAccounts(state.persists))
     const swrMutation = useBatchAggregatorSwrMutation()
-        
-    useEffect(() => {
-        if (network === Network.Mainnet) {
-            formik.setFieldValue("tokenIn", TokenId.MonadMainnetUsdc)
-            formik.setFieldValue("tokenOut", TokenId.MonadMainnetMon)
-        } else {
-            formik.setFieldValue("tokenIn", TokenId.MonadTestnetUsdc)
-            formik.setFieldValue("tokenOut", TokenId.MonadTestnetUsdc)
-        }
-    }, [network])
+    const dispatch = useAppDispatch()
+    const tokenArray = useAppSelector((state) => selectTokens(state.persists))
+    const rpcsMultichain = Object.entries(rpcs).reduce((acc, [chainId, rpcs]) => {
+        acc[chainId as ChainId] = rpcs[network]
+        return acc
+    }, {} as Record<ChainId, Array<string>>)
     
     const formik = useFormik<SwapFormikValues>({
         initialValues: {
@@ -109,8 +111,8 @@ export const useSwapFormikCore = () => {
             searchTokenQuery: "",
             balanceIn: 0,
             balanceOut: 0,
-            tokenIn: TokenId.MonadTestnetUsdc,
-            tokenOut: TokenId.MonadTestnetMon,
+            tokenIn: undefined,
+            tokenOut: undefined,
             tokenInChainId: ChainId.Monad,
             tokenOutChainId: ChainId.Monad,
             isInput: true,
@@ -126,9 +128,13 @@ export const useSwapFormikCore = () => {
             refreshKey: 0,
             transactionMode: TransactionMode.Default,
             mevProtection: false,
+            gasTokenId: undefined,
+            isEnoughGasBalance: false,
         },
         validationSchema: swapValidationSchema,
         onSubmit: async (values) => {
+            const isBridge = values.tokenInChainId !== values.tokenOutChainId
+            const selectedAccount = selectedAccounts[chainIdToPlatform(values.tokenInChainId)]
             switch (values.bestAggregationId) {
             case AggregatorId.Madhouse: {
                 const response = await aggregatorManagerObj.getAggregatorById(AggregatorId.Madhouse)?.instance.signAndSendTransaction({
@@ -141,7 +147,72 @@ export const useSwapFormikCore = () => {
                     recipientAddress: selectedAccount?.accountAddress ?? "",
                     network,
                 })
-                alert(response?.txHash)
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
+                break
+            }
+            case AggregatorId.Jupiter: {
+                const response = await aggregatorManagerObj.getAggregatorById(
+                    AggregatorId.Jupiter
+                )?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation?.data?.jupiter?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                    rpcsMultichain
+                })
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
+                break
+            }
+            case AggregatorId.Cetus: {
+                const response = await aggregatorManagerObj.getAggregatorById(
+                    AggregatorId.Cetus
+                )?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation?.data?.cetus?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: rpcs[values.tokenInChainId][network],
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                })
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
+                break
+            }
+            case AggregatorId.Lifi: {
+                const response = await aggregatorManagerObj.getAggregatorById(
+                    AggregatorId.Lifi
+                )?.instance.signAndSendTransaction({
+                    serializedTx: swrMutation?.data?.lifi?.serializedTx ?? "",
+                    privateKey: selectedAccount?.privateKey ?? "",
+                    rpcs: [],
+                    rpcsMultichain: Object.entries(rpcs).reduce((acc, [chainId, rpcs]) => {
+                        acc[chainId as ChainId] = rpcs[network]
+                        return acc
+                    }, {} as Record<ChainId, Array<string>>),
+                    fromChainId: values.tokenInChainId,
+                    toChainId: values.tokenOutChainId,
+                    senderAddress: selectedAccount?.accountAddress ?? "",
+                    recipientAddress: selectedAccount?.accountAddress ?? "",
+                    network,
+                })
+                dispatch(setSwapSuccess(true))
+                dispatch(setTxHash(response?.txHash ?? ""))
+                dispatch(setTransactionType(isBridge ? TransactionType.Bridge : TransactionType.Swap))
+                dispatch(setSwapFunctionPage(SwapFunctionPage.TransactionReceipt))
                 break
             }
             default: {
@@ -152,5 +223,23 @@ export const useSwapFormikCore = () => {
     })
     // aggregator selector
     useAggregatorSelector(formik)
+    const balances = useAppSelector((state) => state.stateless.dynamic.balances)
+    useEffect(() => {
+        if (!formik.values.tokenIn) return
+        const token = tokenArray.find((token) => token.tokenId === formik.values.tokenIn)
+        if (!token) return
+        const gasToken = tokenArray.find((_token) =>
+            _token.chainId === token.chainId 
+        && _token.network === network
+        && _token.type === TokenType.Native
+        )
+        if (!gasToken) return
+        const chainMetadata = chainManagerObj.getChainById(gasToken.chainId)
+        formik.setFieldValue("gasTokenId", gasToken.tokenId)
+        formik.setFieldValue("isEnoughGasBalance",
+            new Decimal(balances[gasToken.tokenId] ?? 0)
+                .gte(chainMetadata?.minimumGasRequired ?? 0)
+        )
+    }, [balances, formik.values.tokenIn])
     return formik
 }

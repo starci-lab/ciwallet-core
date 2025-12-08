@@ -12,7 +12,7 @@ export const NomasCheckbox = ({ checked, onCheckedChange }: NomasCheckboxProps) 
             checked={checked}
             onCheckedChange={onCheckedChange}
             className={`
-          w-5 h-5 rounded-sm
+          w-5 h-5 rounded-sm min-w-5 min-h-5
           border border-2 border-border
           data-[state=checked]:bg-border
           flex items-center justify-center

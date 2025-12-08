@@ -7,8 +7,8 @@ import {
     NomasCardVariant
 } from "../../../extends"
 import { BalanceContent } from "../BalanceSection/BalanceConent"
-import { Scene, setScene, useAppDispatch } from "@/nomas/redux"
-import { CardholderIcon, CopyIcon, GearIcon } from "@phosphor-icons/react"
+import { Scene, setScene, triggerAnchored, useAppDispatch } from "@/nomas/redux"
+import { AnchorIcon, CardholderIcon, CopyIcon, GearIcon } from "@phosphor-icons/react"
 
 export const BalanceSection = () => {
     const dispatch = useAppDispatch()
@@ -22,6 +22,9 @@ export const BalanceSection = () => {
                         </NomasButtonIcon>
                         <NomasButtonIcon roundedFull onClick={() => dispatch(setScene(Scene.CopyAddress))}>
                             <CopyIcon className="min-w-5 min-h-5 text-text-muted w-5 h-5" />
+                        </NomasButtonIcon>
+                        <NomasButtonIcon roundedFull onClick={() => dispatch(triggerAnchored())}>
+                            <AnchorIcon className="min-w-5 min-h-5 text-text-muted w-5 h-5" />
                         </NomasButtonIcon>
                     </div>
                     <div className="flex items-center gap-2">

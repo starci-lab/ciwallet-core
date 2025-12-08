@@ -11,6 +11,7 @@ export interface TransferParams {
     amount: number
     decimals?: number
     tokenAddress: string
+    isToken2022?: boolean
 }
 
 export interface TransferResponse {

@@ -140,3 +140,7 @@ const isValidAptosPrivateKey = (key: string): boolean => {
         return false
     }
 }
+
+export const httpsToWss = (httpsUrl: string): string => {
+    return httpsUrl.replace("https://", "wss://")
+}

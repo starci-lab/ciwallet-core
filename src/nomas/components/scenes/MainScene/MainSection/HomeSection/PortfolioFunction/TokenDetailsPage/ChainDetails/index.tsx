@@ -39,6 +39,7 @@ export const ChainDetails = ({ chain, tokenId }: ChainDetailsProps) => {
             onClick={() => {
                 dispatch(setSelectedChainId(chain.id))
             }}
+            className="py-1"
         >   
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

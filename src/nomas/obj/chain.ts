@@ -59,3 +59,22 @@ chainManagerObj.injectIconUrl({
     iconUrl: assetsConfig().chains.base.iconUrl,
     iconInvertedUrl: assetsConfig().chains.base.iconInvertedUrl,
 })
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Hyperliquid,
+    iconUrl: assetsConfig().chains.hyperliquid.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.hyperliquid.iconInvertedUrl,
+})
+
+// Bitcoin
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Bitcoin,
+    iconUrl: assetsConfig().chains.bitcoin.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.bitcoin.iconInvertedUrl,
+})
+
+// Plasma
+chainManagerObj.injectIconUrl({
+    chainId: ChainId.Plasma,
+    iconUrl: assetsConfig().chains.plasma.iconUrl,
+    iconInvertedUrl: assetsConfig().chains.plasma.iconInvertedUrl,
+})

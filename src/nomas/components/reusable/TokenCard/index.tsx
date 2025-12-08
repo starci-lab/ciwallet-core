@@ -1,11 +1,12 @@
 import React from "react"
 import { NomasCard, NomasCardBody, NomasCardVariant, NomasImage } from "../../extends"
-import { ChainId, type Token } from "@ciwallet-sdk/types"
+import { ChainId, type Token, type WithClassName } from "@ciwallet-sdk/types"
 import { chainManagerObj } from "@/nomas/obj"
 import { PressableMotion } from "../../styled"
 import { PinIcon } from "lucide-react"
+import { twMerge } from "tailwind-merge"
 
-export interface TokenCardProps {   
+export interface TokenCardProps extends WithClassName {   
     token: Token
     chainId: ChainId
     isPinned?: boolean
@@ -14,15 +15,15 @@ export interface TokenCardProps {
     isPressable?: boolean
 }
 
-export const TokenCard = ({ token, chainId, onPin, onUnpin, isPressable = false, isPinned = false }: TokenCardProps) => {
+export const TokenCard = ({ token, chainId, onPin, onUnpin, isPressable = false, isPinned = false, className }: TokenCardProps) => {
     const content = () => {
         return (
             <NomasCard
                 variant={NomasCardVariant.Transparent}
-                className="flex items-center cursor-pointer"
+                className={twMerge("flex items-center cursor-pointer p-4", className)}
                 onClick={isPinned ? onUnpin : onPin}
             >
-                <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2 p-4">
+                <NomasCardBody className="flex w-full flex-row items-center justify-between gap-2 p-0">
                     {/* Left: token info */}
                     <div className="flex flex-row items-center gap-2">
                         <div className="relative">
@@ -31,7 +32,7 @@ export const TokenCard = ({ token, chainId, onPin, onUnpin, isPressable = false,
                         </div>
                         <div className="flex flex-col">
                             <div className="text-sm font-medium">{token.name}</div>
-                            <div className="text-xstext-text-muted text-left">{token.symbol}</div>
+                            <div className="text-xs text-text-muted text-left">{token.symbol}</div>
                         </div>
                     </div>
                     {isPinned && (

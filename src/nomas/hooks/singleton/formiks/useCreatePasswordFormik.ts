@@ -12,6 +12,7 @@ import {
     resolveAccountsThunk,
     addHdWallet,
     resolveTokensThunk,
+    setSessionPassword,
 } from "@/nomas/redux"
 import { encryptionObj } from "@/nomas/obj"
 import zxcvbn from "zxcvbn"
@@ -99,6 +100,8 @@ export const useCreatePasswordFormikCore = () => {
             dispatch(setEncryptedMnemonic(encryptedMnemonic))
             // 4. Save password + init state
             dispatch(setPassword(values.password))
+            // 5. Set session password
+            dispatch(setSessionPassword(values.password))
             dispatch(setInitPage(InitPage.Splash))
             // 5. Add hd wallet
             dispatch(addHdWallet({

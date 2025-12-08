@@ -1,6 +1,7 @@
 import { ChainId, Network } from "@ciwallet-sdk/types"
 
 export enum ExplorerId {
+    // EVM-based explorers
     Etherscan = "etherscan",
     Bscscan = "bscscan",
     Polygonscan = "polygonscan",
@@ -70,6 +71,19 @@ export class ExplorerManager {
                     `${network === "testnet" ? "https://mumbai.polygonscan.com" : "https://polygonscan.com"}/address/${address}`,
                 transactionUrlBuilder: (txHash, network) =>
                     `${network === "testnet" ? "https://mumbai.polygonscan.com" : "https://polygonscan.com"}/tx/${txHash}`,
+            },
+            [ExplorerId.Arbiscan]: {
+                id: ExplorerId.Arbiscan,
+                name: "Arbiscan",
+                chainId: ChainId.Arbitrum,
+                urls: {
+                    mainnet: "https://arbiscan.io",
+                    testnet: "https://testnet.arbiscan.io",
+                },
+                addressUrlBuilder: (address, network) =>
+                    `${network === "testnet" ? "https://testnet.arbiscan.io" : "https://arbiscan.io"}/address/${address}`,
+                transactionUrlBuilder: (txHash, network) =>
+                    `${network === "testnet" ? "https://testnet.arbiscan.io" : "https://arbiscan.io"}/tx/${txHash}`,
             },
             [ExplorerId.MonVision]: {
                 id: ExplorerId.MonVision,

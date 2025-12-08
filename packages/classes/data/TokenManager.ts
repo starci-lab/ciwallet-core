@@ -24,7 +24,7 @@ export class TokenManager {
                     decimals: 18,
                     symbol: "MON",
                     name: "Monad",
-                    iconUrl: "/icons/tokens/mon.png",
+                    iconUrl: "/assets/tokens/mon.png",
                     type: TokenType.Native,
                     verified: true,
                     pythId: "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
@@ -36,7 +36,7 @@ export class TokenManager {
                     decimals: 18,
                     symbol: "WMON",
                     name: "Wrapped MON",
-                    iconUrl: "/icons/tokens/mon.png",
+                    iconUrl: "/assets/tokens/mon.png",
                     address: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701",
                     type: TokenType.Wrapped,
                     verified: true,
@@ -50,7 +50,7 @@ export class TokenManager {
                     symbol: "USDC",
                     name: "USD Coin",
                     address: "0xf817257fed379853cDe0fa4F97AB987181B1E5Ea",
-                    iconUrl: "/icons/tokens/usdc.svg",
+                    iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
                     pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
@@ -65,7 +65,7 @@ export class TokenManager {
                     decimals: 18,
                     symbol: "MON",
                     name: "Monad",
-                    iconUrl: "/icons/tokens/mon.png",
+                    iconUrl: "/assets/tokens/mon.png",
                     type: TokenType.Native,
                     verified: true,
                     pythId: "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
@@ -133,11 +133,12 @@ export class TokenManager {
                     tokenId: TokenId.SolanaMainnet2Z,
                     decimals: 8,
                     symbol: "2Z",
+                    address: "J6pQQ3FAcJQeWPPGppWRb4nM8jU3wLyYbRrLh7feMfvd",
                     name: "2Z",
                     iconUrl: "/assets/tokens/2z.svg",
                     type: TokenType.Standard,
                     verified: true,
-                    pythId: "J6pQQ3FAcJQeWPPGppWRb4nM8jU3wLyYbRrLh7feMfvd",
+                    pythId: "0xf2b3ab1c49e35e881003c3c0482d18b181a1560b697b844c24c8f85aba1cab95",
                     chainId: ChainId.Solana,
                     network: Network.Mainnet,
                 },
@@ -408,11 +409,12 @@ export class TokenManager {
                     decimals: 6,
                     symbol: "USDC",
                     name: "USD Coin",
-                    address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                    address: "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
                     iconUrl: "/assets/tokens/usdc.svg",
                     type: TokenType.Stable,
                     verified: true,
                     chainId: ChainId.Arbitrum,
+                    unifiedTokenId: UnifiedTokenId.Usdc,
                     network: Network.Mainnet,
                     pythId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
                 },
@@ -638,14 +640,14 @@ export class TokenManager {
         )
     }
 
-    public injectIconUrl(options: {
-        chainId?: ChainId
-        network?: Network
-        tokenId?: TokenId
-        iconUrl: string
-    }) {
-        const { chainId, network, tokenId, iconUrl } = options
-    
+    public injectUnifiedIconUrl({ unifiedTokenId, iconUrl }: InjectUnifiedIconUrlParams) {
+        const unifiedToken = this.unifiedTokens.find((unifiedToken) => unifiedToken.unifiedTokenId === unifiedTokenId)
+        if (!unifiedToken) return
+        unifiedToken.iconUrl = iconUrl
+    }
+
+    public injectIconUrl(
+        { chainId, network, tokenId, iconUrl }: InjectIconUrlParams) {
         // If a specific tokenId is provided → find that token across all chains/networks and update its iconUrl
         if (tokenId) {
             for (const chain of Object.keys(this.tokens) as Array<ChainId>) {
@@ -686,4 +688,16 @@ export class TokenManager {
             }
         }
     }
+}
+
+export interface InjectIconUrlParams {
+    chainId?: ChainId
+    network?: Network
+    tokenId?: TokenId
+    iconUrl: string
+}
+
+export interface InjectUnifiedIconUrlParams {
+    unifiedTokenId: UnifiedTokenId
+    iconUrl: string
 }

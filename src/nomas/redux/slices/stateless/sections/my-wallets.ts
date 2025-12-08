@@ -12,6 +12,14 @@ export enum MyWalletsPage {
     SelectHDWalletCreationType = "selectHDWalletCreationType",
     CreateNewHDWallet = "createNewHDWallet",
     ImportExistingHDWallet = "importExistingHDWallet",
+    HDWalletRecoverPhaseWarning = "hdWalletRecoverPhaseWarning",
+    HDWalletRecoverPhase = "hdWalletRecoverPhase",  
+    HDWalletAccounts = "hdWalletAccounts",
+    HDWalletPrivateKeyWarning = "hdWalletPrivateKeyWarning",
+    HDWalletPrivateKey = "hdWalletPrivateKey",
+    PrivateKey = "privateKey",
+    RemoveHDWalletWarning = "removeHDWalletWarning",
+    EditHDWallet = "editHDWallet",
 }
 
 export enum HDWalletCreationType {
@@ -34,6 +42,9 @@ export interface MyWalletsSlice {
     selectedImportedWalletId: string;
     selectedHDWalletCreationType: HDWalletCreationType;
     use24Words: boolean;
+    iUnderstandHDWalletRecoverPhaseWarning: boolean;
+    iUnderstandHDWalletPrivateKeyWarning: boolean;
+    ephemeralPrivateKey: string;
 }
 
 const initialState: MyWalletsSlice = {
@@ -46,6 +57,9 @@ const initialState: MyWalletsSlice = {
     selectedImportedWalletId: "",
     selectedHDWalletCreationType: HDWalletCreationType.CreateNewWallet,
     use24Words: true,
+    iUnderstandHDWalletRecoverPhaseWarning: false,
+    iUnderstandHDWalletPrivateKeyWarning: false,
+    ephemeralPrivateKey: "",
 }
 
 export const myWalletsSlice = createSlice({
@@ -79,8 +93,30 @@ export const myWalletsSlice = createSlice({
         setUseImportedHDWallet24Words: (state, action: PayloadAction<boolean>) => {
             state.use24Words = action.payload
         },
+        setIUnderstandHDWalletRecoverPhaseWarning: (state, action: PayloadAction<boolean>) => {
+            state.iUnderstandHDWalletRecoverPhaseWarning = action.payload
+        },
+        setIUnderstandHDWalletPrivateKeyWarning: (state, action: PayloadAction<boolean>) => {
+            state.iUnderstandHDWalletPrivateKeyWarning = action.payload
+        },
+        setEphemeralPrivateKey: (state, action: PayloadAction<string>) => {
+            state.ephemeralPrivateKey = action.payload
+        },
     },
 })
 
-export const { setMyWalletsPage, setSelectedPlatform, setSelectedPrivateKeyPlatform, setHdWalletsAccordionAccountId, setManagementTab, setHdWalletId, setSelectedImportedWalletId, setSelectedHDWalletCreationType, setUseImportedHDWallet24Words } = myWalletsSlice.actions
+export const { 
+    setMyWalletsPage, 
+    setSelectedPlatform, 
+    setSelectedPrivateKeyPlatform, 
+    setHdWalletsAccordionAccountId, 
+    setManagementTab, 
+    setHdWalletId, 
+    setSelectedImportedWalletId, 
+    setSelectedHDWalletCreationType, 
+    setUseImportedHDWallet24Words, 
+    setIUnderstandHDWalletRecoverPhaseWarning, 
+    setIUnderstandHDWalletPrivateKeyWarning,
+    setEphemeralPrivateKey
+} = myWalletsSlice.actions
 export const myWalletsReducer = myWalletsSlice.reducer
