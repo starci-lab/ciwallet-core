@@ -1,4 +1,3 @@
- 
 import { Pet } from "@/nomas/game/entities/Pet"
 import { FeedingSystem } from "../systems"
 import { CleanlinessSystem } from "../systems"
@@ -605,20 +604,16 @@ export class PetManager {
     buyAndDropFood(x: number, y?: number, foodId: string = "hamburger"): boolean {
         const activePet = this.getActivePet()
         if (!activePet) {
-            console.log("❌ No active pet for buyAndDropFood")
             return false
         }
 
         // Check if we already have food in inventory
         if (activePet.feedingSystem.foodInventory > 0) {
-            console.log("🍔 Using existing food from inventory")
             this.dropFood(x, y, foodId)
             return true
         } // Try to buy food first
         const purchased = this.buyFood(foodId)
         if (purchased) {
-            console.log("🛒 Food purchased successfully, now dropping")
-
             // For both online and offline mode, ensure we can drop the food
             // In online mode, we trust the server response and allow immediate drop
             if (colyseusService.isConnected()) {
@@ -633,7 +628,6 @@ export class PetManager {
             return true
         }
 
-        console.log("❌ Failed to buy food for dropping")
         return false
     }
 
@@ -641,13 +635,11 @@ export class PetManager {
     buyAndDropToy(x: number, y?: number, toyId: string = "ball"): boolean {
         const activePet = this.getActivePet()
         if (!activePet) {
-            console.log("❌ No active pet for buyAndDropToy")
             return false
         }
 
         // Check if we already have toy in inventory
         if (activePet.happinessSystem.toyInventory > 0) {
-            console.log("🎾 Using existing toy from inventory")
             this.dropToy(x, y, toyId)
             return true
         }
@@ -655,8 +647,6 @@ export class PetManager {
         // Try to buy toy first
         const purchased = this.buyToy(toyId)
         if (purchased) {
-            console.log("🛒 Toy purchased successfully, now dropping")
-
             // For both online and offline mode, ensure we can drop the toy
             if (colyseusService.isConnected()) {
                 // Online mode: temporarily increase inventory to allow drop
@@ -670,7 +660,6 @@ export class PetManager {
             return true
         }
 
-        console.log("❌ Failed to buy toy for dropping")
         return false
     }
 
@@ -682,7 +671,6 @@ export class PetManager {
             }
             const poopFound = petData.cleanlinessSystem.findPoop(x, y)
             if (!poopFound) {
-                console.log("No poop found at clicked position")
                 continue
             }
             const poopId = (poopFound as unknown as { poopId: string }).poopId
@@ -692,7 +680,6 @@ export class PetManager {
             }
             const purchased = petData.cleanlinessSystem.buyAndCleaning(cleaningId, poopId)
             if (purchased) {
-                console.log("Cleaning request sent to server, waiting for response...")
                 return true // Server will handle cleaning and notify via cleaned_pet_response
             }
         }
@@ -766,22 +753,16 @@ export class PetManager {
             }
         }
 
-        console.log(
-            `🍔 Dropping food: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${foodFinalY}, foodId=${foodId}, textureKey=${textureKey}, textureExists=${this.scene.textures.exists(textureKey)}`
-        )
-
         const foodDropStartY = GamePositioning.getFoodDropY(cameraHeight)
 
         // Create food sprite with error handling
         let food: Phaser.GameObjects.Image
         try {
             food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
-            console.log(`✅ Food sprite created successfully with texture '${textureKey}'`)
         } catch (error) {
-            console.error(`❌ Failed to create food sprite with texture '${textureKey}':`, error)
+            console.error(`Failed to create food sprite with texture '${textureKey}':`, error)
             // Try with hamburger as fallback
             food = this.scene.add.image(clampedX, foodDropStartY, "hamburger")
-            console.log("🔄 Using hamburger as fallback texture")
         }
 
         const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
@@ -1015,19 +996,10 @@ export class PetManager {
             }
         }
 
-        console.log(
-            `🎾 Dropping toy: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${toyFinalY}, toyId=${toyId}, textureKey=${textureKey}, textureExists=${this.scene.textures.exists(textureKey)}`
-        )
-
         // Check if texture exists before creating sprite
         if (!this.scene.textures.exists(textureKey)) {
-            console.error(
-                `❌ Texture '${textureKey}' not found! Available textures:`,
-                Object.keys(this.scene.textures.list)
-            )
             // Fallback to ball texture if available
             const fallbackKey = this.scene.textures.exists("ball") ? "ball" : "coin"
-            console.log(`🔄 Using fallback texture: ${fallbackKey}`)
             const toy = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), fallbackKey)
             toy.setScale(0.5)
             toy.setOrigin(0.5, 1)
@@ -1041,12 +1013,10 @@ export class PetManager {
         let toy: Phaser.GameObjects.Sprite
         try {
             toy = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), textureKey)
-            console.log(`✅ Toy sprite created successfully with texture '${textureKey}'`)
         } catch (error) {
             console.error(`❌ Failed to create toy sprite with texture '${textureKey}':`, error)
             // Try with ball as fallback
             toy = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), "ball")
-            console.log("🔄 Using ball as fallback texture")
         }
 
         // Anchor toy bottom to ground line so it doesn't sink below
@@ -1098,9 +1068,6 @@ export class PetManager {
         this.sharedDroppedBalls.push(toy)
         this.sharedBallShadows.push(shadow)
 
-        console.log("🎾 Added to sharedDroppedBalls. Total balls:", this.sharedDroppedBalls.length)
-        console.log("🎾 sharedDroppedBalls array:", this.sharedDroppedBalls)
-
         // Create timer to auto-despawn toy after 30s
         const despawnTimer = this.scene.time.delayedCall(GAME_MECHANICS.BALL_LIFETIME, () => {
             const currentBallIndex = this.sharedDroppedBalls.indexOf(toy)
@@ -1126,10 +1093,6 @@ export class PetManager {
         // Clamp ball position to pet boundaries
         const petBounds = GamePositioning.getPetBoundaries(cameraWidth)
         const clampedX = Phaser.Math.Clamp(x, petBounds.minX, petBounds.maxX)
-
-        console.log(
-            `🎾 Dropping ball: requested x=${x}, clamped x=${clampedX}, pet bounds=[${petBounds.minX}, ${petBounds.maxX}], finalY=${ballFinalY}`
-        )
 
         const ball = this.scene.add.sprite(clampedX, GamePositioning.getFoodDropY(cameraHeight), "ball")
         const ballScale = GAME_LAYOUT.BALL_SCALE
@@ -1209,13 +1172,9 @@ export class PetManager {
         const hungerLevel = petData.feedingSystem.hungerLevel
         const isHungry = hungerLevel < GAME_MECHANICS.HUNGER_THRESHOLD // Hungry or Starving
 
-        console.log(`🔍 Checking chase for Pet ${petData.id}: hunger=${hungerLevel}%, hungry=${isHungry}`)
-
         if (isHungry) {
             // Find food that is not being chased by another pet
             const availableFood = this.sharedDroppedFood.filter((food) => !this.foodTargets.has(food))
-
-            console.log(`🍔 Available food count: ${availableFood.length}/${this.sharedDroppedFood.length}`)
 
             if (availableFood.length > 0) {
                 // Find closest available food instead of random (more natural behavior)
@@ -1240,18 +1199,7 @@ export class PetManager {
                     this.foodTargets.set(closestFood, petData.id)
 
                     petData.pet.startChasing(closestFood.x, closestFood.y)
-
-                    // Removed server sync for simplified version
-                    console.log(`🏃 Pet ${petData.id} started chasing food locally`)
-
-                    console.log(
-                        `🏃 Pet ${petData.id} started chasing closest shared food at (${
-                            closestFood.x
-                        }, ${closestFood.y}), distance: ${closestDistance.toFixed(1)}`
-                    )
                 }
-            } else {
-                console.log(`⚠️ Pet ${petData.id} wants to chase food but all food is being chased`)
             }
         }
     }
@@ -1265,15 +1213,9 @@ export class PetManager {
         const happinessLevel = petData.happinessSystem.happinessLevel
         const needsHappiness = happinessLevel < 80 // Need happiness boost
 
-        console.log(
-            `🔍 Checking ball chase for Pet ${petData.id}: happiness=${happinessLevel}%, needs happiness=${needsHappiness}`
-        )
-
         if (needsHappiness) {
             // Find ball that is not being chased by another pet
             const availableBalls = this.sharedDroppedBalls.filter((ball) => !this.ballTargets.has(ball))
-
-            console.log(`🎾 Available balls count: ${availableBalls.length}/${this.sharedDroppedBalls.length}`)
 
             if (availableBalls.length > 0) {
                 // Find closest available ball
@@ -1298,17 +1240,7 @@ export class PetManager {
                     this.ballTargets.set(closestBall, petData.id)
 
                     petData.pet.startChasing(closestBall.x, closestBall.y)
-
-                    console.log(`🏃 Pet ${petData.id} started chasing ball locally`)
-
-                    console.log(
-                        `🏃 Pet ${petData.id} started chasing closest shared ball at (${
-                            closestBall.x
-                        }, ${closestBall.y}), distance: ${closestDistance.toFixed(1)}`
-                    )
                 }
-            } else {
-                console.log(`⚠️ Pet ${petData.id} wants to chase ball but all balls are being chased`)
             }
         }
     }
@@ -1396,8 +1328,6 @@ export class PetManager {
 
     // Handle pet behavior after eating
     private handlePetPostEating(petData: PetData): void {
-        console.log(`🍽️ Pet ${petData.id} started eating, will check for next action in 3 seconds`)
-
         // Force ensure pet is in correct state
         petData.pet.isUserControlled = true // Temporarily user controlled while eating
 
@@ -1450,8 +1380,6 @@ export class PetManager {
                 petData.pet.setActivity("walk")
             }
         })
-
-        console.log(`✅ Pet ${petData.id} forced back to walk mode`)
     }
 
     // Get shared food inventory (from active pet)
@@ -1575,18 +1503,14 @@ export class PetManager {
 
     // Perform safety check on all pets
     private performSafetyCheck(): void {
-        console.log("🔍 Performing safety check on all pets...")
-
         for (const petData of this.pets.values()) {
             // Check if pet has been chewing for too long
             if (petData.pet.currentActivity === "chew" && !petData.pet.isChasing) {
-                console.log(`⚠️ SAFETY: Pet ${petData.id} stuck in chew mode, forcing to walk`)
                 this.forceReturnToWalk(petData)
             }
 
             // Check if pet is user controlled but not chasing anything
             if (petData.pet.isUserControlled && !petData.pet.isChasing && !petData.pet.chaseTarget) {
-                console.log(`⚠️ SAFETY: Pet ${petData.id} user controlled but not chasing, releasing control`)
                 petData.pet.isUserControlled = false
                 petData.pet.setActivity("walk")
             }
@@ -1655,13 +1579,11 @@ export class PetManager {
             // If no more food or pet is full, return to walk mode
             petData.pet.isUserControlled = false
             petData.pet.setActivity("walk")
-            console.log(`🚶 Pet ${petData.id} not hungry or no food, returning to walk mode`)
             return
         }
 
         // If pet is currently chasing, don't interrupt
         if (petData.pet.isChasing) {
-            console.log(`⚠️ Pet ${petData.id} already chasing, not forcing new chase`)
             return
         }
 
@@ -1689,13 +1611,11 @@ export class PetManager {
             if (closestFood) {
                 this.foodTargets.set(closestFood, petData.id)
                 petData.pet.startChasing(closestFood.x, closestFood.y)
-                console.log(`🚀 Pet ${petData.id} force started chasing food at (${closestFood.x}, ${closestFood.y})`)
             }
         } else {
             // No available food, return to walk mode
             petData.pet.isUserControlled = false
             petData.pet.setActivity("walk")
-            console.log(`😔 Pet ${petData.id} no available food, returning to walk mode`)
         }
     }
 
@@ -1706,12 +1626,10 @@ export class PetManager {
 
         if (!needsHappiness || this.sharedDroppedBalls.length === 0) {
             this.forceReturnToWalk(petData)
-            console.log(`🚶 Pet ${petData.id} is happy or no balls, returning to walk mode`)
             return
         }
 
         if (petData.pet.isChasing) {
-            console.log(`⚠️ Pet ${petData.id} already chasing, not forcing new ball chase`)
             return
         }
 
@@ -1737,11 +1655,9 @@ export class PetManager {
             if (closestBall) {
                 this.ballTargets.set(closestBall, petData.id)
                 petData.pet.startChasing(closestBall.x, closestBall.y)
-                console.log(`🚀 Pet ${petData.id} force started chasing ball at (${closestBall.x}, ${closestBall.y})`)
             }
         } else {
             this.forceReturnToWalk(petData)
-            console.log(`😔 Pet ${petData.id} no available balls, returning to walk mode`)
         }
     }
 
@@ -1758,13 +1674,6 @@ export class PetManager {
     private handlePetPostPlaying(petData: PetData): void {
         // Use a fixed timer for reliability, similar to post-eating logic
         this.scene.time.delayedCall(2000, () => {
-            console.log("🔍 Debug: Pet state after 2s delay:", {
-                isUserControlled: petData.pet.isUserControlled,
-                isChasing: petData.pet.isChasing,
-                currentActivity: petData.pet.currentActivity,
-                sharedBallsCount: this.sharedDroppedBalls.length
-            })
-
             // Check if the pet should continue chasing more balls or return to auto walk
             if (this.sharedDroppedBalls.length > 0) {
                 // Reset state before checking for more balls, mirroring the post-eating flow
@@ -1785,11 +1694,8 @@ export class PetManager {
     handlePetRightClick(petId: string): void {
         const petData = this.pets.get(petId)
         if (!petData) {
-            console.warn(`⚠️ Pet ${petId} not found for right-click`)
             return
         }
-
-        console.log(`🖱️ Right-clicked on pet ${petId}, opening home modal with pet selected`)
 
         // TODO: handle state later
         // if (this.scene.gameUI && this.scene.gameUI.petDetailsModal) {

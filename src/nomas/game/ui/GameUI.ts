@@ -75,4 +75,6 @@ export class GameUI {
     getInputManager(): InputManager {
         return this.inputManager
     }
+
+    resize(): void {}
 }
