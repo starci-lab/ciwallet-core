@@ -33,7 +33,7 @@ export const GameSplashPage = () => {
 
     return (
         <NomasCard variant={NomasCardVariant.Gradient} isContainer>
-            <NomasCardBody className="relative w-full min-h-[500px]">
+            <NomasCardBody className="relative w-full min-h-[500px] p-2">
                 {swrMutation.isMutating ? (
                     <LoadingSection />
                 ) : (
@@ -53,7 +53,7 @@ export const GameSplashPage = () => {
                                         className="w-full h-full object-cover"
                                     />
                                     {/* Gradient overlay for better contrast */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-card-dark/80 via-transparent to-transparent" />
+                                    <div className="absolute inset-0 bg-linear-to-t from-card-dark/80 via-transparent to-transparent" />
                                 </motion.div>
 
                                 {/* Floating particles effect */}
@@ -173,8 +173,8 @@ export const GameSplashPage = () => {
                                 </>
                             ) : (
                                 // Game Portal Dashboard when loaded
-                                <div className="flex flex-col h-full p-6 gap-4">
-                                    {/* Header Section: Logo + Balance + Pause Button */}
+                                <div className="flex flex-col h-full p-2 gap-2">
+                                    {/* Header Section: Logo + Pause Button */}
                                     <motion.div
                                         className="flex items-center justify-between gap-4 z-20"
                                         initial={{ y: -20, opacity: 0 }}
@@ -189,29 +189,6 @@ export const GameSplashPage = () => {
                                                 className="h-fit w-full object-contain drop-shadow-lg"
                                             />
                                         </div>
-
-                                        {/* Balance Card */}
-                                        <motion.div
-                                            className="flex-1 max-w-[300px] bg-card-dark-4/90 backdrop-blur-sm rounded-card-inner p-4 border border-muted shadow-card"
-                                            whileHover={{ scale: 1.02 }}
-                                            transition={{ duration: 0.2 }}
-                                        >
-                                            <div className="text-xs text-muted mb-2 font-medium">Your Balance</div>
-                                            <NomasInput
-                                                value={balance.toLocaleString()}
-                                                prefixIcon={
-                                                    <NomasImage
-                                                        src={gameAssets.nomasCoin}
-                                                        alt="NOM"
-                                                        className="w-4 h-4"
-                                                    />
-                                                }
-                                                currency="NOM"
-                                                numericOnly
-                                                readOnly
-                                                className="bg-transparent border-none shadow-none"
-                                            />
-                                        </motion.div>
 
                                         {/* Pause Button - Compact */}
                                         <motion.button
@@ -274,37 +251,47 @@ export const GameSplashPage = () => {
                                             className="absolute inset-0 w-full h-full object-cover"
                                         />
 
+                                        {/* Balance Badge */}
+                                        <div className="absolute top-3 left-3 z-30">
+                                            <div className="w-38 max-w-45">
+                                                <NomasInput
+                                                    value={balance.toLocaleString()}
+                                                    prefixIcon={
+                                                        <NomasImage
+                                                            src={gameAssets.nomasCoin}
+                                                            alt="NOM"
+                                                            className="w-4 h-4"
+                                                        />
+                                                    }
+                                                    currency="NOM"
+                                                    numericOnly
+                                                    readOnly
+                                                    className="bg-transparent border-none shadow-none w-full"
+                                                />
+                                            </div>
+                                        </div>
+
                                         {/* Home Building - Slightly right and down from center */}
                                         <motion.button
-                                            initial={{ scale: 0.9, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ delay: 0.3, duration: 0.6 }}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
                                             onClick={openHome}
                                             className="absolute top-[60%] left-[60%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
                                         >
                                             <NomasImage
                                                 src="/assets/game/building/home.png"
                                                 alt="Home Building"
-                                                className="w-auto h-[200px] md:h-[250px] object-contain drop-shadow-2xl transition-transform duration-300 hover:drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]"
+                                                className="w-auto h-[200px] md:h-[250px] object-contain drop-shadow-2xl"
                                             />
                                         </motion.button>
 
                                         {/* Shop Building - Bottom Right */}
                                         <motion.button
-                                            initial={{ scale: 0.9, opacity: 0, x: 20 }}
-                                            animate={{ scale: 1, opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.4, duration: 0.6 }}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
                                             onClick={openShop}
                                             className="absolute bottom-2 right-4 cursor-pointer z-20"
                                         >
                                             <NomasImage
                                                 src="/assets/game/building/shop.png"
                                                 alt="Shop Building"
-                                                className="w-auto h-[120px] md:h-[150px] object-contain drop-shadow-2xl transition-transform duration-300 hover:drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]"
+                                                className="w-auto h-[120px] md:h-[150px] object-contain drop-shadow-2xl"
                                             />
                                         </motion.button>
                                     </motion.div>
