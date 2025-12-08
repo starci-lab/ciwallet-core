@@ -182,7 +182,7 @@ export const GameSplashPage = () => {
                                         transition={{ duration: 0.5 }}
                                     >
                                         {/* Logo */}
-                                        <div className="w-[160px] max-w-[30%]">
+                                        <div className="w-40 max-w-[30%]">
                                             <NomasImage
                                                 src={assets.petRisingGameLogo}
                                                 alt="Pet Rising Game Logo"
