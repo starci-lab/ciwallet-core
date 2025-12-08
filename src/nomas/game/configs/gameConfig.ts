@@ -280,7 +280,8 @@ class GameConfigManager {
     }
 
     getToyItem(toyId: string): ToyItem | undefined {
-        return this.config.toys.items.find((item) => item.id === toyId)
+        console.log("getToyItem", toyId, this.config.toys.items)
+        return this.config.toys.items.find((item) => item.displayId.toLocaleLowerCase() === toyId.toLocaleLowerCase())
     }
 
     getPetPrice(petId: string = "chog"): number {

@@ -125,7 +125,7 @@ export const GameShopPage = () => {
             const cursorUrl = getItemImageSrc("food", item)
             eventBus.emit(ShopEvents.StartPlacing, {
                 itemType: "food",
-                itemId: String((item as FoodItem).id || (item as FoodItem).displayId.toLocaleLowerCase()),
+                itemId: String((item as FoodItem).displayId),
                 itemName: item.name,
                 cursorUrl
             })

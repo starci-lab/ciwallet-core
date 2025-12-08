@@ -10,10 +10,9 @@ export const HappinessState = {
     Happy: "happy",
     Normal: "normal",
     Sad: "sad",
-    Depressed: "depressed",
+    Depressed: "depressed"
 } as const
-export type HappinessState =
-  (typeof HappinessState)[keyof typeof HappinessState]
+export type HappinessState = (typeof HappinessState)[keyof typeof HappinessState]
 
 export function getHappinessState(happinessLevel: number): HappinessState {
     if (happinessLevel >= 95) return HappinessState.Ecstatic
@@ -46,18 +45,13 @@ export class HappinessSystem {
 
     private updateHappiness() {
         const now = Date.now()
-        if (
-            now - this.lastHappinessUpdate <
-      GAME_MECHANICS.HAPPINESS_UPDATE_INTERVAL
-        ) {
+        if (now - this.lastHappinessUpdate < GAME_MECHANICS.HAPPINESS_UPDATE_INTERVAL) {
             return
         }
         this.lastHappinessUpdate = now
 
         // Giảm happiness level theo thời gian với multiplier riêng cho mỗi pet
-        this.happinessLevel -=
-      GAME_MECHANICS.HAPPINESS_DECREASE_RATE *
-      this.pet.happinessDecreaseMultiplier
+        this.happinessLevel -= GAME_MECHANICS.HAPPINESS_DECREASE_RATE * this.pet.happinessDecreaseMultiplier
         this.happinessLevel = Math.max(0, this.happinessLevel)
     }
 
@@ -71,19 +65,15 @@ export class HappinessSystem {
         }
 
         console.log(`🛒 Buying toy: ${toy.name}`)
-        const toyPrice = toy.price
+        const toyPrice = toy.cost_nom
 
         if (colyseusService.isConnected()) {
-            console.log(
-                "🌐 Checking tokens before sending purchase request to server"
-            )
+            console.log("🌐 Checking tokens before sending purchase request to server")
 
             // Check if player has enough tokens before sending to server
             const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < toyPrice) {
-                console.log(
-                    `❌ Not enough tokens: need ${toyPrice}, have ${currentTokens}`
-                )
+                console.log(`❌ Not enough tokens: need ${toyPrice}, have ${currentTokens}`)
                 return false
             }
 
@@ -109,19 +99,15 @@ export class HappinessSystem {
     // ===== PLAY MECHANICS =====
 
     /**
-   * Triggers the play behavior for the pet.
-   * This function updates the pet's happiness, changes its activity to 'idleplay',
-   * and sends a message to the server if connected.
-   * @param happinessIncrease The amount to increase the happiness level by.
-   */
+     * Triggers the play behavior for the pet.
+     * This function updates the pet's happiness, changes its activity to 'idleplay',
+     * and sends a message to the server if connected.
+     * @param happinessIncrease The amount to increase the happiness level by.
+     */
     triggerPlay(happinessIncrease: number = 25): void {
         const oldHappiness = this.happinessLevel
         this.happinessLevel = Math.min(100, this.happinessLevel + happinessIncrease)
-        console.log(
-            `📈 Pet ${this.petId} happiness: ${oldHappiness.toFixed(
-                1
-            )} → ${this.happinessLevel.toFixed(1)}`
-        )
+        console.log(`📈 Pet ${this.petId} happiness: ${oldHappiness.toFixed(1)} → ${this.happinessLevel.toFixed(1)}`)
 
         // Send played pet event to server if connected
         if (colyseusService.isConnected()) {
@@ -129,7 +115,7 @@ export class HappinessSystem {
             colyseusService.playedPet({
                 happiness_level: this.happinessLevel,
                 pet_id: this.petId,
-                owner_id: userStore.addressWallet || "unknown",
+                owner_id: userStore.addressWallet || "unknown"
             })
             console.log(`📤 Sent 'played_pet' to server for pet ${this.petId}`)
         }
@@ -142,6 +128,6 @@ export class HappinessSystem {
     // ===== CLEANUP =====
 
     destroy() {
-    // No ball objects to clean up anymore, handled by PetManager
+        // No ball objects to clean up anymore, handled by PetManager
     }
 }
