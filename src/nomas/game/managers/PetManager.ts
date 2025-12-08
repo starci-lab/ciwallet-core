@@ -11,7 +11,7 @@ import {
     type BuyPetResponseMessage
 } from "@/nomas/game/colyseus/events"
 import { GamePositioning, GAME_MECHANICS, GAME_LAYOUT } from "@/nomas/game/constants/gameConstants"
-import { addToken, store } from "@/nomas/redux"
+// store unused after token UI removal
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { eventBus } from "@/nomas/game/event-bus"
 import { HomeEvents } from "@/nomas/game/events/home/HomeEvents"
@@ -131,15 +131,36 @@ export class PetManager {
     /**
      * Sync pets from server data
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private syncPetsFromServer(serverPets: any[]) {
+    private syncPetsFromServer(serverPets: unknown) {
         if (!serverPets || !Array.isArray(serverPets)) {
             console.warn("[PetManager] Invalid pets data:", serverPets)
             return
         }
 
+        const petsArray = serverPets as Array<{
+            _id?: string
+            id?: string
+            hunger?: number
+            cleanliness?: number
+            happiness?: number
+            poops?: unknown[]
+            x?: number
+            y?: number
+            positionX?: number
+            positionY?: number
+            type?: { displayId?: string }
+        }>
+
         // Track which pets exist on server
-        const serverPetIds = new Set(serverPets.map((p: any) => p.id || p._id).filter(Boolean))
+        const serverPetIds = new Set(
+            petsArray
+                .map((p) =>
+                    typeof p === "object" && p
+                        ? (p as { id?: string; _id?: string }).id || (p as { _id?: string })._id
+                        : undefined
+                )
+                .filter(Boolean)
+        )
         // Remove pets that are no longer on server
         for (const [petId] of this.pets.entries()) {
             if (!serverPetIds.has(petId)) {
@@ -149,9 +170,8 @@ export class PetManager {
 
         // Create or update pets from server
         // TODO: HANDLE againt this function
-        for (const serverPet of serverPets) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const pet: any = serverPet
+        for (const serverPet of petsArray) {
+            const pet = serverPet
             const petId = pet._id
             if (!petId) {
                 continue
@@ -173,13 +193,16 @@ export class PetManager {
                 // // ✅ NEW: Sync poops from server if provided
                 if (pet.poops && Array.isArray(pet.poops)) {
                     console.log(`💩 [PetManager] Syncingfsdfdf ${pet.poops.length} poops for pet ${petId}`)
-                    existingPet.cleanlinessSystem.syncPoops(pet.poops)
+                    existingPet.cleanlinessSystem.syncPoops(
+                        pet.poops as Array<{ id: string; positionX: number; positionY: number }>
+                    )
                 }
             } else {
                 // Create new pet
-                const x = pet.x || pet.positionX || 400
-                const y = pet.y || pet.positionY || 300
-                const petType = pet.type.displayId
+                const x = typeof pet.x === "number" ? pet.x : (pet.positionX ?? 400)
+                const y = typeof pet.y === "number" ? pet.y : (pet.positionY ?? 300)
+                const petType = pet.type?.displayId
+                if (!petType) continue
 
                 this.createPet(petId, x, y, petType)
 
@@ -199,7 +222,9 @@ export class PetManager {
                     // // ✅ NEW: Sync poops from server if provided
                     if (pet.poops && Array.isArray(pet.poops)) {
                         console.log(`💩 [PetManager] Syncing ${pet.poops.length} poops for new pet ${petId}`)
-                        newPet.cleanlinessSystem.syncPoops(pet.poops)
+                        newPet.cleanlinessSystem.syncPoops(
+                            pet.poops as Array<{ id: string; positionX: number; positionY: number }>
+                        )
                     }
                 }
             }
@@ -352,41 +377,6 @@ export class PetManager {
                 hold: 500,
                 onComplete: () => heart.destroy()
             })
-
-            const gameScene = this.scene as any
-            const tokenUI = gameScene.gameUI.getTokenUI()
-            const tokenIconPosition = tokenUI.getTokenIconPosition()
-
-            for (let i = 0; i < 5; i++) {
-                const coin = this.scene.add.image(petSprite.x, petSprite.y, "coin")
-                coin.setScale(0.05)
-                coin.setDepth(1000)
-
-                this.scene.tweens.add({
-                    targets: coin,
-                    x: coin.x + Phaser.Math.Between(-60, 60),
-                    y: petData.pet.groundY + 5,
-                    duration: 600,
-                    ease: "Bounce.easeOut",
-                    hold: 800,
-                    onComplete: () => {
-                        this.scene.tweens.add({
-                            targets: coin,
-                            x: tokenIconPosition.x,
-                            y: tokenIconPosition.y,
-                            duration: 500,
-                            ease: "Power2.easeIn",
-                            onComplete: () => {
-                                coin.destroy()
-                                // Increase user's token balance
-                                store.dispatch(addToken(1))
-                                // Update the token UI
-                                tokenUI.update()
-                            }
-                        })
-                    }
-                })
-            }
         }
     }
 
@@ -459,30 +449,51 @@ export class PetManager {
     }
 
     // Sync pet with server data
-    syncPetWithServer(petId: string, serverPet: any): void {
+    syncPetWithServer(
+        petId: string,
+        serverPet: {
+            x?: number
+            y?: number
+            speed?: number
+            hungerLevel?: number
+            currentActivity?: string
+            isChasing?: boolean
+            targetX?: number
+            targetY?: number
+        }
+    ): void {
         const petData = this.getPetData(petId)
         if (petData) {
             // Update position if significantly different
             const threshold = 5 // pixels
+            const targetX = serverPet.x ?? petData.pet.sprite.x
+            const targetY = serverPet.y ?? petData.pet.sprite.y
+
             if (
-                Math.abs(petData.pet.sprite.x - serverPet.x) > threshold ||
-                Math.abs(petData.pet.sprite.y - serverPet.y) > threshold
+                Math.abs(petData.pet.sprite.x - targetX) > threshold ||
+                Math.abs(petData.pet.sprite.y - targetY) > threshold
             ) {
-                petData.pet.sprite.setPosition(serverPet.x, serverPet.y)
+                petData.pet.sprite.setPosition(targetX, targetY)
             }
 
             // Update other properties
-            petData.pet.speed = serverPet.speed
+            if (typeof serverPet.speed === "number") {
+                petData.pet.speed = serverPet.speed
+            }
 
             // Update hunger through feeding system
             if (petData.feedingSystem && typeof serverPet.hungerLevel === "number") {
                 petData.feedingSystem.hungerLevel = serverPet.hungerLevel
             }
 
-            petData.pet.setActivity(serverPet.currentActivity)
+            if (serverPet.currentActivity) {
+                petData.pet.setActivity(serverPet.currentActivity)
+            }
 
             if (serverPet.isChasing) {
-                petData.pet.startChasing(serverPet.targetX, serverPet.targetY)
+                const tx = serverPet.targetX ?? petData.pet.sprite.x
+                const ty = serverPet.targetY ?? petData.pet.sprite.y
+                petData.pet.startChasing(tx, ty)
             } else {
                 petData.pet.stopChasing()
             }
@@ -492,7 +503,7 @@ export class PetManager {
     }
 
     // Add food from server
-    addSharedFoodFromServer(foodId: string, serverFood: any): void {
+    addSharedFoodFromServer(foodId: string, serverFood: { x: number; y: number; droppedAt?: number }): void {
         console.log("🍎 Adding shared food from server:", foodId, serverFood)
 
         // Create food sprite (using sprite instead of image for consistency)
@@ -512,13 +523,14 @@ export class PetManager {
         })
 
         // Add to shared food arrays with server ID metadata
-        const foodWithId = foodSprite as any
-        foodWithId.serverId = foodId
-        foodWithId.droppedAt = serverFood.droppedAt || Date.now()
-
         this.sharedDroppedFood.push(foodSprite)
         this.sharedFoodShadows.push(shadow)
         this.sharedFoodTimers.push(timer)
+
+        // Store metadata on sprite
+        ;(foodSprite as unknown as { serverId?: string; droppedAt?: number }).serverId = foodId
+        ;(foodSprite as unknown as { serverId?: string; droppedAt?: number }).droppedAt =
+            serverFood.droppedAt || Date.now()
 
         // Notify all pets about new food
         this.notifyPetsAboutFood()
@@ -526,7 +538,9 @@ export class PetManager {
 
     // Remove food by server ID
     removeSharedFoodByServerId(serverId: string): void {
-        const index = this.sharedDroppedFood.findIndex((food: any) => food.serverId === serverId)
+        const index = this.sharedDroppedFood.findIndex(
+            (food) => (food as unknown as { serverId?: string }).serverId === serverId
+        )
 
         if (index !== -1) {
             console.log("🗑️ Removing shared food by server ID:", serverId)
@@ -569,12 +583,8 @@ export class PetManager {
     // Update all pets
     update(): void {
         for (const petData of this.pets.values()) {
-            const previousActivity = petData.pet.currentActivity
-            const previousX = petData.pet.sprite.x
-            const previousY = petData.pet.sprite.y
-
             // Update movement
-            const movementResult = petData.movementSystem.update()
+            petData.movementSystem.update()
 
             // Always attempt to eat based on current position (even if not exactly at target)
             this.checkSharedFoodEating(petData, petData.pet.sprite.x, petData.pet.sprite.y)
@@ -638,28 +648,11 @@ export class PetManager {
             return false
         }
 
-        // Check if we already have toy in inventory
+        // If toy available, drop; otherwise, no-op (purchase flow removed)
         if (activePet.happinessSystem.toyInventory > 0) {
             this.dropToy(x, y, toyId)
             return true
         }
-
-        // Try to buy toy first
-        const purchased = this.buyToy(toyId)
-        if (purchased) {
-            // For both online and offline mode, ensure we can drop the toy
-            if (colyseusService.isConnected()) {
-                // Online mode: temporarily increase inventory to allow drop
-                // Server will sync the correct state later
-                activePet.happinessSystem.toyInventory += 1
-                this.dropToy(x, y, toyId)
-            } else {
-                // Offline mode: inventory is already updated by buyToy
-                this.dropToy(x, y, toyId)
-            }
-            return true
-        }
-
         return false
     }
 
@@ -756,13 +749,13 @@ export class PetManager {
         const foodDropStartY = GamePositioning.getFoodDropY(cameraHeight)
 
         // Create food sprite with error handling
-        let food: Phaser.GameObjects.Image
+        let food: Phaser.GameObjects.Sprite
         try {
-            food = this.scene.add.image(clampedX, foodDropStartY, textureKey)
+            food = this.scene.add.sprite(clampedX, foodDropStartY, textureKey)
         } catch (error) {
             console.error(`Failed to create food sprite with texture '${textureKey}':`, error)
             // Try with hamburger as fallback
-            food = this.scene.add.image(clampedX, foodDropStartY, "hamburger")
+            food = this.scene.add.sprite(clampedX, foodDropStartY, "hamburger")
         }
 
         const responsiveScale = GamePositioning.getResponsiveFoodScale(cameraWidth)
@@ -798,12 +791,12 @@ export class PetManager {
             ease: "Power2.easeOut"
         })
 
-        this.sharedDroppedFood.push(food as unknown)
+        this.sharedDroppedFood.push(food)
         this.sharedFoodShadows.push(shadow)
 
         // Create timer to auto-despawn food after 20s
         const despawnTimer = this.scene.time.delayedCall(20000, () => {
-            const currentFoodIndex = this.sharedDroppedFood.indexOf(food as unknown)
+            const currentFoodIndex = this.sharedDroppedFood.indexOf(food)
             if (currentFoodIndex !== -1) {
                 this.removeSharedFoodAtIndex(currentFoodIndex)
                 console.log("Shared food auto-despawned after 20 seconds")
@@ -947,7 +940,8 @@ export class PetManager {
     // Drop shared toy for all pets to chase
     private async dropSharedToy(x: number, _y?: number, toyId: string = "ball"): Promise<void> {
         // Check if scene is ready and assets are loaded
-        if (!this.scene.textures || this.scene.textures.list.length === 0) {
+        const texturesList = this.scene.textures?.list || {}
+        if (!this.scene.textures || Object.keys(texturesList).length === 0) {
             console.error("❌ Scene textures not ready yet!")
             return
         }
@@ -1382,56 +1376,6 @@ export class PetManager {
         })
     }
 
-    // Get shared food inventory (from active pet)
-    getFoodInventory(): number {
-        const activePet = this.getActivePet()
-        return activePet?.feedingSystem.foodInventory || 0
-    }
-
-    useCleaning(): boolean {
-        const activePet = this.getActivePet()
-        if (activePet) {
-            return activePet.cleanlinessSystem.useCleaning()
-        }
-        return false
-    }
-
-    getCleaningInventory(): number {
-        const activePet = this.getActivePet()
-        return activePet?.cleanlinessSystem.cleaningInventory || 0
-    }
-
-    // Happiness/Toy management methods
-    buyToy(toyId: string): boolean {
-        const activePet = this.getActivePet()
-        if (activePet) {
-            return activePet.happinessSystem.buyToy(toyId)
-        }
-        return false
-    }
-
-    useBall(x: number, y: number): boolean {
-        const activePet = this.getActivePet()
-        if (activePet && activePet.happinessSystem.toyInventory > 0) {
-            activePet.happinessSystem.toyInventory--
-            this.dropSharedToy(x, y, "ball")
-            return true
-        } else {
-            // TODO: Implement buying logic to buy without ID?
-            const success = this.buyToy("ball")
-            if (success) {
-                this.dropSharedToy(x, y, "ball")
-                return true
-            }
-        }
-        return false
-    }
-
-    getToyInventory(): number {
-        const activePet = this.getActivePet()
-        return activePet?.happinessSystem.toyInventory || 0
-    }
-
     // Get stats for UI
     getPetStats() {
         const stats = this.getAllPets().map((petData) => ({
@@ -1440,17 +1384,13 @@ export class PetManager {
             hungerLevel: petData.feedingSystem.hungerLevel,
             cleanlinessLevel: petData.cleanlinessSystem.cleanlinessLevel,
             happinessLevel: petData.happinessSystem.happinessLevel,
-            currentActivity: petData.pet.currentActivity,
-            foodInventory: petData.feedingSystem.foodInventory
+            currentActivity: petData.pet.currentActivity
         }))
 
         return {
             activePetId: this.activePetId,
             totalPets: this.pets.size,
-            pets: stats,
-            totalFoodInventory: this.getFoodInventory(),
-            totalCleaningInventory: this.getCleaningInventory(),
-            totalToyInventory: this.getToyInventory()
+            pets: stats
         }
     }
     // Cleanup all pets
