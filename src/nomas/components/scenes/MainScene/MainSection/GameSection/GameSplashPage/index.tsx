@@ -1,13 +1,13 @@
 import { useMemo } from "react"
 import { selectSelectedAccountByPlatform, useAppSelector, useAppDispatch, setIsGameMinimized } from "@/nomas/redux"
-import { NomasCard, NomasCardBody, NomasCardVariant, NomasInput } from "@/nomas/components"
+import { NomasCard, NomasCardBody, NomasCardVariant, NomasInput, NomasButton } from "@/nomas/components"
 import { NomasImage } from "@/nomas/components"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { motion } from "framer-motion"
 import { assetsConfig } from "@/nomas/resources"
 import { useGameLoadSwrMutation, useShopEventsCore, useHomeEventsCore } from "@/nomas/hooks"
 import { LoadingSection } from "./LoadingSection"
-import { PlayIcon, PauseIcon } from "@phosphor-icons/react"
+import { ArrowsInIcon, ArrowsOutIcon } from "@phosphor-icons/react"
 
 export const GameSplashPage = () => {
     const assets = assetsConfig().app
@@ -174,67 +174,40 @@ export const GameSplashPage = () => {
                             ) : (
                                 // Game Portal Dashboard when loaded
                                 <div className="flex flex-col h-full p-2 gap-2">
-                                    {/* Header Section: Logo + Pause Button */}
+                                    {/* Header Section: Logo + Minimize Button */}
                                     <motion.div
-                                        className="flex items-center justify-between gap-4 z-20"
+                                        className="flex items-center justify-between gap-2 z-20"
                                         initial={{ y: -20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ duration: 0.5 }}
                                     >
                                         {/* Logo */}
-                                        <div className="w-[200px] max-w-[30%]">
+                                        <div className="w-[160px] max-w-[30%]">
                                             <NomasImage
                                                 src={assets.petRisingGameLogo}
                                                 alt="Pet Rising Game Logo"
-                                                className="h-fit w-full object-contain drop-shadow-lg"
+                                                className="h-18 w-full object-contain drop-shadow-lg"
                                             />
                                         </div>
 
-                                        {/* Pause Button - Compact */}
-                                        <motion.button
-                                            initial={{ scale: 0.8, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                        {/* Minimize Button - Compact */}
+                                        <NomasButton
                                             onClick={handleToggleGame}
-                                            className="group relative rounded-card-inner p-3 border-2 shadow-card flex flex-col items-center justify-center gap-1 min-w-[80px]"
-                                            style={{
-                                                background:
-                                                    "linear-gradient(to bottom right, var(--accent-purple), var(--accent-cyan))",
-                                                borderColor: "var(--accent-purple)"
-                                            }}
+                                            whileHover={{ scale: 1.04 }}
+                                            whileTap={{ scale: 0.94 }}
                                         >
-                                            {/* Pulsing glow */}
-                                            <motion.div
-                                                className="absolute inset-0 rounded-card-inner blur-xl opacity-50"
-                                                style={{ backgroundColor: "var(--accent-purple)" }}
-                                                animate={{
-                                                    scale: [1, 1.1, 1],
-                                                    opacity: [0.5, 0.7, 0.5]
-                                                }}
-                                                transition={{
-                                                    duration: 2,
-                                                    repeat: Infinity,
-                                                    ease: "easeInOut"
-                                                }}
-                                            />
-
                                             {isGameMinimized ? (
-                                                <PlayIcon
+                                                <ArrowsOutIcon
                                                     weight="fill"
-                                                    className="relative z-10 w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+                                                    className="relative z-10 w-5 h-5 group-hover:scale-110 transition-transform duration-300"
                                                 />
                                             ) : (
-                                                <PauseIcon
+                                                <ArrowsInIcon
                                                     weight="fill"
-                                                    className="relative z-10 w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+                                                    className="relative z-10 w-5 h-5 group-hover:scale-110 transition-transform duration-300"
                                                 />
                                             )}
-                                            <span className="relative z-10 text-xs font-semibold text-white">
-                                                {isGameMinimized ? "Play" : "Pause"}
-                                            </span>
-                                        </motion.button>
+                                        </NomasButton>
                                     </motion.div>
 
                                     {/* Building Container with Background */}
