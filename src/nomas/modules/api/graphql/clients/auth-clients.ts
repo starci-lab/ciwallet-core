@@ -62,7 +62,7 @@ export const createErrorLink = (withRetry = true) =>
 /**
  * Handles token refresh flow and retries the failed operation.
  */
-const handleTokenRefreshAndRetry = (operation: ApolloLink.Operation, forward: ApolloLink.ForwardFunction) => {
+const handleTokenRefreshAndRetry = (_operation: ApolloLink.Operation, _forward: ApolloLink.ForwardFunction) => {
     return new Observable((observer) => {
         ;(async () => {
             try {

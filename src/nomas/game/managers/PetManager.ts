@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 import { Pet } from "@/nomas/game/entities/Pet"
 import { FeedingSystem } from "../systems"
 import { CleanlinessSystem } from "../systems"

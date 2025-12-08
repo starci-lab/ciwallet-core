@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 /**
  * React Hook for Colyseus Message Handling
  *

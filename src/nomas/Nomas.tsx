@@ -70,16 +70,16 @@ export const NomasContent = ({ contentEventBus }: NomasProps) => {
     // Scene switching
     const renderContent = () => {
         switch (scene) {
-            case Scene.Init:
-                return <InitScene />
-            case Scene.Main:
-                return <MainScene />
-            case Scene.Settings:
-                return <SettingsScene />
-            case Scene.MyWallets:
-                return <MyWalletsScene />
-            case Scene.CopyAddress:
-                return <CopyAddressScene />
+        case Scene.Init:
+            return <InitScene />
+        case Scene.Main:
+            return <MainScene />
+        case Scene.Settings:
+            return <SettingsScene />
+        case Scene.MyWallets:
+            return <MyWalletsScene />
+        case Scene.CopyAddress:
+            return <CopyAddressScene />
         }
     }
 

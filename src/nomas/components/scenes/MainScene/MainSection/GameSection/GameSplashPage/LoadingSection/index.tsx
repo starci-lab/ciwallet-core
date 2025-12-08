@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 import { motion } from "framer-motion"
 
 export const LoadingSection = () => {

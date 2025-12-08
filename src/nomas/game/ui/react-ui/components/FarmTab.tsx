@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 import { NomasButton } from "@/nomas/components"
 import type { PetData } from "@/nomas/game/managers/PetManager"
 import { getPetImagePath } from "@/nomas/game/utils/textureUtils"

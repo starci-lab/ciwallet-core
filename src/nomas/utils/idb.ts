@@ -1,5 +1,4 @@
 import { openDB } from "idb"
-import type { set } from "lodash"
 
 const db = await openDB("nomas-db", 1, {
     upgrade(database) {

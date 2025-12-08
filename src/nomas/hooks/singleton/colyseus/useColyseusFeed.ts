@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useColyseus } from "./useColyseus"
 import { EventNames, eventBus } from "@/nomas/game/event-bus"
+import { store } from "@/nomas/redux"
 export const useColyseusFeed = () => {
     const { joinOrCreateRoom } = useColyseus()
 
@@ -12,7 +13,7 @@ export const useColyseusFeed = () => {
         }) => {
             joinOrCreateRoom("single_player", {
                 name: "Pet Game",
-                addressWallet: addressWallet,
+                addressWallet: store.getState().stateless.user.addressWallet
             })
         }
         eventBus.on(EventNames.TileSelected, handleTileSelected)
@@ -22,6 +23,6 @@ export const useColyseusFeed = () => {
     }, [])
 
     return {
-        joinOrCreateRoom,
+        joinOrCreateRoom
     }
 }

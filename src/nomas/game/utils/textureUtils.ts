@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 /**
  * Simple helper to get pet image URL (direct path method)
  * Use this if Phaser scene is not available or for simpler cases

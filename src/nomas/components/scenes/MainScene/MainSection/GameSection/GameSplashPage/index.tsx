@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 import { useMemo } from "react"
 import { selectSelectedAccountByPlatform, useAppSelector, useAppDispatch, setIsGameMinimized } from "@/nomas/redux"
 import { NomasCard, NomasCardBody, NomasCardVariant } from "@/nomas/components"
