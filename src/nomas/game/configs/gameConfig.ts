@@ -262,7 +262,7 @@ class GameConfigManager {
     // TODO: HANDLE ID
     getFoodItem(foodId: string): FoodItem | undefined {
         console.log("getFoodItem", foodId, this.config.food.items)
-        return this.config.food.items.find((item) => item.displayId.toLocaleLowerCase() === foodId)
+        return this.config.food.items.find((item) => item.displayId === foodId)
     }
 
     getCleaningPrice(cleaningId: string = "brush"): number {

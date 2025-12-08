@@ -115,7 +115,7 @@ export const GameShopPage = () => {
             const petType = (item as PetItem).texture || item.name
             eventBus.emit(ShopEvents.BuyPet, {
                 petType,
-                petId: String((item as PetItem).id || (item as PetItem).displayId.toLocaleLowerCase()),
+                petId: String((item as PetItem).displayId),
                 petName: item.name
             })
             return
