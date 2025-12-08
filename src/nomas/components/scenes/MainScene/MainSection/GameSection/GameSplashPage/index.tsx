@@ -219,7 +219,7 @@ export const GameSplashPage = () => {
                                     >
                                         {/* Background Image */}
                                         <NomasImage
-                                            src="/assets/game/building/bg-home.png"
+                                            src={gameAssets.bgHome}
                                             alt="Game Background"
                                             className="absolute inset-0 w-full h-full object-cover"
                                         />
@@ -250,7 +250,7 @@ export const GameSplashPage = () => {
                                             className="absolute top-[60%] left-[60%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
                                         >
                                             <NomasImage
-                                                src="/assets/game/building/home.png"
+                                                src={gameAssets.home}
                                                 alt="Home Building"
                                                 className="w-auto h-[200px] md:h-[250px] object-contain drop-shadow-2xl"
                                             />
@@ -262,7 +262,7 @@ export const GameSplashPage = () => {
                                             className="absolute bottom-2 right-4 cursor-pointer z-20"
                                         >
                                             <NomasImage
-                                                src="/assets/game/building/shop.png"
+                                                src={gameAssets.shop}
                                                 alt="Shop Building"
                                                 className="w-auto h-[120px] md:h-[150px] object-contain drop-shadow-2xl"
                                             />

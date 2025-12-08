@@ -16,7 +16,7 @@ import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
 import createResizedCursor from "@/nomas/utils/resizeImage"
 import { ScrollArea } from "@/nomas/components/shadcn/scroll-area"
 import { NomasImage, NomasInput, NomasCard, NomasCardBody, NomasCardVariant } from "@/nomas/components"
-import { assetsConfig } from "@/nomas/resources"
+import { assetsConfig, getUrl } from "@/nomas/resources"
 
 /**
  * Union type for all shop items
@@ -297,7 +297,7 @@ export const GameShopPage = () => {
                                             {/* Item Image */}
                                             <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
                                                 <img
-                                                    src={getItemImageSrc(category, item)}
+                                                    src={getUrl(getItemImageSrc(category, item))}
                                                     className="w-full h-full object-cover object-[0%_50%]"
                                                     style={{
                                                         // For cleaning sprite sheets, show only leftmost section

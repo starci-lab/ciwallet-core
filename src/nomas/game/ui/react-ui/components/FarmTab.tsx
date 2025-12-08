@@ -1,9 +1,9 @@
- 
 import { NomasButton } from "@/nomas/components"
 import type { PetData } from "@/nomas/game/managers/PetManager"
 import { getPetImagePath } from "@/nomas/game/utils/textureUtils"
 import { eventBus } from "@/nomas/game/event-bus"
 import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
+import { getUrl } from "@/nomas/resources"
 
 interface PetStat {
     label: string
@@ -60,7 +60,7 @@ export function FarmTab({ activePets, selectedPet, setSelectedPet, onClose }: Fa
                             <div className="flex items-center gap-2">
                                 <div className="w-10 h-10 rounded-lg bg-card-dark-3 flex items-center justify-center overflow-hidden">
                                     <img
-                                        src={getPetImagePath(selectedPet.pet?.petType?.toLowerCase() || "chog")}
+                                        src={getUrl(getPetImagePath(selectedPet.pet?.petType?.toLowerCase() || "chog"))}
                                         alt={selectedPet.pet?.petType}
                                         className="w-full h-full object-contain"
                                     />
@@ -130,7 +130,7 @@ export function FarmTab({ activePets, selectedPet, setSelectedPet, onClose }: Fa
                                     </div>
                                     <div className="w-full h-16 flex items-center justify-center mb-1 mt-3">
                                         <img
-                                            src={getPetImagePath(pet.pet?.petType || "chog")}
+                                            src={getUrl(getPetImagePath(pet.pet?.petType || "chog"))}
                                             alt={pet.pet?.petType}
                                             className="max-w-full max-h-full object-contain"
                                         />
