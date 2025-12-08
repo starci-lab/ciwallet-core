@@ -199,8 +199,9 @@ export class PetManager {
                 }
             } else {
                 // Create new pet
-                const x = typeof pet.x === "number" ? pet.x : (pet.positionX ?? 400)
-                const y = typeof pet.y === "number" ? pet.y : (pet.positionY ?? 300)
+                const randomPosition = this.getRandomSpawnPosition()
+                const x = typeof pet.x === "number" ? pet.x : (pet.positionX ?? randomPosition.x)
+                const y = typeof pet.y === "number" ? pet.y : (pet.positionY ?? randomPosition.y)
                 const petType = pet.type?.displayId
                 if (!petType) continue
 
@@ -283,6 +284,18 @@ export class PetManager {
         return petData
     }
 
+    private getRandomSpawnPosition(): { x: number; y: number } {
+        const minX = 100,
+            maxX = 700
+        const minY = 200,
+            maxY = 500
+
+        return {
+            x: Phaser.Math.Between(minX, maxX),
+            y: Phaser.Math.Between(minY, maxY)
+        }
+    }
+
     /**
      * Send buy pet event to server (standard backend: create_pet with isBuyPet)
      * (Send x/y random to server to save initial spawn position if desired)
@@ -290,12 +303,7 @@ export class PetManager {
     buyPet(petType: string = "chog", petTypeId: string) {
         if (colyseusService.isConnected()) {
             // Random position spawn for new pet
-            const minX = 100,
-                maxX = 700
-            const minY = 200,
-                maxY = 500
-            const x = Math.floor(Math.random() * (maxX - minX + 1)) + minX
-            const y = Math.floor(Math.random() * (maxY - minY + 1)) + minY
+            const { x, y } = this.getRandomSpawnPosition()
             colyseusService.sendMessage("buy_pet", {
                 petType,
                 petTypeId,
