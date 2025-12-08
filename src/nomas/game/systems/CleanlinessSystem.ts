@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import { Pet } from "../entities/Pet"
 import { GAME_LAYOUT, GAME_MECHANICS, GamePositioning } from "@/nomas/game/constants/gameConstants"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
@@ -82,8 +81,6 @@ export class CleanlinessSystem {
 
         // Setup event listeners for poop management
         this.setupEventListeners()
-
-        console.log(`[CleanlinessSystem] Initialized for pet ${petId}`)
     }
 
     private setupEventListeners() {
@@ -92,8 +89,6 @@ export class CleanlinessSystem {
             // Only handle if this poop belongs to this pet
             if (message.petId === this.petId) {
                 this.createPoopAt(message.positionX, message.positionY, message.poopId)
-            } else {
-                console.log(`[CleanlinessSystem] Ignoring poop - not for this pet (${this.petId})`)
             }
         }
 
@@ -110,9 +105,6 @@ export class CleanlinessSystem {
             if (message.success && message.data) {
                 // Check if this response is for this pet
                 if (message.data.petId && message.data.petId !== this.petId) {
-                    console.log(
-                        `[CleanlinessSystem ${this.petId}] Ignoring poop response - not for this pet (${message.data.petId})`
-                    )
                     return
                 }
                 // Fallback: Create poop if it doesn't exist yet
@@ -121,8 +113,6 @@ export class CleanlinessSystem {
 
                 if (!existingPoop) {
                     this.createPoopAt(message.data.positionX, message.data.positionY, message.data.poopId)
-                } else {
-                    console.log(`[CleanlinessSystem ${this.petId}] Poop already exists, skipping duplicate creation`)
                 }
             } else {
                 console.warn(`[CleanlinessSystem ${this.petId}] Poop creation failed:`, message)
@@ -143,8 +133,6 @@ export class CleanlinessSystem {
                 cleanliness?: number
             }
         }) => {
-            console.log("[CleanlinessSystem] Cleaned pet response:", message)
-
             // Only handle if this response is for this pet
             if (message.data?.petId === this.petId) {
                 if (message.success && message.data?.poopId) {
@@ -152,7 +140,6 @@ export class CleanlinessSystem {
                     const removed = this.removePoopById(poopId, true)
 
                     if (removed) {
-                        console.log(`[CleanlinessSystem] Poop ${poopId} removed from pet ${this.petId}`)
                         const poopCount = await PetsDB.getPoopCount(this.petId)
                         await PetsDB.setPoopCount(this.petId, +poopCount - 1)
 
@@ -164,7 +151,8 @@ export class CleanlinessSystem {
                         console.warn(`[CleanlinessSystem] Poop ${poopId} not found`)
                     }
                 } else {
-                    console.warn("[CleanlinessSystem] Cleaning failed or no poopId:", message)
+                    // Log when pet is already clean or cleaning failed
+                    console.log(`[CleanlinessSystem] ${message.message}`)
                 }
             }
         }
@@ -228,7 +216,6 @@ export class CleanlinessSystem {
                 frameRate: 10,
                 repeat: 0 // Play once
             })
-            console.log("Broom animation created successfully")
         } catch (error) {
             console.error(" Failed to create broom animation:", error)
         }
@@ -274,7 +261,6 @@ export class CleanlinessSystem {
                 (now - this.lastPoopCheck > GAME_MECHANICS.POOP_CHECK_INTERVAL && timeSinceLastPoop >= 2)
             ) {
                 // Don't update DB here - let createPoopAt handle it when poop is actually created
-                console.log(`💩 [POOP] Requesting poop creation for pet ${this.petId}`)
                 this.dropPoop()
                 this.lastPoopCheck = now
                 this.lastPoopTime = now
@@ -315,21 +301,11 @@ export class CleanlinessSystem {
         // THÊM: Clamp position to current scene bounds
         const scene = this.scene
         const width = scene.scale.width
-        const height = scene.scale.height
         // Khoảng cách tối thiểu từ mép
         const margin = 50
 
-        // Clamp X và Y trong bounds của màn hình hiện tại
+        // Clamp X trong bounds của màn hình hiện tại
         const clampedX = Phaser.Math.Clamp(x, margin, width - margin)
-        const clampedY = Phaser.Math.Clamp(y, margin, height - margin)
-
-        // Log warning nếu vị trí bị điều chỉnh
-        if (clampedX !== x || clampedY !== y) {
-            console.warn(
-                `Position adjusted to fit screen:(${x}, ${y}) → (${clampedX}, ${clampedY})`,
-                `Screen: ${width}x${height}`
-            )
-        }
 
         try {
             // Use responsive Y position based on camera height and width
@@ -353,9 +329,6 @@ export class CleanlinessSystem {
 
             // Store poop ID (required for server sync and deletion)
             poop.poopId = poopId
-            if (!poopId) {
-                console.error("❌ [CREATE] CRITICAL: Poop created without poopId! This will cause ghost poop.")
-            }
 
             // Set frame
             try {
@@ -383,10 +356,6 @@ export class CleanlinessSystem {
             PetsDB.getPoopCount(this.petId).then((count) => {
                 const newCount = count + 1
                 PetsDB.setPoopCount(this.petId, newCount)
-                // Verify sync
-                if (this.poopObjects.length !== newCount) {
-                    console.warn(`[CREATE] MISMATCH! UI=${this.poopObjects.length}, DB=${newCount}`)
-                }
             })
 
             return poop
@@ -427,13 +396,9 @@ export class CleanlinessSystem {
      * Dùng trước khi sync poops từ server
      */
     public clearAllPoops(): void {
-        console.log(`[CLEAR] Clearing ${this.poopObjects.length} poops...`)
-        const count = this.poopObjects.length
         while (this.poopObjects.length > 0) {
             this.removePoopAtIndex(0)
         }
-
-        console.log(`Cleared ${count} poops`)
     }
 
     /**
@@ -569,8 +534,6 @@ export class CleanlinessSystem {
                 // Server will handle the removal and send back cleaned_pet_response
                 colyseusService.cleanPet(this.petId, "", poopId)
 
-                console.log(`[CLEAN] Sent clean request to server for poop ${poopId}`)
-
                 // Don't remove locally - wait for server response via cleaned_pet_response
             } else {
                 // Offline mode - remove immediately
@@ -599,12 +562,6 @@ export class CleanlinessSystem {
                 return false
             }
 
-            // Verify poopId exists locally before sending to server
-            const poopExists = this.poopObjects.some((p) => p.poopId === poopId)
-            if (!poopExists) {
-                console.warn(`⚠️ [BUY_CLEAN] Poop ${poopId} not found locally! Server will likely reject.`)
-            }
-
             // Get cleaning item to retrieve both id and name
             const cleaningItem = gameConfigManager.getCleaningItem(cleaningId)
             colyseusService.cleanPet(this.petId, cleaningItem?.displayId ?? "", poopId)
@@ -612,23 +569,12 @@ export class CleanlinessSystem {
             // Server will handle validation and update inventory
             return true
         } else {
-            console.log("Offline mode - using local validation")
-
             // const userState = useUserStore.getState()
             if (store.dispatch(spendToken(price))) {
                 this.cleaningInventory += 1
-
-                console.log(
-                    `Purchase successful: ${cleaningId} for ${price} tokens. Inventory: ${this.cleaningInventory}`
-                )
                 return true
             }
 
-            console.log(
-                `Not enough tokens to buy ${cleaningId}. Need: ${price}, Have: ${
-                    store.getState().stateless.user.nomToken
-                }`
-            )
             return false
         }
     }
@@ -643,9 +589,6 @@ export class CleanlinessSystem {
             // Clean all nearby poop automatically
             this.cleanAllPoop()
 
-            console.log(
-                `Used cleaning item! Cleanliness: ${this.cleanlinessLevel}%, Inventory: ${this.cleaningInventory}`
-            )
             return true
         }
         return false
