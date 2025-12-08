@@ -274,7 +274,7 @@ export const GameSplashPage = () => {
                                             className="absolute inset-0 w-full h-full object-cover"
                                         />
 
-                                        {/* Home Building - Centered */}
+                                        {/* Home Building - Slightly right and down from center */}
                                         <motion.button
                                             initial={{ scale: 0.9, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
@@ -282,7 +282,7 @@ export const GameSplashPage = () => {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={openHome}
-                                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+                                            className="absolute top-[60%] left-[60%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
                                         >
                                             <NomasImage
                                                 src="/assets/game/building/home.png"
@@ -299,7 +299,7 @@ export const GameSplashPage = () => {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={openShop}
-                                            className="absolute bottom-4 right-4 cursor-pointer z-20"
+                                            className="absolute bottom-2 right-4 cursor-pointer z-20"
                                         >
                                             <NomasImage
                                                 src="/assets/game/building/shop.png"
