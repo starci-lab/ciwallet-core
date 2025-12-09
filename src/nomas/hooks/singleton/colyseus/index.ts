@@ -1,2 +1,5 @@
 export * from "./ColyseusProvider"
 export * from "./useColyseus"
+export * from "./useColyseusMessages"
+export * from "./useColyseusConnection"
+export * from "./useColyseusReduxSync"

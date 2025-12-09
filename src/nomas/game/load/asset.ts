@@ -4,7 +4,7 @@ import Phaser from "phaser"
 let browser: typeof import("webextension-polyfill") | null = null
 
 try {
-    // Chỉ hoạt động khi có extension
+    // Only works when extension is installed
     browser = require("webextension-polyfill")
 } catch {
     browser = null
@@ -28,7 +28,7 @@ export const loadChogAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadZombieAssets = (scene: Phaser.Scene) => {
-    scene.load.image("zombie-avatar", getUrl("Zombie/zombie_avatar.png"))
+    scene.load.image("zombie-avatar", getUrl("Zombie/zombie.png"))
     scene.load.atlas("zombie-idle", getUrl("Zombie/zombie_idle.png"), getUrl("Zombie/zombie_idle.json"))
     scene.load.atlas("zombie-walk", getUrl("Zombie/zombie_walk.png"), getUrl("Zombie/zombie_walk.json"))
     scene.load.atlas("zombie-idleplay", getUrl("Zombie/zombie_idleplay.png"), getUrl("Zombie/zombie_idleplay.json"))
@@ -37,7 +37,7 @@ export const loadZombieAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadKeoneDogAssets = (scene: Phaser.Scene) => {
-    scene.load.image("keonedog-avatar", getUrl("KeoneDog/keonedog_avatar.png"))
+    scene.load.image("keonedog-avatar", getUrl("KeoneDog/keonedog.png"))
     scene.load.atlas("keonedog-idle", getUrl("KeoneDog/keonedog_idle.png"), getUrl("KeoneDog/keonedog_idle.json"))
     scene.load.atlas("keonedog-sleep", getUrl("KeoneDog/keonedog_sleep.png"), getUrl("KeoneDog/keonedog_sleep.json"))
     scene.load.atlas(
@@ -50,7 +50,7 @@ export const loadKeoneDogAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadGhostAssets = (scene: Phaser.Scene) => {
-    scene.load.image("ghost-avatar", getUrl("Ghost/ghost_avatar.png"))
+    scene.load.image("ghost-avatar", getUrl("Ghost/ghost.png"))
     scene.load.atlas("ghost-idle", getUrl("Ghost/ghost_idle.png"), getUrl("Ghost/ghost_idle.json"))
     scene.load.atlas("ghost-sleep", getUrl("Ghost/ghost_sleep.png"), getUrl("Ghost/ghost_sleep.json"))
     scene.load.atlas("ghost-play", getUrl("Ghost/ghost_idleplay.png"), getUrl("Ghost/ghost_idleplay.json"))
@@ -108,16 +108,13 @@ export const loadFoodAssetDynamic = (scene: Phaser.Scene, foodId: string): Promi
         // Start loading
         scene.load.once("complete", () => {
             if (scene.textures.exists(foodId)) {
-                console.log(`✅ Dynamically loaded food texture: ${foodId}`)
                 resolve()
             } else {
-                console.warn(`⚠️ Failed to load food texture: ${foodId}`)
                 reject(new Error(`Failed to load texture: ${foodId}`))
             }
         })
 
         scene.load.once("loaderror", (_file: unknown) => {
-            console.error(`❌ Error loading food texture: ${foodId}`)
             reject(new Error(`Error loading texture: ${foodId}`))
         })
 
@@ -192,7 +189,6 @@ export const loadToyAssetDynamic = (scene: Phaser.Scene, toyId: string): Promise
 
             scene.load.once("complete", () => {
                 if (scene.textures.exists(toyId)) {
-                    console.log(`✅ Dynamically loaded toy texture: ${toyId} from ${url}`)
                     resolve()
                 } else {
                     currentPathIndex++
