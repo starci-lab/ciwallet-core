@@ -5,7 +5,7 @@
 ## 🌟 Tính năng chính
 
 - **Đa blockchain**: Hỗ trợ nhiều nền tảng blockchain
-  - EVM chains: Ethereum, BSC, Polygon, Avalanche, Arbitrum, Base, Fantom, Monad, Plasma
+  - EVM chains: Ethereum, BSC, Polygon, Avalanche, Arbitrum, Base, Fantom, Monad, Plasma (Plume Network)
   - Solana
   - Sui
   - Aptos
