@@ -16,24 +16,24 @@ import type { PetData } from "@/nomas/game/managers/PetManager"
  * Emitted when successfully connected to Colyseus room
  */
 export interface ColyseusConnectedEvent {
-  roomId: string
-  sessionId: string
-  roomName?: string
+    roomId: string
+    sessionId: string
+    roomName?: string
 }
 
 /**
  * Emitted when disconnected from Colyseus room
  */
 export interface ColyseusDisconnectedEvent {
-  code: number
+    code: number
 }
 
 /**
  * Emitted when a connection error occurs
  */
 export interface ColyseusErrorEvent {
-  code: number
-  message: string
+    code: number
+    message: string
 }
 
 // ===== INCOMING MESSAGE EVENTS (Server → Client) =====
@@ -43,9 +43,9 @@ export interface ColyseusErrorEvent {
  * @event colyseus:message:purchase_response
  */
 export interface PurchaseResponseMessage {
-  success: boolean
-  message: string
-  currentTokens?: number
+    success: boolean
+    message: string
+    currentTokens?: number
 }
 
 /**
@@ -53,11 +53,11 @@ export interface PurchaseResponseMessage {
  * @event colyseus:message:purchase_item_response
  */
 export interface PurchaseItemResponseMessage {
-  purchaseId: string
-  success: boolean
-  message: string
-  currentTokens?: number
-  itemData?: unknown
+    purchaseId: string
+    success: boolean
+    message: string
+    currentTokens?: number
+    itemData?: unknown
 }
 
 /**
@@ -67,16 +67,16 @@ export interface PurchaseItemResponseMessage {
  * @event colyseus:message:cleaned_pet_response
  */
 export interface PetActionResponseMessage {
-  success: boolean
-  message: string
-  data?: {
-    poopId?: string
-  }
-  petStats?: {
-    hunger?: number
-    happiness?: number
-    cleanliness?: number
-  }
+    success: boolean
+    message: string
+    data?: {
+        poopId?: string
+    }
+    petStats?: {
+        hunger?: number
+        happiness?: number
+        cleanliness?: number
+    }
 }
 
 /**
@@ -84,12 +84,12 @@ export interface PetActionResponseMessage {
  * @event colyseus:message:create_poop_response
  */
 export interface CreatePoopResponseMessage {
-  success: boolean
-  data: {
-    positionX: number
-    positionY: number
-    poopId: string
-  }
+    success: boolean
+    data: {
+        positionX: number
+        positionY: number
+        poopId: string
+    }
 }
 
 /**
@@ -98,15 +98,15 @@ export interface CreatePoopResponseMessage {
  * @event colyseus:message:player_state_sync
  */
 export interface PlayerStateSyncMessage {
-  tokens?: number
-  inventory?: unknown
-  playerData?: unknown
-  // Support nested format
-  data?: {
     tokens?: number
     inventory?: unknown
     playerData?: unknown
-  }
+    // Support nested format
+    data?: {
+        tokens?: number
+        inventory?: unknown
+        playerData?: unknown
+    }
 }
 
 /**
@@ -115,11 +115,11 @@ export interface PlayerStateSyncMessage {
  * @event colyseus:message:pets_state_sync
  */
 export interface PetsStateSyncMessage {
-  pets?: PetData[]
-  // Support nested format
-  data?: {
     pets?: PetData[]
-  }
+    // Support nested format
+    data?: {
+        pets?: PetData[]
+    }
 }
 
 /**
@@ -127,13 +127,13 @@ export interface PetsStateSyncMessage {
  * @event colyseus:message:buy_pet_response
  */
 export interface BuyPetResponseMessage {
-  success: boolean
-  message: string
-  // currentTokens: number
-  data: {
-    tokens: number
-    pets?: PetData[]
-  }
+    success: boolean
+    message: string
+    // currentTokens: number
+    data: {
+        tokens: number
+        pets?: PetData[]
+    }
 }
 
 /**
@@ -141,8 +141,8 @@ export interface BuyPetResponseMessage {
  * @event colyseus:message:welcome
  */
 export interface WelcomeMessage {
-  // Usually empty, just triggers action
-  [key: string]: unknown
+    // Usually empty, just triggers action
+    [key: string]: unknown
 }
 
 /**
@@ -150,10 +150,10 @@ export interface WelcomeMessage {
  * @event colyseus:message:poop_created
  */
 export interface PoopCreatedMessage {
-  petId: string
-  poopId: string
-  positionX: number
-  positionY: number
+    petId: string
+    poopId: string
+    positionX: number
+    positionY: number
 }
 
 // ===== OUTGOING ACTION EVENTS (Client → Server) =====
@@ -163,8 +163,8 @@ export interface PoopCreatedMessage {
  * @event colyseus:action:send
  */
 export interface ColyseusSendAction {
-  type: string
-  data: unknown
+    type: string
+    data: unknown
 }
 
 /**
@@ -172,11 +172,11 @@ export interface ColyseusSendAction {
  * @event colyseus:action:purchase_item
  */
 export interface PurchaseItemAction {
-  purchaseId: string
-  itemType: string
-  itemId: string
-  quantity: number
-  price: number
+    purchaseId: string
+    itemType: string
+    itemId: string
+    quantity: number
+    price: number
 }
 
 /**
@@ -184,10 +184,10 @@ export interface PurchaseItemAction {
  * @event colyseus:action:buy_food
  */
 export interface BuyFoodAction {
-  itemType: string
-  itemName: string
-  quantity: number
-  itemId: string
+    itemType: string
+    itemName: string
+    quantity: number
+    itemId: string
 }
 
 /**
@@ -195,8 +195,8 @@ export interface BuyFoodAction {
  * @event colyseus:action:feed_pet
  */
 export interface FeedPetAction {
-  petId: string
-  foodType: string
+    petId: string
+    foodType: string
 }
 
 /**
@@ -204,7 +204,7 @@ export interface FeedPetAction {
  * @event colyseus:action:play_with_pet
  */
 export interface PlayWithPetAction {
-  petId: string
+    petId: string
 }
 
 /**
@@ -212,9 +212,9 @@ export interface PlayWithPetAction {
  * @event colyseus:action:clean_pet
  */
 export interface CleanPetAction {
-  petId: string
-  cleaningItemId: string
-  poopId: string
+    petId: string
+    cleaningItemId: string
+    poopId: string
 }
 
 /**
@@ -222,11 +222,11 @@ export interface CleanPetAction {
  * @event colyseus:action:buy_pet
  */
 export interface BuyPetAction {
-  petType: string
-  petTypeId: string
-  isBuyPet: boolean
-  x: number
-  y: number
+    petType: string
+    petTypeId: string
+    isBuyPet: boolean
+    x: number
+    y: number
 }
 
 /**
@@ -234,7 +234,7 @@ export interface BuyPetAction {
  * @event colyseus:action:remove_pet
  */
 export interface RemovePetAction {
-  petId: string
+    petId: string
 }
 
 /**
@@ -242,9 +242,9 @@ export interface RemovePetAction {
  * @event colyseus:action:create_poop
  */
 export interface CreatePoopAction {
-  petId: string
-  positionX: number
-  positionY: number
+    petId: string
+    positionX: number
+    positionY: number
 }
 
 /**
@@ -252,9 +252,9 @@ export interface CreatePoopAction {
  * @event colyseus:action:eated_food
  */
 export interface EatedFoodAction {
-  hunger_level: number
-  pet_id: string
-  owner_id: string
+    hunger_level: number
+    pet_id: string
+    owner_id: string
 }
 
 /**
@@ -262,9 +262,9 @@ export interface EatedFoodAction {
  * @event colyseus:action:cleaned_pet
  */
 export interface CleanedPetAction {
-  cleanliness_level: number
-  pet_id: string
-  owner_id: string
+    cleanliness_level: number
+    pet_id: string
+    owner_id: string
 }
 
 /**
@@ -272,9 +272,9 @@ export interface CleanedPetAction {
  * @event colyseus:action:played_pet
  */
 export interface PlayedPetAction {
-  happiness_level: number
-  pet_id: string
-  owner_id: string
+    happiness_level: number
+    pet_id: string
+    owner_id: string
 }
 
 /**
@@ -282,7 +282,7 @@ export interface PlayedPetAction {
  * @event colyseus:action:request_player_state
  */
 export interface RequestPlayerStateAction {
-  // Empty payload
+    // Empty payload
 }
 
 /**
@@ -290,7 +290,7 @@ export interface RequestPlayerStateAction {
  * @event colyseus:action:request_pets_state
  */
 export interface RequestPetsStateAction {
-  // Empty payload
+    // Empty payload
 }
 
 /**
@@ -298,7 +298,7 @@ export interface RequestPetsStateAction {
  * @event colyseus:action:get_store_catalog
  */
 export interface GetStoreCatalogAction {
-  // Empty payload
+    // Empty payload
 }
 
 /**
@@ -306,7 +306,7 @@ export interface GetStoreCatalogAction {
  * @event colyseus:action:get_inventory
  */
 export interface GetInventoryAction {
-  // Empty payload
+    // Empty payload
 }
 
 /**
@@ -314,7 +314,7 @@ export interface GetInventoryAction {
  * @event colyseus:action:cancel_purchase
  */
 export interface CancelPurchaseAction {
-  purchaseId: string
+    purchaseId: string
 }
 
 // ===== EVENT NAME CONSTANTS =====
@@ -325,48 +325,48 @@ export interface CancelPurchaseAction {
 export const ColyseusConnectionEvents = {
     Connected: "colyseus:connected",
     Disconnected: "colyseus:disconnected",
-    Error: "colyseus:error",
+    Error: "colyseus:error"
 } as const
 
 /**
  * Incoming message event names (Server → Client)
  */
 export enum ColyseusMessageEvents {
-  PurchaseResponse = "colyseus:message:purchase_response",
-  PurchaseItemResponse = "colyseus:message:purchase_item_response",
-  FeedPetResponse = "colyseus:message:feed_pet_response",
-  PlayPetResponse = "colyseus:message:play_pet_response",
-  CleanedPetResponse = "colyseus:message:cleaned_pet_response",
-  CreatePoopResponse = "colyseus:message:create_poop_response",
-  PlayerStateSync = "colyseus:message:player_state_sync",
-  PetsStateSync = "colyseus:message:pets_state_sync",
-  BuyPetResponse = "colyseus:message:buy_pet_response",
-  Welcome = "colyseus:message:welcome",
-  PoopCreated = "colyseus:message:poop_created",
-  ActionResponse = "colyseus:message:action_response",
+    PurchaseResponse = "colyseus:message:purchase_response",
+    PurchaseItemResponse = "colyseus:message:purchase_item_response",
+    FeedPetResponse = "colyseus:message:feed_pet_response",
+    PlayPetResponse = "colyseus:message:play_pet_response",
+    CleanedPetResponse = "colyseus:message:cleaned_pet_response",
+    CreatePoopResponse = "colyseus:message:create_poop_response",
+    PlayerStateSync = "colyseus:message:player_state_sync",
+    PetsStateSync = "colyseus:message:pets_state_sync",
+    BuyPetResponse = "colyseus:message:buy_pet_response",
+    Welcome = "colyseus:message:welcome",
+    PoopCreated = "colyseus:message:poop_created",
+    ActionResponse = "colyseus:message:action_response"
 }
 
 /**
  * Outgoing action event names (Client → Server)
  */
 export enum ColyseusActionEvents {
-  Send = "colyseus:action:send",
-  PurchaseItem = "colyseus:action:purchase_item",
-  BuyFood = "colyseus:action:buy_food",
-  FeedPet = "colyseus:action:feed_pet",
-  PlayWithPet = "colyseus:action:play_with_pet",
-  CleanPet = "colyseus:action:clean_pet",
-  BuyPet = "colyseus:action:buy_pet",
-  RemovePet = "colyseus:action:remove_pet",
-  CreatePoop = "colyseus:action:create_poop",
-  EatedFood = "colyseus:action:eated_food",
-  CleanedPet = "colyseus:action:cleaned_pet",
-  PlayedPet = "colyseus:action:played_pet",
-  RequestPlayerState = "colyseus:action:request_player_state",
-  RequestPetsState = "colyseus:action:request_pets_state",
-  GetStoreCatalog = "colyseus:action:get_store_catalog",
-  GetInventory = "colyseus:action:get_inventory",
-  CancelPurchase = "colyseus:action:cancel_purchase",
+    Send = "colyseus:action:send",
+    PurchaseItem = "colyseus:action:purchase_item",
+    BuyFood = "colyseus:action:buy_food",
+    FeedPet = "colyseus:action:feed_pet",
+    PlayWithPet = "colyseus:action:play_with_pet",
+    CleanPet = "colyseus:action:clean_pet",
+    BuyPet = "colyseus:action:buy_pet",
+    RemovePet = "colyseus:action:remove_pet",
+    CreatePoop = "colyseus:action:create_poop",
+    EatedFood = "colyseus:action:eated_food",
+    CleanedPet = "colyseus:action:cleaned_pet",
+    PlayedPet = "colyseus:action:played_pet",
+    RequestPlayerState = "colyseus:action:request_player_state",
+    RequestPetsState = "colyseus:action:request_pets_state",
+    GetStoreCatalog = "colyseus:action:get_store_catalog",
+    GetInventory = "colyseus:action:get_inventory",
+    CancelPurchase = "colyseus:action:cancel_purchase"
 }
 
 // ===== TYPE HELPERS =====
@@ -374,80 +374,77 @@ export enum ColyseusActionEvents {
 /**
  * Union type of all connection event payloads
  */
-export type ColyseusConnectionEventPayload =
-  | ColyseusConnectedEvent
-  | ColyseusDisconnectedEvent
-  | ColyseusErrorEvent
+export type ColyseusConnectionEventPayload = ColyseusConnectedEvent | ColyseusDisconnectedEvent | ColyseusErrorEvent
 
 /**
  * Union type of all incoming message event payloads
  */
 export type ColyseusMessageEventPayload =
-  | PurchaseResponseMessage
-  | PurchaseItemResponseMessage
-  | PetActionResponseMessage
-  | CreatePoopResponseMessage
-  | PlayerStateSyncMessage
-  | PetsStateSyncMessage
-  | BuyPetResponseMessage
-  | WelcomeMessage
-  | PoopCreatedMessage
+    | PurchaseResponseMessage
+    | PurchaseItemResponseMessage
+    | PetActionResponseMessage
+    | CreatePoopResponseMessage
+    | PlayerStateSyncMessage
+    | PetsStateSyncMessage
+    | BuyPetResponseMessage
+    | WelcomeMessage
+    | PoopCreatedMessage
 
 /**
  * Union type of all outgoing action event payloads
  */
 export type ColyseusActionEventPayload =
-  | ColyseusSendAction
-  | PurchaseItemAction
-  | BuyFoodAction
-  | FeedPetAction
-  | PlayWithPetAction
-  | CleanPetAction
-  | BuyPetAction
-  | RemovePetAction
-  | CreatePoopAction
-  | EatedFoodAction
-  | CleanedPetAction
-  | PlayedPetAction
-  | RequestPlayerStateAction
-  | RequestPetsStateAction
-  | GetStoreCatalogAction
-  | GetInventoryAction
-  | CancelPurchaseAction
+    | ColyseusSendAction
+    | PurchaseItemAction
+    | BuyFoodAction
+    | FeedPetAction
+    | PlayWithPetAction
+    | CleanPetAction
+    | BuyPetAction
+    | RemovePetAction
+    | CreatePoopAction
+    | EatedFoodAction
+    | CleanedPetAction
+    | PlayedPetAction
+    | RequestPlayerStateAction
+    | RequestPetsStateAction
+    | GetStoreCatalogAction
+    | GetInventoryAction
+    | CancelPurchaseAction
 
 /**
  * Event name to payload type mapping
  */
 export type ColyseusEventMap = {
-  [ColyseusConnectionEvents.Connected]: ColyseusConnectedEvent
-  [ColyseusConnectionEvents.Disconnected]: ColyseusDisconnectedEvent
-  [ColyseusConnectionEvents.Error]: ColyseusErrorEvent
-  [ColyseusMessageEvents.PurchaseResponse]: PurchaseResponseMessage
-  [ColyseusMessageEvents.PurchaseItemResponse]: PurchaseItemResponseMessage
-  [ColyseusMessageEvents.FeedPetResponse]: PetActionResponseMessage
-  [ColyseusMessageEvents.PlayPetResponse]: PetActionResponseMessage
-  [ColyseusMessageEvents.CleanedPetResponse]: PetActionResponseMessage
-  [ColyseusMessageEvents.CreatePoopResponse]: CreatePoopResponseMessage
-  [ColyseusMessageEvents.PlayerStateSync]: PlayerStateSyncMessage
-  [ColyseusMessageEvents.PetsStateSync]: PetsStateSyncMessage
-  [ColyseusMessageEvents.BuyPetResponse]: BuyPetResponseMessage
-  [ColyseusMessageEvents.Welcome]: WelcomeMessage
-  [ColyseusMessageEvents.PoopCreated]: PoopCreatedMessage
-  [ColyseusActionEvents.Send]: ColyseusSendAction
-  [ColyseusActionEvents.PurchaseItem]: PurchaseItemAction
-  [ColyseusActionEvents.BuyFood]: BuyFoodAction
-  [ColyseusActionEvents.FeedPet]: FeedPetAction
-  [ColyseusActionEvents.PlayWithPet]: PlayWithPetAction
-  [ColyseusActionEvents.CleanPet]: CleanPetAction
-  [ColyseusActionEvents.BuyPet]: BuyPetAction
-  [ColyseusActionEvents.RemovePet]: RemovePetAction
-  [ColyseusActionEvents.CreatePoop]: CreatePoopAction
-  [ColyseusActionEvents.EatedFood]: EatedFoodAction
-  [ColyseusActionEvents.CleanedPet]: CleanedPetAction
-  [ColyseusActionEvents.PlayedPet]: PlayedPetAction
-  [ColyseusActionEvents.RequestPlayerState]: RequestPlayerStateAction
-  [ColyseusActionEvents.RequestPetsState]: RequestPetsStateAction
-  [ColyseusActionEvents.GetStoreCatalog]: GetStoreCatalogAction
-  [ColyseusActionEvents.GetInventory]: GetInventoryAction
-  [ColyseusActionEvents.CancelPurchase]: CancelPurchaseAction
+    [ColyseusConnectionEvents.Connected]: ColyseusConnectedEvent
+    [ColyseusConnectionEvents.Disconnected]: ColyseusDisconnectedEvent
+    [ColyseusConnectionEvents.Error]: ColyseusErrorEvent
+    [ColyseusMessageEvents.PurchaseResponse]: PurchaseResponseMessage
+    [ColyseusMessageEvents.PurchaseItemResponse]: PurchaseItemResponseMessage
+    [ColyseusMessageEvents.FeedPetResponse]: PetActionResponseMessage
+    [ColyseusMessageEvents.PlayPetResponse]: PetActionResponseMessage
+    [ColyseusMessageEvents.CleanedPetResponse]: PetActionResponseMessage
+    [ColyseusMessageEvents.CreatePoopResponse]: CreatePoopResponseMessage
+    [ColyseusMessageEvents.PlayerStateSync]: PlayerStateSyncMessage
+    [ColyseusMessageEvents.PetsStateSync]: PetsStateSyncMessage
+    [ColyseusMessageEvents.BuyPetResponse]: BuyPetResponseMessage
+    [ColyseusMessageEvents.Welcome]: WelcomeMessage
+    [ColyseusMessageEvents.PoopCreated]: PoopCreatedMessage
+    [ColyseusActionEvents.Send]: ColyseusSendAction
+    [ColyseusActionEvents.PurchaseItem]: PurchaseItemAction
+    [ColyseusActionEvents.BuyFood]: BuyFoodAction
+    [ColyseusActionEvents.FeedPet]: FeedPetAction
+    [ColyseusActionEvents.PlayWithPet]: PlayWithPetAction
+    [ColyseusActionEvents.CleanPet]: CleanPetAction
+    [ColyseusActionEvents.BuyPet]: BuyPetAction
+    [ColyseusActionEvents.RemovePet]: RemovePetAction
+    [ColyseusActionEvents.CreatePoop]: CreatePoopAction
+    [ColyseusActionEvents.EatedFood]: EatedFoodAction
+    [ColyseusActionEvents.CleanedPet]: CleanedPetAction
+    [ColyseusActionEvents.PlayedPet]: PlayedPetAction
+    [ColyseusActionEvents.RequestPlayerState]: RequestPlayerStateAction
+    [ColyseusActionEvents.RequestPetsState]: RequestPetsStateAction
+    [ColyseusActionEvents.GetStoreCatalog]: GetStoreCatalogAction
+    [ColyseusActionEvents.GetInventory]: GetInventoryAction
+    [ColyseusActionEvents.CancelPurchase]: CancelPurchaseAction
 }

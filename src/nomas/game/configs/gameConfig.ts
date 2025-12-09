@@ -248,7 +248,9 @@ class GameConfigManager {
     }
 
     getCleaningItem(cleaningId: string): CleaningItem | undefined {
-        return this.config.cleaning.items.find((item) => item.id === cleaningId)
+        return this.config.cleaning.items.find(
+            (item) => item.displayId.toLocaleLowerCase() === cleaningId.toLocaleLowerCase()
+        )
     }
 
     getToyPrice(toyId: string = "ball"): number {
