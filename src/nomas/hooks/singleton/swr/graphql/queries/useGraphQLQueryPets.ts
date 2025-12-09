@@ -5,7 +5,7 @@ import { queryPets, type Pet } from "@/nomas/modules/api"
 
 export const useGraphQLQueryGetListPets = (): UseSWR<Pet[]> => {
     const swr = useSWR<Pet[]>(
-        "GET_PETS_LIST",
+        "QUERY_PETS",
         async () => {
             const response = await queryPets()
             const data = response?.data?.gamePets?.data

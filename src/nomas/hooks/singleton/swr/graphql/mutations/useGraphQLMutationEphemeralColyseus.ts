@@ -2,7 +2,7 @@ import {
     mutationEphemeralColyseusFn,
     type MutationEphemeralColyseusParams,
     type RequestColyseusEphemeralJwtResponse
-} from "@/nomas/modules/api/graphql/mutations/mutation-ephemeral-colyseus"
+} from "@/nomas/modules/api"
 import type { UseSWRMutation } from "../../types"
 import { v4 } from "uuid"
 import useSWRMutation from "swr/mutation"

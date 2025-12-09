@@ -1,20 +1,17 @@
+import { v4 } from "uuid"
 import useSWRMutation from "swr/mutation"
 import type { UseSWRMutation } from "../../types"
-import type {
-    RequestSignatureInput,
-    RequestSignatureResponse
-} from "@/nomas/modules/api/graphql/queries/query-request-signature"
-import { queryRequestSignature } from "@/nomas/modules/api/graphql/queries/query-request-signature"
+import { queryRequestSignature, type RequestSignatureInput, type RequestSignatureResponse } from "@/nomas/modules/api"
 
-export type UseGraphQLQueryRequestSignatureArgs = RequestSignatureInput
+export type UseGraphQLMutationRequestSignatureArgs = RequestSignatureInput
 
-export const useGraphQLQueryRequestSignature = (): UseSWRMutation<
+export const useGraphQLMutationRequestSignature = (): UseSWRMutation<
     RequestSignatureResponse,
-    UseGraphQLQueryRequestSignatureArgs
+    UseGraphQLMutationRequestSignatureArgs
 > => {
     const swrMutation = useSWRMutation(
-        "REQUEST_SIGNATURE",
-        async (_: string, extraArgs: { arg: UseGraphQLQueryRequestSignatureArgs }) => {
+        v4(),
+        async (_: string, extraArgs: { arg: UseGraphQLMutationRequestSignatureArgs }) => {
             const params = { ...extraArgs.arg }
             const result = await queryRequestSignature({ request: params })
             const data = result.data?.requestSignature?.data

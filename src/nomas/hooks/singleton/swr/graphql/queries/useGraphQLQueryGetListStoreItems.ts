@@ -5,7 +5,7 @@ import { queryStoreItems, type StoreItem } from "@/nomas/modules/api"
 
 export const useGraphQLQueryGetListStoreItems = (): UseSWR<StoreItem[]> => {
     const swr = useSWR<StoreItem[]>(
-        "GET_STORE_ITEMS",
+        "QUERY_STORE_ITEMS",
         async () => {
             const response = await queryStoreItems()
             const data = response?.data?.gameStoreItems?.data

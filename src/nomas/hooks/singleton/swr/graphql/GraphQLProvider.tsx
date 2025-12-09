@@ -1,17 +1,16 @@
 import { createContext, type PropsWithChildren } from "react"
-import { useGraphQLQueryGetListStoreItems } from "./queries/useGraphQLQueryGetListStoreItems"
+import { useGraphQLQueryGetListStoreItems, useGraphQLQueryGetListPets } from "./queries"
 import {
     useGraphQLMutationEphemeralColyseusSwrMutation,
+    useGraphQLMutationRequestSignature,
     useGraphQLMutationVerifyMessageSwrMutation
-} from "@/nomas/hooks/singleton/swr/graphql/mutations"
-import { useGraphQLQueryRequestSignature } from "./queries/useGraphQLQueryRequestSignature"
-import { useGraphQLQueryGetListPets } from "./queries/useGraphQLQueryPets"
+} from "./mutations"
 
 export interface GraphQLContextType {
     getListStoreItems: ReturnType<typeof useGraphQLQueryGetListStoreItems>
     getListPets: ReturnType<typeof useGraphQLQueryGetListPets>
     verifyMessage: ReturnType<typeof useGraphQLMutationVerifyMessageSwrMutation>
-    requestSignature: ReturnType<typeof useGraphQLQueryRequestSignature>
+    requestSignature: ReturnType<typeof useGraphQLMutationRequestSignature>
     requestColyseusEphemeralJwt: ReturnType<typeof useGraphQLMutationEphemeralColyseusSwrMutation>
 }
 
@@ -21,7 +20,7 @@ export const GraphQLProvider = ({ children }: PropsWithChildren) => {
     const getListStoreItems = useGraphQLQueryGetListStoreItems()
     const getListPets = useGraphQLQueryGetListPets()
     const verifyMessage = useGraphQLMutationVerifyMessageSwrMutation()
-    const requestSignature = useGraphQLQueryRequestSignature()
+    const requestSignature = useGraphQLMutationRequestSignature()
     const requestColyseusEphemeralJwt = useGraphQLMutationEphemeralColyseusSwrMutation()
     return (
         <GraphQLContext.Provider
