@@ -127,9 +127,9 @@ export const assetsConfig = () => {
         game: {
             petRisingStoreLogo: getUrl("/assets/game/game-ui/pet-rising.png"),
             nomasCoin: getUrl("/assets/game/coin/nomas-token.png"),
-            bgHome: getUrl("/assets/game/building/bg-home.png"),
-            shop: getUrl("/assets/game/building/shop.png"),
-            home: getUrl("/assets/game/building/home.png")
+            bgHome: getUrl("/assets/game/building/bg-home.webp"),
+            shop: getUrl("/assets/game/building/shop.webp"),
+            home: getUrl("/assets/game/building/home.webp")
         }
     }
 }

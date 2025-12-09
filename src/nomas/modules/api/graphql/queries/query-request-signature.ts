@@ -28,7 +28,7 @@ export interface RequestSignatureInput {
 
 export interface RequestSignatureResponse {
     signature: string
-    message: string // Message cần ký (JSON string với nonce)
+    message: string
     publicKey: string
     accountAddress: string
 }

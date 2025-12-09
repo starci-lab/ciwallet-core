@@ -20,7 +20,7 @@ const getUrl = (path: string) => {
 // All assets are now loaded from the public/ folder (served at "/")
 
 export const loadChogAssets = (scene: Phaser.Scene) => {
-    scene.load.image("chog-avatar", getUrl("Chog/chog_avatar.png"))
+    scene.load.image("chog-avatar", getUrl("Chog/chog.png"))
     scene.load.atlas("dog-sleep", getUrl("Chog/chog_sleep.png"), getUrl("Chog/chog_sleep.json"))
     scene.load.atlas("dog-play", getUrl("Chog/chog_idleplay.png"), getUrl("Chog/chog_idleplay.json"))
     scene.load.atlas("dog-chew", getUrl("Chog/chog_chew.png"), getUrl("Chog/chog_chew.json"))
