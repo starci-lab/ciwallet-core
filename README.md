@@ -48,15 +48,17 @@ npm install @ciwallet-sdk/core
 ## 🚀 Sử dụng cơ bản
 
 ```typescript
-import { EvmWallet, SolanaWallet, ChainId, Network } from '@ciwallet-sdk/core';
+import { EvmWallet, SolanaWallet } from '@ciwallet-sdk/core';
 
 // Tạo ví EVM từ mnemonic
 const evmWallet = new EvmWallet();
 const wallet = evmWallet.fromMnemonic('your mnemonic phrase here');
+console.log(wallet.accountAddress); // Địa chỉ ví EVM
 
 // Tạo ví Solana
 const solanaWallet = new SolanaWallet();
 const solWallet = solanaWallet.fromMnemonic('your mnemonic phrase here');
+console.log(solWallet.accountAddress); // Địa chỉ ví Solana
 ```
 
 ## 🏗️ Cấu trúc dự án
@@ -93,11 +95,11 @@ npm run lint
 - **Framework**: React 19 + TypeScript
 - **Build Tools**: Vite, Webpack
 - **Blockchain SDKs**: 
-  - ethers.js (EVM)
+  - ethers.js (EVM chains)
   - @solana/web3.js (Solana)
   - @mysten/sui (Sui)
   - @aptos-labs/ts-sdk (Aptos)
-  - xrpl (XRP)
+  - bitcoinjs-lib / tiny-secp256k1 (Bitcoin)
 - **State Management**: Redux Toolkit với Redux Persist
 - **UI**: Radix UI + Tailwind CSS
 - **Database**: Dexie (IndexedDB wrapper)
