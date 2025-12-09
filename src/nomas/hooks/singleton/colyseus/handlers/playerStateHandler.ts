@@ -1,5 +1,6 @@
 import { ColyseusMessageEvents, type PlayerStateSyncMessage } from "@/nomas/game/colyseus/events"
-import { setNomToken } from "@/nomas/redux"
+import { setNomToken, setOwnedItems } from "@/nomas/redux"
+import type { OwnedItem } from "@/nomas/redux"
 import type { MessageHandlerConfig } from "./types"
 
 /**
@@ -104,6 +105,41 @@ const extractPlayerTokens = (message: PlayerStateMessageFormat): number | undefi
 }
 
 /**
+ * Extract inventory items from player state message
+ */
+const extractInventoryItems = (message: PlayerStateMessageFormat): OwnedItem[] | undefined => {
+    const inventorySource =
+        // player-state-response format
+        (isPlayerStateResponseFormat(message) && message.data?.player?.inventory) ||
+        // nested data format
+        (hasNestedData(message) && (message.data as Record<string, unknown>)?.inventory) ||
+        // flat message format
+        (typeof message === "object" && message !== null && (message as Record<string, unknown>)?.inventory)
+
+    if (!inventorySource || typeof inventorySource !== "object") {
+        return undefined
+    }
+
+    // inventorySource is expected to be a map/dictionary of InventoryItem-like objects
+    const items: OwnedItem[] = []
+    Object.values(inventorySource as Record<string, unknown>).forEach((entry) => {
+        if (typeof entry === "object" && entry !== null) {
+            const item = entry as Record<string, unknown>
+            const itemId = typeof item.itemId === "string" ? item.itemId : undefined
+            const itemType = typeof item.itemType === "string" ? item.itemType : undefined
+            const quantity = typeof item.quantity === "number" ? item.quantity : undefined
+            const itemName = typeof item.itemName === "string" ? item.itemName : undefined
+
+            if (itemId && itemType && quantity !== undefined) {
+                items.push({ itemId, itemType, quantity, itemName })
+            }
+        }
+    })
+
+    return items
+}
+
+/**
  * Handle player state synchronization
  * Handles both player_state_sync and player-state-response messages
  */
@@ -111,11 +147,16 @@ export const playerStateHandler: MessageHandlerConfig<PlayerStateSyncMessage> = 
     event: ColyseusMessageEvents.PlayerStateSync,
     handler: (message, dispatch) => {
         const tokens = extractPlayerTokens(message)
+        const ownedItems = extractInventoryItems(message)
 
         if (tokens !== undefined) {
             dispatch(setNomToken(tokens))
         } else {
             console.warn("⚠️ [useColyseusReduxSync] No tokens found in message:", message)
+        }
+
+        if (ownedItems) {
+            dispatch(setOwnedItems(ownedItems))
         }
     }
 }

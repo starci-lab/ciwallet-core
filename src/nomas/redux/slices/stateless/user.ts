@@ -1,16 +1,26 @@
 import { AuthDB } from "@/nomas/utils/idb"
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
+import type { RootState } from "@/nomas/redux"
+
+export interface OwnedItem {
+    itemId: string
+    itemType: string
+    quantity: number
+    itemName?: string
+}
 
 export interface UserSlice {
     addressWallet: string
     nomToken: number
     isAuthenticated: boolean
+    ownedItems: OwnedItem[]
 }
 
 const initialState: UserSlice = {
     addressWallet: "",
     nomToken: 10000,
-    isAuthenticated: false
+    isAuthenticated: false,
+    ownedItems: []
 }
 
 export const loadUserFromStorage = createAsyncThunk("user/loadFromStorage", async () => {
@@ -42,6 +52,9 @@ export const userSlice = createSlice({
         },
         setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
             state.isAuthenticated = action.payload
+        },
+        setOwnedItems: (state, action: PayloadAction<OwnedItem[]>) => {
+            state.ownedItems = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -54,4 +67,10 @@ export const userSlice = createSlice({
 
 export const userReducer = userSlice.reducer
 
-export const { setAddressWallet, setNomToken, spendToken, setIsAuthenticated, addToken } = userSlice.actions
+export const { setAddressWallet, setNomToken, spendToken, setIsAuthenticated, addToken, setOwnedItems } =
+    userSlice.actions
+
+// Selectors
+export const selectOwnedItems = (state: RootState) => state.stateless.user.ownedItems
+export const selectOwnedItemsByType = (state: RootState, itemType: string) =>
+    state.stateless.user.ownedItems.filter((item) => item.itemType === itemType)

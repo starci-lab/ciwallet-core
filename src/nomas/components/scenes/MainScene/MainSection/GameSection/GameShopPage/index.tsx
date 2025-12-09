@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { eventBus } from "@/nomas/game/event-bus"
 import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
@@ -35,19 +35,36 @@ export const GameShopPage = () => {
 
     // Get balance from Redux
     const balance = useAppSelector((state) => state.stateless.user.nomToken)
+    const ownedItems = useAppSelector((state) => state.stateless.user.ownedItems)
+    console.log("ownedItems", ownedItems)
     const assets = assetsConfig().game
 
     // Tabs container ref for scrolling
     const tabsContainerRef = useRef<HTMLDivElement | null>(null)
 
-    const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
-        const effectiveCategory = cat === "items" ? detectItemType(shopItem) : (cat as string)
-        return getShopItemAssetPath(effectiveCategory, shopItem)
-    }
-
     const detectItemType = (
         shopItem: ShopItem
     ): "food" | "toy" | "clean" | "pets" | "background" | "backgrounds" | "furniture" => {
+        // Prefer explicit store item type when available
+        const storeType = (shopItem as { type?: string }).type
+        switch (storeType) {
+            case "food":
+                return "food"
+            case "toy":
+                return "toy"
+            case "clean":
+                return "clean"
+            case "furniture":
+                return "furniture"
+            case "background":
+                return "background"
+            case "pet":
+                return "pets"
+            default:
+                break
+        }
+
+        // Fallback heuristics based on effect fields
         if ((shopItem as { hungerRestore?: number }).hungerRestore !== undefined) {
             return "food"
         }
@@ -57,13 +74,93 @@ export const GameShopPage = () => {
         if ((shopItem as { cleanlinessRestore?: number }).cleanlinessRestore !== undefined) {
             return "clean"
         }
-        if ((shopItem as { theme?: string }).theme !== undefined) {
-            return "background"
-        }
-        if ((shopItem as { species?: string }).species !== undefined) {
-            return "pets"
-        }
         return "furniture"
+    }
+
+    const getPurchaseItemIds = (shopItem: ShopItem): string[] => {
+        const type = detectItemType(shopItem)
+        const nameLc = shopItem.name ? shopItem.name.toLowerCase() : undefined
+        switch (type) {
+            case "food":
+                return [
+                    String((shopItem as FoodItem).displayId ?? (shopItem as FoodItem).id ?? shopItem.name),
+                    nameLc
+                ].filter(Boolean) as string[]
+            case "toy":
+                return [
+                    (shopItem as ToyItem).id ?? (shopItem as ToyItem).displayId?.toLocaleLowerCase() ?? shopItem.name,
+                    nameLc
+                ]
+                    .filter(Boolean)
+                    .map(String)
+            case "clean":
+                return [
+                    (shopItem as CleaningItem).id ??
+                        (shopItem as CleaningItem).displayId?.toLocaleLowerCase() ??
+                        shopItem.name,
+                    nameLc
+                ]
+                    .filter(Boolean)
+                    .map(String)
+            case "furniture":
+                return [String((shopItem as FurnitureItem).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
+            case "background":
+            case "backgrounds":
+                return [String((shopItem as BackgroundItem).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
+            case "pets":
+                return [String((shopItem as PetItem).displayId ?? shopItem.name), nameLc].filter(Boolean) as string[]
+            default:
+                return [String((shopItem as { id?: string }).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
+        }
+    }
+
+    const ownedByType = useMemo(() => {
+        const map: Record<string, Set<string>> = {}
+        ownedItems.forEach((item) => {
+            const typeKey = item.itemType.toLowerCase()
+            const altKeys =
+                typeKey === "backgrounds"
+                    ? ["background", "backgrounds"]
+                    : typeKey === "background"
+                      ? ["background", "backgrounds"]
+                      : [typeKey]
+
+            const idValue = String(item.itemId).toLowerCase()
+            const nameValue = item.itemName ? item.itemName.toLowerCase() : undefined
+
+            altKeys.forEach((k) => {
+                if (!map[k]) {
+                    map[k] = new Set()
+                }
+                map[k].add(idValue)
+                if (nameValue) {
+                    map[k].add(nameValue)
+                }
+            })
+        })
+        return map
+    }, [ownedItems])
+
+    const isItemOwned = (shopItem: ShopItem): boolean => {
+        const type = detectItemType(shopItem)
+        const ids = getPurchaseItemIds(shopItem)
+        // Backgrounds may be keyed as "background" in inventory while tab key is "backgrounds"
+        const typeKeys =
+            type === "backgrounds"
+                ? ["background", "backgrounds"]
+                : type === "background"
+                  ? ["background", "backgrounds"]
+                  : [type]
+        return typeKeys.some((t) => {
+            const set = ownedByType[t]
+            if (!set) return false
+            return ids.some((id) => set.has(id.toLowerCase()))
+        })
+    }
+
+    const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
+        const effectiveCategory = cat === "items" ? detectItemType(shopItem) : (cat as string)
+        return getShopItemAssetPath(effectiveCategory, shopItem)
     }
 
     useEffect(() => {
@@ -192,7 +289,7 @@ export const GameShopPage = () => {
             <NomasCardBody className="relative w-full min-h-[500px]">
                 <div className="w-full h-full bg-card-dark-3 flex flex-col radius-card-inner">
                     {/* Header */}
-                    <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted rounded-t-[var(--card-radius-inner)]">
+                    <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted rounded-t-(--card-radius-inner)">
                         {/* Back/Close Button */}
                         <button
                             onClick={handleClose}
@@ -284,44 +381,57 @@ export const GameShopPage = () => {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-3 gap-2">
-                                    {items.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            onClick={() => handleBuy(item)}
-                                            className="group bg-shop-item border border-shop-item
+                                    {items.map((item) => {
+                                        const owned = isItemOwned(item)
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                onClick={() => {
+                                                    if (owned) return
+                                                    handleBuy(item)
+                                                }}
+                                                className="group bg-shop-item border border-shop-item
                              rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center
-                             gap-1.5 cursor-pointer opacity-100
+                             gap-1.5 cursor-pointer
                              shadow-shop-item hover:bg-shop-item-hover
                              transition-all duration-200"
-                                        >
-                                            {/* Item Image */}
-                                            <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
-                                                <img
-                                                    src={getUrl(getItemImageSrc(category, item))}
-                                                    className="w-full h-full object-cover object-[0%_50%]"
-                                                    style={{
-                                                        // For cleaning sprite sheets, show only leftmost section
-                                                        maxWidth:
-                                                            category === "clean" || detectItemType(item) === "clean"
-                                                                ? "calc(100% * 6)"
-                                                                : "100%",
-                                                        transform:
-                                                            category === "clean" || detectItemType(item) === "clean"
-                                                                ? "translateX(0)"
-                                                                : "none"
-                                                    }}
-                                                />
-                                            </div>
+                                                style={{
+                                                    opacity: owned ? 0.5 : 1,
+                                                    cursor: owned ? "not-allowed" : "pointer"
+                                                }}
+                                            >
+                                                {/* Item Image */}
+                                                <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
+                                                    <img
+                                                        src={getUrl(getItemImageSrc(category, item))}
+                                                        className="w-full h-full object-cover object-[0%_50%]"
+                                                        style={{
+                                                            // For cleaning sprite sheets, show only leftmost section
+                                                            maxWidth:
+                                                                category === "clean" || detectItemType(item) === "clean"
+                                                                    ? "calc(100% * 6)"
+                                                                    : "100%",
+                                                            transform:
+                                                                category === "clean" || detectItemType(item) === "clean"
+                                                                    ? "translateX(0)"
+                                                                    : "none"
+                                                        }}
+                                                    />
+                                                </div>
 
-                                            {/* Item Info */}
-                                            <div className="font-semibold text-[13px] text-muted text-center">
-                                                {item.name}
+                                                {/* Item Info */}
+                                                <div className="font-semibold text-[13px] text-muted text-center">
+                                                    {item.name}
+                                                </div>
+                                                <div className="text-xs text-muted flex items-center gap-1">
+                                                    <span>{Number(item.cost_nom ?? 0).toLocaleString()} NOM</span>
+                                                    {owned && (
+                                                        <span className="text-[10px] text-green-300">(Owned)</span>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-muted">
-                                                {Number(item.cost_nom ?? 0).toLocaleString()} NOM
-                                            </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             )}
                         </div>
