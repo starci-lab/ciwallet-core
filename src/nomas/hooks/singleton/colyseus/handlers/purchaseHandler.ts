@@ -10,10 +10,8 @@ import type { MessageHandlerConfig } from "./types"
 export const purchaseHandler: MessageHandlerConfig<PurchaseResponse> = {
     event: ColyseusMessageEvents.PurchaseResponse,
     handler: (message, dispatch) => {
-        if (message.newTokenBalance !== undefined) {
-            dispatch(setNomToken(message.newTokenBalance))
-        } else {
-            console.warn("⚠️ No tokens found", message)
+        if (message.data?.newTokenBalance !== undefined) {
+            dispatch(setNomToken(message.data.newTokenBalance))
         }
     }
 }
@@ -21,13 +19,11 @@ export const purchaseHandler: MessageHandlerConfig<PurchaseResponse> = {
 /**
  * Handle purchase_item_response to sync tokens
  * Supports both flat and nested message formats
- */
-export const purchaseItemHandler: MessageHandlerConfig<PurchaseResponse> = {
+ */ export const purchaseItemHandler: MessageHandlerConfig<PurchaseResponse> = {
     event: ColyseusMessageEvents.PurchaseItemResponse,
     handler: (message, dispatch) => {
-        if (message.newTokenBalance !== undefined) {
-            dispatch(setNomToken(message.newTokenBalance))
+        if (message.data?.newTokenBalance !== undefined) {
+            dispatch(setNomToken(message.data.newTokenBalance))
         }
     }
 }
-
