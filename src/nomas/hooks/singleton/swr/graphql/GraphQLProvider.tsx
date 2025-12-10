@@ -1,7 +1,8 @@
-import { createContext, type PropsWithChildren } from "react"
-import { useGraphQLQueryGetListStoreItems, useGraphQLQueryGetListPets, useGraphQLQueryRequestMessage } from "./queries"
+import { createContext, useContext, type PropsWithChildren } from "react"
+import { useGraphQLQueryGetListStoreItems, useGraphQLQueryGetListPets } from "./queries"
 import {
     useGraphQLMutationEphemeralColyseusSwrMutation,
+    useGraphQLMutationRequestMessage,
     useGraphQLMutationRequestSignature,
     useGraphQLMutationVerifyMessageSwrMutation
 } from "./mutations"
@@ -12,7 +13,7 @@ export interface GraphQLContextType {
     verifyMessage: ReturnType<typeof useGraphQLMutationVerifyMessageSwrMutation>
     requestSignature: ReturnType<typeof useGraphQLMutationRequestSignature>
     requestColyseusEphemeralJwt: ReturnType<typeof useGraphQLMutationEphemeralColyseusSwrMutation>
-    requestMessage: ReturnType<typeof useGraphQLQueryRequestMessage>
+    requestMessage: ReturnType<typeof useGraphQLMutationRequestMessage>
 }
 
 export const GraphQLContext = createContext<GraphQLContextType | null>(null)
@@ -23,7 +24,7 @@ export const GraphQLProvider = ({ children }: PropsWithChildren) => {
     const verifyMessage = useGraphQLMutationVerifyMessageSwrMutation()
     const requestSignature = useGraphQLMutationRequestSignature()
     const requestColyseusEphemeralJwt = useGraphQLMutationEphemeralColyseusSwrMutation()
-    const requestMessage = useGraphQLQueryRequestMessage()
+    const requestMessage = useGraphQLMutationRequestMessage()
     return (
         <GraphQLContext.Provider
             value={{
@@ -38,4 +39,12 @@ export const GraphQLProvider = ({ children }: PropsWithChildren) => {
             {children}
         </GraphQLContext.Provider>
     )
+}
+
+export const useGraphQL = () => {
+    const context = useContext(GraphQLContext)
+    if (!context) {
+        throw new Error("GraphQLContext not found")
+    }
+    return context
 }
