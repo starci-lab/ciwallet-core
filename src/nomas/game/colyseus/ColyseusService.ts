@@ -34,7 +34,8 @@ import {
     type RequestPetsStateAction,
     type GetStoreCatalogAction,
     type GetInventoryAction,
-    type CancelPurchaseAction
+    type CancelPurchaseAction,
+    type ColyseusConnectedEvent
 } from "@/nomas/game/colyseus/events"
 
 /**
@@ -145,7 +146,7 @@ export class ColyseusService {
         })
 
         // Listen for room connection/disconnection
-        eventBus.on(ColyseusConnectionEvents.Connected, (event) => {
+        eventBus.on(ColyseusConnectionEvents.Connected, (event: ColyseusConnectedEvent) => {
             console.log("[ColyseusService] Room connected:", event.roomId)
             // Room will be set via setRoom() from React hook
         })

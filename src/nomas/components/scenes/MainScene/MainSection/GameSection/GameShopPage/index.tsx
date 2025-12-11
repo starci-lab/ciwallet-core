@@ -39,7 +39,6 @@ export const GameShopPage = () => {
     const balance = useAppSelector((state) => state.stateless.user.nomToken)
     const ownedItems = useAppSelector((state) => state.stateless.user.ownedItems)
     const currentBackgroundId = useAppSelector(selectCurrentBackground)
-    console.log("ownedItems", ownedItems)
     const assets = assetsConfig().game
 
     // Tabs container ref for scrolling

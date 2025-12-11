@@ -20,8 +20,6 @@ export class InputManager {
     }
 
     setupInputHandlers() {
-        console.log("⌨️ Setting up input handlers...")
-
         // Track click timing for double click detection
         let lastClickTime = 0
         const DOUBLE_CLICK_THRESHOLD = 300 // ms
@@ -96,11 +94,6 @@ export class InputManager {
                 this.handleSingleClick(pointer.x, pointer.y)
             }
         })
-
-        // Note: Custom cursor is now handled by CustomCursorManager
-        // which tracks mouse movement globally, so no need for pointermove listener here
-
-        console.log("✅ Input handlers set up successfully")
     }
 
     private handlePetInteraction(x: number, y: number) {

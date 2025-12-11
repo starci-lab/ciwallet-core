@@ -22,10 +22,6 @@ import {
     type ColyseusErrorEvent
 } from "@/nomas/game/colyseus/events"
 import { AuthDB } from "@/nomas/utils/idb"
-import {
-    mutationEphemeralColyseusFn,
-    type RequestColyseusEphemeralJwtInput
-} from "@/nomas/modules/api/graphql/mutations/mutation-ephemeral-colyseus"
 
 /**
  * Connection state interface
@@ -79,8 +75,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
         setError(null)
 
         try {
-            console.log("🔄 [useColyseusConnection] Connecting to:", backendUrl)
-
             // Get addressWallet from Redux store (only for connection, not user state)
             // User state (tokens, inventory, etc.) will be fetched from server after connection
             const userState = store.getState().stateless.user
@@ -132,11 +126,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
             setIsConnected(true)
             setError(null)
 
-            console.log("✅ [useColyseusConnection] Connected!", {
-                roomId: room.roomId,
-                sessionId: room.sessionId
-            })
-
             // Emit connected event first
             const connectedEvent: ColyseusConnectedEvent = {
                 roomId: room.roomId,
@@ -173,11 +162,8 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
     const attachRoom = useCallback((room: Room<GameRoomState>) => {
         // Avoid re-attaching if same room
         if (roomRef.current === room) {
-            console.log("[useColyseusConnection] Room already attached")
             return
         }
-
-        console.log("[useColyseusConnection] Attaching room:", room.roomId)
 
         // Update refs and state
         roomRef.current = room
@@ -202,8 +188,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
         const room = roomRef.current
 
         if (room) {
-            console.log("[useColyseusConnection] Disconnecting from room:", room.roomId)
-
             // Leave room
             room.leave()
 
@@ -240,7 +224,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
             }
 
             try {
-                console.log(`[useColyseusConnection] Sending: ${type}`, data)
                 room.send(type, data)
             } catch (err) {
                 const error = err instanceof Error ? err : new Error(String(err) || "Failed to send message")
@@ -261,7 +244,7 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
         // Handle room errors (message is optional in Colyseus.js)
         const handleRoomError = (code: number, message?: string) => {
             const errorMessage = message || `Room error code: ${code}`
-            console.error("❌ [useColyseusConnection] Room error:", code, errorMessage)
+            console.error("[useColyseusConnection] Room error:", code, errorMessage)
             const errorEvent: ColyseusErrorEvent = { code, message: errorMessage }
             eventBus.emit(ColyseusConnectionEvents.Error, errorEvent)
             setError(new Error(`Room error: ${errorMessage} (${code})`))
@@ -269,7 +252,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
 
         // Handle room leave
         const handleLeave = (code: number) => {
-            console.log("👋 [useColyseusConnection] Left room:", code)
             const disconnectedEvent: ColyseusDisconnectedEvent = { code }
             eventBus.emit(ColyseusConnectionEvents.Disconnected, disconnectedEvent)
 
@@ -298,7 +280,6 @@ export const useColyseusConnection = (): UseColyseusConnectionReturn => {
         return () => {
             const room = roomRef.current
             if (room) {
-                console.log("🧹 [useColyseusConnection] Cleaning up on unmount")
                 room.leave()
             }
         }

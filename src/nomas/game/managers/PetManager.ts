@@ -66,8 +66,6 @@ export class PetManager {
     private setupEventListeners() {
         // Listen for pets state sync from server
         const handlePetsSync = (message: PetsStateSyncMessage) => {
-            console.debug("🔄 [PetManager] Pets state sync received:", message)
-
             // Support nested shape under `data` or flat message
             const payload = message && typeof message === "object" && "data" in message ? message.data : message
 
@@ -864,10 +862,6 @@ export class PetManager {
         this.sharedDroppedFood.splice(index, 1)
         this.sharedFoodShadows.splice(index, 1)
         this.sharedFoodTimers.splice(index, 1)
-
-        // No additional handling needed; the assigned pet (if any) was already forced back to walk
-
-        console.log("Shared food removed at index:", index)
     }
 
     // Remove shared ball at specific index
@@ -1269,8 +1263,6 @@ export class PetManager {
         }
 
         if (foodIndex !== -1) {
-            console.log(`🍔 Pet ${petData.id} reached food at index ${foodIndex}`)
-
             // Release food target for this pet immediately
             this.releaseFoodTarget(petData.id)
 
@@ -1482,7 +1474,6 @@ export class PetManager {
         for (const [food, chasingPetId] of this.foodTargets.entries()) {
             if (chasingPetId === petId) {
                 this.foodTargets.delete(food)
-                console.log(`Pet ${petId} released food target`)
                 break
             }
         }
