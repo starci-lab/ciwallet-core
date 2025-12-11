@@ -10,7 +10,7 @@ import {
     type PetsStateSyncMessage,
     type BuyPetResponseMessage
 } from "@/nomas/game/colyseus/events"
-import { GamePositioning, GAME_MECHANICS, GAME_LAYOUT } from "@/nomas/game/constants/gameConstants"
+import { GamePositioning, GAME_MECHANICS, GAME_LAYOUT } from "@/nomas/game/constants"
 import { addToken, store } from "@/nomas/redux"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { eventBus } from "@/nomas/game/event-bus"
@@ -66,7 +66,7 @@ export class PetManager {
     private setupEventListeners() {
         // Listen for pets state sync from server
         const handlePetsSync = (message: PetsStateSyncMessage) => {
-            console.log("🔄 [PetManager] Pets state sync received:", message)
+            console.debug("🔄 [PetManager] Pets state sync received:", message)
 
             // Support nested shape under `data` or flat message
             const payload = message && typeof message === "object" && "data" in message ? message.data : message
@@ -74,7 +74,6 @@ export class PetManager {
             const pets = payload?.pets || message.pets
 
             if (pets && Array.isArray(pets)) {
-                console.log(`🐕 [PetManager] Syncing ${pets.length} pets from server`)
                 this.syncPetsFromServer(pets)
             }
         }
@@ -94,7 +93,6 @@ export class PetManager {
                     }
                 } else {
                     // If no pets in response, request pets state from server
-                    console.log("🔄 [PetManager] No pets in response, requesting pets state")
                     this.requestPetsState()
 
                     // Show success notification anyway
@@ -168,9 +166,8 @@ export class PetManager {
                     existingPet.happinessSystem.happinessLevel = pet.happiness
                 }
 
-                // // ✅ NEW: Sync poops from server if provided
+                // Sync poops from server if provided
                 if (pet.poops && Array.isArray(pet.poops)) {
-                    console.log(`💩 [PetManager] Syncingfsdfdf ${pet.poops.length} poops for pet ${petId}`)
                     existingPet.cleanlinessSystem.syncPoops(pet.poops)
                 }
             } else {
@@ -193,9 +190,8 @@ export class PetManager {
                         newPet.happinessSystem.happinessLevel = pet.happiness
                     }
 
-                    // // ✅ NEW: Sync poops from server if provided
+                    // Sync poops from server if provided
                     if (pet.poops && Array.isArray(pet.poops)) {
-                        console.log(`💩 [PetManager] Syncing ${pet.poops.length} poops for new pet ${petId}`)
                         newPet.cleanlinessSystem.syncPoops(pet.poops)
                     }
                 }
@@ -204,10 +200,9 @@ export class PetManager {
     }
 
     /**
-     * Tạo pet entity local (chỉ render, không gửi event mua pet)
+     * Create pet entity local (only render, no send event buy pet)
      */
     createPet(petId: string, x: number, y: number, petType: string = "chog"): PetData {
-        console.log(`🐕 Creating pet entity: ${petId} (type: ${petType})`)
         const pet = new Pet(this.scene, petType)
         pet.createAnimations()
         pet.create(x, y)
@@ -256,10 +251,15 @@ export class PetManager {
     }
 
     private getRandomSpawnPosition(): { x: number; y: number } {
+        const cameraWidth = this.scene.cameras.main.width
+        const cameraHeight = this.scene.cameras.main.height
+
         const minX = 100,
-            maxX = 700
-        const minY = 200,
-            maxY = 500
+            maxX = Math.min(700, cameraWidth - 100)
+        // Use camera height to calculate appropriate Y positions
+        // Pets should spawn in the lower 60% of the screen, but not too close to bottom
+        const minY = cameraHeight * 0.3
+        const maxY = cameraHeight * 0.9
 
         return {
             x: Phaser.Math.Between(minX, maxX),
@@ -326,7 +326,6 @@ export class PetManager {
     setActivePet(petId: string): boolean {
         if (this.pets.has(petId)) {
             this.activePetId = petId
-            console.log(`🎯 Active pet changed to: ${petId}`)
 
             // Update visual indicators for all pets
             this.updatePetVisualStates()
@@ -427,10 +426,9 @@ export class PetManager {
      */
     requestPetsState(): void {
         if (colyseusService.isConnected()) {
-            console.log("📤 [PetManager] Requesting pets state from server")
             colyseusService.requestPetsState()
         } else {
-            console.warn("⚠️ [PetManager] Cannot request pets state - not connected")
+            console.warn("[PetManager] Cannot request pets state - not connected")
         }
     }
 
@@ -573,12 +571,8 @@ export class PetManager {
     // Update all pets
     update(): void {
         for (const petData of this.pets.values()) {
-            const previousActivity = petData.pet.currentActivity
-            const previousX = petData.pet.sprite.x
-            const previousY = petData.pet.sprite.y
-
-            // Update movement
-            const movementResult = petData.movementSystem.update()
+            // Update movement system first (handles pet movement and edge detection)
+            petData.movementSystem.update()
 
             // Always attempt to eat based on current position (even if not exactly at target)
             this.checkSharedFoodEating(petData, petData.pet.sprite.x, petData.pet.sprite.y)
@@ -1740,16 +1734,16 @@ export class PetManager {
         })
 
         // Update balls/toys
-        // Balls thường có scale tùy chỉnh (0.75), nên cần tính responsive riêng
+        // Note: Balls have custom scale (0.75), so need to calculate responsive separately
         const baseWidth = GAME_LAYOUT.BASE_WIDTH
 
         this.sharedDroppedBalls.forEach((ball) => {
             if (ball && ball.active) {
-                // Tính scale multiplier dựa trên width ratio
+                // Calculate scale multiplier based on width ratio
                 const scaleMultiplier = cameraWidth / baseWidth
 
-                // Lấy scale ban đầu của ball (thường là 0.75 cho toys)
-                // Nếu không có, lưu scale hiện tại làm original
+                // Get initial scale of ball (usually 0.75 for toys)
+                // If not, save current scale as original
                 let originalScale = ball.getData("originalScale")
                 if (!originalScale) {
                     originalScale = ball.scaleX

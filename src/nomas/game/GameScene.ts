@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { loadAllAssets } from "@/nomas/game/load/asset"
+import { loadAllAssets, loadBackgroundAssetDynamic } from "@/nomas/game/load/asset"
 import Phaser from "phaser"
 import { GameUI } from "@/nomas/game/ui/GameUI"
 import { initializeGame } from "@/nomas/game/game-init"
@@ -21,6 +21,7 @@ import {
   type BuyPlaceableItemPayload,
   type BuyImmediateItemPayload,
   type ActivateCursorPayload,
+  type ChangeBackgroundPayload,
 } from "./events/shop/ShopEvents"
 import { HomeEvents, type PetDataUpdatePayload } from "./events/home/HomeEvents"
 import {
@@ -31,6 +32,8 @@ import {
   type ColyseusErrorEvent,
 } from "@/nomas/game/colyseus/events"
 import { colyseusService } from "@/nomas/game/colyseus/ColyseusService"
+import { store } from "@/nomas/redux"
+import { selectCurrentBackground } from "@/nomas/redux/slices/stateless/user"
 // const BACKEND_URL =" https://minute-lifetime-retrieved-referred.trycloudflare.com    "
 
 export class GameScene extends Phaser.Scene {
@@ -61,10 +64,12 @@ export class GameScene extends Phaser.Scene {
   async create() {
     // Disable browser context menu on right click for the whole scene
     this.input.mouse?.disableContextMenu()
-    // Add background image (default)
-    this.createBackground()
-
+    
     await initializeGame()
+
+    // Load initial background from Redux if available (after game config is loaded)
+    // If no saved background, this will use the default
+    await this.loadInitialBackgroundFromRedux()
 
     // Debug log food items
     gameConfigManager.logFoodItems()
@@ -279,6 +284,9 @@ export class GameScene extends Phaser.Scene {
     const handleActivateCursor = (payload: ActivateCursorPayload) => {
       this.handleActivateCursor(payload)
     }
+    const handleChangeBackground = (payload: ChangeBackgroundPayload) => {
+      this.handleChangeBackground(payload)
+    }
 
     // Register listeners
     eventBus.on(ShopEvents.BuyPet, handleBuyPet)
@@ -286,6 +294,7 @@ export class GameScene extends Phaser.Scene {
     eventBus.on(ShopEvents.BuyFurniture, handleBuyFurniture)
     eventBus.on(ShopEvents.BuyBackground, handleBuyBackground)
     eventBus.on(ShopEvents.ActivateCursor, handleActivateCursor)
+    eventBus.on(ShopEvents.ChangeBackground, handleChangeBackground)
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventBus.off(ShopEvents.BuyPet, handleBuyPet)
@@ -293,6 +302,7 @@ export class GameScene extends Phaser.Scene {
       eventBus.off(ShopEvents.BuyFurniture, handleBuyFurniture)
       eventBus.off(ShopEvents.BuyBackground, handleBuyBackground)
       eventBus.off(ShopEvents.ActivateCursor, handleActivateCursor)
+      eventBus.off(ShopEvents.ChangeBackground, handleChangeBackground)
     })
   }
 
@@ -728,6 +738,67 @@ export class GameScene extends Phaser.Scene {
       cursorManager.activateCustomCursor(payload.cursorUrl, cursorSize)
     } catch (error) {
       console.error("Failed to activate custom cursor", error)
+    }
+  }
+
+  private async handleChangeBackground(payload: ChangeBackgroundPayload): Promise<void> {
+    try {
+      const { textureKey } = payload
+
+      // Load texture if not already loaded
+      if (!this.textures.exists(textureKey)) {
+        await loadBackgroundAssetDynamic(this, textureKey)
+      }
+
+      // Update background
+      this.createBackground(textureKey)
+      console.log(`✅ Background changed to: ${payload.itemName} (${textureKey})`)
+    } catch (error) {
+      console.error("Failed to change background", error)
+      // Fallback to gradient background on error
+      this.createGradientBackground()
+    }
+  }
+
+  // Helper method to load initial background from Redux state
+  private async loadInitialBackgroundFromRedux(): Promise<void> {
+    const state = store.getState()
+    const currentBackgroundId = selectCurrentBackground(state)
+    
+    let textureKey = "game-background" // default
+    
+    if (currentBackgroundId) {
+      const backgroundItem = gameConfigManager.getBackgroundItem(currentBackgroundId)
+      if (backgroundItem) {
+        // Derive textureKey
+        if (backgroundItem.texture) {
+          if (backgroundItem.texture.toLowerCase() === "game") {
+            textureKey = "game-background"
+          } else {
+            textureKey = `${backgroundItem.texture.toLowerCase()}-bg`
+          }
+        } else {
+          const baseName = (backgroundItem.id || backgroundItem.name || "").toLowerCase()
+          if (baseName === "game" || baseName.includes("game")) {
+            textureKey = "game-background"
+          } else {
+            const cleanName = baseName.replace(/-bg$/, "")
+            textureKey = `${cleanName}-bg`
+          }
+        }
+      }
+    }
+
+    // Load texture if needed and apply
+    try {
+      if (!this.textures.exists(textureKey)) {
+        await loadBackgroundAssetDynamic(this, textureKey)
+      }
+      this.createBackground(textureKey)
+    } catch (error) {
+      console.error("Failed to load initial background from Redux", error)
+      // Fallback to default
+      this.createBackground()
     }
   }
 

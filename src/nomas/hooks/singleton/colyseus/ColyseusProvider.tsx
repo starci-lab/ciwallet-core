@@ -34,12 +34,10 @@ export const ColyseusProvider = ({ children }: PropsWithChildren) => {
 
     // Initialize ColyseusService when provider mounts
     useEffect(() => {
-        console.log("[ColyseusProvider] Initializing ColyseusService...")
         colyseusService.initialize()
 
         // Cleanup on unmount
         return () => {
-            console.log("[ColyseusProvider] Cleaning up ColyseusService...")
             colyseusService.destroy()
         }
     }, [])
@@ -47,18 +45,12 @@ export const ColyseusProvider = ({ children }: PropsWithChildren) => {
     // Connect room to ColyseusService when room changes
     useEffect(() => {
         if (room) {
-            console.log("[ColyseusProvider] Setting room in ColyseusService:", room.roomId)
             colyseusService.setRoom(room)
 
             // Request player state AFTER room is set in ColyseusService
             // Server will respond with player_state_sync message containing tokens, inventory, etc.
             // useColyseusReduxSync hook will handle updating Redux store
-            console.log("[ColyseusProvider] Requesting player state from server (room is ready)...")
             eventBus.emit(ColyseusActionEvents.RequestPlayerState, {})
-            console.log("[ColyseusProvider] Player state request event emitted")
-        } else {
-            console.log("[ColyseusProvider] Room is null, clearing ColyseusService")
-            // Room will be cleared by ColyseusService when disconnected event fires
         }
     }, [room])
 
@@ -67,15 +59,12 @@ export const ColyseusProvider = ({ children }: PropsWithChildren) => {
     useEffect(() => {
         const handleGameLoaded = () => {
             const backendUrl = envConfig().colyseus.endpoint
-            console.log("[ColyseusProvider] Game loaded, connecting to Colyseus:", backendUrl)
 
             // Only connect if not already connected
             if (!connection.isConnected) {
                 connection.connect(backendUrl).catch((error) => {
                     console.error("[ColyseusProvider] Connect failed:", error)
                 })
-            } else {
-                console.log("[ColyseusProvider] Already connected, skipping auto-connect")
             }
         }
 

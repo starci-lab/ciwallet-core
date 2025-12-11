@@ -11,7 +11,8 @@ import type {
     CleaningItem,
     FurnitureItem
 } from "@/nomas/game/configs/gameConfig"
-import { useAppSelector } from "@/nomas/redux"
+import { useAppSelector, useAppDispatch } from "@/nomas/redux"
+import { setCurrentBackground, selectCurrentBackground } from "@/nomas/redux/slices/stateless/user"
 import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
 import createResizedCursor from "@/nomas/utils/resizeImage"
 import { ScrollArea } from "@/nomas/components/shadcn/scroll-area"
@@ -33,9 +34,11 @@ export const GameShopPage = () => {
     const [category, setCategory] = useState<string>("food")
     const [items, setItems] = useState<ShopItem[]>([])
 
-    // Get balance from Redux
+    // Get balance and state from Redux
+    const dispatch = useAppDispatch()
     const balance = useAppSelector((state) => state.stateless.user.nomToken)
     const ownedItems = useAppSelector((state) => state.stateless.user.ownedItems)
+    const currentBackgroundId = useAppSelector(selectCurrentBackground)
     console.log("ownedItems", ownedItems)
     const assets = assetsConfig().game
 
@@ -280,6 +283,41 @@ export const GameShopPage = () => {
         }
     }
 
+    const handleChangeBackground = (item: BackgroundItem) => {
+        // Derive textureKey from item.texture or item.id
+        // BackgroundItem.texture contains displayId (e.g., "city", "sky")
+        // Texture keys in Phaser follow pattern: "city-bg", "sky-bg", or "game-background"
+        let textureKey: string
+        if (item.texture) {
+            // If texture is "game", use "game-background", otherwise append "-bg"
+            if (item.texture.toLowerCase() === "game") {
+                textureKey = "game-background"
+            } else {
+                textureKey = `${item.texture.toLowerCase()}-bg`
+            }
+        } else {
+            // Fallback: derive from item.id or item.name
+            const baseName = (item.id || item.name || "").toLowerCase()
+            if (baseName === "game" || baseName.includes("game")) {
+                textureKey = "game-background"
+            } else {
+                // Remove "-bg" suffix if present, then add it back
+                const cleanName = baseName.replace(/-bg$/, "")
+                textureKey = `${cleanName}-bg`
+            }
+        }
+
+        // Emit event to change background in GameScene
+        eventBus.emit(ShopEvents.ChangeBackground, {
+            itemId: String(item.id),
+            itemName: item.name,
+            textureKey
+        })
+
+        // Update Redux state
+        dispatch(setCurrentBackground(String(item.id)))
+    }
+
     const handleClose = () => {
         eventBus.emit(ShopEvents.CloseShop)
     }
@@ -383,21 +421,36 @@ export const GameShopPage = () => {
                                 <div className="grid grid-cols-3 gap-2">
                                     {items.map((item) => {
                                         const owned = isItemOwned(item)
+                                        const itemType = detectItemType(item)
+                                        const isBackground = itemType === "background" || itemType === "backgrounds"
+                                        const isActiveBackground =
+                                            isBackground && owned && currentBackgroundId === String(item.id)
                                         return (
                                             <div
                                                 key={item.id}
                                                 onClick={() => {
+                                                    // If background and owned, allow clicking to change background
+                                                    if (isBackground && owned) {
+                                                        handleChangeBackground(item as BackgroundItem)
+                                                        return
+                                                    }
+                                                    // For other items or unowned items, use normal buy flow
                                                     if (owned) return
                                                     handleBuy(item)
                                                 }}
-                                                className="group bg-shop-item border border-shop-item
-                             rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center
-                             gap-1.5 cursor-pointer
-                             shadow-shop-item hover:bg-shop-item-hover
-                             transition-all duration-200"
+                                                className={`group bg-shop-item border rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-shop-item hover:bg-shop-item-hover transition-all duration-200 ${
+                                                    isActiveBackground
+                                                        ? "border-accent-purple border-2"
+                                                        : "border-shop-item"
+                                                }`}
                                                 style={{
-                                                    opacity: owned ? 0.5 : 1,
-                                                    cursor: owned ? "not-allowed" : "pointer"
+                                                    opacity: owned && !isActiveBackground ? 0.5 : 1,
+                                                    cursor:
+                                                        owned && !isBackground
+                                                            ? "not-allowed"
+                                                            : isActiveBackground
+                                                              ? "pointer"
+                                                              : "pointer"
                                                 }}
                                             >
                                                 {/* Item Image */}
@@ -425,7 +478,12 @@ export const GameShopPage = () => {
                                                 </div>
                                                 <div className="text-xs text-muted flex items-center gap-1">
                                                     <span>{Number(item.cost_nom ?? 0).toLocaleString()} NOM</span>
-                                                    {owned && (
+                                                    {isActiveBackground && (
+                                                        <span className="text-[10px] text-accent-purple font-semibold">
+                                                            (Active)
+                                                        </span>
+                                                    )}
+                                                    {owned && !isActiveBackground && (
                                                         <span className="text-[10px] text-green-300">(Owned)</span>
                                                     )}
                                                 </div>

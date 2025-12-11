@@ -22,6 +22,9 @@ export const ShopEvents = {
     BuyFurniture: "shop:buy:furniture",
     BuyBackground: "shop:buy:background",
 
+    // Background Change Action
+    ChangeBackground: "shop:background:change",
+
     // Cursor Actions
     ActivateCursor: "shop:cursor:activate",
     DeactivateCursor: "shop:cursor:deactivate",
@@ -66,4 +69,13 @@ export interface ActivateCursorPayload {
   cursorSize?: number
   frameWidth?: number // For sprite sheet cursors (e.g., cleaning items)
   frameIndex?: number // For sprite sheet cursors
+}
+
+/**
+ * Payload for changing background (applying owned background)
+ */
+export interface ChangeBackgroundPayload {
+  itemId: string
+  itemName: string
+  textureKey: string // Phaser texture key (e.g., "city-bg", "sky-bg")
 }

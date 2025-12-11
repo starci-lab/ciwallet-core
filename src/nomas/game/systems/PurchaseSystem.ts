@@ -180,7 +180,6 @@ export class PurchaseSystem {
                         quantity: request.quantity,
                         price: request.price
                     })
-                    console.log(`📤 Purchase request sent (after retry): ${purchaseId}`, request)
                 } else if (attempts >= maxAttempts) {
                     window.clearInterval(timerId)
                     this.retryTimers.delete(purchaseId)
@@ -199,8 +198,6 @@ export class PurchaseSystem {
             quantity: request.quantity,
             price: request.price
         })
-
-        console.log(`📤 Purchase request sent: ${purchaseId}`, request)
     }
 
     private handlePurchaseResponse(message: {

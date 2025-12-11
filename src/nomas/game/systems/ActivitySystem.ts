@@ -48,7 +48,7 @@ export class ActivitySystem {
     private randomActivity() {
         const activityPool = [
             { name: "idleplay", weight: 85 },
-            { name: "sleep", weight: 15 },
+            { name: "sleep", weight: 15 }
         ]
 
         const newActivity = this.getRandomWeightedActivity(activityPool)
@@ -56,11 +56,7 @@ export class ActivitySystem {
         this.pet.setActivity(newActivity)
 
         this.pet.sprite.once("animationcomplete", () => {
-            if (
-                !this.pet.isUserControlled &&
-        this.pet.currentActivity === newActivity
-            ) {
-                console.log("Animation completed, returning to walk...")
+            if (!this.pet.isUserControlled && this.pet.currentActivity === newActivity) {
                 this.pet.setActivity("walk")
             }
         })

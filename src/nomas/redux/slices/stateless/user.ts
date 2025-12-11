@@ -14,13 +14,15 @@ export interface UserSlice {
     nomToken: number
     isAuthenticated: boolean
     ownedItems: OwnedItem[]
+    currentBackgroundId?: string
 }
 
 const initialState: UserSlice = {
     addressWallet: "",
     nomToken: 10000,
     isAuthenticated: false,
-    ownedItems: []
+    ownedItems: [],
+    currentBackgroundId: undefined
 }
 
 export const loadUserFromStorage = createAsyncThunk("user/loadFromStorage", async () => {
@@ -55,6 +57,9 @@ export const userSlice = createSlice({
         },
         setOwnedItems: (state, action: PayloadAction<OwnedItem[]>) => {
             state.ownedItems = action.payload
+        },
+        setCurrentBackground: (state, action: PayloadAction<string>) => {
+            state.currentBackgroundId = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -67,10 +72,11 @@ export const userSlice = createSlice({
 
 export const userReducer = userSlice.reducer
 
-export const { setAddressWallet, setNomToken, spendToken, setIsAuthenticated, addToken, setOwnedItems } =
+export const { setAddressWallet, setNomToken, spendToken, setIsAuthenticated, addToken, setOwnedItems, setCurrentBackground } =
     userSlice.actions
 
 // Selectors
 export const selectOwnedItems = (state: RootState) => state.stateless.user.ownedItems
 export const selectOwnedItemsByType = (state: RootState, itemType: string) =>
     state.stateless.user.ownedItems.filter((item) => item.itemType === itemType)
+export const selectCurrentBackground = (state: RootState) => state.stateless.user.currentBackgroundId

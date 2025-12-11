@@ -72,12 +72,9 @@ export class FeedingSystem {
         const foodPrice = food.cost_nom
 
         if (colyseusService.isConnected()) {
-            console.log("🌐 Checking tokens before sending purchase request to server")
-
             // Check if player has enough tokens before sending to server
             const currentTokens = store.getState().stateless.user.nomToken
             if (currentTokens < foodPrice) {
-                console.log(`❌ Not enough tokens: need ${foodPrice}, have ${currentTokens}`)
                 return false
             }
 
@@ -89,14 +86,10 @@ export class FeedingSystem {
 
             return true // Server will handle validation and update inventory
         } else {
-            console.log("🔌 Offline mode - using local validation")
-
             if (store.dispatch(spendToken(foodPrice))) {
                 this.foodInventory += 1
-                console.log(`✅ Purchase successful: ${foodId} for ${foodPrice} tokens`)
                 return true
             } else {
-                console.log(`❌ Not enough tokens: need ${foodPrice}`)
                 return false
             }
         }
@@ -114,10 +107,7 @@ export class FeedingSystem {
         const foodItem = gameConfigManager.getFoodItem(foodType)
         const recovery = foodItem?.hungerRestore ?? GAME_MECHANICS.HUNGER_RESTORE_AMOUNT
 
-        const oldHunger = this.hungerLevel
         this.hungerLevel = Math.min(100, this.hungerLevel + recovery)
-
-        console.log(`📈 Pet ${this.petId} hunger: ${oldHunger.toFixed(1)} → ${this.hungerLevel.toFixed(1)}`)
 
         // Send eaten food event to server if connected
         if (colyseusService.isConnected()) {
@@ -127,7 +117,6 @@ export class FeedingSystem {
                 pet_id: this.petId,
                 owner_id: userStore.addressWallet || "unknown"
             })
-            console.log(`📤 Sent 'eated_food' to server for pet ${this.petId}`)
         }
 
         // The PetManager is responsible for stopping the chase.
@@ -139,7 +128,6 @@ export class FeedingSystem {
 
     destroy(): void {
         this.cleanup()
-        console.log("🧹 FeedingSystem destroyed")
     }
 
     cleanup() {

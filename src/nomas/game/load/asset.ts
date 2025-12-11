@@ -73,6 +73,50 @@ export const loadBackgroundAssets = (scene: Phaser.Scene) => {
     scene.load.image("forest-bg", getUrl("backgrounds/forest-bg.png"))
 }
 
+/**
+ * Load a single background asset dynamically if not already loaded
+ * @param scene - Phaser scene
+ * @param textureKey - Texture key identifier (e.g., "city-bg", "sky-bg")
+ * @returns Promise that resolves when asset is loaded
+ */
+export const loadBackgroundAssetDynamic = (scene: Phaser.Scene, textureKey: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (scene.textures.exists(textureKey)) {
+            resolve()
+            return
+        }
+
+        // Derive asset path from texture key
+        // Texture keys follow pattern: "name-bg" -> "backgrounds/name-bg.png"
+        // Handle special case: "game-background" -> "backgrounds/game-bg.png"
+        let assetPath: string
+        if (textureKey === "game-background") {
+            assetPath = getUrl("backgrounds/game-bg.png")
+        } else {
+            assetPath = getUrl(`backgrounds/${textureKey}.png`)
+        }
+
+        // Try to load the asset
+        scene.load.image(textureKey, assetPath)
+
+        // Start loading
+        scene.load.once("complete", () => {
+            if (scene.textures.exists(textureKey)) {
+                resolve()
+            } else {
+                reject(new Error(`Failed to load texture: ${textureKey}`))
+            }
+        })
+
+        scene.load.once("loaderror", (_file: unknown) => {
+            reject(new Error(`Error loading texture: ${textureKey}`))
+        })
+
+        scene.load.start()
+    })
+}
+
 export const loadPoopAssets = (scene: Phaser.Scene) => {
     scene.load.atlas("poop", getUrl("poop/poop.png"), getUrl("poop/poop.json"))
 }
