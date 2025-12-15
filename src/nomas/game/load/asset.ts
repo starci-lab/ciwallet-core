@@ -11,7 +11,7 @@ try {
 }
 
 const ASSETS_BASE = "/assets/game"
-const getUrl = (path: string) => {
+export const getUrl = (path: string) => {
     const isExtension = import.meta.env.VITE_APP_ENV === "EXTENSION"
     const _path = `${ASSETS_BASE}/${path}`
     return (isExtension ? browser?.runtime.getURL(_path) : _path) ?? ""

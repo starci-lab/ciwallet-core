@@ -221,7 +221,7 @@ export const GameShopPage = () => {
         }
 
         if (mappedCategory === "food") {
-            const cursorUrl = getItemImageSrc("food", item)
+            const cursorUrl = getUrl(getItemImageSrc("food", item))
             eventBus.emit(ShopEvents.StartPlacing, {
                 itemType: "food",
                 itemId: String((item as FoodItem).displayId),
@@ -232,7 +232,7 @@ export const GameShopPage = () => {
         }
 
         if (mappedCategory === "toy") {
-            const cursorUrl = getItemImageSrc("toy", item)
+            const cursorUrl = getUrl(getItemImageSrc("toy", item))
             eventBus.emit(ShopEvents.StartPlacing, {
                 itemType: "toy",
                 itemId: String((item as ToyItem).id || (item as ToyItem).displayId.toLocaleLowerCase()),
@@ -243,7 +243,7 @@ export const GameShopPage = () => {
         }
 
         if (mappedCategory === "clean") {
-            const cursorUrl = getItemImageSrc("clean", item)
+            const cursorUrl = getUrl(getItemImageSrc("clean", item))
             createResizedCursor(
                 cursorUrl,
                 64,

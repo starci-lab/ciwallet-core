@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { loadAllAssets, loadBackgroundAssetDynamic } from "@/nomas/game/load/asset"
+import { getUrl, loadAllAssets, loadBackgroundAssetDynamic } from "@/nomas/game/load/asset"
 import Phaser from "phaser"
 import { GameUI } from "@/nomas/game/ui/GameUI"
 import { initializeGame } from "@/nomas/game/game-init"
@@ -38,7 +38,7 @@ import { selectCurrentBackground } from "@/nomas/redux/slices/stateless/user"
 
 export class GameScene extends Phaser.Scene {
     // Default cursor for the game
-    static readonly DEFAULT_CURSOR = "url(../../../public/assets/game/cursor/navigation_nw.png), pointer"
+    static readonly DEFAULT_CURSOR = `url(${getUrl("cursor/navigation_nw.png")}), pointer`
     rexUI!: RexUIPlugin
     private petManager!: PetManager
     private gameUI!: GameUI
