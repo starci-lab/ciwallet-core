@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 // Game layout constants
 export const GAME_LAYOUT = {
     GROUND_OFFSET: 30, // Distance from bottom of screen for ground line

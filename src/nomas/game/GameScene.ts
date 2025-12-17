@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+ 
 import { getUrl, loadAllAssets, loadBackgroundAssetDynamic } from "@/nomas/game/load/asset"
 import Phaser from "phaser"
 import { GameUI } from "@/nomas/game/ui/GameUI"

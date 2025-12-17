@@ -31,7 +31,7 @@ type ShopItem = FoodItem | ToyItem | PetItem | BackgroundItem | CleaningItem | F
  */
 export const GameShopPage = () => {
     // Shop UI state
-    const [category, setCategory] = useState<string>("food")
+    const [category, setCategory] = useState<string>("pets")
     const [items, setItems] = useState<ShopItem[]>([])
 
     // Get balance and state from Redux
