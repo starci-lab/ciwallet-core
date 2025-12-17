@@ -162,28 +162,20 @@ export const GameShopPage = () => {
         return map
     }, [ownedItems])
 
-    // Clear optimistic background keys once server inventory includes them
+    // Track how server inventory evolves vs local optimistic keys (but DO NOT clear optimistic keys anymore)
+    // This ensures once a background is purchased in this session, the shop UI will always treat it as owned,
+    // even if server inventory is temporarily stale or missing it.
     useEffect(() => {
         if (optimisticOwnedBackgroundKeys.size === 0) return
 
-        const serverBgKeys = new Set<string>()
+        const serverBgKeys: string[] = []
         ownedItems.forEach((it) => {
             const typeLc = String(it.itemType || "").toLowerCase()
             if (typeLc !== "background" && typeLc !== "backgrounds") return
-            serverBgKeys.add(String(it.itemId).toLowerCase())
-            if (it.itemName) serverBgKeys.add(String(it.itemName).toLowerCase())
+            serverBgKeys.push(String(it.itemId).toLowerCase())
+            if (it.itemName) serverBgKeys.push(String(it.itemName).toLowerCase())
         })
-
-        let changed = false
-        const next = new Set<string>(optimisticOwnedBackgroundKeys)
-        optimisticOwnedBackgroundKeys.forEach((k) => {
-            if (serverBgKeys.has(k)) {
-                next.delete(k)
-                changed = true
-            }
-        })
-
-        if (changed) setOptimisticOwnedBackgroundKeys(next)
+        // intentionally retain optimistic keys; serverBgKeys is available for future logic if needed
     }, [ownedItems, optimisticOwnedBackgroundKeys])
 
     const isItemOwned = (shopItem: ShopItem): boolean => {
@@ -196,18 +188,24 @@ export const GameShopPage = () => {
                 : type === "background"
                   ? ["background", "backgrounds"]
                   : [type]
+
+        const isBackgroundType = typeKeys.includes("background") || typeKeys.includes("backgrounds")
+
         // Background UX: allow optimistic ownership (avoid stale sync overwriting right after purchase)
-        if (typeKeys.includes("background") || typeKeys.includes("backgrounds")) {
-            if (ids.some((id) => optimisticOwnedBackgroundKeys.has(String(id).toLowerCase()))) {
+        if (isBackgroundType) {
+            const optimisticHit = ids.some((id) => optimisticOwnedBackgroundKeys.has(String(id).toLowerCase()))
+            if (optimisticHit) {
                 return true
             }
         }
 
-        return typeKeys.some((t) => {
+        const serverHit = typeKeys.some((t) => {
             const set = ownedByType[t]
             if (!set) return false
             return ids.some((id) => set.has(id.toLowerCase()))
         })
+
+        return serverHit
     }
 
     const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
@@ -261,13 +259,13 @@ export const GameShopPage = () => {
                 body: JSON.stringify({
                     sessionId: "debug-session",
                     runId: "run1",
-                    hypothesisId: "H2",
+                    hypothesisId: "H1",
                     location: "GameShopPage:handleChangeBackground",
                     message: "change background invoked",
                     data: {
                         bgKey: getBackgroundKey(item),
                         itemId: item.id,
-                        displayId: (item as { displayId?: string }).displayId,
+                        displayId: item.displayId,
                         texture: item.texture,
                         currentBackgroundId
                     },
@@ -323,27 +321,6 @@ export const GameShopPage = () => {
                 setPendingBackgroundPurchaseId(null)
                 return
             }
-
-            // #region agent log
-            fetch("http://127.0.0.1:7242/ingest/41c2262e-bac6-412a-ad1a-6eaf19df1dc8", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    sessionId: "debug-session",
-                    runId: "run1",
-                    hypothesisId: "H2",
-                    location: "GameShopPage:onPurchaseResponse",
-                    message: "purchase response",
-                    data: {
-                        pendingId: getBackgroundKey(pending),
-                        success: msg?.success !== false,
-                        ownedCount: ownedItems.length,
-                        optimisticCount: optimisticOwnedBackgroundKeys.size
-                    },
-                    timestamp: Date.now()
-                })
-            }).catch(() => {})
-            // #endregion
             // Optimistically mark as owned so UI updates immediately (server sync will overwrite with canonical state)
             const pendingId = getBackgroundKey(pending)
             const alreadyOwned = ownedItems.some(
@@ -474,6 +451,28 @@ export const GameShopPage = () => {
 
             // Background UX: purchase then auto-apply right after server confirms
             setPendingBackgroundPurchaseId(getBackgroundKey(item as BackgroundItem))
+
+            // #region agent log - background buy click (H3)
+            fetch("http://127.0.0.1:7242/ingest/41c2262e-bac6-412a-ad1a-6eaf19df1dc8", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sessionId: "debug-session",
+                    runId: "run1",
+                    hypothesisId: "H3",
+                    location: "GameShopPage:handleBuy",
+                    message: "background buy clicked",
+                    data: {
+                        bgKey: getBackgroundKey(item as BackgroundItem),
+                        itemId: (item as BackgroundItem).id,
+                        displayId: (item as BackgroundItem).displayId,
+                        pendingBackgroundPurchaseId
+                    },
+                    timestamp: Date.now()
+                })
+            }).catch(() => {})
+            // #endregion
+
             pendingBackgroundPurchaseRef.current = item as BackgroundItem
             eventBus.emit(ShopEvents.BuyBackground, {
                 itemType: "background",
