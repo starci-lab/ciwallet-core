@@ -19,13 +19,13 @@ export class CustomCursorManager {
     }
 
     private createCursorElement() {
-    // Create custom cursor element
+        // Create custom cursor element
         this.cursorElement = document.createElement("div")
         this.cursorElement.id = "custom-game-cursor"
         this.cursorElement.style.cssText = `
             position: fixed;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 2147483647;
             display: none;
             width: 64px;
             height: 64px;
@@ -38,8 +38,8 @@ export class CustomCursorManager {
     }
 
     /**
-   * Activate custom cursor with an item image
-   */
+     * Activate custom cursor with an item image
+     */
     activateCustomCursor(imageUrl: string, size: number = 32) {
         if (!this.cursorElement) return
 
@@ -91,8 +91,8 @@ export class CustomCursorManager {
     }
 
     /**
-   * Deactivate custom cursor and restore default
-   */
+     * Deactivate custom cursor and restore default
+     */
     deactivateCustomCursor() {
         if (!this.cursorElement) return
 
@@ -132,22 +132,22 @@ export class CustomCursorManager {
     }
 
     /**
-   * Check if custom cursor is currently active
-   */
+     * Check if custom cursor is currently active
+     */
     isCustomCursorActive(): boolean {
         return this.isActive
     }
 
     /**
-   * Get current cursor image URL
-   */
+     * Get current cursor image URL
+     */
     getCurrentCursorUrl(): string | null {
         return this.currentCursorUrl
     }
 
     /**
-   * Clean up resources
-   */
+     * Clean up resources
+     */
     destroy() {
         this.deactivateCustomCursor()
 

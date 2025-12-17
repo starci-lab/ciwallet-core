@@ -56,16 +56,30 @@ export class Pet {
             finalX = (this as unknown as { _pendingX: number })._pendingX
         if (typeof finalY !== "number" && (this as unknown as { _pendingY?: number })._pendingY)
             finalY = (this as unknown as { _pendingY: number })._pendingY
-        // Nếu vẫn chưa có, fallback mặc định
+        // If still not available, fallback to default
         if (typeof finalX !== "number") finalX = 400
-        if (typeof finalY !== "number") finalY = GamePositioning.getPetY(this.scene.cameras.main.height)
+        const cameraHeight = this.scene.cameras.main.height
+        const camWidth = this.scene.cameras.main.width
+        if (typeof finalY !== "number") {
+            finalY = GamePositioning.getPetY(cameraHeight)
+        }
+
+        // Clamp positions to ensure pets are within camera bounds
+        // Use same boundary logic as MovementSystem for consistency
+        const petBounds = GamePositioning.getPetBoundaries(camWidth)
+        finalX = Phaser.Math.Clamp(finalX, petBounds.minX, petBounds.maxX)
+        // Clamp Y to be within camera bounds (pets should be in lower 80% of screen)
+        const minY = cameraHeight * 0.2
+        const maxY = cameraHeight * 0.95
+        finalY = Phaser.Math.Clamp(finalY, minY, maxY)
+
         this.groundY = finalY // Store ground line position
 
         // Get appropriate texture based on pet type
         const textureKey = this.getTextureKey("walk")
         const frameKey = this.getFrameKey("walk", 0)
 
-        console.log("🎨 [Pet] Creating sprite:", {
+        console.debug("🎨 [Pet] Creating sprite:", {
             petType: this.petType,
             textureKey,
             frameKey,
@@ -468,8 +482,6 @@ export class Pet {
         if (this.currentActivity === "walk") {
             this.setActivity("walk")
         }
-
-        console.log(`🛑 Pet stopped chasing, reset lastEdgeHit='${this.lastEdgeHit}'`)
     }
 
     // Ensure pet stays on ground line

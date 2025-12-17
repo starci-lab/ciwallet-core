@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { selectSelectedAccountByPlatform, useAppSelector, useAppDispatch, setIsGameMinimized } from "@/nomas/redux"
 import { NomasCard, NomasCardBody, NomasCardVariant, NomasInput, NomasButton } from "@/nomas/components"
 import { NomasImage } from "@/nomas/components"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/nomas/components/shadcn/tooltip"
 import { chainIdToPlatform } from "@ciwallet-sdk/utils"
 import { motion } from "framer-motion"
 import { assetsConfig } from "@/nomas/resources"
@@ -245,28 +246,62 @@ export const GameSplashPage = () => {
                                         </div>
 
                                         {/* Home Building - Slightly right and down from center */}
-                                        <motion.button
-                                            onClick={openHome}
-                                            className="absolute top-[60%] left-[60%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
-                                        >
+                                        <div className="group absolute top-[60%] left-[60%] -translate-x-1/2 -translate-y-1/2 z-20">
+                                            {/* Visual image only */}
                                             <NomasImage
                                                 src={gameAssets.home}
                                                 alt="Home Building"
-                                                className="w-auto h-[200px] md:h-[250px] object-contain drop-shadow-2xl"
+                                                className="w-auto h-[200px] md:h-[250px] object-contain drop-shadow-2xl pointer-events-none transition-transform duration-200 group-hover:scale-[1.03]"
                                             />
-                                        </motion.button>
+
+                                            {/* Smaller hotspot for tooltip + click */}
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={openHome}
+                                                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-10 cursor-pointer bg-transparent rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-(--accent-purple)/60"
+                                                    />
+                                                </TooltipTrigger>
+                                                <TooltipContent
+                                                    side="top"
+                                                    align="center"
+                                                    sideOffset={0}
+                                                    collisionPadding={4}
+                                                    className="bg-(--card-dark-3) text-text border border-(--border-muted) shadow-lg"
+                                                >
+                                                    Home
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
 
                                         {/* Shop Building - Bottom Right */}
-                                        <motion.button
-                                            onClick={openShop}
-                                            className="absolute bottom-2 right-4 cursor-pointer z-20"
-                                        >
+                                        <div className="group absolute bottom-2 right-4 z-20">
+                                            {/* Visual image only */}
                                             <NomasImage
                                                 src={gameAssets.shop}
                                                 alt="Shop Building"
-                                                className="w-auto h-[120px] md:h-[150px] object-contain drop-shadow-2xl"
+                                                className="w-auto h-[120px] md:h-[150px] object-contain drop-shadow-2xl pointer-events-none transition-transform duration-200 group-hover:scale-[1.03]"
                                             />
-                                        </motion.button>
+
+                                            {/* Smaller hotspot for tooltip + click */}
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={openShop}
+                                                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-10 cursor-pointer bg-transparent rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-(--accent-purple)/60"
+                                                    />
+                                                </TooltipTrigger>
+                                                <TooltipContent
+                                                    side="top"
+                                                    align="center"
+                                                    sideOffset={0}
+                                                    collisionPadding={4}
+                                                    className="bg-(--card-dark-3) text-text border border-(--border-muted) shadow-lg"
+                                                >
+                                                    Shop
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
                                     </motion.div>
                                 </div>
                             )}

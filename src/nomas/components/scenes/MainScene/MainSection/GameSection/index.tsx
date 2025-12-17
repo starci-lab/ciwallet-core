@@ -30,15 +30,15 @@ export const GameSection = () => {
     // Listen to home events for visibility control
     useEffect(() => {
         const handleOpen = () => {
-            console.log("🏠 GameSection: Home opened event received")
+            console.log("GameSection: Home opened event received")
             setIsHomeOpen(true)
         }
         const handleOpenWithPet = (_payload: OpenHomeWithPetPayload) => {
-            console.log("🏠 GameSection: Home opened with pet event received")
+            console.log("GameSection: Home opened with pet event received")
             setIsHomeOpen(true)
         }
         const handleClose = () => {
-            console.log("🏠 GameSection: Home closed event received")
+            console.log("GameSection: Home closed event received")
             setIsHomeOpen(false)
         }
 

@@ -248,7 +248,9 @@ class GameConfigManager {
     }
 
     getCleaningItem(cleaningId: string): CleaningItem | undefined {
-        return this.config.cleaning.items.find((item) => item.id === cleaningId)
+        return this.config.cleaning.items.find(
+            (item) => item.displayId.toLocaleLowerCase() === cleaningId.toLocaleLowerCase()
+        )
     }
 
     getToyPrice(toyId: string = "ball"): number {
@@ -278,12 +280,16 @@ class GameConfigManager {
     }
 
     getBackgroundPrice(backgroundId: string = "forest"): number {
-        const backgroundItem = this.config.backgrounds.items.find((item) => item.id === backgroundId)
+        const backgroundItem = this.config.backgrounds.items.find(
+            (item) => item.id === backgroundId || item.displayId === backgroundId || item.texture === backgroundId
+        )
         return backgroundItem?.cost_nom || this.config.backgrounds.defaultPrice
     }
 
     getBackgroundItem(backgroundId: string): BackgroundItem | undefined {
-        return this.config.backgrounds.items.find((item) => item.id === backgroundId)
+        return this.config.backgrounds.items.find(
+            (item) => item.id === backgroundId || item.displayId === backgroundId || item.texture === backgroundId
+        )
     }
 
     getBackgroundItems(): { [key: string]: BackgroundItem } {

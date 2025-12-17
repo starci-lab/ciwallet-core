@@ -4,14 +4,14 @@ import Phaser from "phaser"
 let browser: typeof import("webextension-polyfill") | null = null
 
 try {
-    // Chỉ hoạt động khi có extension
+    // Only works when extension is installed
     browser = require("webextension-polyfill")
 } catch {
     browser = null
 }
 
 const ASSETS_BASE = "/assets/game"
-const getUrl = (path: string) => {
+export const getUrl = (path: string) => {
     const isExtension = import.meta.env.VITE_APP_ENV === "EXTENSION"
     const _path = `${ASSETS_BASE}/${path}`
     return (isExtension ? browser?.runtime.getURL(_path) : _path) ?? ""
@@ -20,7 +20,7 @@ const getUrl = (path: string) => {
 // All assets are now loaded from the public/ folder (served at "/")
 
 export const loadChogAssets = (scene: Phaser.Scene) => {
-    scene.load.image("chog-avatar", getUrl("Chog/chog_avatar.png"))
+    scene.load.image("chog-avatar", getUrl("Chog/chog.png"))
     scene.load.atlas("dog-sleep", getUrl("Chog/chog_sleep.png"), getUrl("Chog/chog_sleep.json"))
     scene.load.atlas("dog-play", getUrl("Chog/chog_idleplay.png"), getUrl("Chog/chog_idleplay.json"))
     scene.load.atlas("dog-chew", getUrl("Chog/chog_chew.png"), getUrl("Chog/chog_chew.json"))
@@ -28,7 +28,7 @@ export const loadChogAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadZombieAssets = (scene: Phaser.Scene) => {
-    scene.load.image("zombie-avatar", getUrl("Zombie/zombie_avatar.png"))
+    scene.load.image("zombie-avatar", getUrl("Zombie/zombie.png"))
     scene.load.atlas("zombie-idle", getUrl("Zombie/zombie_idle.png"), getUrl("Zombie/zombie_idle.json"))
     scene.load.atlas("zombie-walk", getUrl("Zombie/zombie_walk.png"), getUrl("Zombie/zombie_walk.json"))
     scene.load.atlas("zombie-idleplay", getUrl("Zombie/zombie_idleplay.png"), getUrl("Zombie/zombie_idleplay.json"))
@@ -37,7 +37,7 @@ export const loadZombieAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadKeoneDogAssets = (scene: Phaser.Scene) => {
-    scene.load.image("keonedog-avatar", getUrl("KeoneDog/keonedog_avatar.png"))
+    scene.load.image("keonedog-avatar", getUrl("KeoneDog/keonedog.png"))
     scene.load.atlas("keonedog-idle", getUrl("KeoneDog/keonedog_idle.png"), getUrl("KeoneDog/keonedog_idle.json"))
     scene.load.atlas("keonedog-sleep", getUrl("KeoneDog/keonedog_sleep.png"), getUrl("KeoneDog/keonedog_sleep.json"))
     scene.load.atlas(
@@ -50,7 +50,7 @@ export const loadKeoneDogAssets = (scene: Phaser.Scene) => {
 }
 
 export const loadGhostAssets = (scene: Phaser.Scene) => {
-    scene.load.image("ghost-avatar", getUrl("Ghost/ghost_avatar.png"))
+    scene.load.image("ghost-avatar", getUrl("Ghost/ghost.png"))
     scene.load.atlas("ghost-idle", getUrl("Ghost/ghost_idle.png"), getUrl("Ghost/ghost_idle.json"))
     scene.load.atlas("ghost-sleep", getUrl("Ghost/ghost_sleep.png"), getUrl("Ghost/ghost_sleep.json"))
     scene.load.atlas("ghost-play", getUrl("Ghost/ghost_idleplay.png"), getUrl("Ghost/ghost_idleplay.json"))
@@ -71,6 +71,50 @@ export const loadBackgroundAssets = (scene: Phaser.Scene) => {
     // Load your custom background image
     scene.load.image("game-background", getUrl("backgrounds/game-bg.png"))
     scene.load.image("forest-bg", getUrl("backgrounds/forest-bg.png"))
+}
+
+/**
+ * Load a single background asset dynamically if not already loaded
+ * @param scene - Phaser scene
+ * @param textureKey - Texture key identifier (e.g., "city-bg", "sky-bg")
+ * @returns Promise that resolves when asset is loaded
+ */
+export const loadBackgroundAssetDynamic = (scene: Phaser.Scene, textureKey: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (scene.textures.exists(textureKey)) {
+            resolve()
+            return
+        }
+
+        // Derive asset path from texture key
+        // Texture keys follow pattern: "name-bg" -> "backgrounds/name-bg.png"
+        // Handle special case: "game-background" -> "backgrounds/game-bg.png"
+        let assetPath: string
+        if (textureKey === "game-background") {
+            assetPath = getUrl("backgrounds/game-bg.png")
+        } else {
+            assetPath = getUrl(`backgrounds/${textureKey}.png`)
+        }
+
+        // Try to load the asset
+        scene.load.image(textureKey, assetPath)
+
+        // Start loading
+        scene.load.once("complete", () => {
+            if (scene.textures.exists(textureKey)) {
+                resolve()
+            } else {
+                reject(new Error(`Failed to load texture: ${textureKey}`))
+            }
+        })
+
+        scene.load.once("loaderror", (_file: unknown) => {
+            reject(new Error(`Error loading texture: ${textureKey}`))
+        })
+
+        scene.load.start()
+    })
 }
 
 export const loadPoopAssets = (scene: Phaser.Scene) => {
@@ -108,16 +152,13 @@ export const loadFoodAssetDynamic = (scene: Phaser.Scene, foodId: string): Promi
         // Start loading
         scene.load.once("complete", () => {
             if (scene.textures.exists(foodId)) {
-                console.log(`✅ Dynamically loaded food texture: ${foodId}`)
                 resolve()
             } else {
-                console.warn(`⚠️ Failed to load food texture: ${foodId}`)
                 reject(new Error(`Failed to load texture: ${foodId}`))
             }
         })
 
         scene.load.once("loaderror", (_file: unknown) => {
-            console.error(`❌ Error loading food texture: ${foodId}`)
             reject(new Error(`Error loading texture: ${foodId}`))
         })
 
@@ -192,7 +233,6 @@ export const loadToyAssetDynamic = (scene: Phaser.Scene, toyId: string): Promise
 
             scene.load.once("complete", () => {
                 if (scene.textures.exists(toyId)) {
-                    console.log(`✅ Dynamically loaded toy texture: ${toyId} from ${url}`)
                     resolve()
                 } else {
                     currentPathIndex++

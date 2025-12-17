@@ -50,9 +50,6 @@ export function generateAssetPath(config: AssetPathConfig): string {
 
     case "pets":
     case "pet":
-        // For pets, we need to handle different species and variants
-        const petVariant = variant || "idle"
-        console.log("petVariant:", petVariant)
         // Normalize pet name to match folder structure
         const normalizedPetName = normalizePetName(itemName)
         return `${basePath}${normalizedPetName}/${normalizedPetName.toLowerCase()}.${extension}`
