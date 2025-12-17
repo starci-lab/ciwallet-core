@@ -1,8 +1,9 @@
 /* eslint-disable indent */
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { eventBus } from "@/nomas/game/event-bus"
 import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
+import { ColyseusActionEvents, ColyseusMessageEvents } from "@/nomas/game/colyseus/events"
 import type {
     FoodItem,
     ToyItem,
@@ -12,7 +13,7 @@ import type {
     FurnitureItem
 } from "@/nomas/game/configs/gameConfig"
 import { useAppSelector, useAppDispatch } from "@/nomas/redux"
-import { setCurrentBackground, selectCurrentBackground } from "@/nomas/redux/slices/stateless/user"
+import { setCurrentBackground, selectCurrentBackground, setOwnedItems } from "@/nomas/redux/slices/stateless/user"
 import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
 import createResizedCursor from "@/nomas/utils/resizeImage"
 import { ScrollArea } from "@/nomas/components/shadcn/scroll-area"
@@ -40,6 +41,17 @@ export const GameShopPage = () => {
     const ownedItems = useAppSelector((state) => state.stateless.user.ownedItems)
     const currentBackgroundId = useAppSelector(selectCurrentBackground)
     const assets = assetsConfig().game
+
+    // Background purchase: keep a pending item so we can auto-apply it right after server confirms purchase
+    const pendingBackgroundPurchaseRef = useRef<BackgroundItem | null>(null)
+    const [pendingBackgroundPurchaseId, setPendingBackgroundPurchaseId] = useState<string | null>(null)
+    // Optimistic owned keys for backgrounds (ids/names lowercased) so shop UI updates instantly
+    const [optimisticOwnedBackgroundKeys, setOptimisticOwnedBackgroundKeys] = useState<Set<string>>(new Set())
+
+    // Stable identifier for backgrounds across UI / server inventory / assets
+    const getBackgroundKey = useCallback((item: BackgroundItem): string => {
+        return String(item.displayId ?? item.id ?? item.texture ?? item.name)
+    }, [])
 
     // Tabs container ref for scrolling
     const tabsContainerRef = useRef<HTMLDivElement | null>(null)
@@ -108,7 +120,14 @@ export const GameShopPage = () => {
                 return [String((shopItem as FurnitureItem).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
             case "background":
             case "backgrounds":
-                return [String((shopItem as BackgroundItem).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
+                return [
+                    String((shopItem as BackgroundItem).displayId ?? (shopItem as BackgroundItem).id ?? shopItem.name),
+                    String((shopItem as BackgroundItem).id ?? ""),
+                    (shopItem as BackgroundItem).texture
+                        ? String((shopItem as BackgroundItem).texture).toLowerCase()
+                        : undefined,
+                    nameLc
+                ].filter(Boolean) as string[]
             case "pets":
                 return [String((shopItem as PetItem).displayId ?? shopItem.name), nameLc].filter(Boolean) as string[]
             default:
@@ -143,6 +162,30 @@ export const GameShopPage = () => {
         return map
     }, [ownedItems])
 
+    // Clear optimistic background keys once server inventory includes them
+    useEffect(() => {
+        if (optimisticOwnedBackgroundKeys.size === 0) return
+
+        const serverBgKeys = new Set<string>()
+        ownedItems.forEach((it) => {
+            const typeLc = String(it.itemType || "").toLowerCase()
+            if (typeLc !== "background" && typeLc !== "backgrounds") return
+            serverBgKeys.add(String(it.itemId).toLowerCase())
+            if (it.itemName) serverBgKeys.add(String(it.itemName).toLowerCase())
+        })
+
+        let changed = false
+        const next = new Set<string>(optimisticOwnedBackgroundKeys)
+        optimisticOwnedBackgroundKeys.forEach((k) => {
+            if (serverBgKeys.has(k)) {
+                next.delete(k)
+                changed = true
+            }
+        })
+
+        if (changed) setOptimisticOwnedBackgroundKeys(next)
+    }, [ownedItems, optimisticOwnedBackgroundKeys])
+
     const isItemOwned = (shopItem: ShopItem): boolean => {
         const type = detectItemType(shopItem)
         const ids = getPurchaseItemIds(shopItem)
@@ -153,6 +196,13 @@ export const GameShopPage = () => {
                 : type === "background"
                   ? ["background", "backgrounds"]
                   : [type]
+        // Background UX: allow optimistic ownership (avoid stale sync overwriting right after purchase)
+        if (typeKeys.includes("background") || typeKeys.includes("backgrounds")) {
+            if (ids.some((id) => optimisticOwnedBackgroundKeys.has(String(id).toLowerCase()))) {
+                return true
+            }
+        }
+
         return typeKeys.some((t) => {
             const set = ownedByType[t]
             if (!set) return false
@@ -201,6 +251,152 @@ export const GameShopPage = () => {
                 setItems([])
         }
     }, [category])
+
+    const handleChangeBackground = useCallback(
+        (item: BackgroundItem) => {
+            // #region agent log
+            fetch("http://127.0.0.1:7242/ingest/41c2262e-bac6-412a-ad1a-6eaf19df1dc8", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sessionId: "debug-session",
+                    runId: "run1",
+                    hypothesisId: "H2",
+                    location: "GameShopPage:handleChangeBackground",
+                    message: "change background invoked",
+                    data: {
+                        bgKey: getBackgroundKey(item),
+                        itemId: item.id,
+                        displayId: (item as { displayId?: string }).displayId,
+                        texture: item.texture,
+                        currentBackgroundId
+                    },
+                    timestamp: Date.now()
+                })
+            }).catch(() => {})
+            // #endregion
+            // Derive textureKey from item.texture or item.id
+            // BackgroundItem.texture contains displayId (e.g., "city", "sky")
+            // Texture keys in Phaser follow pattern: "city-bg", "sky-bg", or "game-background"
+            let textureKey: string
+            if (item.texture) {
+                // If texture is "game", use "game-background", otherwise append "-bg"
+                if (item.texture.toLowerCase() === "game") {
+                    textureKey = "game-background"
+                } else {
+                    textureKey = `${item.texture.toLowerCase()}-bg`
+                }
+            } else {
+                // Fallback: derive from item.id or item.name
+                const baseName = (item.id || item.name || "").toLowerCase()
+                if (baseName === "game" || baseName.includes("game")) {
+                    textureKey = "game-background"
+                } else {
+                    // Remove "-bg" suffix if present, then add it back
+                    const cleanName = baseName.replace(/-bg$/, "")
+                    textureKey = `${cleanName}-bg`
+                }
+            }
+
+            // Emit event to change background in GameScene
+            eventBus.emit(ShopEvents.ChangeBackground, {
+                itemId: getBackgroundKey(item),
+                itemName: item.name,
+                textureKey
+            })
+
+            // Update Redux state
+            dispatch(setCurrentBackground(getBackgroundKey(item)))
+        },
+        [dispatch, getBackgroundKey]
+    )
+
+    // When a background purchase succeeds, refresh inventory + apply the background immediately (UX: no reload needed)
+    useEffect(() => {
+        const onPurchaseResponse = (message: unknown) => {
+            const pending = pendingBackgroundPurchaseRef.current
+            if (!pending) return
+
+            const msg = message as { success?: boolean }
+            if (msg?.success === false) {
+                pendingBackgroundPurchaseRef.current = null
+                setPendingBackgroundPurchaseId(null)
+                return
+            }
+
+            // #region agent log
+            fetch("http://127.0.0.1:7242/ingest/41c2262e-bac6-412a-ad1a-6eaf19df1dc8", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sessionId: "debug-session",
+                    runId: "run1",
+                    hypothesisId: "H2",
+                    location: "GameShopPage:onPurchaseResponse",
+                    message: "purchase response",
+                    data: {
+                        pendingId: getBackgroundKey(pending),
+                        success: msg?.success !== false,
+                        ownedCount: ownedItems.length,
+                        optimisticCount: optimisticOwnedBackgroundKeys.size
+                    },
+                    timestamp: Date.now()
+                })
+            }).catch(() => {})
+            // #endregion
+            // Optimistically mark as owned so UI updates immediately (server sync will overwrite with canonical state)
+            const pendingId = getBackgroundKey(pending)
+            const alreadyOwned = ownedItems.some(
+                (it) =>
+                    String(it.itemId).toLowerCase() === pendingId.toLowerCase() &&
+                    ["background", "backgrounds"].includes(String(it.itemType).toLowerCase())
+            )
+            if (!alreadyOwned) {
+                dispatch(
+                    setOwnedItems([
+                        ...ownedItems,
+                        {
+                            itemId: pendingId,
+                            itemType: "background",
+                            quantity: 1,
+                            itemName: pending.name
+                        }
+                    ])
+                )
+            }
+
+            // Apply purchased background immediately
+            // Also store optimistic ownership locally (in case server pushes stale inventory right after purchase)
+            setOptimisticOwnedBackgroundKeys((prev) => {
+                const next = new Set(prev)
+                getPurchaseItemIds(pending).forEach((k) => next.add(String(k).toLowerCase()))
+                return next
+            })
+
+            handleChangeBackground(pending)
+
+            // Refresh state with delay to avoid racing against server inventory update
+            setTimeout(() => {
+                eventBus.emit(ColyseusActionEvents.RequestPlayerState, {})
+                eventBus.emit(ColyseusActionEvents.GetInventory, {})
+            }, 800)
+            setTimeout(() => {
+                eventBus.emit(ColyseusActionEvents.RequestPlayerState, {})
+                eventBus.emit(ColyseusActionEvents.GetInventory, {})
+            }, 1800)
+
+            pendingBackgroundPurchaseRef.current = null
+            setPendingBackgroundPurchaseId(null)
+        }
+
+        eventBus.on(ColyseusMessageEvents.PurchaseResponse, onPurchaseResponse)
+        eventBus.on(ColyseusMessageEvents.PurchaseItemResponse, onPurchaseResponse)
+
+        return () => {
+            eventBus.off(ColyseusMessageEvents.PurchaseResponse, onPurchaseResponse)
+            eventBus.off(ColyseusMessageEvents.PurchaseItemResponse, onPurchaseResponse)
+        }
+    }, [dispatch, getBackgroundKey, getPurchaseItemIds, handleChangeBackground, ownedItems])
 
     const handleBuy = (item: ShopItem) => {
         const mappedCategory =
@@ -273,6 +469,12 @@ export const GameShopPage = () => {
         }
 
         if (mappedCategory === "background") {
+            // Prevent double-purchase spam while a background purchase is pending
+            if (pendingBackgroundPurchaseId) return
+
+            // Background UX: purchase then auto-apply right after server confirms
+            setPendingBackgroundPurchaseId(getBackgroundKey(item as BackgroundItem))
+            pendingBackgroundPurchaseRef.current = item as BackgroundItem
             eventBus.emit(ShopEvents.BuyBackground, {
                 itemType: "background",
                 itemId: String(item.id),
@@ -280,41 +482,6 @@ export const GameShopPage = () => {
             })
             return
         }
-    }
-
-    const handleChangeBackground = (item: BackgroundItem) => {
-        // Derive textureKey from item.texture or item.id
-        // BackgroundItem.texture contains displayId (e.g., "city", "sky")
-        // Texture keys in Phaser follow pattern: "city-bg", "sky-bg", or "game-background"
-        let textureKey: string
-        if (item.texture) {
-            // If texture is "game", use "game-background", otherwise append "-bg"
-            if (item.texture.toLowerCase() === "game") {
-                textureKey = "game-background"
-            } else {
-                textureKey = `${item.texture.toLowerCase()}-bg`
-            }
-        } else {
-            // Fallback: derive from item.id or item.name
-            const baseName = (item.id || item.name || "").toLowerCase()
-            if (baseName === "game" || baseName.includes("game")) {
-                textureKey = "game-background"
-            } else {
-                // Remove "-bg" suffix if present, then add it back
-                const cleanName = baseName.replace(/-bg$/, "")
-                textureKey = `${cleanName}-bg`
-            }
-        }
-
-        // Emit event to change background in GameScene
-        eventBus.emit(ShopEvents.ChangeBackground, {
-            itemId: String(item.id),
-            itemName: item.name,
-            textureKey
-        })
-
-        // Update Redux state
-        dispatch(setCurrentBackground(String(item.id)))
     }
 
     const handleClose = () => {
@@ -422,12 +589,18 @@ export const GameShopPage = () => {
                                         const owned = isItemOwned(item)
                                         const itemType = detectItemType(item)
                                         const isBackground = itemType === "background" || itemType === "backgrounds"
+                                        const isPendingBackground =
+                                            isBackground &&
+                                            pendingBackgroundPurchaseId === getBackgroundKey(item as BackgroundItem)
                                         const isActiveBackground =
-                                            isBackground && owned && currentBackgroundId === String(item.id)
+                                            isBackground &&
+                                            owned &&
+                                            currentBackgroundId === getBackgroundKey(item as BackgroundItem)
                                         return (
                                             <div
                                                 key={item.id}
                                                 onClick={() => {
+                                                    if (isPendingBackground) return
                                                     // If background and owned, allow clicking to change background
                                                     if (isBackground && owned) {
                                                         handleChangeBackground(item as BackgroundItem)
@@ -443,13 +616,18 @@ export const GameShopPage = () => {
                                                         : "border-shop-item"
                                                 }`}
                                                 style={{
-                                                    opacity: owned && !isActiveBackground ? 0.5 : 1,
-                                                    cursor:
-                                                        owned && !isBackground
-                                                            ? "not-allowed"
-                                                            : isActiveBackground
-                                                              ? "pointer"
-                                                              : "pointer"
+                                                    opacity: isPendingBackground
+                                                        ? 0.7
+                                                        : owned && !isActiveBackground
+                                                          ? 0.5
+                                                          : 1,
+                                                    cursor: isPendingBackground
+                                                        ? "progress"
+                                                        : owned && !isBackground
+                                                          ? "not-allowed"
+                                                          : isActiveBackground
+                                                            ? "pointer"
+                                                            : "pointer"
                                                 }}
                                             >
                                                 {/* Item Image */}
@@ -480,6 +658,11 @@ export const GameShopPage = () => {
                                                     {isActiveBackground && (
                                                         <span className="text-[10px] text-accent-purple font-semibold">
                                                             (Active)
+                                                        </span>
+                                                    )}
+                                                    {isPendingBackground && (
+                                                        <span className="text-[10px] text-accent-amber font-semibold">
+                                                            (Purchasing...)
                                                         </span>
                                                     )}
                                                     {owned && !isActiveBackground && (

@@ -280,12 +280,16 @@ class GameConfigManager {
     }
 
     getBackgroundPrice(backgroundId: string = "forest"): number {
-        const backgroundItem = this.config.backgrounds.items.find((item) => item.id === backgroundId)
+        const backgroundItem = this.config.backgrounds.items.find(
+            (item) => item.id === backgroundId || item.displayId === backgroundId || item.texture === backgroundId
+        )
         return backgroundItem?.cost_nom || this.config.backgrounds.defaultPrice
     }
 
     getBackgroundItem(backgroundId: string): BackgroundItem | undefined {
-        return this.config.backgrounds.items.find((item) => item.id === backgroundId)
+        return this.config.backgrounds.items.find(
+            (item) => item.id === backgroundId || item.displayId === backgroundId || item.texture === backgroundId
+        )
     }
 
     getBackgroundItems(): { [key: string]: BackgroundItem } {
