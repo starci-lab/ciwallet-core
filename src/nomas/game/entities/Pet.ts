@@ -219,7 +219,7 @@ export class Pet {
                 maxFrames = 5
                 break
             case "ghost":
-                maxFrames = 4 // Ghost uses idle animation for walk
+                maxFrames = 4
                 break
             case "zombie":
                 maxFrames = 6 // Zombie walk has 6 frames

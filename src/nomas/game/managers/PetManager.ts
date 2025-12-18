@@ -15,6 +15,17 @@ import { addToken, store } from "@/nomas/redux"
 import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
 import { eventBus } from "@/nomas/game/event-bus"
 import { HomeEvents } from "@/nomas/game/events/home/HomeEvents"
+import { GameUI } from "@/nomas/game/ui/GameUI"
+
+// Interface for scene with gameUI access
+interface SceneWithGameUI extends Phaser.Scene {
+    gameUI?: GameUI & {
+        getTokenUI?: () => {
+            getTokenIconPosition: () => { x: number; y: number }
+            update: () => void
+        }
+    }
+}
 
 export interface PetData {
     id: string
@@ -338,24 +349,22 @@ export class PetManager {
         const petData = this.pets.get(petId)
         if (petData) {
             const petSprite = petData.pet.sprite
-            const heart = this.scene.add.image(petSprite.x, petSprite.y - 30, "heart")
-            heart.setScale(0.05)
-            heart.setAlpha(0)
-            heart.setDepth(1000)
 
-            this.scene.tweens.add({
-                targets: heart,
-                y: heart.y - 20,
-                alpha: 1,
-                duration: 1000,
-                ease: "Power2",
-                yoyo: true,
-                hold: 500,
-                onComplete: () => heart.destroy()
+            petData.pet.setUserActivity("happy")
+
+            // Return to walk activity after happy animation completes (approximately 2-3 seconds)
+            this.scene.time.delayedCall(1100, () => {
+                if (petData && petData.pet.currentActivity === "happy") {
+                    petData.pet.setActivity("walk")
+                }
             })
 
-            const gameScene = this.scene as any
-            const tokenUI = gameScene.gameUI.getTokenUI()
+            const gameScene = this.scene as SceneWithGameUI
+            const tokenUI = gameScene.gameUI?.getTokenUI?.()
+            if (!tokenUI) {
+                console.warn("TokenUI not available, skipping coin animation")
+                return
+            }
             const tokenIconPosition = tokenUI.getTokenIconPosition()
 
             for (let i = 0; i < 5; i++) {
