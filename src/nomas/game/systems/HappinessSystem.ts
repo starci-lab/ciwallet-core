@@ -105,9 +105,7 @@ export class HappinessSystem {
      * @param happinessIncrease The amount to increase the happiness level by.
      */
     triggerPlay(happinessIncrease: number = 25): void {
-        const oldHappiness = this.happinessLevel
         this.happinessLevel = Math.min(100, this.happinessLevel + happinessIncrease)
-        console.log(`📈 Pet ${this.petId} happiness: ${oldHappiness.toFixed(1)} → ${this.happinessLevel.toFixed(1)}`)
 
         // Send played pet event to server if connected
         if (colyseusService.isConnected()) {
@@ -117,7 +115,6 @@ export class HappinessSystem {
                 pet_id: this.petId,
                 owner_id: userStore.addressWallet || "unknown"
             })
-            console.log(`📤 Sent 'played_pet' to server for pet ${this.petId}`)
         }
 
         // The PetManager is responsible for stopping the chase.

@@ -37,10 +37,10 @@ export const ShopTabs = ({ category, setCategory }: ShopTabsProps) => {
                             onClick={() => setCategory(tab.k)}
                             className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap shrink-0
                            transition-all duration-200 ${
-                               category === tab.k
-                                   ? "bg-accent-purple text"
-                                   : "bg-transparent text-muted hover:text-muted-hover"
-                           }`}
+                        category === tab.k
+                            ? "bg-accent-purple text"
+                            : "bg-transparent text-muted hover:text-muted-hover"
+                        }`}
                         >
                             {tab.t}
                         </button>

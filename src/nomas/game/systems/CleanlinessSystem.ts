@@ -248,6 +248,7 @@ export class CleanlinessSystem {
         const shouldPoop =
             !this.pet.isChasing &&
             this.pet.currentActivity !== "chew" &&
+            this.pet.currentActivity !== "shit" && // Prevent interrupting shit animation
             (cleanlinessState === CleanlinessState.Dirty || cleanlinessState === CleanlinessState.Filthy) &&
             this.cleanlinessLevel < GAME_MECHANICS.POOP_THRESHOLD
         if (shouldPoop) {
@@ -274,24 +275,63 @@ export class CleanlinessSystem {
         const petX = this.pet.sprite.x
         const petY = GAME_LAYOUT.POOP_GROWN_OFFSET
 
-        if (colyseusService.isConnected()) {
-            colyseusService.createPoop({
-                petId: this.petId,
-                positionX: petX,
-                positionY: petY
-            })
+        // Set pet activity to "shit" first
+        this.pet.setUserActivity("shit")
+        this.pet.isUserControlled = true // Prevent other activities during shitting
+
+        // Calculate animation duration based on pet type and frame count
+        const petType = this.pet.petType
+        let frameCount = 14 // default
+        switch (petType) {
+        case "chog":
+            frameCount = 14
+            break
+        case "keonedog":
+            frameCount = 14
+            break
+        case "ghost":
+            frameCount = 22
+            break
+        case "zombie":
+            frameCount = 18
+            break
+        default:
+            frameCount = 14
         }
+        const frameRate = 8 // From createShitAnimation in Pet.ts
+        const animationDuration = (frameCount / frameRate) * 1000 // Convert to ms
+
+        // Create poop after animation completes
+        this.scene.time.delayedCall(animationDuration, () => {
+            if (colyseusService.isConnected()) {
+                colyseusService.createPoop({
+                    petId: this.petId,
+                    positionX: petX,
+                    positionY: petY
+                })
+            } else {
+                // Offline mode: create poop directly
+                const tempPoopId = `poop_${this.petId}_${Date.now()}`
+                this.createPoopAt(petX, petY, tempPoopId)
+            }
+
+            // Return pet to normal state after a short delay
+            this.scene.time.delayedCall(500, () => {
+                this.pet.isUserControlled = false
+                this.pet.setActivity("walk")
+            })
+        })
     }
 
     /**
      * Public method để vẽ poop tại vị trí cụ thể
      * Dùng cho sync từ server hoặc tạo poop mới
      * @param x - Vị trí X
-     * @param y - Vị trí Y
+     * @param _y - Vị trí Y (not used, calculated from GamePositioning)
      * @param poopId - ID của poop (optional, cho tracking)
      * @returns Poop sprite đã tạo
      */
-    public createPoopAt(x: number, y: number, poopId: string): Phaser.GameObjects.Sprite | null {
+    public createPoopAt(x: number, _y: number, poopId: string): Phaser.GameObjects.Sprite | null {
         const existingPoop = this.poopObjects.find((poop) => poop.poopId === poopId)
 
         if (existingPoop) {
