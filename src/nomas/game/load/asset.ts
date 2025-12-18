@@ -21,10 +21,14 @@ export const getUrl = (path: string) => {
 
 export const loadChogAssets = (scene: Phaser.Scene) => {
     scene.load.image("chog-avatar", getUrl("Chog/chog.png"))
-    scene.load.atlas("dog-sleep", getUrl("Chog/chog_sleep.png"), getUrl("Chog/chog_sleep.json"))
-    scene.load.atlas("dog-play", getUrl("Chog/chog_idleplay.png"), getUrl("Chog/chog_idleplay.json"))
-    scene.load.atlas("dog-chew", getUrl("Chog/chog_chew.png"), getUrl("Chog/chog_chew.json"))
-    scene.load.atlas("dog-walk", getUrl("Chog/chog_walk.png"), getUrl("Chog/chog_walk_animated.json"))
+    scene.load.atlas("chog-sleep", getUrl("Chog/chog_sleep.png"), getUrl("Chog/chog_sleep.json"))
+    scene.load.atlas("chog-idleplay", getUrl("Chog/chog_idleplay.png"), getUrl("Chog/chog_idleplay.json"))
+    scene.load.atlas("chog-chew", getUrl("Chog/chog_chew.png"), getUrl("Chog/chog_chew.json"))
+    scene.load.atlas("chog-walk", getUrl("Chog/chog_walk.png"), getUrl("Chog/chog_walk_animated.json"))
+    scene.load.atlas("chog-play", getUrl("Chog/chog_play.png"), getUrl("Chog/chog_play.json"))
+    scene.load.atlas("chog-idle", getUrl("Chog/chog_idle.png"), getUrl("Chog/chog_idle.json"))
+    scene.load.atlas("chog-happy", getUrl("Chog/chog_happy.png"), getUrl("Chog/chog_happy.json"))
+    scene.load.atlas("chog-shit", getUrl("Chog/chog_shit.png"), getUrl("Chog/chog_shit.json"))
 }
 
 export const loadZombieAssets = (scene: Phaser.Scene) => {
@@ -34,17 +38,23 @@ export const loadZombieAssets = (scene: Phaser.Scene) => {
     scene.load.atlas("zombie-idleplay", getUrl("Zombie/zombie_idleplay.png"), getUrl("Zombie/zombie_idleplay.json"))
     scene.load.atlas("zombie-chew", getUrl("Zombie/zombie_chew.png"), getUrl("Zombie/zombie_chew.json"))
     scene.load.atlas("zombie-sleep", getUrl("Zombie/zombie_sleep.png"), getUrl("Zombie/zombie_sleep.json"))
+    scene.load.atlas("zombie-happy", getUrl("Zombie/zombie_happy.png"), getUrl("Zombie/zombie_happy.json"))
+    scene.load.atlas("zombie-shit", getUrl("Zombie/zombie_shit.png"), getUrl("Zombie/zombie_shit.json"))
+    scene.load.atlas("zombie-play", getUrl("Zombie/zombie_play.png"), getUrl("Zombie/zombie_play.json"))
 }
 
 export const loadKeoneDogAssets = (scene: Phaser.Scene) => {
     scene.load.image("keonedog-avatar", getUrl("KeoneDog/keonedog.png"))
     scene.load.atlas("keonedog-idle", getUrl("KeoneDog/keonedog_idle.png"), getUrl("KeoneDog/keonedog_idle.json"))
     scene.load.atlas("keonedog-sleep", getUrl("KeoneDog/keonedog_sleep.png"), getUrl("KeoneDog/keonedog_sleep.json"))
+    scene.load.atlas("keonedog-play", getUrl("KeoneDog/keonedog_play.png"), getUrl("KeoneDog/keonedog_play.json"))
     scene.load.atlas(
-        "keonedog-play",
+        "keonedog-idleplay",
         getUrl("KeoneDog/keonedog_idleplay.png"),
         getUrl("KeoneDog/keonedog_idleplay.json")
     )
+    scene.load.atlas("keonedog-happy", getUrl("KeoneDog/keonedog_happy.png"), getUrl("KeoneDog/keonedog_happy.json"))
+    scene.load.atlas("keonedog-shit", getUrl("KeoneDog/keonedog_shit.png"), getUrl("KeoneDog/keonedog_shit.json"))
     scene.load.atlas("keonedog-chew", getUrl("KeoneDog/keonedog_chew.png"), getUrl("KeoneDog/keonedog_chew.json"))
     scene.load.atlas("keonedog-walk", getUrl("KeoneDog/keonedog_walk.png"), getUrl("KeoneDog/keonedog_walk.json"))
 }
@@ -53,7 +63,10 @@ export const loadGhostAssets = (scene: Phaser.Scene) => {
     scene.load.image("ghost-avatar", getUrl("Ghost/ghost.png"))
     scene.load.atlas("ghost-idle", getUrl("Ghost/ghost_idle.png"), getUrl("Ghost/ghost_idle.json"))
     scene.load.atlas("ghost-sleep", getUrl("Ghost/ghost_sleep.png"), getUrl("Ghost/ghost_sleep.json"))
-    scene.load.atlas("ghost-play", getUrl("Ghost/ghost_idleplay.png"), getUrl("Ghost/ghost_idleplay.json"))
+    scene.load.atlas("ghost-idleplay", getUrl("Ghost/ghost_idleplay.png"), getUrl("Ghost/ghost_idleplay.json"))
+    scene.load.atlas("ghost-happy", getUrl("Ghost/ghost_happy.png"), getUrl("Ghost/ghost_happy.json"))
+    scene.load.atlas("ghost-shit", getUrl("Ghost/ghost_shit.png"), getUrl("Ghost/ghost_shit.json"))
+    scene.load.atlas("ghost-play", getUrl("Ghost/ghost_play.png"), getUrl("Ghost/ghost_play.json"))
     scene.load.atlas("ghost-chew", getUrl("Ghost/ghost_chew.png"), getUrl("Ghost/ghost_chew.json"))
     scene.load.atlas("ghost-walk", getUrl("Ghost/ghost_walk.png"), getUrl("Ghost/ghost_walk.json"))
 }

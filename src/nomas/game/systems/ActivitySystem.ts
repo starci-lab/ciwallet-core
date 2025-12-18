@@ -47,8 +47,8 @@ export class ActivitySystem {
 
     private randomActivity() {
         const activityPool = [
-            { name: "idleplay", weight: 85 },
-            { name: "sleep", weight: 15 }
+            { name: "idleplay", weight: 80 },
+            { name: "sleep", weight: 20 }
         ]
 
         const newActivity = this.getRandomWeightedActivity(activityPool)

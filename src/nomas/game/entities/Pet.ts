@@ -148,7 +148,7 @@ export class Pet {
                 return `zombie-${activity}`
             case "chog":
             default:
-                return `dog-${activity}`
+                return `chog-${activity}`
         }
     }
 
@@ -188,7 +188,7 @@ export class Pet {
                 return `zombie-${activity}`
             case "chog":
             default:
-                return `dog-${activity}`
+                return `chog-${activity}`
         }
     }
 
@@ -199,6 +199,9 @@ export class Pet {
         this.createPlayAnimations()
         this.createChewAnimations()
         this.createIdleAnimation()
+        this.createIdlePlayAnimation()
+        this.createHappyAnimation()
+        this.createShitAnimation()
     }
 
     private createWalkAnimation() {
@@ -407,6 +410,137 @@ export class Pet {
         })
     }
 
+    private createIdlePlayAnimation() {
+        const textureKey = this.getTextureKey("idleplay")
+        const animationKey = this.getAnimationKey("idleplay")
+        const loopAnimationKey = this.getAnimationKey("idleplay-loop")
+
+        const frames = []
+        // Get correct frame count for each pet type
+        let maxFrames = 15 // Default fallback
+        switch (this.petType) {
+            case "chog":
+                maxFrames = 15
+                break
+            case "keonedog":
+                maxFrames = 10
+                break
+            case "ghost":
+                maxFrames = 16
+                break
+            case "zombie":
+                maxFrames = 9
+                break
+            default:
+                maxFrames = 15
+        }
+
+        for (let i = 0; i < maxFrames; i++) {
+            frames.push({
+                key: textureKey,
+                frame: this.getFrameKey("idleplay", i)
+            })
+        }
+
+        // IdlePlay animation (plays once)
+        this.scene.anims.create({
+            key: animationKey,
+            frames,
+            frameRate: 10,
+            repeat: 1
+        })
+
+        // IdlePlay loop animation (repeats forever)
+        this.scene.anims.create({
+            key: loopAnimationKey,
+            frames,
+            frameRate: 10,
+            repeat: -1
+        })
+    }
+
+    private createHappyAnimation() {
+        const textureKey = this.getTextureKey("happy")
+        const animationKey = this.getAnimationKey("happy")
+        const loopAnimationKey = this.getAnimationKey("happy-loop")
+
+        const frames = []
+        // All pet types have 4 frames for happy
+        const maxFrames = 4
+
+        for (let i = 0; i < maxFrames; i++) {
+            frames.push({
+                key: textureKey,
+                frame: this.getFrameKey("happy", i)
+            })
+        }
+
+        // Happy animation (plays once)
+        this.scene.anims.create({
+            key: animationKey,
+            frames,
+            frameRate: 8,
+            repeat: 1
+        })
+
+        // Happy loop animation (repeats forever)
+        this.scene.anims.create({
+            key: loopAnimationKey,
+            frames,
+            frameRate: 8,
+            repeat: -1
+        })
+    }
+
+    private createShitAnimation() {
+        const textureKey = this.getTextureKey("shit")
+        const animationKey = this.getAnimationKey("shit")
+        const loopAnimationKey = this.getAnimationKey("shit-loop")
+
+        const frames = []
+        // Get correct frame count for each pet type
+        let maxFrames = 14 // Default fallback
+        switch (this.petType) {
+            case "chog":
+                maxFrames = 14
+                break
+            case "keonedog":
+                maxFrames = 14
+                break
+            case "ghost":
+                maxFrames = 22
+                break
+            case "zombie":
+                maxFrames = 18
+                break
+            default:
+                maxFrames = 14
+        }
+
+        for (let i = 0; i < maxFrames; i++) {
+            frames.push({
+                key: textureKey,
+                frame: this.getFrameKey("shit", i)
+            })
+        }
+
+        // Shit animation (plays once)
+        this.scene.anims.create({
+            key: animationKey,
+            frames,
+            frameRate: 8,
+            repeat: 1
+        })
+
+        // Shit loop animation (repeats forever)
+        this.scene.anims.create({
+            key: loopAnimationKey,
+            frames,
+            frameRate: 8,
+            repeat: -1
+        })
+    }
+
     updateActivity() {
         switch (this.currentActivity) {
             case "walk":
@@ -423,9 +557,9 @@ export class Pet {
                 break
             case "idleplay":
                 if (this.isUserControlled) {
-                    this.sprite.play(this.getAnimationKey("play-loop"))
+                    this.sprite.play(this.getAnimationKey("idleplay-loop"))
                 } else {
-                    this.sprite.play(this.getAnimationKey("play"))
+                    this.sprite.play(this.getAnimationKey("idleplay"))
                 }
                 this.isMoving = false
                 break
@@ -434,6 +568,22 @@ export class Pet {
                     this.sprite.play(this.getAnimationKey("chew-loop"))
                 } else {
                     this.sprite.play(this.getAnimationKey("chew"))
+                }
+                this.isMoving = false
+                break
+            case "happy":
+                if (this.isUserControlled) {
+                    this.sprite.play(this.getAnimationKey("happy-loop"))
+                } else {
+                    this.sprite.play(this.getAnimationKey("happy"))
+                }
+                this.isMoving = false
+                break
+            case "shit":
+                if (this.isUserControlled) {
+                    this.sprite.play(this.getAnimationKey("shit-loop"))
+                } else {
+                    this.sprite.play(this.getAnimationKey("shit"))
                 }
                 this.isMoving = false
                 break
