@@ -283,20 +283,23 @@ export class CleanlinessSystem {
         const petType = this.pet.petType
         let frameCount = 14 // default
         switch (petType) {
-        case "chog":
-            frameCount = 14
-            break
-        case "keonedog":
-            frameCount = 14
-            break
-        case "ghost":
-            frameCount = 22
-            break
-        case "zombie":
-            frameCount = 18
-            break
-        default:
-            frameCount = 14
+            case "chog":
+                frameCount = 14
+                break
+            case "keonedog":
+                frameCount = 14
+                break
+            case "ghost":
+                frameCount = 22
+                break
+            case "zombie":
+                frameCount = 18
+                break
+            case "bird":
+                frameCount = 12
+                break
+            default:
+                frameCount = 14
         }
         const frameRate = 8 // From createShitAnimation in Pet.ts
         const animationDuration = (frameCount / frameRate) * 1000 // Convert to ms

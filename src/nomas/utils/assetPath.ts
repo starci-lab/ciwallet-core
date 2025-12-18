@@ -15,7 +15,9 @@ function normalizePetName(petName: string): string {
         Chog: "Chog",
         chog: "Chog",
         Ghost: "Ghost",
-        ghost: "Ghost"
+        ghost: "Ghost",
+        Bird: "Bird",
+        bird: "Bird"
     }
 
     return nameMappings[petName] || petName
@@ -37,33 +39,33 @@ export function generateAssetPath(config: AssetPathConfig): string {
 
     // Handle different category patterns
     switch (category.toLowerCase()) {
-    case "food":
-        return `${basePath}food/${itemName.toLowerCase()}.${extension}`
+        case "food":
+            return `${basePath}food/${itemName.toLowerCase()}.${extension}`
 
-    case "toy":
-    case "toys":
-        return `${basePath}toy/${itemName.toLowerCase()}.${extension}`
+        case "toy":
+        case "toys":
+            return `${basePath}toy/${itemName.toLowerCase()}.${extension}`
 
-    case "clean":
-    case "cleaning":
-        return `${basePath}clean/${itemName.toLowerCase()}.${extension}`
+        case "clean":
+        case "cleaning":
+            return `${basePath}clean/${itemName.toLowerCase()}.${extension}`
 
-    case "pets":
-    case "pet":
-        // Normalize pet name to match folder structure
-        const normalizedPetName = normalizePetName(itemName)
-        return `${basePath}${normalizedPetName}/${normalizedPetName.toLowerCase()}.${extension}`
+        case "pets":
+        case "pet":
+            // Normalize pet name to match folder structure
+            const normalizedPetName = normalizePetName(itemName)
+            return `${basePath}${normalizedPetName}/${normalizedPetName.toLowerCase()}.${extension}`
 
-    case "backgrounds":
-    case "background":
-        return `${basePath}backgrounds/${itemName.toLowerCase()}-bg.${extension}`
+        case "backgrounds":
+        case "background":
+            return `${basePath}backgrounds/${itemName.toLowerCase()}-bg.${extension}`
 
-    case "furniture":
-        // Default furniture icon
-        return `${basePath}effects/coin.${extension.toLowerCase()}`
+        case "furniture":
+            // Default furniture icon
+            return `${basePath}effects/coin.${extension.toLowerCase()}`
 
-    default:
-        return `${basePath}${category}/${itemName.toLowerCase()}.${extension}`
+        default:
+            return `${basePath}${category}/${itemName.toLowerCase()}.${extension}`
     }
 }
 
@@ -175,7 +177,10 @@ export const PET_VARIANTS = {
     SLEEP: "sleep",
     EAT: "eat",
     CHEW: "chew",
-    IDLEPLAY: "idleplay"
+    IDLEPLAY: "idleplay",
+    HAPPY: "happy",
+    SHIT: "shit",
+    PLAY: "play"
 } as const
 
 /**
@@ -191,6 +196,6 @@ export const getAssetUrlFromDisplayId = (
     return generateAssetPath({
         category: type,
         itemName: displayId,
-        variant: type === "pet" ? "idle" : undefined
+        variant: type === "pet" ? PET_VARIANTS.IDLE : undefined
     })
 }

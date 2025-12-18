@@ -71,12 +71,25 @@ export const loadGhostAssets = (scene: Phaser.Scene) => {
     scene.load.atlas("ghost-walk", getUrl("Ghost/ghost_walk.png"), getUrl("Ghost/ghost_walk.json"))
 }
 
+export const loadBirdAssets = (scene: Phaser.Scene) => {
+    scene.load.image("bird-avatar", getUrl("Bird/bird.png"))
+    scene.load.atlas("bird-idle", getUrl("Bird/bird_idle.png"), getUrl("Bird/bird_idle.json"))
+    scene.load.atlas("bird-sleep", getUrl("Bird/bird_sleep.png"), getUrl("Bird/bird_sleep.json"))
+    scene.load.atlas("bird-walk", getUrl("Bird/bird_walk.png"), getUrl("Bird/bird_walk.json"))
+    scene.load.atlas("bird-play", getUrl("Bird/bird_play.png"), getUrl("Bird/bird_play.json"))
+    scene.load.atlas("bird-chew", getUrl("Bird/bird_chew.png"), getUrl("Bird/bird_chew.json"))
+    scene.load.atlas("bird-idleplay", getUrl("Bird/bird_idleplay.png"), getUrl("Bird/bird_idleplay.json"))
+    scene.load.atlas("bird-happy", getUrl("Bird/bird_happy.png"), getUrl("Bird/bird_happy.json"))
+    scene.load.atlas("bird-shit", getUrl("Bird/bird_shit.png"), getUrl("Bird/bird_shit.json"))
+}
+
 // Load all pet assets
 export const loadAllPetAssets = (scene: Phaser.Scene) => {
     loadChogAssets(scene)
     loadKeoneDogAssets(scene)
     loadGhostAssets(scene)
     loadZombieAssets(scene)
+    loadBirdAssets(scene)
 }
 
 // Load background assets

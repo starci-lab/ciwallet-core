@@ -1,4 +1,3 @@
- 
 /**
  * Simple helper to get pet image URL (direct path method)
  * Use this if Phaser scene is not available or for simpler cases
@@ -10,7 +9,8 @@ export const getPetImagePath = (petType: string): string => {
         keonedog: "/assets/game/KeoneDog/keonedog.png",
         ghost: "/assets/game/Ghost/ghost.png",
         zombie: "/assets/game/Zombie/zombie.png",
-        chog: "/assets/game/Chog/chog.png"
+        chog: "/assets/game/Chog/chog.png",
+        bird: "/assets/game/Bird/bird.png"
     }
 
     for (const [key, path] of Object.entries(petAssetMap)) {

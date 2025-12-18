@@ -146,6 +146,8 @@ export class Pet {
                 return `ghost-${activity}`
             case "zombie":
                 return `zombie-${activity}`
+            case "bird":
+                return `bird-${activity}`
             case "chog":
             default:
                 return `chog-${activity}`
@@ -163,7 +165,9 @@ export class Pet {
                   ? "ghost"
                   : this.petType === "zombie"
                     ? "zombie"
-                    : "chog"
+                    : this.petType === "bird"
+                      ? "bird"
+                      : "chog"
 
         // Handle different frame naming conventions
         if (this.petType === "zombie") {
@@ -186,6 +190,8 @@ export class Pet {
                 return `ghost-${activity}`
             case "zombie":
                 return `zombie-${activity}`
+            case "bird":
+                return `bird-${activity}`
             case "chog":
             default:
                 return `chog-${activity}`
@@ -223,6 +229,9 @@ export class Pet {
                 break
             case "zombie":
                 maxFrames = 6 // Zombie walk has 6 frames
+                break
+            case "bird":
+                maxFrames = 4
                 break
             default:
                 maxFrames = 6
@@ -263,6 +272,9 @@ export class Pet {
                 break
             case "zombie":
                 maxFrames = 4 // Zombie sleep has 4 frames
+                break
+            case "bird":
+                maxFrames = 4
                 break
             default:
                 maxFrames = 6
@@ -313,6 +325,9 @@ export class Pet {
             case "zombie":
                 maxFrames = 10
                 break
+            case "bird":
+                maxFrames = 20
+                break
             default:
                 maxFrames = 15
         }
@@ -361,6 +376,9 @@ export class Pet {
                 break
             case "zombie":
                 maxFrames = 8 // Zombie chew has 8 frames
+                break
+            case "bird":
+                maxFrames = 6
                 break
             default:
                 maxFrames = 6
@@ -430,6 +448,9 @@ export class Pet {
                 break
             case "zombie":
                 maxFrames = 9
+                break
+            case "bird":
+                maxFrames = 7
                 break
             default:
                 maxFrames = 15
@@ -512,6 +533,9 @@ export class Pet {
                 break
             case "zombie":
                 maxFrames = 18
+                break
+            case "bird":
+                maxFrames = 12
                 break
             default:
                 maxFrames = 14
