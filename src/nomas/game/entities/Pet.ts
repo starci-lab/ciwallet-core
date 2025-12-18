@@ -302,16 +302,16 @@ export class Pet {
         let maxFrames = 15 // Default fallback
         switch (this.petType) {
             case "chog":
-                maxFrames = 15
+                maxFrames = 19
                 break
             case "keonedog":
-                maxFrames = 10
+                maxFrames = 14
                 break
             case "ghost":
-                maxFrames = 10 // Ghost uses same frame count as KeoneDog
+                maxFrames = 20
                 break
             case "zombie":
-                maxFrames = 9 // Zombie idleplay has 9 frames
+                maxFrames = 10
                 break
             default:
                 maxFrames = 15
@@ -320,7 +320,7 @@ export class Pet {
         for (let i = 0; i < maxFrames; i++) {
             frames.push({
                 key: textureKey,
-                frame: this.getFrameKey("idleplay", i) // Note: using "idleplay" for frame naming
+                frame: this.getFrameKey("play", i) // Note: using "idleplay" for frame naming
             })
         }
 
@@ -546,6 +546,14 @@ export class Pet {
             case "walk":
                 this.sprite.play(this.getAnimationKey("walk"))
                 this.isMoving = true
+                break
+            case "play":
+                if (this.isUserControlled) {
+                    this.sprite.play(this.getAnimationKey("play-loop"))
+                } else {
+                    this.sprite.play(this.getAnimationKey("play"))
+                }
+                this.isMoving = false
                 break
             case "sleep":
                 if (this.isUserControlled) {

@@ -122,7 +122,7 @@ export class HappinessSystem {
 
         // The PetManager is responsible for stopping the chase.
         // This system is only responsible for updating state and animation.
-        this.pet.setActivity("idleplay")
+        this.pet.setActivity("play")
     }
 
     // ===== CLEANUP =====
