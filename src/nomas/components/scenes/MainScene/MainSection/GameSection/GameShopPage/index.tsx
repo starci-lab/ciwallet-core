@@ -1,29 +1,20 @@
 /* eslint-disable indent */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { gameConfigManager } from "@/nomas/game/configs/gameConfig"
+import { useCallback, useState } from "react"
 import { eventBus } from "@/nomas/game/event-bus"
 import { ShopEvents } from "@/nomas/game/events/shop/ShopEvents"
-import { ColyseusActionEvents, ColyseusMessageEvents } from "@/nomas/game/colyseus/events"
-import type {
-    FoodItem,
-    ToyItem,
-    PetItem,
-    BackgroundItem,
-    CleaningItem,
-    FurnitureItem
-} from "@/nomas/game/configs/gameConfig"
-import { useAppSelector, useAppDispatch } from "@/nomas/redux"
-import { setCurrentBackground, selectCurrentBackground, setOwnedItems } from "@/nomas/redux/slices/stateless/user"
+import type { BackgroundItem } from "@/nomas/game/configs/gameConfig"
+import type { FoodItem, ToyItem, PetItem, CleaningItem } from "@/nomas/game/configs/gameConfig"
+import type { ShopCategoryKey } from "@/types/game"
+import { useAppDispatch, useAppSelector } from "@/nomas/redux"
+import { selectCurrentBackground, setCurrentBackground } from "@/nomas/redux/slices/stateless/user"
 import { getShopItemAssetPath } from "@/nomas/utils/assetPath"
 import createResizedCursor from "@/nomas/utils/resizeImage"
-import { ScrollArea } from "@/nomas/components/shadcn/scroll-area"
-import { NomasImage, NomasInput, NomasCard, NomasCardBody, NomasCardVariant } from "@/nomas/components"
+import { NomasCard, NomasCardBody, NomasCardVariant } from "@/nomas/components"
 import { assetsConfig, getUrl } from "@/nomas/resources"
-
-/**
- * Union type for all shop items
- */
-type ShopItem = FoodItem | ToyItem | PetItem | BackgroundItem | CleaningItem | FurnitureItem
+import { useShopItems, useShopOwnership, useBackgroundPurchaseFlow } from "./hooks"
+import { getBackgroundTextureKey, getBackgroundKey } from "./utils/shopKeys"
+import type { ShopItem } from "@/types/game"
+import { ShopHeader, ShopBalance, ShopTabs, ShopGrid } from "./components"
 
 /**
  * GameShopPage - Full page shop component
@@ -31,650 +22,172 @@ type ShopItem = FoodItem | ToyItem | PetItem | BackgroundItem | CleaningItem | F
  * Displays shop UI similar to ReactShopModal but as a full page layout
  */
 export const GameShopPage = () => {
-    // Shop UI state
-    const [category, setCategory] = useState<string>("pets")
-    const [items, setItems] = useState<ShopItem[]>([])
+    const [category, setCategory] = useState<ShopCategoryKey>("pets")
 
-    // Get balance and state from Redux
     const dispatch = useAppDispatch()
     const balance = useAppSelector((state) => state.stateless.user.nomToken)
     const ownedItems = useAppSelector((state) => state.stateless.user.ownedItems)
     const currentBackgroundId = useAppSelector(selectCurrentBackground)
     const assets = assetsConfig().game
 
-    // Background purchase: keep a pending item so we can auto-apply it right after server confirms purchase
-    const pendingBackgroundPurchaseRef = useRef<BackgroundItem | null>(null)
-    const [pendingBackgroundPurchaseId, setPendingBackgroundPurchaseId] = useState<string | null>(null)
-    // Optimistic owned keys for backgrounds (ids/names lowercased) so shop UI updates instantly
-    const [optimisticOwnedBackgroundKeys, setOptimisticOwnedBackgroundKeys] = useState<Set<string>>(new Set())
+    // Hooks
+    const items = useShopItems(category)
 
-    // Stable identifier for backgrounds across UI / server inventory / assets
-    const getBackgroundKey = useCallback((item: BackgroundItem): string => {
-        return String(item.displayId ?? item.id ?? item.texture ?? item.name)
+    const getItemImageUrl = useCallback((cat: ShopCategoryKey, shopItem: ShopItem): string => {
+        return getUrl(getShopItemAssetPath(cat, shopItem))
     }, [])
-
-    // Tabs container ref for scrolling
-    const tabsContainerRef = useRef<HTMLDivElement | null>(null)
-
-    const detectItemType = (
-        shopItem: ShopItem
-    ): "food" | "toy" | "clean" | "pets" | "background" | "backgrounds" | "furniture" => {
-        // Prefer explicit store item type when available
-        const storeType = (shopItem as { type?: string }).type
-        switch (storeType) {
-            case "food":
-                return "food"
-            case "toy":
-                return "toy"
-            case "clean":
-                return "clean"
-            case "furniture":
-                return "furniture"
-            case "background":
-                return "background"
-            case "pet":
-                return "pets"
-            default:
-                break
-        }
-
-        // Fallback heuristics based on effect fields
-        if ((shopItem as { hungerRestore?: number }).hungerRestore !== undefined) {
-            return "food"
-        }
-        if ((shopItem as { happinessRestore?: number }).happinessRestore !== undefined) {
-            return "toy"
-        }
-        if ((shopItem as { cleanlinessRestore?: number }).cleanlinessRestore !== undefined) {
-            return "clean"
-        }
-        return "furniture"
-    }
-
-    const getPurchaseItemIds = (shopItem: ShopItem): string[] => {
-        const type = detectItemType(shopItem)
-        const nameLc = shopItem.name ? shopItem.name.toLowerCase() : undefined
-        switch (type) {
-            case "food":
-                return [
-                    String((shopItem as FoodItem).displayId ?? (shopItem as FoodItem).id ?? shopItem.name),
-                    nameLc
-                ].filter(Boolean) as string[]
-            case "toy":
-                return [
-                    (shopItem as ToyItem).id ?? (shopItem as ToyItem).displayId?.toLocaleLowerCase() ?? shopItem.name,
-                    nameLc
-                ]
-                    .filter(Boolean)
-                    .map(String)
-            case "clean":
-                return [
-                    (shopItem as CleaningItem).id ??
-                        (shopItem as CleaningItem).displayId?.toLocaleLowerCase() ??
-                        shopItem.name,
-                    nameLc
-                ]
-                    .filter(Boolean)
-                    .map(String)
-            case "furniture":
-                return [String((shopItem as FurnitureItem).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
-            case "background":
-            case "backgrounds":
-                return [
-                    String((shopItem as BackgroundItem).displayId ?? (shopItem as BackgroundItem).id ?? shopItem.name),
-                    String((shopItem as BackgroundItem).id ?? ""),
-                    (shopItem as BackgroundItem).texture
-                        ? String((shopItem as BackgroundItem).texture).toLowerCase()
-                        : undefined,
-                    nameLc
-                ].filter(Boolean) as string[]
-            case "pets":
-                return [String((shopItem as PetItem).displayId ?? shopItem.name), nameLc].filter(Boolean) as string[]
-            default:
-                return [String((shopItem as { id?: string }).id ?? shopItem.name), nameLc].filter(Boolean) as string[]
-        }
-    }
-
-    const ownedByType = useMemo(() => {
-        const map: Record<string, Set<string>> = {}
-        ownedItems.forEach((item) => {
-            const typeKey = item.itemType.toLowerCase()
-            const altKeys =
-                typeKey === "backgrounds"
-                    ? ["background", "backgrounds"]
-                    : typeKey === "background"
-                      ? ["background", "backgrounds"]
-                      : [typeKey]
-
-            const idValue = String(item.itemId).toLowerCase()
-            const nameValue = item.itemName ? item.itemName.toLowerCase() : undefined
-
-            altKeys.forEach((k) => {
-                if (!map[k]) {
-                    map[k] = new Set()
-                }
-                map[k].add(idValue)
-                if (nameValue) {
-                    map[k].add(nameValue)
-                }
-            })
-        })
-        return map
-    }, [ownedItems])
-
-    // Track how server inventory evolves vs local optimistic keys (but DO NOT clear optimistic keys anymore)
-    // This ensures once a background is purchased in this session, the shop UI will always treat it as owned,
-    // even if server inventory is temporarily stale or missing it.
-    useEffect(() => {
-        if (optimisticOwnedBackgroundKeys.size === 0) return
-
-        const serverBgKeys: string[] = []
-        ownedItems.forEach((it) => {
-            const typeLc = String(it.itemType || "").toLowerCase()
-            if (typeLc !== "background" && typeLc !== "backgrounds") return
-            serverBgKeys.push(String(it.itemId).toLowerCase())
-            if (it.itemName) serverBgKeys.push(String(it.itemName).toLowerCase())
-        })
-        // intentionally retain optimistic keys; serverBgKeys is available for future logic if needed
-    }, [ownedItems, optimisticOwnedBackgroundKeys])
-
-    const isItemOwned = (shopItem: ShopItem): boolean => {
-        const type = detectItemType(shopItem)
-        const ids = getPurchaseItemIds(shopItem)
-        // Backgrounds may be keyed as "background" in inventory while tab key is "backgrounds"
-        const typeKeys =
-            type === "backgrounds"
-                ? ["background", "backgrounds"]
-                : type === "background"
-                  ? ["background", "backgrounds"]
-                  : [type]
-
-        const isBackgroundType = typeKeys.includes("background") || typeKeys.includes("backgrounds")
-
-        // Background UX: allow optimistic ownership (avoid stale sync overwriting right after purchase)
-        if (isBackgroundType) {
-            const optimisticHit = ids.some((id) => optimisticOwnedBackgroundKeys.has(String(id).toLowerCase()))
-            if (optimisticHit) {
-                return true
-            }
-        }
-
-        const serverHit = typeKeys.some((t) => {
-            const set = ownedByType[t]
-            if (!set) return false
-            return ids.some((id) => set.has(id.toLowerCase()))
-        })
-
-        return serverHit
-    }
-
-    const getItemImageSrc = (cat: string, shopItem: ShopItem): string => {
-        const effectiveCategory = cat === "items" ? detectItemType(shopItem) : (cat as string)
-        return getShopItemAssetPath(effectiveCategory, shopItem)
-    }
-
-    useEffect(() => {
-        const wrap = tabsContainerRef.current
-        if (!wrap) return
-        const activeBtn = wrap.querySelector<HTMLButtonElement>(`button[data-key="${category}"]`)
-        if (!activeBtn) return
-        activeBtn.scrollIntoView({
-            behavior: "smooth",
-            inline: "center",
-            block: "nearest"
-        })
-    }, [category])
-
-    useEffect(() => {
-        switch (category) {
-            case "food":
-                setItems(Object.values(gameConfigManager.getFoodItems()))
-                break
-            case "toy":
-                setItems(Object.values(gameConfigManager.getToyItems()))
-                break
-            case "clean":
-                setItems(Object.values(gameConfigManager.getCleaningItems()))
-                break
-            case "furniture":
-                setItems(Object.values(gameConfigManager.getFurnitureItems()))
-                break
-            case "pets":
-                setItems(Object.values(gameConfigManager.getPetItems()))
-                break
-            case "backgrounds":
-                setItems(Object.values(gameConfigManager.getBackgroundItems()))
-                break
-            default:
-                setItems([])
-        }
-    }, [category])
 
     const handleChangeBackground = useCallback(
         (item: BackgroundItem) => {
-            // #region agent log
-            fetch("http://127.0.0.1:7242/ingest/41c2262e-bac6-412a-ad1a-6eaf19df1dc8", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    sessionId: "debug-session",
-                    runId: "run1",
-                    hypothesisId: "H1",
-                    location: "GameShopPage:handleChangeBackground",
-                    message: "change background invoked",
-                    data: {
-                        bgKey: getBackgroundKey(item),
-                        itemId: item.id,
-                        displayId: item.displayId,
-                        texture: item.texture,
-                        currentBackgroundId
-                    },
-                    timestamp: Date.now()
-                })
-            }).catch(() => {})
-            // #endregion
-            // Derive textureKey from item.texture or item.id
-            // BackgroundItem.texture contains displayId (e.g., "city", "sky")
-            // Texture keys in Phaser follow pattern: "city-bg", "sky-bg", or "game-background"
-            let textureKey: string
-            if (item.texture) {
-                // If texture is "game", use "game-background", otherwise append "-bg"
-                if (item.texture.toLowerCase() === "game") {
-                    textureKey = "game-background"
-                } else {
-                    textureKey = `${item.texture.toLowerCase()}-bg`
-                }
-            } else {
-                // Fallback: derive from item.id or item.name
-                const baseName = (item.id || item.name || "").toLowerCase()
-                if (baseName === "game" || baseName.includes("game")) {
-                    textureKey = "game-background"
-                } else {
-                    // Remove "-bg" suffix if present, then add it back
-                    const cleanName = baseName.replace(/-bg$/, "")
-                    textureKey = `${cleanName}-bg`
-                }
-            }
+            const textureKey = getBackgroundTextureKey(item)
+            const bgKey = getBackgroundKey(item)
 
             // Emit event to change background in GameScene
             eventBus.emit(ShopEvents.ChangeBackground, {
-                itemId: getBackgroundKey(item),
+                itemId: bgKey,
                 itemName: item.name,
                 textureKey
             })
 
             // Update Redux state
-            dispatch(setCurrentBackground(getBackgroundKey(item)))
+            dispatch(setCurrentBackground(bgKey))
         },
-        [dispatch, getBackgroundKey]
+        [dispatch]
     )
 
-    // When a background purchase succeeds, refresh inventory + apply the background immediately (UX: no reload needed)
-    useEffect(() => {
-        const onPurchaseResponse = (message: unknown) => {
-            const pending = pendingBackgroundPurchaseRef.current
-            if (!pending) return
+    const {
+        pendingBackgroundPurchaseId,
+        optimisticOwnedBackgroundKeys,
+        setPendingBackground,
+        getBackgroundKey: getBgKey
+    } = useBackgroundPurchaseFlow(handleChangeBackground)
 
-            const msg = message as { success?: boolean }
-            if (msg?.success === false) {
-                pendingBackgroundPurchaseRef.current = null
-                setPendingBackgroundPurchaseId(null)
+    const { isItemOwned, detectItemType } = useShopOwnership(ownedItems, optimisticOwnedBackgroundKeys)
+
+    const handleBuy = useCallback(
+        (item: ShopItem) => {
+            const mappedCategory =
+                category === "backgrounds"
+                    ? "background"
+                    : category === "pets"
+                      ? "pet"
+                      : (category as "food" | "toy" | "clean" | "furniture")
+
+            if (category === "pets") {
+                const petType = String((item as PetItem).texture ?? item.name ?? "")
+                eventBus.emit(ShopEvents.BuyPet, {
+                    petType,
+                    petId: String((item as PetItem).displayId),
+                    petName: item.name
+                })
                 return
             }
-            // Optimistically mark as owned so UI updates immediately (server sync will overwrite with canonical state)
-            const pendingId = getBackgroundKey(pending)
-            const alreadyOwned = ownedItems.some(
-                (it) =>
-                    String(it.itemId).toLowerCase() === pendingId.toLowerCase() &&
-                    ["background", "backgrounds"].includes(String(it.itemType).toLowerCase())
-            )
-            if (!alreadyOwned) {
-                dispatch(
-                    setOwnedItems([
-                        ...ownedItems,
-                        {
-                            itemId: pendingId,
-                            itemType: "background",
-                            quantity: 1,
-                            itemName: pending.name
-                        }
-                    ])
-                )
+
+            if (mappedCategory === "food") {
+                const cursorUrl = getItemImageUrl("food", item)
+                eventBus.emit(ShopEvents.StartPlacing, {
+                    itemType: "food",
+                    itemId: String((item as FoodItem).displayId),
+                    itemName: item.name,
+                    cursorUrl
+                })
+                return
             }
 
-            // Apply purchased background immediately
-            // Also store optimistic ownership locally (in case server pushes stale inventory right after purchase)
-            setOptimisticOwnedBackgroundKeys((prev) => {
-                const next = new Set(prev)
-                getPurchaseItemIds(pending).forEach((k) => next.add(String(k).toLowerCase()))
-                return next
-            })
-
-            handleChangeBackground(pending)
-
-            // Refresh state with delay to avoid racing against server inventory update
-            setTimeout(() => {
-                eventBus.emit(ColyseusActionEvents.RequestPlayerState, {})
-                eventBus.emit(ColyseusActionEvents.GetInventory, {})
-            }, 800)
-            setTimeout(() => {
-                eventBus.emit(ColyseusActionEvents.RequestPlayerState, {})
-                eventBus.emit(ColyseusActionEvents.GetInventory, {})
-            }, 1800)
-
-            pendingBackgroundPurchaseRef.current = null
-            setPendingBackgroundPurchaseId(null)
-        }
-
-        eventBus.on(ColyseusMessageEvents.PurchaseResponse, onPurchaseResponse)
-        eventBus.on(ColyseusMessageEvents.PurchaseItemResponse, onPurchaseResponse)
-
-        return () => {
-            eventBus.off(ColyseusMessageEvents.PurchaseResponse, onPurchaseResponse)
-            eventBus.off(ColyseusMessageEvents.PurchaseItemResponse, onPurchaseResponse)
-        }
-    }, [dispatch, getBackgroundKey, getPurchaseItemIds, handleChangeBackground, ownedItems])
-
-    const handleBuy = (item: ShopItem) => {
-        const mappedCategory =
-            category === "backgrounds"
-                ? "background"
-                : category === "pets"
-                  ? "pet"
-                  : (category as "food" | "toy" | "clean" | "furniture")
-
-        if (category === "pets") {
-            const petType = (item as PetItem).texture || item.name
-            eventBus.emit(ShopEvents.BuyPet, {
-                petType,
-                petId: String((item as PetItem).displayId),
-                petName: item.name
-            })
-            return
-        }
-
-        if (mappedCategory === "food") {
-            const cursorUrl = getUrl(getItemImageSrc("food", item))
-            eventBus.emit(ShopEvents.StartPlacing, {
-                itemType: "food",
-                itemId: String((item as FoodItem).displayId),
-                itemName: item.name,
-                cursorUrl
-            })
-            return
-        }
-
-        if (mappedCategory === "toy") {
-            const cursorUrl = getUrl(getItemImageSrc("toy", item))
-            eventBus.emit(ShopEvents.StartPlacing, {
-                itemType: "toy",
-                itemId: String((item as ToyItem).id || (item as ToyItem).displayId.toLocaleLowerCase()),
-                itemName: item.name,
-                cursorUrl
-            })
-            return
-        }
-
-        if (mappedCategory === "clean") {
-            const cursorUrl = getUrl(getItemImageSrc("clean", item))
-            createResizedCursor(
-                cursorUrl,
-                64,
-                (resizedUrl) => {
-                    eventBus.emit(ShopEvents.StartPlacing, {
-                        itemType: "clean",
-                        itemId: String(
-                            (item as CleaningItem).id || (item as CleaningItem).displayId.toLocaleLowerCase()
-                        ),
-                        itemName: item.name,
-                        cursorUrl: resizedUrl
-                    })
-                },
-                { frameWidth: 74, frameIndex: 0 }
-            )
-            return
-        }
-
-        // Immediate purchase: furniture
-        if (mappedCategory === "furniture") {
-            eventBus.emit(ShopEvents.BuyFurniture, {
-                itemType: "furniture",
-                itemId: String(item.id),
-                itemName: item.name
-            })
-            return
-        }
-
-        if (mappedCategory === "background") {
-            // Prevent double-purchase spam while a background purchase is pending
-            if (pendingBackgroundPurchaseId) return
-
-            // Background UX: purchase then auto-apply right after server confirms
-            setPendingBackgroundPurchaseId(getBackgroundKey(item as BackgroundItem))
-
-            // #region agent log - background buy click (H3)
-            fetch("http://127.0.0.1:7242/ingest/41c2262e-bac6-412a-ad1a-6eaf19df1dc8", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    sessionId: "debug-session",
-                    runId: "run1",
-                    hypothesisId: "H3",
-                    location: "GameShopPage:handleBuy",
-                    message: "background buy clicked",
-                    data: {
-                        bgKey: getBackgroundKey(item as BackgroundItem),
-                        itemId: (item as BackgroundItem).id,
-                        displayId: (item as BackgroundItem).displayId,
-                        pendingBackgroundPurchaseId
-                    },
-                    timestamp: Date.now()
+            if (mappedCategory === "toy") {
+                const cursorUrl = getItemImageUrl("toy", item)
+                eventBus.emit(ShopEvents.StartPlacing, {
+                    itemType: "toy",
+                    itemId: String((item as ToyItem).id || (item as ToyItem).displayId.toLocaleLowerCase()),
+                    itemName: item.name,
+                    cursorUrl
                 })
-            }).catch(() => {})
-            // #endregion
+                return
+            }
 
-            pendingBackgroundPurchaseRef.current = item as BackgroundItem
-            eventBus.emit(ShopEvents.BuyBackground, {
-                itemType: "background",
-                itemId: String(item.id),
-                itemName: item.name
-            })
-            return
-        }
-    }
+            if (mappedCategory === "clean") {
+                const cursorUrl = getItemImageUrl("clean", item)
+                createResizedCursor(
+                    cursorUrl,
+                    64,
+                    (resizedUrl) => {
+                        eventBus.emit(ShopEvents.StartPlacing, {
+                            itemType: "clean",
+                            itemId: String(
+                                (item as CleaningItem).id || (item as CleaningItem).displayId.toLocaleLowerCase()
+                            ),
+                            itemName: item.name,
+                            cursorUrl: resizedUrl
+                        })
+                    },
+                    { frameWidth: 74, frameIndex: 0 }
+                )
+                return
+            }
 
-    const handleClose = () => {
+            // Immediate purchase: furniture
+            if (mappedCategory === "furniture") {
+                eventBus.emit(ShopEvents.BuyFurniture, {
+                    itemType: "furniture",
+                    itemId: String(item.id),
+                    itemName: item.name
+                })
+                return
+            }
+
+            if (mappedCategory === "background") {
+                // Prevent double-purchase spam while a background purchase is pending
+                if (pendingBackgroundPurchaseId) return
+
+                // Background UX: purchase then auto-apply right after server confirms
+                setPendingBackground(item as BackgroundItem)
+                eventBus.emit(ShopEvents.BuyBackground, {
+                    itemType: "background",
+                    itemId: String(item.id),
+                    itemName: item.name
+                })
+                return
+            }
+        },
+        [category, getItemImageUrl, pendingBackgroundPurchaseId, setPendingBackground]
+    )
+
+    const handleClose = useCallback(() => {
         eventBus.emit(ShopEvents.CloseShop)
-    }
+    }, [])
+
+    const handleItemClick = useCallback(
+        (item: ShopItem, isBackground: boolean, owned: boolean) => {
+            // If background and owned, allow clicking to change background
+            if (isBackground && owned) {
+                handleChangeBackground(item as BackgroundItem)
+                return
+            }
+            // For other items or unowned items, use normal buy flow
+            if (owned) return
+            handleBuy(item)
+        },
+        [handleBuy, handleChangeBackground]
+    )
 
     return (
         <NomasCard variant={NomasCardVariant.Gradient} isContainer>
             <NomasCardBody className="relative w-full min-h-[500px]">
                 <div className="w-full h-full bg-card-dark-3 flex flex-col radius-card-inner">
-                    {/* Header */}
-                    <div className="relative bg-card-dark-4 px-3 py-2 border-b border-muted rounded-t-(--card-radius-inner)">
-                        {/* Back/Close Button */}
-                        <button
-                            onClick={handleClose}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-card-dark-5 rounded-full flex items-center justify-center border-none cursor-pointer hover:bg-card-dark-6 transition-colors"
-                        >
-                            <svg
-                                className="w-3.5 h-3.5 text-muted"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
-                        </button>
-
-                        {/* Title/Logo */}
-                        <div className="flex items-center justify-center">
-                            <NomasImage
-                                src={assets.petRisingStoreLogo}
-                                alt="Pet Rising Store Logo"
-                                className="h-9 w-auto object-contain"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Balance Section */}
-                    <div className="bg-card-dark-4 px-2 py-1 border-b border-muted">
-                        <div className="flex items-center justify-between gap-1.5">
-                            <div className="flex items-center gap-2">
-                                <div>
-                                    <div className="text-xstext-text-muted pl-1">Balance</div>
-                                    <NomasInput
-                                        value={balance.toLocaleString()}
-                                        prefixIcon={<NomasImage src={assets.nomasCoin} alt="NOM" className="w-3 h-3" />}
-                                        currency="NOM"
-                                        numericOnly
-                                        readOnly
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Tabs Section */}
-                    <div className="bg-card-dark-3 px-4 py-3 border-b border-muted shrink-0">
-                        <ScrollArea className="w-full">
-                            <div ref={tabsContainerRef} className="relative flex gap-2 overflow-x-auto">
-                                {[
-                                    { k: "pets", t: "Pets" },
-                                    { k: "food", t: "Food" },
-                                    { k: "toy", t: "Toys" },
-                                    { k: "clean", t: "Cleaning" },
-                                    { k: "furniture", t: "Furniture" },
-                                    { k: "backgrounds", t: "Backgrounds" }
-                                ].map((tab) => (
-                                    <button
-                                        key={tab.k}
-                                        data-key={tab.k}
-                                        onClick={() => setCategory(tab.k)}
-                                        className={`px-3 py-1.5 rounded-[30px] text-sm font-medium whitespace-nowrap shrink-0
-                           transition-all duration-200 ${
-                               category === tab.k
-                                   ? "bg-accent-purple text"
-                                   : "bg-transparent text-muted hover:text-muted-hover"
-                           }`}
-                                    >
-                                        {tab.t}
-                                    </button>
-                                ))}
-                            </div>
-                        </ScrollArea>
-                    </div>
-
-                    {/* Items Grid */}
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="p-4">
-                            {items.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-16 text-center">
-                                    <div className="w-20 h-20 bg-card-dark-4 rounded-2xl flex items-center justify-center mb-4">
-                                        <span className="text-4xl">📦</span>
-                                    </div>
-                                    <h3 className="text-xl font-semibold text mb-2">Items Coming Soon!</h3>
-                                    <p className="text-muted">New items will be added regularly</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-3 gap-2">
-                                    {items.map((item) => {
-                                        const owned = isItemOwned(item)
-                                        const itemType = detectItemType(item)
-                                        const isBackground = itemType === "background" || itemType === "backgrounds"
-                                        const isPendingBackground =
-                                            isBackground &&
-                                            pendingBackgroundPurchaseId === getBackgroundKey(item as BackgroundItem)
-                                        const isActiveBackground =
-                                            isBackground &&
-                                            owned &&
-                                            currentBackgroundId === getBackgroundKey(item as BackgroundItem)
-                                        return (
-                                            <div
-                                                key={item.id}
-                                                onClick={() => {
-                                                    if (isPendingBackground) return
-                                                    // If background and owned, allow clicking to change background
-                                                    if (isBackground && owned) {
-                                                        handleChangeBackground(item as BackgroundItem)
-                                                        return
-                                                    }
-                                                    // For other items or unowned items, use normal buy flow
-                                                    if (owned) return
-                                                    handleBuy(item)
-                                                }}
-                                                className={`group bg-shop-item border rounded-[14px] px-1.5 py-2 flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-shop-item hover:bg-shop-item-hover transition-all duration-200 ${
-                                                    isActiveBackground
-                                                        ? "border-accent-purple border-2"
-                                                        : "border-shop-item"
-                                                }`}
-                                                style={{
-                                                    opacity: isPendingBackground
-                                                        ? 0.7
-                                                        : owned && !isActiveBackground
-                                                          ? 0.5
-                                                          : 1,
-                                                    cursor: isPendingBackground
-                                                        ? "progress"
-                                                        : owned && !isBackground
-                                                          ? "not-allowed"
-                                                          : isActiveBackground
-                                                            ? "pointer"
-                                                            : "pointer"
-                                                }}
-                                            >
-                                                {/* Item Image */}
-                                                <div className="w-10 h-10 overflow-hidden rounded-lg flex items-center justify-center">
-                                                    <img
-                                                        src={getUrl(getItemImageSrc(category, item))}
-                                                        className="w-full h-full object-cover object-[0%_50%]"
-                                                        style={{
-                                                            // For cleaning sprite sheets, show only leftmost section
-                                                            maxWidth:
-                                                                category === "clean" || detectItemType(item) === "clean"
-                                                                    ? "calc(100% * 6)"
-                                                                    : "100%",
-                                                            transform:
-                                                                category === "clean" || detectItemType(item) === "clean"
-                                                                    ? "translateX(0)"
-                                                                    : "none"
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                {/* Item Info */}
-                                                <div className="font-semibold text-[13px] text-muted text-center">
-                                                    {item.name}
-                                                </div>
-                                                <div className="text-xs text-muted flex items-center gap-1">
-                                                    <span>{Number(item.cost_nom ?? 0).toLocaleString()} NOM</span>
-                                                    {isActiveBackground && (
-                                                        <span className="text-[10px] text-accent-purple font-semibold">
-                                                            (Active)
-                                                        </span>
-                                                    )}
-                                                    {isPendingBackground && (
-                                                        <span className="text-[10px] text-accent-amber font-semibold">
-                                                            (Purchasing...)
-                                                        </span>
-                                                    )}
-                                                    {owned && !isActiveBackground && (
-                                                        <span className="text-[10px] text-green-300">(Owned)</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    </ScrollArea>
+                    <ShopHeader assets={assets} onClose={handleClose} />
+                    <ShopBalance balance={balance} assets={assets} />
+                    <ShopTabs category={category} setCategory={setCategory} />
+                    <ShopGrid
+                        items={items}
+                        category={category}
+                        isItemOwned={isItemOwned}
+                        detectItemType={detectItemType}
+                        getBackgroundKey={getBgKey}
+                        getItemImageUrl={getItemImageUrl}
+                        currentBackgroundId={currentBackgroundId}
+                        pendingBackgroundPurchaseId={pendingBackgroundPurchaseId}
+                        onItemClick={handleItemClick}
+                    />
                 </div>
             </NomasCardBody>
         </NomasCard>
