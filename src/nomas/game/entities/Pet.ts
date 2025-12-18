@@ -343,7 +343,7 @@ export class Pet {
         this.scene.anims.create({
             key: animationKey,
             frames,
-            frameRate: 10,
+            frameRate: 9,
             repeat: 1
         })
 
@@ -409,21 +409,48 @@ export class Pet {
     }
 
     private createIdleAnimation() {
-        // For now, idle uses walk animation
-        // This can be expanded later if pets have specific idle animations
         const textureKey = this.getTextureKey("idle")
         const animationKey = this.getAnimationKey("idle")
+        const loopAnimationKey = this.getAnimationKey("idle-loop")
 
         // Use first frame of walk as idle
+        const frames = []
+        let maxFrames = 4 // Default fallback
+        switch (this.petType) {
+            case "chog":
+                maxFrames = 4
+                break
+            case "keonedog":
+                maxFrames = 4
+                break
+            case "ghost":
+                maxFrames = 4
+                break
+            case "zombie":
+                maxFrames = 4
+                break
+            case "bird":
+                maxFrames = 4
+        }
+
+        for (let i = 0; i < maxFrames; i++) {
+            frames.push({
+                key: textureKey,
+                frame: this.getFrameKey("idle", i)
+            })
+        }
+
         this.scene.anims.create({
             key: animationKey,
-            frames: [
-                {
-                    key: textureKey,
-                    frame: this.getFrameKey("idle", 0)
-                }
-            ],
-            frameRate: 1,
+            frames,
+            frameRate: 6,
+            repeat: 1
+        })
+
+        this.scene.anims.create({
+            key: loopAnimationKey,
+            frames,
+            frameRate: 6,
             repeat: -1
         })
     }
@@ -616,6 +643,14 @@ export class Pet {
                     this.sprite.play(this.getAnimationKey("shit-loop"))
                 } else {
                     this.sprite.play(this.getAnimationKey("shit"))
+                }
+                this.isMoving = false
+                break
+            case "idle":
+                if (this.isUserControlled) {
+                    this.sprite.play(this.getAnimationKey("idle-loop"))
+                } else {
+                    this.sprite.play(this.getAnimationKey("idle"))
                 }
                 this.isMoving = false
                 break
